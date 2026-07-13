@@ -82,7 +82,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 50
   m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
   m_Color: {r: 0.78867924, g: 0.2723175, b: 0.2723175, a: 1}
   m_FlipX: 0
@@ -150,7 +150,7 @@ MonoBehaviour:
   bulletPrefab: {fileID: 8106306527046521838, guid: 51fe87a69a1529243b50cd2048b2b20a, type: 3}
   vfxMuzzlePrefab: {fileID: 0}
   sfxShootPrefab: {fileID: 0}
-  bulletSpeed: 10
+  bulletSpeed: 60
   fireRate: 0.2
 --- !u!114 &461984910260227337
 MonoBehaviour:
@@ -320,7 +320,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 49
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
   m_Color: {r: 0.4716981, g: 0.4716981, b: 0.4716981, a: 1}
   m_FlipX: 0

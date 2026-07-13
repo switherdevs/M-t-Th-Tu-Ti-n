@@ -6,19 +6,28 @@ public class Player : MonoBehaviour
 {
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float sprintSpeed = 9f;
 
     private Rigidbody2D rb;
     private Vector2 moveInput;
-    private Camera mainCam; // Tối ưu: cache camera lại
+    private Camera mainCam;
+
+    private bool isSprinting = false;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        mainCam = Camera.main; // Gán 1 lần duy nhất lúc khởi tạo
+        mainCam = Camera.main;
 
         rb.gravityScale = 0f;
-        rb.linearDamping = 0f;
+
+        // TỐI ƯU VẬT LÝ: Để lực cản vừa phải để phanh tự nhiên khi va chạm
+        rb.linearDamping = 2f;
+
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        // CHỐNG RUNG/GIẬT: Chuyển chế độ nội suy vật lý sang Interpolate để di chuyển mượt với Camera
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -26,16 +35,50 @@ public class Player : MonoBehaviour
         moveInput = context.ReadValue<Vector2>().normalized;
     }
 
+    public void OnSprint(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            isSprinting = true;
+        }
+        else if (context.canceled)
+        {
+            isSprinting = false;
+        }
+    }
+
     void Update()
     {
-        // Xử lý xoay trong Update để đảm bảo mượt mà theo chuyển động chuột
         XoayMatTheoChuot();
     }
 
     void FixedUpdate()
     {
-        // Chỉ xử lý vật lý di chuyển trong FixedUpdate
-        rb.linearVelocity = moveInput * moveSpeed;
+        // 1. Xác định tốc độ hiện tại dựa trên phím Shift
+        float targetSpeed = isSprinting ? sprintSpeed : moveSpeed;
+
+        // 2. Thuật toán di chuyển Dynamic tối ưu:
+        if (moveInput != Vector2.zero)
+        {
+            // Tính toán vận tốc mục tiêu mong muốn
+            Vector2 targetVelocity = moveInput * targetSpeed;
+
+            // Tìm hiệu số giữa vận tốc mong muốn và vận tốc hiện tại của Rigidbody
+            Vector2 velocityChange = targetVelocity - rb.linearVelocity;
+
+            // Áp dụng một lực vừa đủ (Force) để đưa nhân vật đạt vận tốc mục tiêu ngay lập tức
+            // Sử dụng ForceMode2D.Impulse giúp phản hồi bấm nút nhạy bén, không có độ trễ
+            rb.AddForce(velocityChange, ForceMode2D.Impulse);
+        }
+        else
+        {
+            // THUẬT TOÁN PHANH: Khi buông tay hoàn toàn và vận tốc còn rất nhỏ, triệt tiêu hẳn về 0
+            // Điều này giúp nhân vật đứng im hoàn toàn, không bị hiện tượng trượt từ từ (drifting)
+            if (rb.linearVelocity.magnitude < 0.1f)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+        }
     }
 
     private void XoayMatTheoChuot()

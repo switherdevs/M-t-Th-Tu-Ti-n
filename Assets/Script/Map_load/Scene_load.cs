@@ -7,7 +7,12 @@ public class Scene_load : MonoBehaviour
     [SerializeField] private string mainMapName;
     [SerializeField] private string map1Name;
     [SerializeField] private string map2Name;
+    [SerializeField] private GameObject MainUi;
 
+    private void Start()
+    {
+        MainUi.SetActive(false);
+    }
     // Hàm chuyển đến Scene MainMap
     public void MainMaps()
     {
@@ -18,6 +23,15 @@ public class Scene_load : MonoBehaviour
     public void Map1s()
     {
         SceneManager.LoadScene(map1Name);
+    }
+    public void Resume()
+    {
+        MainUi.SetActive(false);
+    }
+
+    public void Bat_MainMenu()
+    {
+        MainUi.SetActive(true);
     }
 
     // Hàm chuyển đến Scene Map2

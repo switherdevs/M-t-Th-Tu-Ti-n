@@ -1,16 +1,22 @@
 fileFormatVersion: 2
-guid: a5f8d4f5b7e914a4f9889a0a601e51fe
+guid: d40a9786748956a4e9e81cad3d30fb74
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1819830194433888264
-    second: Mountain_0
+      213: 3452003437791708593
+    second: Rock_0
   - first:
-      213: -5390007138980725549
-    second: Mountain_1
+      213: 709247535313551666
+    second: Rock_1
   - first:
-      213: 6679328326721774694
-    second: Mountain_2
+      213: 1013366739975189944
+    second: Rock_2
+  - first:
+      213: 8234320154294349295
+    second: Rock_3
+  - first:
+      213: -8452671437627377638
+    second: Rock_4
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -57,7 +63,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 256
+  spritePixelsToUnits: 20
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -106,35 +112,35 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Mountain_0
+      name: Rock_0
       rect:
         serializedVersion: 2
-        x: 20
-        y: 12
-        width: 992
-        height: 1012
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 1
+        y: 0
+        width: 369
+        height: 422
+      alignment: 9
+      pivot: {x: 0.5936659, y: 0.50614274}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8ffec3d741aaeb6e0800000000000000
-      internalID: -1819830194433888264
+      spriteID: 1b5800156daf7ef20800000000000000
+      internalID: 3452003437791708593
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Mountain_1
+      name: Rock_1
       rect:
         serializedVersion: 2
-        x: 994
-        y: 162
-        width: 13
-        height: 25
+        x: 459
+        y: 0
+        width: 369
+        height: 422
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -143,30 +149,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3dcfb388019d235b0800000000000000
-      internalID: -5390007138980725549
+      spriteID: 2318f2820e0c7d900800000000000000
+      internalID: 709247535313551666
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Mountain_2
+      name: Rock_2
       rect:
         serializedVersion: 2
-        x: 999
-        y: 84
-        width: 10
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
+        x: 887
+        y: 0
+        width: 220
+        height: 422
+      alignment: 9
+      pivot: {x: 0.46071294, y: 0.50000006}
+      border: {x: 0, y: 0, z: 1, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 664a47c79bdb1bc50800000000000000
-      internalID: 6679328326721774694
+      spriteID: 8b5ba635ea3301e00800000000000000
+      internalID: 1013366739975189944
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Rock_3
+      rect:
+        serializedVersion: 2
+        x: 1107
+        y: 0
+        width: 369
+        height: 422
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 37, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: feded839d8e264270800000000000000
+      internalID: 8234320154294349295
       vertices: []
       indices: 
       edges: []
@@ -175,7 +203,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: b4821165ab4facd43bdc6a5cacf3adef
     internalID: 0
     vertices: []
     indices: 
@@ -185,9 +213,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Mountain_0: -1819830194433888264
-      Mountain_1: -5390007138980725549
-      Mountain_2: 6679328326721774694
+      Rock_0: 3452003437791708593
+      Rock_1: 709247535313551666
+      Rock_2: 1013366739975189944
+      Rock_3: 8234320154294349295
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

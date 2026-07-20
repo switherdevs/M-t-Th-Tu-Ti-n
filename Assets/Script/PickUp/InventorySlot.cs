@@ -1,7 +1,8 @@
 using System;
 using UnityEngine;
 
-namespace InventorySystem
+// ĐẢM BẢO CHÍNH XÁC NAMESPACE NÀY
+namespace InventorySystem.UI
 {
     [Serializable]
     public class InventorySlot
@@ -37,6 +38,7 @@ namespace InventorySystem
             return false;
         }
 
+        // Đảm bảo có hàm này với phạm vi truy cập là public
         public void Add(ItemData newItem, int amount)
         {
             if (IsEmpty())
@@ -52,6 +54,7 @@ namespace InventorySystem
             }
         }
 
+        // Đảm bảo có hàm này với phạm vi truy cập là public
         public void Remove(int amount)
         {
             if (IsEmpty()) return;

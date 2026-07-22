@@ -101,8 +101,8 @@ namespace InventorySystem.UI
             inventoryPanel.SetActive(false);
 
             // Ẩn chuột đi và khóa tâm lại
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
 
             // Phát Event báo hiệu trả lại quyền điều khiển tự do cho Player
             OnInventoryToggleState?.Invoke(false);

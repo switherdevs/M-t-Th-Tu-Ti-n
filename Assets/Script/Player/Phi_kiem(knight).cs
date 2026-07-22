@@ -23,5 +23,6 @@ public class PhiKiem : MonoBehaviour
             // Có thể thêm hiệu ứng nổ/chạm kiếm ở đây
             Destroy(gameObject);
         }
+
     }
 }

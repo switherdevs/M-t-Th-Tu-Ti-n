@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 2536939092124851327}
   - component: {fileID: 6335035127653870276}
   - component: {fileID: 7203826478942902169}
-  - component: {fileID: 451139087249499877}
   - component: {fileID: 48603072204280625}
   m_Layer: 7
   m_Name: player
@@ -271,22 +270,6 @@ MonoBehaviour:
   m_DefaultActionMap: 
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &451139087249499877
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2345805083975770352}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e27d92419188f7d42bb7c6fdd7c1a516, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inventorySize: 24
-  slots:
-  - itemData: {fileID: 11400000, guid: 222e0b7f7a0f1504fbf2bbe3c6148c19, type: 2}
-    quantity: 99
 --- !u!114 &48603072204280625
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -342,7 +325,6 @@ GameObject:
   m_Component:
   - component: {fileID: 838311231789471747}
   - component: {fileID: 8294323365433785256}
-  - component: {fileID: 3301356887034812010}
   m_Layer: 0
   m_Name: PickUp
   m_TagString: Untagged
@@ -401,23 +383,6 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 1.5
---- !u!114 &3301356887034812010
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8421651742606263031}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 545712c321faa094daa3d83e3fa2ce2c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerInventory: {fileID: 451139087249499877}
-  pickupKey: 102
-  itemLayer:
-    serializedVersion: 2
-    m_Bits: 256
 --- !u!1 &9056161676557200931
 GameObject:
   m_ObjectHideFlags: 0

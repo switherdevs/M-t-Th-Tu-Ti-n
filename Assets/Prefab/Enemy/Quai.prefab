@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 9103379324179401722}
   - component: {fileID: 6592966023989999674}
   - component: {fileID: 2862251238153341888}
+  - component: {fileID: 894200661237544832}
+  - component: {fileID: 8558673371468533589}
   m_Layer: 0
   m_Name: Quai
   m_TagString: Enemy
@@ -176,3 +178,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyMoveSpeed: 5
+--- !u!114 &894200661237544832
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8102544583573481736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3199c01fdd758e4499cfa3d1cf1c0550, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth:
+    baseValue: 100
+  attack:
+    baseValue: 20
+  defense:
+    baseValue: 0.1
+  currentHealth: 0
+--- !u!114 &8558673371468533589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8102544583573481736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25c754fe70f09834990cc9f682480427, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

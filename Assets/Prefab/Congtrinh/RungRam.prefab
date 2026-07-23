@@ -171,6 +171,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 853034474198179236}
     m_Modifications:
+    - target: {fileID: 1561797035683224806, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnClickThuChach
+      objectReference: {fileID: 0}
     - target: {fileID: 1593756610963699976, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
       propertyPath: m_Name
       value: Congtrinh_Ui_press

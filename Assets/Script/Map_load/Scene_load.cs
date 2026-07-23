@@ -8,6 +8,8 @@ public class Scene_load : MonoBehaviour
     [SerializeField] private string map1Name;
     [SerializeField] private string map2Name;
     [SerializeField] private string Kinhthanhs;
+    [SerializeField] private string VeMenu;
+
 
     [SerializeField] private GameObject MainUi;
 
@@ -36,6 +38,12 @@ public class Scene_load : MonoBehaviour
     {
 
         SceneManager.LoadScene(Kinhthanhs);
+    }
+
+    public void VeMenues()
+    {
+
+        SceneManager.LoadScene(VeMenu);
     }
 
     public void Resume()

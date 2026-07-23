@@ -1,3 +1,5 @@
+using StatsSystem.Components;
+using StatsSystem.Core;
 using UnityEngine;
 
 public class TanCong : MonoBehaviour
@@ -12,14 +14,19 @@ public class TanCong : MonoBehaviour
     [SerializeField] private float bulletSpeed = 10f;     // Tốc độ bay của kiếm
     [SerializeField] private float fireRate = 0.2f;       // Khoảng cách giây giữa 2 lần bắn (Tốc độ sấy đạn)
 
+    [Header("Hệ Thống Quản Lý Kỹ Năng")]
+    [SerializeField] private PlayerSkillManager skillManager;
+
     private Vector2 mousePosition;  // Vị trí chuột trong thế giới 2D
     private float nextFireTime = 0f; // Biến tạm để tính toán thời gian được bắn phát tiếp theo
     private Camera mainCam;         // Biến lưu trữ Camera để tối ưu hiệu năng
+    private CharacterStats myStats;
 
     void Awake()
     {
         // Tối ưu: Lưu Camera lại một lần duy nhất lúc khởi tạo để tránh dùng Camera.main gây lag
         mainCam = Camera.main;
+        myStats = GetComponent<CharacterStats>();
     }
 
     void Update()
@@ -56,13 +63,17 @@ public class TanCong : MonoBehaviour
         PhiKiem scriptKiem = kiem.GetComponent<PhiKiem>();
         if (scriptKiem != null)
         {
-            scriptKiem.Setup(direction); // Gọi hàm xoay mũi kiếm trúng hướng chuột
+            scriptKiem.Setup(direction, myStats); // Gọi hàm xoay mũi kiếm trúng hướng chuột
         }
 
         Rigidbody2D rbKiem = kiem.GetComponent<Rigidbody2D>();
         if (rbKiem != null)
         {
             rbKiem.linearVelocity = direction * bulletSpeed; // Truyền lực đẩy kiếm bay đi
+        }
+        if (skillManager != null)
+        {
+            skillManager.TriggerAllSkills(shootPoint, direction);
         }
 
         // Tự động hủy viên đạn sau 3 giây để tránh tràn bộ nhớ

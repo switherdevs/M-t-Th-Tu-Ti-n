@@ -1321,7 +1321,7 @@ Transform:
   m_GameObject: {fileID: 971238372}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.791029, y: -0.0000033080578, z: 0}
+  m_LocalPosition: {x: 3.431841, y: -0.0000033080578, z: 0}
   m_LocalScale: {x: 1, y: 1, z: -10}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1617,6 +1617,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7875706750737541639, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8465425900940042950, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1848,6 +1856,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 235780118950789501, guid: 24c862251cbdc32448c9e96d02c1f50e, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1646002668900684831, guid: 24c862251cbdc32448c9e96d02c1f50e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 7.9533815
@@ -1888,9 +1900,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1890201689350031218, guid: 24c862251cbdc32448c9e96d02c1f50e, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -521.76
+      objectReference: {fileID: 0}
+    - target: {fileID: 1890201689350031218, guid: 24c862251cbdc32448c9e96d02c1f50e, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -280.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 4594367081758419056, guid: 24c862251cbdc32448c9e96d02c1f50e, type: 3}
+      propertyPath: hideOnDeath
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8102544583573481736, guid: 24c862251cbdc32448c9e96d02c1f50e, type: 3}
       propertyPath: m_Name
       value: Quai
+      objectReference: {fileID: 0}
+    - target: {fileID: 8288011046840928353, guid: 24c862251cbdc32448c9e96d02c1f50e, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

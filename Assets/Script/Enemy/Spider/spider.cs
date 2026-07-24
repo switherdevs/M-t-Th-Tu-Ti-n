@@ -29,7 +29,6 @@ public class SpiderEnemy : MonoBehaviour
 
     private void Start()
     { 
-        if(animator != null)
         animator = GetComponent<Animator>();
     }
 

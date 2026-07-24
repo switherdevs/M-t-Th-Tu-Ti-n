@@ -3720,10 +3720,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7185315144967521851, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
       propertyPath: m_LinearDamping
-      value: 2
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7185315144967521851, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
+      propertyPath: m_AngularDamping
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 7799041906443252430, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
       propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7875706750737541639, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
+      propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8294323365433785256, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}

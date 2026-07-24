@@ -57,28 +57,8 @@ public class Player : MonoBehaviour
         // 1. Xác định tốc độ hiện tại dựa trên phím Shift
         float targetSpeed = isSprinting ? sprintSpeed : moveSpeed;
 
-        // 2. Thuật toán di chuyển Dynamic tối ưu:
-        if (moveInput != Vector2.zero)
-        {
-            // Tính toán vận tốc mục tiêu mong muốn
-            Vector2 targetVelocity = moveInput * targetSpeed;
-
-            // Tìm hiệu số giữa vận tốc mong muốn và vận tốc hiện tại của Rigidbody
-            Vector2 velocityChange = targetVelocity - rb.linearVelocity;
-
-            // Áp dụng một lực vừa đủ (Force) để đưa nhân vật đạt vận tốc mục tiêu ngay lập tức
-            // Sử dụng ForceMode2D.Impulse giúp phản hồi bấm nút nhạy bén, không có độ trễ
-            rb.AddForce(velocityChange, ForceMode2D.Impulse);
-        }
-        else
-        {
-            // THUẬT TOÁN PHANH: Khi buông tay hoàn toàn và vận tốc còn rất nhỏ, triệt tiêu hẳn về 0
-            // Điều này giúp nhân vật đứng im hoàn toàn, không bị hiện tượng trượt từ từ (drifting)
-            if (rb.linearVelocity.magnitude < 0.1f)
-            {
-                rb.linearVelocity = Vector2.zero;
-            }
-        }
+        // 2. Gán trực tiếp vận tốc để phanh khẩn cấp, triệt tiêu hiện tượng trượt (drifting)
+        rb.linearVelocity = moveInput * targetSpeed;
     }
 
     private void XoayMatTheoChuot()

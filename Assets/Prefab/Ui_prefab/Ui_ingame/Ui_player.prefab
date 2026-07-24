@@ -117,10 +117,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b7a14b4beae4dd43bc3da898d6b2b93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainMapName: 
+  mainMapName: Map_scene
   map1Name: 
   map2Name: 
-  Kinhthanhs: 
+  Kinhthanhs: Kinhthanh
   VeMenu: 
   MainUi: {fileID: 7399692797807908611}
 --- !u!1 &3013311104766938709
@@ -379,7 +379,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2729307462065895238}
         m_TargetAssemblyTypeName: Scene_load, Assembly-CSharp
-        m_MethodName: MainMaps
+        m_MethodName: VeMenues
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -511,7 +511,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 7465624773610462039}
         m_TargetAssemblyTypeName: Scene_load, Assembly-CSharp
-        m_MethodName: MainMaps
+        m_MethodName: Bat_MainMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

@@ -171,9 +171,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8410861699472594443}
     m_Modifications:
+    - target: {fileID: 1561797035683224806, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 9125849334118941294}
+    - target: {fileID: 1561797035683224806, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Kinhthanh
+      objectReference: {fileID: 0}
+    - target: {fileID: 1561797035683224806, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Scene_load, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 1593756610963699976, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
       propertyPath: m_Name
       value: Congtrinh_Ui_press
+      objectReference: {fileID: 0}
+    - target: {fileID: 3936983237934018228, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_text
+      value: Enter Citadel
+      objectReference: {fileID: 0}
+    - target: {fileID: 3936983237934018228, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_fontSize
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 3936983237934018228, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 4156842070033677754, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
       propertyPath: m_Pivot.x
@@ -255,10 +279,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7497126759324814206, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 141.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7497126759324814206, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -59.4
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1593756610963699976, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9125849334118941294}
   m_SourcePrefab: {fileID: 100100000, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
 --- !u!224 &6343326803344455450 stripped
 RectTransform:
@@ -270,3 +305,21 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1593756610963699976, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
   m_PrefabInstance: {fileID: 7041404166166465184}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &9125849334118941294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8621647778812343208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b7a14b4beae4dd43bc3da898d6b2b93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainMapName: 
+  map1Name: 
+  map2Name: 
+  Kinhthanhs: Kinhthanh
+  VeMenu: 
+  MainUi: {fileID: 0}

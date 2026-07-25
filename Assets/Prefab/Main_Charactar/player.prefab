@@ -35,7 +35,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4939676197556815829}
@@ -677,7 +677,7 @@ Transform:
   m_GameObject: {fileID: 7799041906443252430}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.12, y: 2.64, z: 0}
+  m_LocalPosition: {x: 1.27, y: 2.64, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -838,6 +838,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Lamphong
       objectReference: {fileID: 0}
+    - target: {fileID: -8466206217398351134, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
+      propertyPath: m_SortingOrder
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.5
@@ -893,6 +897,26 @@ PrefabInstance:
     - target: {fileID: -7552582706839291426, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
       propertyPath: m_ConstrainProportionsScale
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -5879145628454137609, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
+      propertyPath: m_SortingOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: -5297780614139375432, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
+      propertyPath: m_SortingOrder
+      value: 65
+      objectReference: {fileID: 0}
+    - target: {fileID: -157499465478348717, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
+      propertyPath: m_SortingOrder
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 933442994831899223, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
+      propertyPath: m_SortingOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6100894345243170053, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
+      propertyPath: m_SortingOrder
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6273134611549018638, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
       propertyPath: m_SortingOrder

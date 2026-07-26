@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 48603072204280625}
   - component: {fileID: 1713447433952917287}
   - component: {fileID: 8254536555419453987}
+  - component: {fileID: 648809117014693092}
   m_Layer: 7
   m_Name: player
   m_TagString: Player
@@ -133,8 +134,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.4011004}
-  m_Size: {x: 1, y: 2.8022008}
+  m_Offset: {x: -0.112677336, y: 0.8614558}
+  m_Size: {x: 2.0621772, y: 3.7229116}
   m_Direction: 0
 --- !u!50 &7185315144967521851
 Rigidbody2D:
@@ -177,6 +178,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 20
   sprintSpeed: 30
+  walkAnimName: IsWalking
+  walkBackAnimName: IsWalkingBack
+  sprintAnimName: IsSprinting
+  sprintBackAnimName: IsSprintingBack
+  attackAnimName: 
 --- !u!114 &6335035127653870276
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -195,6 +201,7 @@ MonoBehaviour:
   sfxShootPrefab: {fileID: 0}
   bulletSpeed: 50
   fireRate: 0.2
+  shootAnimName: Attack
   skillManager: {fileID: 8254536555419453987}
 --- !u!114 &7203826478942902169
 MonoBehaviour:
@@ -321,6 +328,113 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   equippedSkills:
   - {fileID: 11400000, guid: 620ca39ef22acbb4e8bcc3c59339394d, type: 2}
+--- !u!96 &648809117014693092
+TrailRenderer:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2345805083975770352}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 0
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 421b196a72681834e901b6741b750821, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 7
+  m_Time: 1
+  m_PreviewTimeScale: 1
+  m_Parameters:
+    serializedVersion: 3
+    widthMultiplier: 5
+    widthCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 1
+        value: 0.099121094
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    colorGradient:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 0}
+      key2: {r: 0, g: 0, b: 0, a: 1}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 63453
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: 0
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    numCornerVertices: 50
+    numCapVertices: 20
+    alignment: 0
+    textureMode: 0
+    textureScale: {x: 1, y: 1}
+    shadowBias: 0.5
+    generateLightingData: 0
+  m_MinVertexDistance: 0.1
+  m_MaskInteraction: 0
+  m_Autodestruct: 0
+  m_Emitting: 1
+  m_ApplyActiveColorSpace: 1
 --- !u!1 &2501647964397127193
 GameObject:
   m_ObjectHideFlags: 0
@@ -838,6 +952,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Lamphong
       objectReference: {fileID: 0}
+    - target: {fileID: -8653719598885068355, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: -8466206217398351134, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
       propertyPath: m_SortingOrder
       value: 6
@@ -872,15 +990,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -904,7 +1022,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -5297780614139375432, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
       propertyPath: m_SortingOrder
-      value: 65
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -735190391300339002, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -157499465478348717, guid: 8a2a75b0bdb4e1d4da255519c967e172, type: 3}
       propertyPath: m_SortingOrder

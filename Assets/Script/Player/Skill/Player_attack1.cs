@@ -14,6 +14,9 @@ public class TanCong : MonoBehaviour
     [SerializeField] private float bulletSpeed = 10f;     // Tốc độ bay của kiếm
     [SerializeField] private float fireRate = 0.2f;       // Khoảng cách giây giữa 2 lần bắn (Tốc độ sấy đạn)
 
+    [Header("Cấu Hình Animation Bắn")]
+    [SerializeField] private string shootAnimName = "Attack"; // Tên Trigger Animation bắn
+
     [Header("Hệ Thống Quản Lý Kỹ Năng")]
     [SerializeField] private PlayerSkillManager skillManager;
 
@@ -21,26 +24,48 @@ public class TanCong : MonoBehaviour
     private float nextFireTime = 0f; // Biến tạm để tính toán thời gian được bắn phát tiếp theo
     private Camera mainCam;         // Biến lưu trữ Camera để tối ưu hiệu năng
     private CharacterStats myStats;
+    private Animator anim;
+    private int shootAnimHash;
 
     void Awake()
     {
-        // Tối ưu: Lưu Camera lại một lần duy nhất lúc khởi tạo để tránh dùng Camera.main gây lag
+        // Tối ưu: Lưu Camera lại một lần duy nhất lúc khởi tạo
         mainCam = Camera.main;
         myStats = GetComponent<CharacterStats>();
+
+        // Tự động tìm Animator trên chính nó hoặc trên GameObject con
+        anim = GetComponentInChildren<Animator>();
+
+        // Khởi tạo Mã Hash cho Animation bắn
+        if (!string.IsNullOrEmpty(shootAnimName))
+        {
+            shootAnimHash = Animator.StringToHash(shootAnimName);
+        }
+    }
+
+    // Thuật toán kiểm tra an toàn xem Animator có Parameter đó không
+    private bool HasParameter(int paramHash)
+    {
+        if (anim == null) return false;
+        foreach (AnimatorControllerParameter param in anim.parameters)
+        {
+            if (param.nameHash == paramHash) return true;
+        }
+        return false;
     }
 
     void Update()
     {
-        // 1. LẤY VỊ TRÍ CHUỘT KIỂU LEGACY: Đọc tọa độ chuột và chuyển sang thế giới 2D
+        // 1. LẤY VỊ TRÍ CHUỘT KIỂU LEGACY DÙNG CHUẨN ĐỘ SÂU CAMERA
         if (mainCam != null)
         {
-            Vector3 mouseWorldPos = mainCam.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 screenMousePos = Input.mousePosition;
+            screenMousePos.z = -mainCam.transform.position.z; // Gán khoảng cách Z từ Camera đến Plane 2D
+            Vector3 mouseWorldPos = mainCam.ScreenToWorldPoint(screenMousePos);
             mousePosition = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
         }
 
         // 2. KIỂM TRA CLICK VÀ ĐÈ CHUỘT KIỂU LEGACY
-        // Input.GetMouseButton(0): Trả về true LIÊN TỤC khi người dùng đang đè giữ chuột trái (Nút 0)
-        // Time.time >= nextFireTime: Đảm bảo đã hết thời gian hồi chiêu mới cho bắn phát tiếp theo
         if (Input.GetMouseButton(0) && Time.time >= nextFireTime)
         {
             Shoot();
@@ -50,6 +75,12 @@ public class TanCong : MonoBehaviour
 
     private void Shoot()
     {
+        // KÍCH HOẠT ANIMATION BẮN (Không đụng vào anim.speed nữa để tránh làm nhanh chân chạy)
+        if (HasParameter(shootAnimHash))
+        {
+            anim.SetTrigger(shootAnimHash);
+        }
+
         // ĐIỀU KIỆN BẮT BUỘC: Nếu không có điểm bắn hoặc đạn thì dừng ngay để tránh lỗi crash game
         if (shootPoint == null || bulletPrefab == null) return;
 
@@ -63,14 +94,15 @@ public class TanCong : MonoBehaviour
         PhiKiem scriptKiem = kiem.GetComponent<PhiKiem>();
         if (scriptKiem != null)
         {
-            scriptKiem.Setup(direction, myStats); // Gọi hàm xoay mũi kiếm trúng hướng chuột
+            scriptKiem.Setup(direction, myStats);
         }
 
         Rigidbody2D rbKiem = kiem.GetComponent<Rigidbody2D>();
         if (rbKiem != null)
         {
-            rbKiem.linearVelocity = direction * bulletSpeed; // Truyền lực đẩy kiếm bay đi
+            rbKiem.linearVelocity = direction * bulletSpeed;
         }
+
         if (skillManager != null)
         {
             skillManager.TriggerAllSkills(shootPoint, direction);
@@ -79,14 +111,14 @@ public class TanCong : MonoBehaviour
         // Tự động hủy viên đạn sau 3 giây để tránh tràn bộ nhớ
         Destroy(kiem, 3f);
 
-        // HIỆU ỨNG VFX (Kiểm tra nếu người dùng ko bỏ vào = null thì bỏ qua)
+        // HIỆU ỨNG VFX
         if (vfxMuzzlePrefab != null)
         {
             GameObject vfx = Instantiate(vfxMuzzlePrefab, shootPoint.position, Quaternion.identity);
             Destroy(vfx, 1f);
         }
 
-        // ÂM THANH SFX (Kiểm tra nếu người dùng ko bỏ vào = null thì bỏ qua)
+        // ÂM THANH SFX
         if (sfxShootPrefab != null)
         {
             GameObject sfx = Instantiate(sfxShootPrefab, shootPoint.position, Quaternion.identity);

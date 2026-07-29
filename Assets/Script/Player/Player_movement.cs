@@ -10,9 +10,7 @@ public class Player : MonoBehaviour
 
     [Header("Cấu Hình Tên Animation (Có thể đổi tên trên Inspector)")]
     [SerializeField] private string walkAnimName = "IsWalking";
-    [SerializeField] private string walkBackAnimName = "IsWalkingBack";         // Đi lùi
-    [SerializeField] private string sprintAnimName = "IsSprinting";             // Chạy tiến
-    [SerializeField] private string sprintBackAnimName = "IsSprintingBack";     // Chạy lùi
+    [SerializeField] private string sprintAnimName = "IsSprinting";
     [SerializeField] private string attackAnimName = "Attack";
 
     private Rigidbody2D rb;
@@ -27,9 +25,7 @@ public class Player : MonoBehaviour
 
     // Các biến lưu mã Hash của Animation
     private int walkAnimHash;
-    private int walkBackAnimHash;
     private int sprintAnimHash;
-    private int sprintBackAnimHash;
     private int attackAnimHash;
 
     void Awake()
@@ -53,9 +49,7 @@ public class Player : MonoBehaviour
     private void InitAnimationHashes()
     {
         if (!string.IsNullOrEmpty(walkAnimName)) walkAnimHash = Animator.StringToHash(walkAnimName);
-        if (!string.IsNullOrEmpty(walkBackAnimName)) walkBackAnimHash = Animator.StringToHash(walkBackAnimName);
         if (!string.IsNullOrEmpty(sprintAnimName)) sprintAnimHash = Animator.StringToHash(sprintAnimName);
-        if (!string.IsNullOrEmpty(sprintBackAnimName)) sprintBackAnimHash = Animator.StringToHash(sprintBackAnimName);
         if (!string.IsNullOrEmpty(attackAnimName)) attackAnimHash = Animator.StringToHash(attackAnimName);
     }
 
@@ -98,42 +92,21 @@ public class Player : MonoBehaviour
         rb.linearVelocity = moveInput * targetSpeed;
     }
 
-    // Cập nhật trạng thái Animation (Đi tiến/lùi, Chạy tiến/lùi)
+    // Cập nhật trạng thái Animation (Đi bộ / Chạy đơn giản)
     private void UpdateAnimations()
     {
         bool isMoving = moveInput.sqrMagnitude > 0f;
 
-        // TÍCH VÔ HƯỚNG (Dot Product): So sánh Hướng di chuyển phím và Hướng nhìn theo chuột
-        // - Kết quả < 0: Bấm di chuyển ngược chiều hướng nhìn chuột -> Đang đi LÙI
-        bool isMovingBackward = false;
-        if (isMoving)
-        {
-            float dot = Vector2.Dot(moveInput, lookDirection);
-            isMovingBackward = dot < 0f;
-        }
-
-        // 1. Animation Đi Lùi (Không đè Shift)
-        if (HasParameter(walkBackAnimHash))
-        {
-            anim.SetBool(walkBackAnimHash, isMoving && isMovingBackward && !isSprinting);
-        }
-
-        // 2. Animation Đi Bộ Tiến (Không đè Shift)
+        // 1. Animation Đi Bộ (Khi di chuyển và KHÔNG đè Shift)
         if (HasParameter(walkAnimHash))
         {
-            anim.SetBool(walkAnimHash, isMoving && !isMovingBackward && !isSprinting);
+            anim.SetBool(walkAnimHash, isMoving && !isSprinting);
         }
 
-        // 3. Animation Chạy Lùi (Giữ Shift + Di chuyển lùi)
-        if (HasParameter(sprintBackAnimHash))
-        {
-            anim.SetBool(sprintBackAnimHash, isMoving && isMovingBackward && isSprinting);
-        }
-
-        // 4. Animation Chạy Tiến (Giữ Shift + Di chuyển tiến)
+        // 2. Animation Chạy (Khi di chuyển VÀ CÓ đè Shift)
         if (HasParameter(sprintAnimHash))
         {
-            anim.SetBool(sprintAnimHash, isMoving && !isMovingBackward && isSprinting);
+            anim.SetBool(sprintAnimHash, isMoving && isSprinting);
         }
     }
 
@@ -141,48 +114,40 @@ public class Player : MonoBehaviour
     {
         if (mainCam == null) return;
 
-        // BƯỚC TÍNH TỌA ĐỘ CHUỘT CHUẨN TRONG THẾ GIỚI 2D:
+        // Lấy tọa độ chuột chuẩn trong thế giới 2D
         Vector3 mouseScreenPos = Mouse.current.position.ReadValue();
-        mouseScreenPos.z = Mathf.Abs(mainCam.transform.position.z); // Lấy trị tuyệt đối độ sâu Z Camera
+        mouseScreenPos.z = Mathf.Abs(mainCam.transform.position.z);
 
-        // Chuyển sang tọa độ thế giới (World Position)
         Vector3 mouseWorldPos = mainCam.ScreenToWorldPoint(mouseScreenPos);
 
         // Tính Vector hướng từ Nhân vật đến con trỏ chuột
         lookDirection = ((Vector2)mouseWorldPos - (Vector2)transform.position).normalized;
 
-        // BẬT / TẮT FLIP THEO 2 CÁCH (ĐẢM BẢO XOAY TRÍCH ĐỂ):
-
-        // 1. Nếu chuột bên PHẢI mà nhân vật đang nhìn TRÁI -> Đổi hướng sang PHẢI
+        // Lật mặt theo hướng chuột
         if (lookDirection.x > 0f && !isFacingRight)
         {
             FlipCharacter(true);
         }
-        // 2. Nếu chuột bên TRÁI mà nhân vật đang nhìn PHẢI -> Đổi hướng sang TRÁI
         else if (lookDirection.x < 0f && isFacingRight)
         {
             FlipCharacter(false);
         }
     }
 
-    // Thuật toán Lật Nhân Vật Triệt Để (Dùng cả FlipX và LocalScale)
+    // Thuật toán Lật Nhân Vật Triệt Để
     private void FlipCharacter(bool faceRight)
     {
         isFacingRight = faceRight;
 
-        // Cách A: Sử dụng SpriteRenderer FlipX
         if (spriteRenderer != null)
         {
             spriteRenderer.flipX = !faceRight;
         }
 
-        // Cách B: Lật Scale của Đối tượng chứa SpriteRenderer/Animator (Phòng trường hợp Animation bị khóa FlipX)
         Transform targetTransform = (spriteRenderer != null) ? spriteRenderer.transform : transform;
 
-        // Nếu SpriteRenderer nằm trên chính Player GameObject thì dùng cách lật Scale X của con
         if (targetTransform == transform && transform.childCount > 0)
         {
-            // Lật tất cả con của Player
             foreach (Transform child in transform)
             {
                 Vector3 childScale = child.localScale;

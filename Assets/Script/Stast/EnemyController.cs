@@ -28,10 +28,18 @@ namespace StatsSystem.Components
 
         private void HandleDeath()
         {
-            Debug.Log($"{gameObject.name} đã chết! Chuẩn bị biến mất sau 2 giây...");
+            Debug.Log($"{gameObject.name} đã chết!");
 
-            // Bạn có thể tắt Collider / AI Movement ở đây để quái không cản đường nữa
-            // GetComponent<Collider>().enabled = false;
+            // Thử cộng EXP và log ra console
+            if (LevelSystem.Instance != null)
+            {
+                LevelSystem.Instance.AddExp(1f);
+                Debug.Log("<color=green>Đã gọi AddExp thành công!</color>");
+            }
+            else
+            {
+                Debug.LogError("KHÔNG TÌM THẤY LevelSystem.Instance trong Scene!");
+            }
 
             StartCoroutine(DestroyAfterDelay(2f));
         }

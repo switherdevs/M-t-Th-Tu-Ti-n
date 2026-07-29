@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6180000433203381937}
   - component: {fileID: 8635376387161267031}
-  m_Layer: 7
+  - component: {fileID: 7304630746793967922}
+  m_Layer: 5
   m_Name: Slider_Exp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31,6 +32,8 @@ RectTransform:
   m_Children:
   - {fileID: 188597570329504474}
   - {fileID: 6363169830764048622}
+  - {fileID: 6260451691415184127}
+  - {fileID: 2660586220356406556}
   m_Father: {fileID: 5004730955348010553}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -89,6 +92,21 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7304630746793967922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 74972341050679790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b5d59b81e1db4e4299c58ca0fe6b203, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  expSlider: {fileID: 8635376387161267031}
+  levelText: {fileID: 8330789426456031246}
+  expText: {fileID: 4446363115997757813}
 --- !u!1 &1301908866247419864
 GameObject:
   m_ObjectHideFlags: 0
@@ -578,7 +596,7 @@ GameObject:
   - component: {fileID: 188597570329504474}
   - component: {fileID: 7054920933489960532}
   - component: {fileID: 3282491006997054588}
-  m_Layer: 7
+  m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -689,7 +707,7 @@ GameObject:
   - component: {fileID: 2660586220356406556}
   - component: {fileID: 2076832337856225539}
   - component: {fileID: 4446363115997757813}
-  m_Layer: 7
+  m_Layer: 5
   m_Name: Exp_Text (TMP) (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -703,16 +721,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3153400315544976717}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5004730955348010553}
+  m_Father: {fileID: 6180000433203381937}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 610, y: -455}
+  m_AnchoredPosition: {x: 2.3499756, y: 1.4416809}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2076832337856225539
@@ -777,8 +795,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -809,7 +827,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 8.654831, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -901,7 +919,7 @@ GameObject:
   - component: {fileID: 6260451691415184127}
   - component: {fileID: 2652526366240147176}
   - component: {fileID: 8330789426456031246}
-  m_Layer: 7
+  m_Layer: 5
   m_Name: Level_Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -915,16 +933,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4981029634655981740}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5004730955348010553}
+  m_Father: {fileID: 6180000433203381937}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 404.90002, y: -456.2}
+  m_AnchoredPosition: {x: 1.8499756, y: -5.69162}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2652526366240147176
@@ -989,8 +1007,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -1021,7 +1039,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 14.424713, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1036,7 +1054,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6363169830764048622}
-  m_Layer: 7
+  m_Layer: 5
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1180,8 +1198,7 @@ GameObject:
   - component: {fileID: 2650670039840829767}
   - component: {fileID: 2011948539274299235}
   - component: {fileID: 718353052836914106}
-  - component: {fileID: 8904100601076904753}
-  m_Layer: 7
+  m_Layer: 5
   m_Name: Canvas_Level
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1201,8 +1218,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6180000433203381937}
-  - {fileID: 6260451691415184127}
-  - {fileID: 2660586220356406556}
   m_Father: {fileID: 5611064089201835857}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1273,21 +1288,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &8904100601076904753
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6393742699984127177}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8b5d59b81e1db4e4299c58ca0fe6b203, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  expSlider: {fileID: 8635376387161267031}
-  levelText: {fileID: 8330789426456031246}
-  expText: {fileID: 4446363115997757813}
 --- !u!1 &7799041906443252430
 GameObject:
   m_ObjectHideFlags: 0
@@ -1473,7 +1473,7 @@ GameObject:
   - component: {fileID: 5068338573283883056}
   - component: {fileID: 6686169206208567583}
   - component: {fileID: 2904249423498360119}
-  m_Layer: 7
+  m_Layer: 5
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}

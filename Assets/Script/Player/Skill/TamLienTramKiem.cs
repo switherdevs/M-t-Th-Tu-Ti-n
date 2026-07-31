@@ -19,11 +19,15 @@ public class TamLienTramKiem : MonoBehaviour
         foreach (float angle in angles)
         {
             // Xoay hướng bay theo góc dẻ quạt
-            Quaternion rotation = Quaternion.Euler(0, 0, angle);
-            Vector2 spreadDirection = rotation * direction;
+            Quaternion rotationOffset = Quaternion.Euler(0, 0, angle);
+            Vector2 spreadDirection = rotationOffset * direction;
 
-            // Sinh ra Prefab kỹ năng tại điểm bắn
-            GameObject skillObj = Instantiate(skillData.skillPrefab, firePoint.position, Quaternion.identity);
+            // Tính góc xoay Z tuyệt đối theo hướng bay spreadDirection
+            float swordAngle = Mathf.Atan2(spreadDirection.y, spreadDirection.x) * Mathf.Rad2Deg;
+            Quaternion swordRotation = Quaternion.Euler(0, 0, swordAngle);
+
+            // Sinh ra Prefab kỹ năng tại điểm bắn với góc xoay chuẩn theo hướng bay
+            GameObject skillObj = Instantiate(skillData.skillPrefab, firePoint.position, swordRotation);
 
             // 1. Truyền hướng bay vào BaseSkillEffect (nếu có)
             BaseSkillEffect effect = skillObj.GetComponent<BaseSkillEffect>();

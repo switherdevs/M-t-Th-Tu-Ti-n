@@ -86,7 +86,7 @@ public class TeleportStatue2D : MonoBehaviour
                 cameraConfiner.BoundingShape2D = newMapCollider;
 
                 // Ép Cinemachine xóa bộ nhớ đệm khung viền cũ để nhận khung viền mới ngay lập tức
-                cameraConfiner.InvalidateCache();
+                //cameraConfiner.InvalidateCache();
             }
         }
 

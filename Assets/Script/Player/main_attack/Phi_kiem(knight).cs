@@ -44,7 +44,7 @@ public class PhiKiem : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"[CẢNH BÁO] Đã chạm {collision.name} (Tag: Enemy) nhưng không tìm thấy IDamageable!");
+                //Debug.LogWarning($"[CẢNH BÁO] Đã chạm {collision.name} (Tag: Enemy) nhưng không tìm thấy IDamageable!");
             }
 
             Destroy(gameObject);

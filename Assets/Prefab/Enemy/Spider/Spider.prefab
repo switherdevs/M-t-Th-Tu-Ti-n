@@ -450,7 +450,6 @@ GameObject:
   - component: {fileID: 5069299968741617319}
   - component: {fileID: 1196968498922170159}
   - component: {fileID: 138662840512707730}
-  - component: {fileID: 3694405686790134122}
   - component: {fileID: 8545496531093312733}
   - component: {fileID: 6369325766192288725}
   m_Layer: 9
@@ -627,28 +626,6 @@ MonoBehaviour:
     m_Bits: 128
   moveSpeed: 7
   attackRange: 10
---- !u!95 &3694405686790134122
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8534153256746552208}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: e42d7880e13d12d459b157f2719f1cb5, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &8545496531093312733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -739,6 +716,14 @@ PrefabInstance:
     - target: {fileID: -7552582706839291426, guid: b7135864e6a79004ea90988c76bb27ef, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5809303671912574876, guid: b7135864e6a79004ea90988c76bb27ef, type: 3}
+      propertyPath: m_SortingOrder
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: -197020337762310642, guid: b7135864e6a79004ea90988c76bb27ef, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.00343132
       objectReference: {fileID: 0}
     - target: {fileID: 6273134611549018638, guid: b7135864e6a79004ea90988c76bb27ef, type: 3}
       propertyPath: m_SortingOrder

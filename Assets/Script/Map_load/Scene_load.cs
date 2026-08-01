@@ -9,15 +9,24 @@ public class Scene_load : MonoBehaviour
     [SerializeField] private string map2Name;
     [SerializeField] private string Kinhthanhs;
     [SerializeField] private string VeMenu;
-
-
+    [SerializeField] private AudioClip Click;
+    private AudioSource Sfx;
     [SerializeField] private GameObject MainUi;
 
     private void Start()
     {
+        Sfx = GetComponent<AudioSource>();
         if(MainUi != null) MainUi.SetActive(false);
     }
     // Hàm chuyển đến Scene MainMap
+
+    public void FixedUpdate()
+    {
+       if (Input.GetMouseButtonDown(0))
+        {
+            Sfx.PlayOneShot(Click);
+        }
+    }
     public void MainMaps()
     {
         SceneManager.LoadScene(mainMapName);

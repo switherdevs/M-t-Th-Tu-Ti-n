@@ -4,7 +4,14 @@ public class BaseSkillEffect : MonoBehaviour
 {
     [SerializeField] private float skillSpeed = 12f;
     [SerializeField] private float lifeTime = 3f;
+
+    [Header("Âm thanh & Hiệu ứng khi Va chạm")]
+    [SerializeField] private AudioClip hitSound;          // Âm thanh trúng đích
+    [SerializeField] private GameObject hitEffectPrefab;  // Hiệu ứng VFX trúng đích
+    [SerializeField][Range(0f, 1f)] private float soundVolume = 1f;
+
     private Vector2 moveDirection;
+    private bool hasHit = false; // Cờ khóa va chạm 1 lần
 
     public void Initialize(Vector2 direction)
     {
@@ -21,15 +28,27 @@ public class BaseSkillEffect : MonoBehaviour
         transform.position += (Vector3)(moveDirection * skillSpeed * Time.deltaTime);
     }
 
-    // --- THÊM ĐOẠN CODE NÀY ĐỂ ĐẠN TỰ BIẾN MẤT KHI TRÚNG ĐÍCH ---
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // Kiểm tra nếu va chạm với đối tượng có Tag là "Enemy" (Địch) hoặc "Tuong" (Tường)
-        if (collision.CompareTag("Enemy") /*|| collision.CompareTag("Tuong") || collision.CompareTag("Obstacle")*/)
-        {
-            // (Tùy chọn) Gọi hàm trừ máu quái ở đây nếu có...
+        if (hasHit) return;
 
-            // Hủy ngay lập tức viên đạn/skill khi chạm mục tiêu
+        if (collision.CompareTag("Enemy") || collision.CompareTag("Wall"))
+        {
+            hasHit = true; // Khóa va chạm ngay lập tức
+
+            // 1. Phát hiệu ứng hình ảnh VFX
+            if (hitEffectPrefab != null)
+            {
+                Instantiate(hitEffectPrefab, transform.position, transform.rotation);
+            }
+
+            // 2. Phát âm thanh 1 lần độc lập tại vị trí va chạm
+            if (hitSound != null)
+            {
+                AudioSource.PlayClipAtPoint(hitSound, transform.position, soundVolume);
+            }
+
+            // 3. Hủy ngay lập tức viên đạn/skill
             Destroy(gameObject);
         }
     }

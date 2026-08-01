@@ -9,7 +9,14 @@ public class CuuThienTramDao : MonoBehaviour
     private float aoeRadius;
 
     private bool isFalling = false;
-    private float fallSpeed = 35f; // Tăng tốc độ rơi cho dứt khoát
+    private float fallSpeed = 35f;
+
+    [Header("Âm thanh & Hiệu ứng khi Trúng/Chạm đất")]
+    [SerializeField] private AudioClip impactSound;          // Âm thanh nổ cự kiếm
+    [SerializeField] private GameObject impactEffectPrefab;  // Prefab hiệu ứng nổ AoE
+    [SerializeField][Range(0f, 1f)] private float soundVolume = 1f;
+
+    private bool hasImpacted = false; // Đảm bảo hiệu ứng chạm đất nổ AoE chỉ phát 1 lần
 
     public void Setup(Transform target, float dmg, float stunTime, float radius)
     {
@@ -21,12 +28,8 @@ public class CuuThienTramDao : MonoBehaviour
         if (targetEnemy != null)
         {
             targetPosition = targetEnemy.position;
-
-            // Đặt vị trí xuất hiện ban đầu tít trên trời (Cách vị trí quái 12 đơn vị theo trục Y)
             Vector3 spawnPosition = new Vector3(targetPosition.x, targetPosition.y + 12f, 0f);
             transform.position = spawnPosition;
-
-            // Xoay đầu kiếm hướng xuống dưới
             transform.rotation = Quaternion.Euler(0, 0, -90f);
 
             isFalling = true;
@@ -42,16 +45,13 @@ public class CuuThienTramDao : MonoBehaviour
     {
         if (!isFalling) return;
 
-        // Nếu quái di chuyển, cập nhật lại điểm đến (tùy chọn, giúp kiếm đuổi theo quái chính xác hơn)
         if (targetEnemy != null)
         {
             targetPosition = targetEnemy.position;
         }
 
-        // Cho kiếm lao thẳng xuống vị trí mục tiêu
         transform.position = Vector2.MoveTowards(transform.position, targetPosition, fallSpeed * Time.deltaTime);
 
-        // Khi kiếm chạm đến vị trí đích (hoặc rất gần)
         if (Vector2.Distance(transform.position, targetPosition) <= 0.2f)
         {
             ImpactExplosion();
@@ -60,13 +60,14 @@ public class CuuThienTramDao : MonoBehaviour
 
     private void ImpactExplosion()
     {
-        isFalling = false;
+        if (hasImpacted) return;
+        hasImpacted = true; // Khóa không cho hàm nổ này gọi lại thêm lần nào nữa
 
+        isFalling = false;
         Debug.Log("<color=orange>[CỬU THIÊN TRẢM ĐAO]</color> Cự kiếm đã chạm đất, gây nổ AoE!");
 
-        // Quét toàn bộ kẻ địch trong vùng bán kính AoE quanh điểm rơi
+        // 1. Quét gây sát thương diện rộng
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position, aoeRadius);
-
         foreach (var hit in hitEnemies)
         {
             if (hit.CompareTag("Enemy"))
@@ -79,7 +80,18 @@ public class CuuThienTramDao : MonoBehaviour
             }
         }
 
-        // Hủy cự kiếm ngay lập tức sau 0.1 giây để tránh bị kẹt không biến mất
+        // 2. Xử lý âm thanh nổ và hiệu ứng vụ nổ diện rộng
+        if (impactEffectPrefab != null)
+        {
+            Instantiate(impactEffectPrefab, transform.position, Quaternion.identity);
+        }
+
+        if (impactSound != null)
+        {
+            AudioSource.PlayClipAtPoint(impactSound, transform.position, soundVolume);
+        }
+
+        // 3. Hủy cự kiếm
         Destroy(gameObject, 0.1f);
     }
 

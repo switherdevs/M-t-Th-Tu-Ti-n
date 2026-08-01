@@ -73,7 +73,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -87,7 +87,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -111,7 +111,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -139,10 +139,10 @@ TextureImporter:
       name: Hit Effect_0
       rect:
         serializedVersion: 2
-        x: 53
-        y: 685
-        width: 26
-        height: 26
+        x: 0
+        y: 509
+        width: 128
+        height: 118
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -161,10 +161,10 @@ TextureImporter:
       name: Hit Effect_1
       rect:
         serializedVersion: 2
-        x: 55
-        y: 561
-        width: 36
-        height: 26
+        x: 0
+        y: 394
+        width: 128
+        height: 112
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -183,13 +183,13 @@ TextureImporter:
       name: Hit Effect_2
       rect:
         serializedVersion: 2
-        x: 67
-        y: 557
-        width: 6
-        height: 6
+        x: 0
+        y: 259
+        width: 128
+        height: 113
       alignment: 0
       pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      border: {x: 0, y: 73, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
@@ -205,19 +205,19 @@ TextureImporter:
       name: Hit Effect_3
       rect:
         serializedVersion: 2
-        x: 57
-        y: 445
-        width: 8
-        height: 6
+        x: 0
+        y: 128
+        width: 128
+        height: 104
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 855002e95da2953f0800000000000000
+      spriteID: 1752c5b7eb7e30243a227807edc503fc
       internalID: -911650352596515496
       vertices: []
       indices: 
@@ -227,196 +227,20 @@ TextureImporter:
       name: Hit Effect_4
       rect:
         serializedVersion: 2
-        x: 63
-        y: 441
-        width: 30
-        height: 20
+        x: 2
+        y: 639
+        width: 125
+        height: 116
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: d5b2acff074c85b90800000000000000
+      spriteID: 328772d4cb072d04088e5c007c1f3365
       internalID: -7252831210273363107
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Hit Effect_5
-      rect:
-        serializedVersion: 2
-        x: 79
-        y: 435
-        width: 8
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: d55c5708dbcabc7c0800000000000000
-      internalID: -4049953509985630883
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Hit Effect_6
-      rect:
-        serializedVersion: 2
-        x: 85
-        y: 439
-        width: 12
-        height: 10
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b79fbb7e0c01dcba0800000000000000
-      internalID: -6067174702290568837
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Hit Effect_7
-      rect:
-        serializedVersion: 2
-        x: 65
-        y: 321
-        width: 20
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: abed85b9bad1b8cb0800000000000000
-      internalID: -4860758749933412678
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Hit Effect_8
-      rect:
-        serializedVersion: 2
-        x: 81
-        y: 309
-        width: 18
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4e9800e906ea369a0800000000000000
-      internalID: -6240952928614446620
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Hit Effect_9
-      rect:
-        serializedVersion: 2
-        x: 83
-        y: 321
-        width: 14
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4c80da46704b9f520800000000000000
-      internalID: 2736416192451119300
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Hit Effect_10
-      rect:
-        serializedVersion: 2
-        x: 81
-        y: 203
-        width: 6
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a5b375d897fd46c90800000000000000
-      internalID: -7177366192966386854
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Hit Effect_11
-      rect:
-        serializedVersion: 2
-        x: 89
-        y: 199
-        width: 10
-        height: 10
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 8fbe6dbc598d9faf0800000000000000
-      internalID: -362020157145027592
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Hit Effect_12
-      rect:
-        serializedVersion: 2
-        x: 89
-        y: 187
-        width: 12
-        height: 10
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7636123306939d9b0800000000000000
-      internalID: -5054946021409201305
       vertices: []
       indices: 
       edges: []
@@ -425,7 +249,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 0801f074dce50dd4d850cb3603c65bc5
     internalID: 0
     vertices: []
     indices: 
@@ -437,17 +261,9 @@ TextureImporter:
     nameFileIdTable:
       Hit Effect_0: -4806144475621984
       Hit Effect_1: 5652245086901320735
-      Hit Effect_10: -7177366192966386854
-      Hit Effect_11: -362020157145027592
-      Hit Effect_12: -5054946021409201305
       Hit Effect_2: 34849563345992624
       Hit Effect_3: -911650352596515496
       Hit Effect_4: -7252831210273363107
-      Hit Effect_5: -4049953509985630883
-      Hit Effect_6: -6067174702290568837
-      Hit Effect_7: -4860758749933412678
-      Hit Effect_8: -6240952928614446620
-      Hit Effect_9: 2736416192451119300
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

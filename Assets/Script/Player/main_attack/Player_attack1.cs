@@ -8,11 +8,11 @@ public class TanCong : MonoBehaviour
     [SerializeField] private Transform shootPoint;       // Điểm sinh ra đạn trên người Tiêu Phong
     [SerializeField] private GameObject bulletPrefab;     // Prefab viên đạn (Kiếm)
     [SerializeField] private GameObject vfxMuzzlePrefab;  // Prefab hiệu ứng khói/tóe lửa khi vừa bấm bắn (Tùy chọn)
-    [SerializeField] private GameObject sfxShootPrefab;   // Prefab chứa Audio Source âm thanh tiếng kiếm khí (Tùy chọn)
+    [SerializeField] private AudioClip sfxShootPrefab;   // Prefab chứa Audio Source âm thanh tiếng kiếm khí (Tùy chọn)
 
     [Header("Âm Thanh Bắn (Mảng 3 Audio Clip)")]
     [SerializeField] private AudioClip[] shootClips;      // Chứa 3 file âm thanh tiếng chém/bắn
-
+    private AudioSource sfxShootSource;
     [Header("Thông Số Vũ Khí")]
     [SerializeField] private float bulletSpeed = 10f;     // Tốc độ bay của kiếm
     [SerializeField] private float fireRate = 0.2f;       // Khoảng cách giây giữa 2 lần bắn (Tốc độ sấy đạn)
@@ -153,28 +153,13 @@ public class TanCong : MonoBehaviour
         }
 
         // Cập nhật lại chỉ số âm thanh vừa chọn
-        lastSoundIndex = randomIndex;
 
-        AudioClip clipDuocChon = shootClips[randomIndex];
-
-        if (clipDuocChon == null) return;
 
         // Trường hợp 1: Nếu có sfxShootPrefab thì gán AudioClip được chọn vào AudioSource của Prefab đó
         if (sfxShootPrefab != null)
         {
-            GameObject sfx = Instantiate(sfxShootPrefab, shootPoint.position, Quaternion.identity);
-            AudioSource audioSource = sfx.GetComponent<AudioSource>();
-            if (audioSource != null)
-            {
-                audioSource.clip = clipDuocChon;
-                audioSource.Play();
-            }
-            Destroy(sfx, 2f);
+            sfxShootSource.PlayOneShot(sfxShootPrefab);
         }
         // Trường hợp 2: Phát trực tiếp thông qua AudioSource.PlayClipAtPoint tiện lợi
-        else
-        {
-            AudioSource.PlayClipAtPoint(clipDuocChon, shootPoint.position);
-        }
     }
 }

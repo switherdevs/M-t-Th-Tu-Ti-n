@@ -452,8 +452,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shootPoint: {fileID: 4939676197556815829}
   bulletPrefab: {fileID: 8106306527046521838, guid: 51fe87a69a1529243b50cd2048b2b20a, type: 3}
-  vfxMuzzlePrefab: {fileID: 0}
-  sfxShootPrefab: {fileID: 0}
+  vfxMuzzlePrefab: {fileID: 3753481043015327854, guid: dffa58a59048dc844b308f1242dbba7d, type: 3}
+  sfxShootPrefab: {fileID: 8300000, guid: 172ee2c4a2ec3ce42ab2a8fb17cf9cfd, type: 3}
   shootClips: []
   bulletSpeed: 50
   fireRate: 0.2
@@ -601,7 +601,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 873834e3920b8f64cbf2d75b644e6681, type: 3}
+  m_Resource: {fileID: 8300000, guid: 172ee2c4a2ec3ce42ab2a8fb17cf9cfd, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -647,7 +647,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0

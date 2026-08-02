@@ -16,64 +16,70 @@ public class Scene_load : MonoBehaviour
     private void Start()
     {
         Sfx = GetComponent<AudioSource>();
-        if(MainUi != null) MainUi.SetActive(false);
+        if (MainUi != null) MainUi.SetActive(false);
     }
-    // Hàm chuyển đến Scene MainMap
 
-    public void FixedUpdate()
+    // Hàm mới: Gọi hàm này để phát âm thanh mà không bị ngắt khi load Scene ngay lập tức
+    public void PlayClickSound()
     {
-       if (Input.GetMouseButtonDown(0))
+        if (Click != null)
         {
-            Sfx.PlayOneShot(Click);
+            // Sử dụng PlayClipAtPoint để âm thanh tiếp tục phát mượt mà ngay cả khi chuyển Scene
+            AudioSource.PlayClipAtPoint(Click, Camera.main.transform.position);
         }
     }
+
+    // Hàm chuyển đến Scene MainMap
     public void MainMaps()
     {
+        PlayClickSound();
         SceneManager.LoadScene(mainMapName);
     }
 
     // Hàm chuyển đến Scene Map1
     public void Map1s()
     {
-
+        PlayClickSound();
         SceneManager.LoadScene(map1Name);
     }
+
     public void Map2()
     {
-
+        PlayClickSound();
         SceneManager.LoadScene(map2Name);
     }
+
     public void Kinhthanh()
     {
-
+        PlayClickSound();
         SceneManager.LoadScene(Kinhthanhs);
     }
 
     public void VeMenues()
     {
-
+        PlayClickSound();
         SceneManager.LoadScene(VeMenu);
     }
 
     public void Resume()
     {
-
+        PlayClickSound();
         MainUi.SetActive(false);
     }
 
     public void Bat_MainMenu()
     {
-
-        if(MainUi != null)
+        PlayClickSound();
+        if (MainUi != null)
         {
             MainUi.SetActive(true);
-
         }
     }
 
     // Hàm chuyển đến Scene Map2
     public void Map2s()
     {
+        PlayClickSound();
         SceneManager.LoadScene(map2Name);
     }
 }

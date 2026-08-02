@@ -8,11 +8,7 @@ public class TanCong : MonoBehaviour
     [SerializeField] private Transform shootPoint;       // Điểm sinh ra đạn trên người Tiêu Phong
     [SerializeField] private GameObject bulletPrefab;     // Prefab viên đạn (Kiếm)
     [SerializeField] private GameObject vfxMuzzlePrefab;  // Prefab hiệu ứng khói/tóe lửa khi vừa bấm bắn (Tùy chọn)
-    [SerializeField] private AudioClip sfxShootPrefab;   // Prefab chứa Audio Source âm thanh tiếng kiếm khí (Tùy chọn)
 
-    [Header("Âm Thanh Bắn (Mảng 3 Audio Clip)")]
-    [SerializeField] private AudioClip[] shootClips;      // Chứa 3 file âm thanh tiếng chém/bắn
-    private AudioSource sfxShootSource;
     [Header("Thông Số Vũ Khí")]
     [SerializeField] private float bulletSpeed = 10f;     // Tốc độ bay của kiếm
     [SerializeField] private float fireRate = 0.2f;       // Khoảng cách giây giữa 2 lần bắn (Tốc độ sấy đạn)
@@ -29,9 +25,6 @@ public class TanCong : MonoBehaviour
     private CharacterStats myStats;
     private Animator anim;
     private int shootAnimHash;
-
-    // Biến phụ trợ cho thuật toán chống lặp âm thanh 2 lần liên tiếp
-    private int lastSoundIndex = -1;
 
     void Awake()
     {
@@ -123,43 +116,5 @@ public class TanCong : MonoBehaviour
             GameObject vfx = Instantiate(vfxMuzzlePrefab, shootPoint.position, Quaternion.identity);
             Destroy(vfx, 1f);
         }
-
-        // ÂM THANH SFX (Đã nâng cấp thuật toán Random chống lặp)
-        PhatAmThanhRandom();
-    }
-
-    /// <summary>
-    /// Thuật toán Random âm thanh không bị trùng lặp với âm thanh vừa phát liền trước
-    /// </summary>
-    private void PhatAmThanhRandom()
-    {
-        if (shootClips == null || shootClips.Length == 0) return;
-
-        int randomIndex = 0;
-
-        // Nếu mảng chỉ có 1 âm thanh thì chọn luôn index 0
-        if (shootClips.Length == 1)
-        {
-            randomIndex = 0;
-        }
-        else
-        {
-            // Vòng lặp do-while: Liên tục lấy ngẫu nhiên cho đến khi randomIndex KHÁC lastSoundIndex
-            do
-            {
-                randomIndex = Random.Range(0, shootClips.Length);
-            }
-            while (randomIndex == lastSoundIndex);
-        }
-
-        // Cập nhật lại chỉ số âm thanh vừa chọn
-
-
-        // Trường hợp 1: Nếu có sfxShootPrefab thì gán AudioClip được chọn vào AudioSource của Prefab đó
-        if (sfxShootPrefab != null)
-        {
-            sfxShootSource.PlayOneShot(sfxShootPrefab);
-        }
-        // Trường hợp 2: Phát trực tiếp thông qua AudioSource.PlayClipAtPoint tiện lợi
     }
 }

@@ -11,6 +11,10 @@ public class CuuThienTramDao : MonoBehaviour
     private bool isFalling = false;
     private float fallSpeed = 35f;
 
+    [Header("Cấu Hình Rung Camera Khi Chạm Đất")]
+    [SerializeField] private float shakeIntensity = 6f;
+    [SerializeField] private float shakeTime = 0.35f;
+
     [Header("Âm thanh & Hiệu ứng khi Trúng/Chạm đất")]
     [SerializeField] private AudioClip impactSound;          // Âm thanh nổ cự kiếm
     [SerializeField] private GameObject impactEffectPrefab;  // Prefab hiệu ứng nổ AoE
@@ -65,6 +69,12 @@ public class CuuThienTramDao : MonoBehaviour
 
         isFalling = false;
         Debug.Log("<color=orange>[CỬU THIÊN TRẢM ĐAO]</color> Cự kiếm đã chạm đất, gây nổ AoE!");
+
+        // Rung camera khi cự kiếm cắm đất
+        if (CameraShake.Instance != null)
+        {
+            CameraShake.Instance.Shake(shakeIntensity, shakeTime);
+        }
 
         // 1. Quét gây sát thương diện rộng
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position, aoeRadius);

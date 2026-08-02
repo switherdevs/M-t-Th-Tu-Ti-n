@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class VanKiemBatPhuong : MonoBehaviour
 {
+    [Header("Cấu Hình Rung Camera")]
+    [SerializeField] private float shakeIntensity = 3.5f; // Đỉnh lực rung (Vạn kiếm tỏa ra nên rung mạnh chút)
+    [SerializeField] private float shakeDuration = 0.2f;  // Thời gian rung (giây)
+
     private float damage;
     private float knockbackForce;
     private Vector2 moveDirection;
@@ -18,6 +22,16 @@ public class VanKiemBatPhuong : MonoBehaviour
         // Xoay hướng của kiếm theo hướng bay tỏa tròn
         float rotZ = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, rotZ);
+
+        // KÍCH HOẠT RUNG CAMERA KHI BẮN KIẾM
+        if (CameraShake.Instance != null)
+        {
+            // Thuật toán Fallback: Nếu ngoài Inspector lỡ để bằng 0, tự động lấy giá trị mặc định an toàn (3.5f và 0.2f)
+            float finalIntensity = shakeIntensity > 0f ? shakeIntensity : 3.5f;
+            float finalDuration = shakeDuration > 0f ? shakeDuration : 0.2f;
+
+            CameraShake.Instance.Shake(finalIntensity, finalDuration);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

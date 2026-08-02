@@ -150,6 +150,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadedAlpha: 0.5
+  padding: 0.2
+  smoothness: 0.3
 --- !u!114 &5114352134737882097
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,6 +173,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2242058478028494713}
     m_Modifications:
+    - target: {fileID: 951767937711993845, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: mapThuChachScene
+      value: 
+      objectReference: {fileID: 102900000, guid: bd064f777e2983942b5f07e86ff43bb5, type: 3}
     - target: {fileID: 1593756610963699976, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
       propertyPath: m_Name
       value: Congtrinh_Ui_press

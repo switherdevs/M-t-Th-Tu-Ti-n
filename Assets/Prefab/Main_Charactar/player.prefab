@@ -274,6 +274,7 @@ GameObject:
   - component: {fileID: 1713447433952917287}
   - component: {fileID: 8254536555419453987}
   - component: {fileID: 8712972713771717828}
+  - component: {fileID: -5719478494179254987}
   m_Layer: 7
   m_Name: player
   m_TagString: Player
@@ -453,8 +454,6 @@ MonoBehaviour:
   shootPoint: {fileID: 4939676197556815829}
   bulletPrefab: {fileID: 8106306527046521838, guid: 51fe87a69a1529243b50cd2048b2b20a, type: 3}
   vfxMuzzlePrefab: {fileID: 3753481043015327854, guid: dffa58a59048dc844b308f1242dbba7d, type: 3}
-  sfxShootPrefab: {fileID: 8300000, guid: 172ee2c4a2ec3ce42ab2a8fb17cf9cfd, type: 3}
-  shootClips: []
   bulletSpeed: 50
   fireRate: 0.2
   shootAnimName: Attack
@@ -687,6 +686,18 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!210 &-5719478494179254987
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2345805083975770352}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 10
+  m_SortAtRoot: 0
 --- !u!1 &2390863112206969679
 GameObject:
   m_ObjectHideFlags: 0

@@ -339,11 +339,20 @@ MonoBehaviour:
   dialogueLines:
   - speakerName: "B\u1EA1ch M\u1ED9c Tr\u01B0\u1EDFng L\xE3o"
     content: Rise and shine doctor free man
+    speakerAvatar: {fileID: 0}
+    slideDirection: 0
   - speakerName: "B\u1EA1ch M\u1ED9c Tr\u01B0\u1EDFng L\xE3o"
     content: skibidi
+    speakerAvatar: {fileID: 0}
+    slideDirection: 0
   dialoguePanel: {fileID: 335299853}
   speakerNameText: {fileID: 1279997599}
   dialogueContentText: {fileID: 924003777}
+  avatarImage: {fileID: 0}
+  stopPositionLeft: {x: -400, y: -100}
+  stopPositionRight: {x: 400, y: -100}
+  slideOffsetDistance: 500
+  slideDuration: 0.35
   fadeCanvasGroup: {fileID: 407802418}
   fadeSpeed: 5
   targetFadeAlpha: 0.3

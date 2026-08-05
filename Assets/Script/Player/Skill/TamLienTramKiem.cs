@@ -1,4 +1,5 @@
-﻿using StatsSystem.Components;
+﻿using System.Collections;
+using StatsSystem.Components;
 using UnityEngine;
 
 public class TamLienTramKiem : MonoBehaviour
@@ -7,7 +8,8 @@ public class TamLienTramKiem : MonoBehaviour
     [SerializeField] private float shakeIntensity = 3f; // Cường độ rung
     [SerializeField] private float shakeDuration = 0.2f; // Thời gian rung (giây)
 
-    private CharacterStats skillstat;
+    [Header("Cấu Hình Kỹ Năng")]
+    [SerializeField] private CharacterStats skillstat;
 
     public void Execute(SkillData skillData, Transform firePoint, Vector2 direction)
     {
@@ -15,14 +17,18 @@ public class TamLienTramKiem : MonoBehaviour
 
         Debug.Log($"<color=cyan>[SKILL RIÊNG]</color> {skillData.skillName} bộc phát 3 đường dẻ quạt!");
 
-        // 1. XỬ LÝ CỐT LÕI: GỌI RUNG CAM 1 LẦN DUY NHẤT VỚI BẢO HIỂM LỰC RUNG
+        // 1. RUNG CAMERA - GỌI THẲNG QUA SINGLETON CameraShake, KHÔNG TỰ VIẾT LOGIC RIÊNG
+        float forceIntensity = shakeIntensity > 0f ? shakeIntensity : 3f;
+        float forceDuration = shakeDuration > 0f ? shakeDuration : 0.2f;
+
         if (CameraShake.Instance != null)
         {
-            // Kiểm tra nếu ngoài Inspector vô tình để bằng 0, ép về 3f và 0.2f
-            float forceIntensity = shakeIntensity > 0f ? shakeIntensity : 3f;
-            float forceDuration = shakeDuration > 0f ? shakeDuration : 0.2f;
-
             CameraShake.Instance.Shake(forceIntensity, forceDuration);
+        }
+        else
+        {
+            Debug.LogWarning("[TamLienTramKiem] Không tìm thấy CameraShake.Instance trong Scene! " +
+                              "Hãy đảm bảo GameObject chứa script CameraShake (và component CinemachineBasicMultiChannelPerlin) đã tồn tại trong Scene.");
         }
 
         // 2. TÍNH TOÁN BẮN 3 VIÊN ĐẠN DẺ QUẠT
@@ -39,7 +45,6 @@ public class TamLienTramKiem : MonoBehaviour
 
             GameObject skillObj = Instantiate(skillData.skillPrefab, firePoint.position, swordRotation);
 
-            // Khởi tạo các Component trên đạn (Không chứa bất kỳ lệnh Shake() nào nữa)
             BaseSkillEffect effect = skillObj.GetComponent<BaseSkillEffect>();
             if (effect != null)
             {

@@ -23,13 +23,22 @@ public class SpiderEnemy : MonoBehaviour
 
     private void Start()
     {
-        // Lấy component Animator nằm ở các đối tượng con hoặc chính đối tượng này để điều khiển hoạt ảnh
+        // Lấy component Animator nằm ở các đối tượng con hoặc chính đối tượng này
         animator = GetComponentInChildren<Animator>();
+
+        // Đặt shootTimer ban đầu bằng 0 để vào tầm là có thể tấn công/bắn ngay lập tức
+        shootTimer = 0f;
     }
 
     private void Update()
     {
-        // 1. Thuật toán quét vùng phát hiện Player bằng hình tròn (OverlapCircle)
+        // Cập nhật đếm ngược thời gian hồi chiêu liên tục theo thời gian thực
+        if (shootTimer > 0)
+        {
+            shootTimer -= Time.deltaTime;
+        }
+
+        // 1. Quét vùng phát hiện Player bằng OverlapCircle
         Collider2D playerCollider = Physics2D.OverlapCircle(
             transform.position,
             detectRange,
@@ -38,13 +47,13 @@ public class SpiderEnemy : MonoBehaviour
 
         if (playerCollider != null)
         {
-            // Lưu lại vị trí của Player khi nằm trong vùng ảnh hưởng
+            // Lưu lại vị trí của Player
             player = playerCollider.transform;
 
-            // Gọi hàm lật mặt để con nhện luôn hướng mặt về phía Player (trái hoặc phải)
+            // Gọi hàm lật mặt để nhện luôn hướng về Player
             FlipTowardsPlayer();
 
-            // 2. Kiểm tra tiếp xem Player có đang nằm trong tầm tấn công hay không
+            // 2. Kiểm tra xem Player có nằm trong tầm tấn công không
             Collider2D attackCollider = Physics2D.OverlapCircle(
                 transform.position,
                 attackRange,
@@ -53,20 +62,24 @@ public class SpiderEnemy : MonoBehaviour
 
             if (attackCollider != null)
             {
-                // TRẠNG THÁI: TẤN CÔNG & ĐỨNG YÊN
-                // Tắt animation di chuyển để con nhện dừng hẳn lại
+                // TRẠNG THÁI: TẤN CÔNG & ĐỨNG YÊN (IDLE LAYER DƯỚI)
+                // Tắt animation di chuyển để con nhện chuyển về Idle
                 animator.SetBool("isWalking", false);
 
-                // Kích hoạt Trigger "Attack" để thực hiện hoạt ảnh tấn công
-                animator.SetTrigger("Attack");
-
-                // Đếm ngược thời gian hồi chiêu dựa trên thời gian thực (Time.deltaTime)
-                shootTimer -= Time.deltaTime;
-
+                // Kiểm tra nếu đã hết thời gian hồi chiêu
                 if (shootTimer <= 0)
                 {
+                    // 1. Kích hoạt Trigger "Attack" (Dành cho Animator Layer tấn công riêng)
+                    if (animator != null)
+                    {
+                        animator.SetTrigger("Attack");
+                    }
+
+                    // 2. Bắn đạn
                     Shoot();
-                    shootTimer = shootCooldown; // Reset lại thời gian hồi chiêu
+
+                    // 3. Reset lại thời gian hồi chiêu
+                    shootTimer = shootCooldown;
                 }
             }
             else
@@ -75,19 +88,18 @@ public class SpiderEnemy : MonoBehaviour
                 // Bật animation di chuyển khi đang rượt đuổi Player
                 animator.SetBool("isWalking", true);
 
-                // Dùng Vector2.MoveTowards để di chuyển con nhện tiến về phía Player theo khung thời gian thực
+                // Di chuyển nhện tiến về phía Player
                 transform.position = Vector2.MoveTowards(
                     transform.position,
                     player.position,
                     moveSpeed * Time.deltaTime
                 );
-
             }
         }
         else
         {
             // TRẠNG THÁI: ĐỨNG YÊN (IDLE)
-            // Không thấy Player -> Tắt animation di chuyển, đứng yên chờ đợi
+            // Không thấy Player -> Tắt animation di chuyển
             animator.SetBool("isWalking", false);
         }
     }
@@ -95,17 +107,16 @@ public class SpiderEnemy : MonoBehaviour
     // Hàm xử lý việc lật mặt (xoay hướng) trái/phải theo vị trí của Player
     private void FlipTowardsPlayer()
     {
-        // Kiểm tra vị trí X của Player so với vị trí X của con nhện
+        if (player == null) return;
+
         if (player.position.x > transform.position.x)
         {
-            // Nếu Player ở bên phải, lật scale theo trục X thành dương (hướng nhìn sang phải)
             Vector3 scale = transform.localScale;
             scale.x = Mathf.Abs(scale.x);
             transform.localScale = scale;
         }
         else if (player.position.x < transform.position.x)
         {
-            // Nếu Player ở bên trái, lật scale theo trục X thành âm (hướng nhìn sang trái)
             Vector3 scale = transform.localScale;
             scale.x = -Mathf.Abs(scale.x);
             transform.localScale = scale;
@@ -114,9 +125,11 @@ public class SpiderEnemy : MonoBehaviour
 
     private void Shoot()
     {
+        if (enemyBullet == null || firePoint == null) return;
+
         Debug.Log("Spider bắn độc");
 
-        // Tạo ra viên đạn từ Prefab tại vị trí firePoint với góc quay mặc định
+        // Tạo ra viên đạn từ Prefab tại vị trí firePoint
         GameObject bullet = Instantiate(
             enemyBullet,
             firePoint.position,
@@ -136,11 +149,11 @@ public class SpiderEnemy : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // Vẽ vòng tròn màu vàng hiển thị tầm phát hiện trong cửa sổ Scene
+        // Vẽ vòng tròn màu vàng hiển thị tầm phát hiện
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectRange);
 
-        // Vẽ vòng tròn màu đỏ hiển thị tầm tấn công trong cửa sổ Scene
+        // Vẽ vòng tròn màu đỏ hiển thị tầm tấn công
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
     }

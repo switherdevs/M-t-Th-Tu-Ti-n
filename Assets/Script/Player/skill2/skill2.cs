@@ -41,22 +41,12 @@ public class VanKiemBatPhuongData : SkillData
             // Sinh ra Prefab kỹ năng tại vị trí nhân vật kèm góc xoay 360 độ chuẩn
             GameObject skillObj = Instantiate(skillPrefab, firePoint.position, rotation);
 
-            // Gán thông số và hướng cho script hiệu ứng
+            // Gán thông số và hướng cho script hiệu ứng (Script VanKiemBatPhuong sẽ tự lo phần tỏa ra và tụ lao đi)
             VanKiemBatPhuong effect = skillObj.GetComponent<VanKiemBatPhuong>();
             if (effect != null)
             {
                 effect.Setup(spreadDirection, skillDamage, knockbackForce, null);
             }
-
-            // Thiết lập vận tốc bay cho Rigidbody2D
-            Rigidbody2D rb = skillObj.GetComponent<Rigidbody2D>();
-            if (rb != null)
-            {
-                rb.linearVelocity = spreadDirection * swordSpeed;
-            }
-
-            // Tự hủy sau 3 giây để tối ưu bộ nhớ
-            Destroy(skillObj, 3f);
         }
     }
 }

@@ -78,7 +78,7 @@ public class TeleportStatue2D : MonoBehaviour
         // 4. BẬT COLLIDER MAP MỚI VÀ GÁN CHO CINEMACHINE CONFINER 2D
         if (newMapCollider != null)
         {
-            newMapCollider.enabled = true;
+            newMapCollider.enabled = true; 
 
             if (cameraConfiner != null)
             {

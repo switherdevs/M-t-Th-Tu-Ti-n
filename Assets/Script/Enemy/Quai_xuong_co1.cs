@@ -62,7 +62,7 @@ public class BasicEnemyAI : MonoBehaviour
 
     private void Start()
     {
-        animator = GetComponent<Animator>();
+        animator = GetComponentInChildren<Animator>();
 
         if (attackHitbox != null)
         {

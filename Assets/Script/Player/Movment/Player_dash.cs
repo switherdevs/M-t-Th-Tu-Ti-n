@@ -11,6 +11,9 @@ public class Luot : MonoBehaviour
     [SerializeField] private float dashDuration = 0.1f;    // Thời gian thực hiện cú lướt
     [SerializeField] private float trailDuration = 0.2f;   // Thời gian vệt sáng tồn tại
 
+    [Header("Animation Settings")]
+    [SerializeField] private string dashTriggerName = "Dash"; // Tên Trigger animation lướt
+
     [Header("Trail Settings")]
     [SerializeField] private TrailRenderer trailRenderer; // Gắn TrailRenderer vào đây
 
@@ -19,6 +22,7 @@ public class Luot : MonoBehaviour
     //[SerializeField] private TextMeshProUGUI cooldownText; // Text hiện thời gian
 
     private Rigidbody2D rb;
+    private Animator animator; // Component Animator ở đối tượng con
     private float lastDashTime = -100f; // Để có thể lướt ngay khi bắt đầu game
     private Vector2 dashDirection = Vector2.right; // Hướng mặc định nếu không bấm phím
     private bool isDashing = false;
@@ -26,6 +30,9 @@ public class Luot : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        // Lấy component Animator nằm ở các đối tượng con (InChildren)
+        animator = GetComponentInChildren<Animator>();
 
         // Đảm bảo ban đầu luôn TẮT vệt sáng Trail Renderer
         if (trailRenderer != null)
@@ -77,6 +84,12 @@ public class Luot : MonoBehaviour
     {
         isDashing = true;
         lastDashTime = Time.time;
+
+        // 0. KÍCH HOẠT TRIGGER ANIMATION LƯỚT
+        if (animator != null)
+        {
+            animator.SetTrigger(dashTriggerName);
+        }
 
         // 1. KÍCH HOẠT TRAIL RENDERER
         if (trailRenderer != null)

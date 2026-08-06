@@ -1223,7 +1223,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 1268895019559236829, guid: b889febb04cbf0049aa18ea746d38f69, type: 3}
+  m_Sprite: {fileID: 857846724403001301, guid: 9d3aa32c4588b8c4e99d2f465e450551, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1754,11 +1754,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bangThoaiUI: {fileID: 0}
-  bangNhiemVuUI: {fileID: 4161786207312435645}
   textTenNhiemVu: {fileID: 4575788459619011888}
   textLoiThoaiNPC: {fileID: 6734428147611600789}
   textTienTrinh: {fileID: 914527497195931557}
   npcMainQuestObject: {fileID: 8933649653543062620}
+  npcSideQuestObject: {fileID: 0}
+  npcStopPosition: {x: 300, y: 0}
+  npcSlideOffsetDistance: 500
+  npcSlideDuration: 0.4
   nutMoQuestMain: {fileID: 2644894801052583270}
   nutDongY: {fileID: 2261915914043939927}
   nutTuChoi: {fileID: 1330615906353505630}
@@ -2081,7 +2084,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9062624441727900368, guid: 72a6dee1472da2048bbf0575f53b16b8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 9
+      value: 7.5
       objectReference: {fileID: 0}
     - target: {fileID: 9062624441727900368, guid: 72a6dee1472da2048bbf0575f53b16b8, type: 3}
       propertyPath: m_LocalPosition.y

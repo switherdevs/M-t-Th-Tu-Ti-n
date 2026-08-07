@@ -85,13 +85,17 @@ public class StageManager : MonoBehaviour
             {
                 stage.winUIObject.SetActive(true);
             }
+
+            // [SỬA LỖI TẠI ĐÂY]: Tự động chuyển chỉ số sang ải tiếp theo ngay khi ải hiện tại hoàn thành
+            currentStageIndex++;
+            Debug.Log($"[StageManager] Đã tự động tăng chỉ số sang ải index: {currentStageIndex}");
         }
     }
 
     // Hàm gọi khi bước qua cổng tele
     public void ProceedToNextStage()
     {
-        currentStageIndex++;
-        Debug.Log($"[StageManager] Đã chuyển sang ải index: {currentStageIndex}");
+        // Hàm này giữ nguyên cấu trúc để tránh lỗi tham chiếu nếu các script khác đang gọi nó
+        Debug.Log($"[StageManager] Người chơi đã dịch chuyển qua cổng ải index: {currentStageIndex}");
     }
 }

@@ -6,7 +6,7 @@ namespace InventorySystem
     public class PickupDetector : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private Inventory playerInventory;
+        [SerializeField] private InventoryManager playerInventory;
 
         [Header("Settings")]
         [SerializeField, Tooltip("Dùng layer để lọc chính xác Item, tối ưu hiệu năng")]
@@ -16,7 +16,7 @@ namespace InventorySystem
         {
             if (playerInventory == null)
             {
-                playerInventory = GetComponentInParent<Inventory>();
+                playerInventory = GetComponentInParent<InventoryManager>();
             }
         }
 

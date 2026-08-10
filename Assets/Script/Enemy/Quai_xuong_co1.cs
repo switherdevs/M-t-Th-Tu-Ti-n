@@ -1,13 +1,14 @@
 using UnityEngine;
 using System.Collections;
+using StatsSystem.Components; // BỔ SUNG: Thêm namespace để tham chiếu đến CharacterStats
 
 /// <summary>
 /// AI Quái cơ bản: Phát hiện người chơi -> Đi tới (có khoảng cách dừng & né tường bằng Tag Wall) -> Tấn công (Bật Hitbox sát thương).
-/// Đã sửa lỗi mất Animation Attack & lỗi đi đè vào người Player.
+/// Đã bổ sung: Lắng nghe trạng thái chết từ CharacterStats để ngừng di chuyển/tấn công và play animation chết.
 /// </summary>
 public class BasicEnemyAI : MonoBehaviour
 {
-    public enum EnemyState { Idle, Chasing, Attacking }
+    public enum EnemyState { Idle, Chasing, Attacking, Dead } // BỔ SUNG: Thêm trạng thái Dead
 
     [Header("=== STATE ===")]
     [SerializeField] private EnemyState currentState = EnemyState.Idle;
@@ -51,10 +52,12 @@ public class BasicEnemyAI : MonoBehaviour
     [Header("=== ANIMATION PARAMETERS ===")]
     [SerializeField] private string runAnimBool = "IsRunning";
     [SerializeField] private string attackAnimTrigger = "Attack";
+    [SerializeField] private string deathAnimTrigger = "Die"; // BỔ SUNG: Parameter Trigger khi chết
 
     // Biến riêng tư
     private Transform playerTransform;
     private Animator animator;
+    private CharacterStats characterStats; // BỔ SUNG: Biến lưu tham chiếu CharacterStats
 
     private float lastAttackTime = -999f;
     private bool isAttacking = false;
@@ -68,10 +71,29 @@ public class BasicEnemyAI : MonoBehaviour
         {
             attackHitbox.SetActive(false);
         }
+
+        // BỔ SUNG: Lấy CharacterStats và đăng ký sự kiện OnDeath
+        characterStats = GetComponent<CharacterStats>();
+        if (characterStats != null)
+        {
+            characterStats.OnDeath += HandleDeath;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // BỔ SUNG: Hủy đăng ký sự kiện khi GameObject bị phá hủy để tránh memory leak
+        if (characterStats != null)
+        {
+            characterStats.OnDeath -= HandleDeath;
+        }
     }
 
     private void Update()
     {
+        // BỔ SUNG: Nếu quái đã chết thì ngắt toàn bộ Update logic
+        if (currentState == EnemyState.Dead) return;
+
         // KHẮC PHỤC LỖI ANIMATION: Nếu đang tấn công thì ngưng không can thiệp Rotation hay di chuyển
         if (isAttacking) return;
 
@@ -95,6 +117,29 @@ public class BasicEnemyAI : MonoBehaviour
                 StartCoroutine(Routine_PerformAttack());
                 break;
         }
+    }
+
+    // ==========================================
+    // BỔ SUNG: XỬ LÝ SỰ KIỆN KHI QUÁI CHẾT
+    // ==========================================
+    private void HandleDeath()
+    {
+        // 1. Chuyển State sang Dead
+        currentState = EnemyState.Dead;
+
+        // 2. Tắt toàn bộ Coroutine đang chạy (Ví dụ: Coroutine tấn công dở dang)
+        StopAllCoroutines();
+        isAttacking = false;
+
+        // 3. Tắt ngay lập tức Hitbox sát thương nếu đang bật
+        if (attackHitbox != null)
+        {
+            attackHitbox.SetActive(false);
+        }
+
+        // 4. Tắt Anim di chuyển và kích hoạt Trigger Animation Chết
+        SetAnimBool(runAnimBool, false);
+        SetAnimTrigger(deathAnimTrigger);
     }
 
     // ==========================================

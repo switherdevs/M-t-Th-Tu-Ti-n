@@ -4,19 +4,6 @@ using System.Collections.Generic;
 namespace PersistenceSystem
 {
     [Serializable]
-    public class PlayerData
-    {
-        // Stats Data
-        public float CurrentHealth;
-        public float BaseMaxHealth;
-        public float BaseAttack;
-        public float BaseDefense;
-
-        // Inventory Data
-        public List<SavedSlotData> InventorySlots = new List<SavedSlotData>();
-    }
-
-    [Serializable]
     public class SavedSlotData
     {
         public int SlotIndex;
@@ -29,5 +16,20 @@ namespace PersistenceSystem
             ItemSOPath = itemSOPath;
             Amount = amount;
         }
+    }
+
+    [Serializable]
+    public class PlayerData
+    {
+        // 1. Dữ liệu Kho đồ (Inventory)
+        public List<SavedSlotData> InventorySlots = new List<SavedSlotData>();
+
+        // 2. Dữ liệu Level & EXP (Khai báo biến chuẩn cho JsonUtility)
+        public int PlayerLevel = 1;
+        public float CurrentExp = 0f;
+        public float MaxExp = 5f;
+
+        // 3. Dữ liệu Chỉ số Nhân vật (Stats)
+        
     }
 }

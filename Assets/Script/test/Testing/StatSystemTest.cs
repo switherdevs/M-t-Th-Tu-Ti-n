@@ -16,7 +16,6 @@ namespace StatsSystem.Testing
         {
             if (playerStats == null || enemyStats == null)
             {
-                Debug.LogError("Chưa gán PlayerStats hoặc EnemyStats vào StatSystemTest!");
                 return;
             }
 

@@ -1,69 +1,94 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace PersistenceSystem
 {
-    [DisallowMultipleComponent]
     public class PlayerPersistenceBridge : MonoBehaviour
     {
-        private readonly List<IPlayerSaveable> _saveables = new List<IPlayerSaveable>();
-        private bool _isSaved = false;
+        public static PlayerPersistenceBridge Instance { get; private set; }
+
+        private PlayerData currentData;
 
         private void Awake()
         {
-            // Tự động tìm CharacterStats, InventoryManager... trên Player
-            GetComponentsInChildren(true, _saveables);
-        }
-
-        private IEnumerator Start()
-        {
-            // Chờ 1 frame để đảm bảo Awake/Initialize của các hệ thống cũ chạy xong
-            yield return null;
-            LoadToCurrentPlayer();
-        }
-
-        /// <summary>
-        /// Unity TỰ ĐỘNG gọi hàm này khi Scene cũ bị Unload (Player cũ bị Destroy)
-        /// </summary>
-        private void OnDestroy()
-        {
-            // Đảm bảo chỉ Save khi Game đang chạy (tránh Save khi bấm Stop Play mode trong Editor)
-            if (Application.isPlaying && !_isSaved)
+            if (Instance != null && Instance != this)
             {
-                SaveFromCurrentPlayer();
-            }
-        }
-
-        public void SaveFromCurrentPlayer()
-        {
-            if (_isSaved) return;
-
-            PlayerData data = new PlayerData();
-            foreach (var saveable in _saveables)
-            {
-                saveable?.SaveToData(data);
-            }
-
-            PlayerSaveManager.SaveData(data);
-            _isSaved = true;
-            Debug.Log($"<color=green>[Bridge] ĐÃ SAVE THÀNH CÔNG từ Scene '{gameObject.scene.name}'!</color>");
-        }
-
-        public void LoadToCurrentPlayer()
-        {
-            if (!PlayerSaveManager.HasSavedData)
-            {
-                Debug.Log("[Bridge] Scene đầu tiên (chưa có Save Data) -> Giữ chỉ số mặc định.");
+                Destroy(gameObject);
                 return;
             }
 
-            PlayerData data = PlayerSaveManager.LoadData();
-            foreach (var saveable in _saveables)
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Giữ Cầu nối này không bị xóa khi đổi Scene
+
+            // 1. NẠP DỮ LIỆU TỪ Ổ CỨNG LÊN KHI MỞ GAME
+            LoadAllFromDisk();
+        }
+
+        private void Start()
+        {
+            // 2. ÉP CÁC COMPONENT TRONG SCENE ĐỌC DỮ LIỆU ĐÃ LOAD
+            ApplyDataToAllSaveables();
+        }
+
+        /// <summary>
+        /// Tải dữ liệu từ File JSON ổ cứng vào RAM
+        /// </summary>
+        public void LoadAllFromDisk()
+        {
+            currentData = PlayerSaveManager.LoadGame();
+        }
+
+        /// <summary>
+        /// Thu thập tất cả dữ liệu hiện tại trong game và LƯU XUỐNG Ổ CỨNG
+        /// </summary>
+        public void SaveAllToDisk()
+        {
+            if (currentData == null) currentData = new PlayerData();
+
+            // Tìm tất cả các MonoBehavior có triển khai IPlayerSaveable trong Scene (InventoryManager, LevelSystem...)
+            var saveables = FindObjectsOfType<MonoBehaviour>();
+            foreach (var mono in saveables)
             {
-                saveable?.LoadFromData(data);
+                if (mono is IPlayerSaveable saveable)
+                {
+                    saveable.SaveToData(currentData);
+                }
             }
-            Debug.Log($"<color=cyan>[Bridge] ĐÃ LOAD THÀNH CÔNG vào Player ở Scene '{gameObject.scene.name}'!</color>");
+
+            // Ghi trực tiếp xuống ổ cứng
+            PlayerSaveManager.SaveGame(currentData);
+        }
+
+        /// <summary>
+        /// Đẩy dữ liệu từ RAM áp dụng lại cho các Component trong Scene
+        /// </summary>
+        public void ApplyDataToAllSaveables()
+        {
+            if (currentData == null) return;
+
+            var saveables = FindObjectsOfType<MonoBehaviour>();
+            foreach (var mono in saveables)
+            {
+                if (mono is IPlayerSaveable saveable)
+                {
+                    saveable.LoadFromData(currentData);
+                }
+            }
+        }
+
+        // Tự động LƯU GAME khi Người chơi tắt Game / Thoát ứng dụng
+        private void OnApplicationQuit()
+        {
+            SaveAllToDisk();
+        }
+
+        // Tự động LƯU GAME khi Tạm dừng trên Mobile
+        private void OnApplicationPause(bool pauseStatus)
+        {
+            if (pauseStatus)
+            {
+                SaveAllToDisk();
+            }
         }
     }
 }

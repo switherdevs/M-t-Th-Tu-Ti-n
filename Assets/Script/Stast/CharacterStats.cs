@@ -8,7 +8,7 @@ using PersistenceSystem;
 namespace StatsSystem.Components
 {
     [DisallowMultipleComponent]
-    public class CharacterStats : MonoBehaviour, IDamageable, IPlayerSaveable
+    public class CharacterStats : MonoBehaviour, IDamageable 
     {
         [Header("=== BASE STATS ===")]
         [SerializeField, Tooltip("Máu tối đa ban đầu")]
@@ -110,23 +110,7 @@ namespace StatsSystem.Components
             };
         }
         #region PERSISTENCE SYSTEM
-        public void SaveToData(PlayerData data)
-        {
-            data.CurrentHealth = this.currentHealth;
-            data.BaseMaxHealth = this.maxHealth.BaseValue;
-            data.BaseAttack = this.attack.BaseValue;
-            data.BaseDefense = this.defense.BaseValue;
-        }
-
-        public void LoadFromData(PlayerData data)
-        {
-            this.maxHealth.BaseValue = data.BaseMaxHealth;
-            this.attack.BaseValue = data.BaseAttack;
-            this.defense.BaseValue = data.BaseDefense;
-
-            this.currentHealth = Mathf.Min(data.CurrentHealth, this.MaxHealth.Value);
-            OnHealthChanged?.Invoke(this.currentHealth, this.MaxHealth.Value);
-        }
+        
         #endregion
     }
 

@@ -425,7 +425,7 @@ Transform:
   m_GameObject: {fileID: 6066590522327865047}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.25881857, w: 0.965926}
-  m_LocalPosition: {x: 1.712, y: 0.069, z: 0}
+  m_LocalPosition: {x: 1.712, y: 0.17, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -671,8 +671,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25c754fe70f09834990cc9f682480427, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  destroyDelay: 3
-  dieTriggerName: Die
+  currentState: 0
+  detectionRange: 8
+  attackRange: 1.5
+  stopDistance: 1.2
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  moveSpeed: 3
+  wallCheckDistance: 0.8
+  wallTag: Wall
+  attackHitbox: {fileID: 6066590522327865047}
+  damageActiveDelay: 0.3
+  damageDuration: 0.4
+  attackCooldown: 2
+  runAnimBool: IsRunning
+  attackAnimTrigger: Attack
 --- !u!61 &2598972309679270092
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -786,6 +800,7 @@ MonoBehaviour:
   attackCooldown: 2
   runAnimBool: IsRunning
   attackAnimTrigger: Attack
+  deathAnimTrigger: Die
 --- !u!1001 &3463184978168438955
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro; // BỔ SUNG: Thư viện bắt buộc để dùng TextMeshPro
 
 /// <summary>
-/// Xử lý logic Click-to-Move, đếm ngày, hiển thị đường đi, lật mặt bằng Rotation Y 
-/// và khóa click trong khi di chuyển cho Player trên Overworld.
+/// Xử lý logic Click-to-Move, đếm ngày/tháng/năm realtime bằng TextMeshPro,
+/// hiển thị đường đi, lật mặt bằng Rotation Y và khóa click trong khi di chuyển cho Player trên Overworld.
 /// </summary>
 [RequireComponent(typeof(LineRenderer))]
 public class OverworldPlayerController : MonoBehaviour
@@ -16,6 +17,10 @@ public class OverworldPlayerController : MonoBehaviour
     [Tooltip("GameObject dùng để hiển thị đánh dấu vị trí đích (Ví dụ: Sprite vuông màu vàng)")]
     public GameObject targetHighlight;
 
+    [Header("=== Cài đặt TextMeshPro hiển thị Thời gian ===")]
+    [Tooltip("Kéo Component TextMeshProUGUI (trên UI Canvas) hoặc TextMeshPro (trong 3D World) vào đây")]
+    public TMP_Text dateText;
+
     [Header("=== Cài đặt Di chuyển ===")]
     [Tooltip("Tốc độ di chuyển giữa các ô")]
     public float moveSpeed = 5f;
@@ -25,11 +30,25 @@ public class OverworldPlayerController : MonoBehaviour
     public string isMovingAnimBool = "IsMoving";
 
     [Header("=== Cài đặt Thời gian (In-game Time) ===")]
-    [Tooltip("Số ngày đã trôi qua")]
-    public int currentDays = 0;
+    [Tooltip("Ngày bắt đầu")]
+    public int startDay = 27;
+
+    [Tooltip("Tháng bắt đầu")]
+    public int startMonth = 5;
+
+    [Tooltip("Năm bắt đầu")]
+    public int startYear = 1113;
 
     [Tooltip("Cứ đi bao nhiêu ô thì tăng 1 ngày?")]
     public int tilesPerDay = 2;
+
+    // Các biến nội bộ để xử lý thời gian
+    private int currentDay;
+    private int currentMonth;
+    private int currentYear;
+
+    // Mảng lưu số ngày cố định của 12 tháng (Tháng 2 mặc định 28 ngày)
+    private readonly int[] daysInMonths = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
     // Các biến nội bộ để xử lý luồng
     private LineRenderer lineRenderer;
@@ -49,6 +68,14 @@ public class OverworldPlayerController : MonoBehaviour
 
         if (targetHighlight != null)
             targetHighlight.SetActive(false);
+
+        // Khởi tạo thời gian ban đầu
+        currentDay = startDay;
+        currentMonth = startMonth;
+        currentYear = startYear;
+
+        // Cập nhật lên màn hình ngay khi bắt đầu
+        UpdateDateUI();
 
         // Khởi tạo vị trí ban đầu của Player đồng bộ với Lưới
         currentGridPos = mapGrid.WorldToGrid(transform.position);
@@ -162,9 +189,8 @@ public class OverworldPlayerController : MonoBehaviour
             accumulatedTiles++;
             if (accumulatedTiles >= tilesPerDay)
             {
-                currentDays++;
+                AdvanceOneDay(); // Cộng thêm 1 ngày và xử lý nhảy tháng/năm
                 accumulatedTiles = 0;
-                Debug.Log("Thời gian trôi qua! Ngày hiện tại: " + currentDays);
             }
         }
 
@@ -182,6 +208,61 @@ public class OverworldPlayerController : MonoBehaviour
 
         // BỔ SUNG: Mở khóa di chuyển, người chơi được phép click ô mới
         isMoving = false;
+    }
+
+    /// <summary>
+    /// Cộng thêm 1 ngày vào lịch và cập nhật UI.
+    /// </summary>
+    private void AdvanceOneDay()
+    {
+        currentDay++;
+
+        // Lấy tổng số ngày tối đa của tháng hiện tại (Có tính năm nhuận)
+        int maxDaysInCurrentMonth = GetDaysInMonth(currentMonth, currentYear);
+
+        // Nếu ngày vượt quá số ngày của tháng hiện tại -> Sang tháng mới
+        if (currentDay > maxDaysInCurrentMonth)
+        {
+            currentDay = 1;
+            currentMonth++;
+
+            // Nếu tháng vượt quá 12 -> Sang năm mới
+            if (currentMonth > 12)
+            {
+                currentMonth = 1;
+                currentYear++;
+            }
+        }
+
+        // Cập nhật hiển thị lên màn hình
+        UpdateDateUI();
+    }
+
+    /// <summary>
+    /// Thuật toán kiểm tra số ngày trong tháng (Bao gồm kiểm tra Năm Nhuận).
+    /// </summary>
+    private int GetDaysInMonth(int month, int year)
+    {
+        // Nếu là tháng 2, kiểm tra xem có phải năm nhuận không
+        if (month == 2)
+        {
+            bool isLeapYear = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+            return isLeapYear ? 29 : 28;
+        }
+
+        // Lấy số ngày từ mảng (Trừ 1 vì mảng bắt đầu từ chỉ số 0)
+        return daysInMonths[month - 1];
+    }
+
+    /// <summary>
+    /// Định dạng chuỗi ngày tháng năm và gán vào TextMeshPro.
+    /// </summary>
+    private void UpdateDateUI()
+    {
+        if (dateText != null)
+        {
+            dateText.text = $"Ngày {currentDay} tháng {currentMonth} năm {currentYear}";
+        }
     }
 
     /// <summary>

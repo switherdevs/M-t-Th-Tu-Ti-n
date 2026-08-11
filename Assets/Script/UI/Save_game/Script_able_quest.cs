@@ -1,22 +1,43 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "QuestData_", menuName = "Scriptable Objects/QuestData")]
+[CreateAssetMenu(fileName = "QuestData_New", menuName = "Scriptable Objects/QuestData")]
 public class QuestData : ScriptableObject
 {
     [Header("--- THÔNG TIN CHUNG ---")]
-    public int idQuest;                     // ID duy nhất của Quest (Dùng để lưu vào File TXT)
+
+    [Tooltip("ID duy nhất của Quest. Không được trùng với Quest khác.")]
+    public int idQuest;
+
+    [Tooltip("Tên nhiệm vụ hiển thị trên UI.")]
     public string tenNhiemVu;
+
     [TextArea(3, 5)]
-    public string loiThoaiNhanQuest;        // Lời thoại NPC khi chào mời nhận quest
+    [Tooltip("Nội dung/thoại hiển thị khi Quest chưa được nhận.")]
+    public string loiThoaiNhanQuest;
+
     [TextArea(3, 5)]
-    public string loiThoaiDangLam;          // Lời thoại NPC khi đang làm quest
+    [Tooltip("Nội dung/thoại hiển thị khi Quest đang thực hiện.")]
+    public string loiThoaiDangLam;
+
     [TextArea(3, 5)]
-    public string loiThoaiHoanThanh;        // Lời thoại NPC khi trả quest nhận thưởng
+    [Tooltip("Nội dung hiển thị khi Quest đã hoàn thành.")]
+    public string loiThoaiHoanThanh;
+
 
     [Header("--- MỤC TIÊU NHIỆM VỤ ---")]
-    public int soLuongBoXuongCanDiet = 10;   // Mục tiêu cần tiêu diệt
+
+    [Tooltip("ID của loại quái cần tiêu diệt.")]
+    public int idQuaiCanDiet = 1;
+
+    [Tooltip("Số lượng quái cần tiêu diệt.")]
+    public int soLuongBoXuongCanDiet = 10;
+
 
     [Header("--- PHẦN THƯỞNG ---")]
-    public GameObject prefabItemPhanThuong; // Prefab Item truyền vào (Chỉ 1 loại)
-    public int soLuongItemThuong = 1;        // Số lượng Item nhận được (Tùy chỉnh)
+
+    [Tooltip("Prefab vật phẩm nhận được sau khi trả Quest.")]
+    public GameObject prefabItemPhanThuong;
+
+    [Tooltip("Số lượng vật phẩm thưởng.")]
+    public int soLuongItemThuong = 1;
 }

@@ -173,7 +173,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -578.51, y: -298.625}
+  m_AnchoredPosition: {x: -578.51, y: -304.625}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8675544401315914746
@@ -579,7 +579,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -578.51, y: -298.625}
+  m_AnchoredPosition: {x: -578.51, y: -301.625}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5478454512274857610
@@ -797,7 +797,7 @@ GameObject:
   - component: {fileID: 5315960015637491829}
   - component: {fileID: 4218007469264966169}
   m_Layer: 5
-  m_Name: Ten_quest
+  m_Name: Ten_quest 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1439,7 +1439,7 @@ GameObject:
   - component: {fileID: 7118842436285627441}
   - component: {fileID: 4053072254318330529}
   m_Layer: 5
-  m_Name: Ten_quest
+  m_Name: Ten_quest 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2307,22 +2307,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f87f0b71ebf2484a8c3500225a31e05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  danhSachQuest:
+  danhSachQuestUI:
   - questData: {fileID: 11400000, guid: f771a1661bba7a44fa36375d69da8e46, type: 2}
+    textTenNhiemVu: {fileID: 4575788459619011888}
     nutMoQuest: {fileID: 2644894801052583270}
+    isMainQuest: 1
   - questData: {fileID: 11400000, guid: e1d3a6b4e14fe1949806a00d8a2e9b26, type: 2}
+    textTenNhiemVu: {fileID: 4053072254318330529}
     nutMoQuest: {fileID: 8654654082222399631}
+    isMainQuest: 1
   - questData: {fileID: 11400000, guid: b698ce79618919a4692da0d8610ea84f, type: 2}
+    textTenNhiemVu: {fileID: 4218007469264966169}
     nutMoQuest: {fileID: 8453824638703580756}
+    isMainQuest: 1
   bangThoaiUI: {fileID: 0}
-  textTenNhiemVu: {fileID: 0}
   textLoiThoaiNPC: {fileID: 6734428147611600789}
-  textTienTrinh: {fileID: 0}
+  npcMainQuestObject: {fileID: 0}
+  npcSideQuestObject: {fileID: 0}
+  npcStopPosition: {x: 300, y: 0}
+  npcSlideOffsetDistance: 500
+  npcSlideDuration: 0.4
   nutDongY: {fileID: 2261915914043939927}
   nutTuChoi: {fileID: 1330615906353505630}
   nutTraNhiemVu: {fileID: 6260221804761133939}
   nutDongBang: {fileID: 0}
-  viTriTraThuong: {fileID: 0}
 --- !u!114 &4709585278853838731
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2487,7 +2495,7 @@ GameObject:
   - component: {fileID: 7971476633909692821}
   - component: {fileID: 4575788459619011888}
   m_Layer: 5
-  m_Name: Ten_quest
+  m_Name: Ten_quest 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -45,8 +45,8 @@ namespace PersistenceSystem
         {
             if (currentData == null) currentData = new PlayerData();
 
-            // Tìm tất cả các MonoBehavior có triển khai IPlayerSaveable trong Scene (InventoryManager, LevelSystem...)
-            var saveables = FindObjectsOfType<MonoBehaviour>();
+            // SỬA LỖI VÀNG: Đổi FindObjectsOfType -> FindObjectsByType kèm tham số FindObjectsSortMode.None
+            var saveables = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
             foreach (var mono in saveables)
             {
                 if (mono is IPlayerSaveable saveable)
@@ -66,7 +66,8 @@ namespace PersistenceSystem
         {
             if (currentData == null) return;
 
-            var saveables = FindObjectsOfType<MonoBehaviour>();
+            // SỬA LỖI VÀNG: Đổi FindObjectsOfType -> FindObjectsByType kèm tham số FindObjectsSortMode.None
+            var saveables = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
             foreach (var mono in saveables)
             {
                 if (mono is IPlayerSaveable saveable)

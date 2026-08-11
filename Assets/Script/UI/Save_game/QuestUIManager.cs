@@ -1,840 +1,244 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System;
 
-
+// 🎯 CẤU TRÚC MỖI DÒNG QUEST TRÊN UI (GỒM TÊN, DATA VÀ NÚT BẤM MỞ)
 [Serializable]
-public class QuestUISlot
+public class QuestUIElement
 {
-    [Tooltip("ScriptableObject chứa dữ liệu Quest.")]
+    [Header("--- THÔNG TIN DÒNG NHIỆM VỤ ---")]
+    [Tooltip("ScriptableObject dữ liệu của Quest này")]
     public QuestData questData;
 
-    [Tooltip("Button dùng để mở Quest này.")]
-    public Button nutMoQuest;
-}
+    [Tooltip("Text Mesh Pro hiển thị tên nhiệm vụ trên nút bấm này")]
+    public TextMeshProUGUI textTenNhiemVu;
 
+    [Tooltip("Nút bấm (Quest 1, Quest 2...) dùng để mở bảng thoại chi tiết")]
+    public Button nutMoQuest;
+
+    [Tooltip("Đánh dấu đây là Quest chính (True) hay Quest phụ (False) để chạy animation NPC tương ứng")]
+    public bool isMainQuest = true;
+}
 
 public class QuestUIManager : MonoBehaviour
 {
     public static QuestUIManager Instance;
 
+    [Header("--- DANH SÁCH / MẢNG CÁC PHẦN TỬ UI NHIỆM VỤ ---")]
+    [Tooltip("Mảng chứa thông tin từng dòng Quest trên giao diện danh sách")]
+    public List<QuestUIElement> danhSachQuestUI = new List<QuestUIElement>();
 
-    // =========================================================
-    // DANH SÁCH QUEST
-    // =========================================================
+    [Header("--- THÀNH PHẦN UI GIAO TIẾP CHUNG CẦN KÉO VÀO ---")]
+    public GameObject bangThoaiUI;                      // Panel chứa toàn bộ UI giao tiếp Quest
+    public TextMeshProUGUI textLoiThoaiNPC;             // Text (TMP) hiển thị Lời thoại NPC chung
 
-    [Header("--- DANH SÁCH QUEST ---")]
+    [Header("--- HÌNH ẢNH NHÂN VẬT (GAMEOBJECT) ---")]
+    [Tooltip("GameObject hình ảnh NPC chính trên UI")]
+    public GameObject npcMainQuestObject;
 
-    [Tooltip(
-        "Mỗi Element gồm 1 QuestData và 1 Button Mở Quest."
-    )]
-    public QuestUISlot[] danhSachQuest;
+    [Tooltip("GameObject hình ảnh NPC phụ trên UI")]
+    public GameObject npcSideQuestObject;
 
+    [Header("--- CẤU HÌNH TRƯỢT NPC (SLIDE SETTINGS) ---")]
+    public Vector2 npcStopPosition = new Vector2(300f, 0f);
+    public float npcSlideOffsetDistance = 500f;
+    public float npcSlideDuration = 0.4f;
 
-    // =========================================================
-    // PANEL CHI TIẾT QUEST
-    // =========================================================
-
-    [Header("--- PANEL CHI TIẾT QUEST ---")]
-
-    [Tooltip("Panel chứa toàn bộ thông tin Quest.")]
-    public GameObject bangThoaiUI;
-
-    [Tooltip("Tên Quest.")]
-    public TextMeshProUGUI textTenNhiemVu;
-
-    [Tooltip("Nội dung thoại / mô tả Quest.")]
-    public TextMeshProUGUI textLoiThoaiNPC;
-
-    [Tooltip("Tiến trình Quest.")]
-    public TextMeshProUGUI textTienTrinh;
-
-
-    // =========================================================
-    // BUTTON TRONG PANEL
-    // =========================================================
-
-    [Header("--- BUTTON QUEST ---")]
-
-    [Tooltip("Nút nhận Quest.")]
+    [Header("--- CÁC NÚT BẤM XỬ LÝ TRONG BẢNG THOẠI (BUTTONS) ---")]
     public Button nutDongY;
-
-    [Tooltip("Nút từ chối Quest. Có thể bỏ trống.")]
     public Button nutTuChoi;
-
-    [Tooltip("Nút trả Quest.")]
     public Button nutTraNhiemVu;
-
-    [Tooltip("Nút đóng bảng Quest.")]
     public Button nutDongBang;
 
-
-    // =========================================================
-    // THÀNH PHẦN THƯỞNG
-    // =========================================================
-
-    [Header("--- PHẦN THƯỞNG ---")]
-
-    [Tooltip(
-        "Vị trí World mà prefab phần thưởng sẽ được tạo ra. " +
-        "Có thể bỏ trống nếu hệ thống Item của bạn xử lý phần thưởng riêng."
-    )]
-    public Transform viTriTraThuong;
-
-
-    // =========================================================
-    // QUEST ĐANG XEM
-    // =========================================================
-
     private QuestData questDangXem;
-
-
-    // =========================================================
-    // AWAKE
-    // =========================================================
+    private Coroutine npcSlideCoroutine;
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
 
-
-        // Khi bắt đầu:
-        // Panel chi tiết phải ẩn.
-        if (bangThoaiUI != null)
-        {
-            bangThoaiUI.SetActive(false);
-        }
+        if (bangThoaiUI != null) bangThoaiUI.SetActive(false);
     }
-
-
-    // =========================================================
-    // START
-    // =========================================================
 
     private void Start()
     {
-        KhoiTaoDanhSachQuest();
-
-        if (nutDongY != null)
-        {
-            nutDongY.onClick.AddListener(
-                OnClickDongYNhanQuest
-            );
-        }
-
-        if (nutTraNhiemVu != null)
-        {
-            nutTraNhiemVu.onClick.AddListener(
-                OnClickTraNhiemVu
-            );
-        }
-
-        if (nutDongBang != null)
-        {
-            nutDongBang.onClick.AddListener(
-                DongBangQuest
-            );
-        }
-
-        if (nutTuChoi != null)
-        {
-            nutTuChoi.onClick.AddListener(
-                DongBangQuest
-            );
-        }
-
-        AnNoiDungQuest();
+        // Tự động thiết lập tên và lắng nghe sự kiện Click cho từng Button trong mảng
+        KhoiTaoDanhSachQuestUI();
     }
 
-
-    // =========================================================
-    // KHỞI TẠO CÁC SLOT QUEST
-    // =========================================================
-
-    private void KhoiTaoDanhSachQuest()
+    // 🎯 HÀM KHỞI TẠO DỮ LIỆU VÀ ĐĂNG KÝ SỰ KIỆN NÚT BẤM MỞ QUEST
+    public void KhoiTaoDanhSachQuestUI()
     {
-        if (danhSachQuest == null)
+        foreach (var element in danhSachQuestUI)
         {
-            Debug.LogWarning(
-                "[QuestUI] Chưa có danh sách Quest."
-            );
-
-            return;
-        }
-
-
-        for (
-            int i = 0;
-            i < danhSachQuest.Length;
-            i++
-        )
-        {
-            QuestUISlot slot =
-                danhSachQuest[i];
-
-            if (slot == null)
+            if (element != null && element.questData != null)
             {
-                continue;
-            }
-
-
-            if (slot.questData == null)
-            {
-                Debug.LogWarning(
-                    "[QuestUI] Quest Slot "
-                    + i
-                    + " chưa có QuestData."
-                );
-
-                continue;
-            }
-
-
-            if (slot.nutMoQuest == null)
-            {
-                Debug.LogWarning(
-                    "[QuestUI] Quest Slot "
-                    + i
-                    + " chưa có Button Mở Quest."
-                );
-
-                continue;
-            }
-
-
-            // Xóa listener cũ để tránh đăng ký nhiều lần
-            slot.nutMoQuest.onClick.RemoveAllListeners();
-
-
-            int index = i;
-
-            slot.nutMoQuest.onClick.AddListener(
-                () =>
+                // 1. Tự động hiển thị tên Quest lên Text Pro của phần tử đó
+                if (element.textTenNhiemVu != null)
                 {
-                    OnClickMoQuest(index);
+                    element.textTenNhiemVu.text = element.questData.tenNhiemVu;
                 }
-            );
 
+                // 2. Tự động gắn sự kiện Click vào Button Mở Quest tương ứng
+                if (element.nutMoQuest != null)
+                {
+                    element.nutMoQuest.onClick.RemoveAllListeners(); // Xóa listener cũ tránh trùng lặp
 
-            CapNhatButtonMoQuest(i);
+                    // Tạo biến tạm lưu data để tránh lỗi tham chiếu closure trong vòng lặp
+                    QuestData targetData = element.questData;
+                    bool isMain = element.isMainQuest;
+
+                    element.nutMoQuest.onClick.AddListener(() =>
+                    {
+                        MoBangThoaiQuest(targetData, isMain);
+                    });
+                }
+            }
         }
     }
 
-
-    // =========================================================
-    // CLICK MỞ QUEST
-    // =========================================================
-
-    public void OnClickMoQuest(int index)
+    // 🎯 HÀM TÌM DỮ LIỆU QUEST THEO ID (DÙNG CHO QUESTSAVESYSTEM)
+    public QuestData LayQuestDataTheoID(int idQuest)
     {
-        if (
-            index < 0
-            || index >= danhSachQuest.Length
-        )
+        foreach (var element in danhSachQuestUI)
         {
-            return;
+            if (element != null && element.questData != null && element.questData.idQuest == idQuest)
+            {
+                return element.questData;
+            }
         }
-
-
-        QuestUISlot slot =
-            danhSachQuest[index];
-
-
-        if (slot == null || slot.questData == null)
-        {
-            return;
-        }
-
-
-        QuestData questData =
-            slot.questData;
-
-
-        // Không cho mở Quest đã hoàn thành
-        ProgressQuest progress =
-            QuestSaveSystem.Instance
-            .LayTienTrinhQuest(
-                questData.idQuest
-            );
-
-
-        if (
-            progress.trangThai
-            == TrangThaiQuest.HoanThanh
-        )
-        {
-            return;
-        }
-
-
-        questDangXem =
-            questData;
-
-
-        if (bangThoaiUI != null)
-        {
-            bangThoaiUI.SetActive(true);
-        }
-
-
-        HienThiQuest(
-            questData,
-            progress
-        );
+        return null;
     }
 
-
-    // =========================================================
-    // HIỂN THỊ QUEST
-    // =========================================================
-
-    private void HienThiQuest(
-        QuestData questData,
-        ProgressQuest progress
-    )
+    // 🎯 HÀM MỞ BẢNG UI THOẠI KHI BẤM NÚT MỞ QUEST
+    public void MoBangThoaiQuest(QuestData questData, bool isMainQuest = true)
     {
         if (questData == null)
         {
+            Debug.LogWarning("<color=yellow>[QuestUI Warning]</color> Dữ liệu QuestData bị Null, không thể mở bảng thoại.");
             return;
         }
 
+        questDangXem = questData;
 
-        // Tên Quest
-        if (textTenNhiemVu != null)
-        {
-            textTenNhiemVu.text =
-                questData.tenNhiemVu;
-        }
+        if (bangThoaiUI != null) bangThoaiUI.SetActive(true);
 
+        // KÍCH HOẠT HÌNH ẢNH GAMEOBJECT NPC TƯƠNG ỨNG
+        HandleNPCGameObjectDisplay(isMainQuest);
 
-        // Mặc định ẩn Button
-        AnTatCaButtonChiTiet();
+        // Lấy tiến trình từ hệ thống Save TXT
+        ProgressQuest progress = QuestSaveSystem.Instance.LayTienTrinhQuest(questData.idQuest);
 
+        // Ẩn an toàn tất cả nút bấm thao tác thoại
+        if (nutDongY != null) nutDongY.gameObject.SetActive(false);
+        if (nutTuChoi != null) nutTuChoi.gameObject.SetActive(false);
+        if (nutTraNhiemVu != null) nutTraNhiemVu.gameObject.SetActive(false);
+        if (nutDongBang != null) nutDongBang.gameObject.SetActive(false);
 
+        // Xử lý lời thoại NPC và Nút bấm theo từng trạng thái
         switch (progress.trangThai)
         {
-            // =================================================
-            // CHƯA NHẬN
-            // =================================================
-
             case TrangThaiQuest.ChuaNhan:
-
-                if (textLoiThoaiNPC != null)
-                {
-                    textLoiThoaiNPC.text =
-                        questData.loiThoaiNhanQuest;
-                }
-
-
-                if (textTienTrinh != null)
-                {
-                    textTienTrinh.text =
-                        "Mục tiêu: Tiêu diệt "
-                        + questData.soLuongBoXuongCanDiet
-                        + " mục tiêu.";
-                }
-
-
-                if (nutDongY != null)
-                {
-                    nutDongY.gameObject.SetActive(true);
-                    nutDongY.interactable = true;
-                }
-
-
+                if (textLoiThoaiNPC != null) textLoiThoaiNPC.text = questData.loiThoaiNhanQuest;
+                if (nutDongY != null) nutDongY.gameObject.SetActive(true);
+                if (nutTuChoi != null) nutTuChoi.gameObject.SetActive(true);
                 break;
-
-
-            // =================================================
-            // ĐANG LÀM
-            // =================================================
 
             case TrangThaiQuest.DangLam:
-
-                if (textLoiThoaiNPC != null)
-                {
-                    textLoiThoaiNPC.text =
-                        questData.loiThoaiDangLam;
-                }
-
-
-                if (textTienTrinh != null)
-                {
-                    textTienTrinh.text =
-                        "Tiến trình: "
-                        + progress.soBoXuongDaDiet
-                        + "/"
-                        + questData.soLuongBoXuongCanDiet;
-                }
-
-
-                HienThiNutTraNhiemVu(false);
-
+                if (textLoiThoaiNPC != null) textLoiThoaiNPC.text = questData.loiThoaiDangLam;
+                if (nutDongBang != null) nutDongBang.gameObject.SetActive(true);
                 break;
-
-
-            // =================================================
-            // ĐỦ ĐIỀU KIỆN TRẢ
-            // =================================================
 
             case TrangThaiQuest.DaXongChuaTra:
-
-                if (textLoiThoaiNPC != null)
-                {
-                    textLoiThoaiNPC.text =
-                        questData.loiThoaiHoanThanh;
-                }
-
-
-                if (textTienTrinh != null)
-                {
-                    textTienTrinh.text =
-                        "Tiến trình: Hoàn thành ("
-                        + questData.soLuongBoXuongCanDiet
-                        + "/"
-                        + questData.soLuongBoXuongCanDiet
-                        + ")";
-                }
-
-
-                HienThiNutTraNhiemVu(true);
-
+                if (textLoiThoaiNPC != null) textLoiThoaiNPC.text = "Tốt lắm! Ngươi đã hoàn thành nhiệm vụ. Đây là phần thưởng!";
+                if (nutTraNhiemVu != null) nutTraNhiemVu.gameObject.SetActive(true);
                 break;
 
-
-            // =================================================
-            // ĐÃ HOÀN THÀNH
-            // =================================================
-
             case TrangThaiQuest.HoanThanh:
-
-                if (textLoiThoaiNPC != null)
-                {
-                    textLoiThoaiNPC.text =
-                        questData.loiThoaiHoanThanh;
-                }
-
-
-                if (textTienTrinh != null)
-                {
-                    textTienTrinh.text =
-                        "Nhiệm vụ đã hoàn thành.";
-                }
-
-
+                if (textLoiThoaiNPC != null) textLoiThoaiNPC.text = "Cảm ơn đại hiệp đã giúp đỡ dân lành!";
+                if (nutDongBang != null) nutDongBang.gameObject.SetActive(true);
                 break;
         }
     }
-
-
-    // =========================================================
-    // NHẬN QUEST
-    // =========================================================
 
     public void OnClickDongYNhanQuest()
     {
-        if (questDangXem == null)
-        {
-            return;
-        }
+        if (questDangXem == null) return;
 
-
-        QuestSaveSystem.Instance
-            .CapNhatTrangThaiQuest(
-                questDangXem.idQuest,
-                TrangThaiQuest.DangLam
-            );
-
-
-        ProgressQuest progress =
-            QuestSaveSystem.Instance
-            .LayTienTrinhQuest(
-                questDangXem.idQuest
-            );
-
-
-        HienThiQuest(
-            questDangXem,
-            progress
-        );
-
-
-        Debug.Log(
-            "<color=yellow>[Quest UI]</color> "
-            + "Đã nhận Quest: "
-            + questDangXem.idQuest
-        );
+        QuestSaveSystem.Instance.CapNhatTrangThaiQuest(questDangXem.idQuest, TrangThaiQuest.DangLam);
+        DongBangThoai();
+        Debug.Log("<color=yellow>[QuestUI]</color> Đã nhận nhiệm vụ ID: " + questDangXem.idQuest);
     }
 
-
-    // =========================================================
-    // TRẢ QUEST
-    // =========================================================
+    public void DongBangThoai()
+    {
+        if (npcSlideCoroutine != null) StopCoroutine(npcSlideCoroutine);
+        if (bangThoaiUI != null) bangThoaiUI.SetActive(false);
+    }
 
     public void OnClickTraNhiemVu()
     {
-        if (questDangXem == null)
+        if (questDangXem == null) return;
+
+        QuestSaveSystem.Instance.CapNhatTrangThaiQuest(questDangXem.idQuest, TrangThaiQuest.HoanThanh);
+
+        if (questDangXem.prefabItemPhanThuong != null)
         {
-            return;
-        }
-
-
-        ProgressQuest progress =
-            QuestSaveSystem.Instance
-            .LayTienTrinhQuest(
-                questDangXem.idQuest
-            );
-
-
-        // Không đủ điều kiện → không cho trả
-        if (
-            progress.trangThai
-            != TrangThaiQuest.DaXongChuaTra
-        )
-        {
-            Debug.LogWarning(
-                "[Quest UI] Quest chưa đủ điều kiện trả."
-            );
-
-            return;
-        }
-
-
-        // =====================================================
-        // TRAO PHẦN THƯỞNG
-        // =====================================================
-
-        TraoPhanThuong();
-
-
-        // =====================================================
-        // ĐÁNH DẤU QUEST HOÀN THÀNH
-        // =====================================================
-
-        QuestSaveSystem.Instance
-            .CapNhatTrangThaiQuest(
-                questDangXem.idQuest,
-                TrangThaiQuest.HoanThanh
-            );
-
-
-        // =====================================================
-        // KHÓA BUTTON MỞ QUEST
-        // =====================================================
-
-        KhoaButtonMoQuestTheoID(
-            questDangXem.idQuest
-        );
-
-
-        // Cập nhật UI
-        ProgressQuest progressMoi =
-            QuestSaveSystem.Instance
-            .LayTienTrinhQuest(
-                questDangXem.idQuest
-            );
-
-
-        HienThiQuest(
-            questDangXem,
-            progressMoi
-        );
-
-
-        Debug.Log(
-            "<color=green>[Quest UI]</color> "
-            + "Đã trả Quest: "
-            + questDangXem.idQuest
-        );
-    }
-
-
-    // =========================================================
-    // TRAO PHẦN THƯỞNG
-    // =========================================================
-
-    private void TraoPhanThuong()
-    {
-        if (
-            questDangXem == null
-            || questDangXem.prefabItemPhanThuong == null
-        )
-        {
-            return;
-        }
-
-
-        if (viTriTraThuong == null)
-        {
-            Debug.LogWarning(
-                "[Quest Reward] Chưa gán ViTriTraThuong."
-                + " Quest vẫn được hoàn thành nhưng"
-                + " chưa tạo Prefab phần thưởng."
-            );
-
-            return;
-        }
-
-
-        for (
-            int i = 0;
-            i < questDangXem.soLuongItemThuong;
-            i++
-        )
-        {
-            Instantiate(
-                questDangXem.prefabItemPhanThuong,
-                viTriTraThuong.position,
-                Quaternion.identity
-            );
-        }
-
-
-        Debug.Log(
-            "<color=green>[Quest Reward]</color> "
-            + "Nhận "
-            + questDangXem.soLuongItemThuong
-            + "x "
-            + questDangXem.prefabItemPhanThuong.name
-        );
-    }
-
-
-    // =========================================================
-    // HIỂN THỊ / KHÓA BUTTON TRẢ QUEST
-    // =========================================================
-
-    private void HienThiNutTraNhiemVu(
-        bool coTheTra
-    )
-    {
-        if (nutTraNhiemVu == null)
-        {
-            return;
-        }
-
-
-        nutTraNhiemVu.gameObject.SetActive(true);
-
-        // Đây là phần quan trọng:
-        // Chưa hoàn thành → mờ + không click
-        // Hoàn thành → sáng + click được
-        nutTraNhiemVu.interactable =
-            coTheTra;
-    }
-
-
-    // =========================================================
-    // KHÓA BUTTON MỞ QUEST
-    // =========================================================
-
-    private void KhoaButtonMoQuestTheoID(
-        int idQuest
-    )
-    {
-        if (danhSachQuest == null)
-        {
-            return;
-        }
-
-
-        foreach (
-            QuestUISlot slot
-            in danhSachQuest
-        )
-        {
-            if (
-                slot == null
-                || slot.questData == null
-                || slot.nutMoQuest == null
-            )
+            for (int i = 0; i < questDangXem.soLuongItemThuong; i++)
             {
-                continue;
+                Instantiate(questDangXem.prefabItemPhanThuong, transform.position + new Vector3(0, 1f, 0), Quaternion.identity);
             }
+            Debug.Log($"<color=green>[Reward]</color> Đã trao {questDangXem.soLuongItemThuong}x {questDangXem.prefabItemPhanThuong.name}");
+        }
 
+        DongBangThoai();
+    }
 
-            if (
-                slot.questData.idQuest
-                == idQuest
-            )
-            {
-                slot.nutMoQuest.interactable =
-                    false;
+    // ==========================================
+    // XỬ LÝ HIỂN THỊ VÀ TRƯỢT GAMEOBJECT UI NPC
+    // ==========================================
+    private void HandleNPCGameObjectDisplay(bool isMainQuest)
+    {
+        if (npcMainQuestObject != null) npcMainQuestObject.SetActive(false);
+        if (npcSideQuestObject != null) npcSideQuestObject.SetActive(false);
 
-                break;
-            }
+        GameObject targetNPCObject = isMainQuest ? npcMainQuestObject : npcSideQuestObject;
+        if (targetNPCObject == null) return;
+
+        targetNPCObject.SetActive(true);
+
+        RectTransform npcRect = targetNPCObject.GetComponent<RectTransform>();
+        if (npcRect != null)
+        {
+            if (npcSlideCoroutine != null) StopCoroutine(npcSlideCoroutine);
+            npcSlideCoroutine = StartCoroutine(Routine_SlideNPCObject(npcRect));
         }
     }
 
-
-    // =========================================================
-    // CẬP NHẬT BUTTON MỞ QUEST
-    // =========================================================
-
-    private void CapNhatButtonMoQuest(
-        int index
-    )
+    private IEnumerator Routine_SlideNPCObject(RectTransform npcRect)
     {
-        if (
-            index < 0
-            || index >= danhSachQuest.Length
-        )
+        Vector2 startPos = npcStopPosition + new Vector2(npcSlideOffsetDistance, 0f);
+        Vector2 targetPos = npcStopPosition;
+
+        npcRect.anchoredPosition = startPos;
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < npcSlideDuration)
         {
-            return;
+            elapsedTime += Time.deltaTime;
+            float progress = elapsedTime / npcSlideDuration;
+
+            float smoothProgress = Mathf.SmoothStep(0f, 1f, progress);
+
+            npcRect.anchoredPosition = Vector2.Lerp(startPos, targetPos, smoothProgress);
+            yield return null;
         }
 
-
-        QuestUISlot slot =
-            danhSachQuest[index];
-
-
-        if (
-            slot == null
-            || slot.questData == null
-            || slot.nutMoQuest == null
-        )
-        {
-            return;
-        }
-
-
-        ProgressQuest progress =
-            QuestSaveSystem.Instance
-            .LayTienTrinhQuest(
-                slot.questData.idQuest
-            );
-
-
-        if (
-            progress.trangThai
-            == TrangThaiQuest.HoanThanh
-        )
-        {
-            slot.nutMoQuest.interactable =
-                false;
-        }
-        else
-        {
-            slot.nutMoQuest.interactable =
-                true;
-        }
-    }
-
-
-    // =========================================================
-    // ẨN NỘI DUNG QUEST BAN ĐẦU
-    // =========================================================
-
-    private void AnNoiDungQuest()
-    {
-        if (textTenNhiemVu != null)
-        {
-            textTenNhiemVu.text = "";
-        }
-
-        if (textLoiThoaiNPC != null)
-        {
-            textLoiThoaiNPC.text = "";
-        }
-
-        if (textTienTrinh != null)
-        {
-            textTienTrinh.text = "";
-        }
-
-
-        AnTatCaButtonChiTiet();
-    }
-
-
-    // =========================================================
-    // ẨN BUTTON CHI TIẾT
-    // =========================================================
-
-    private void AnTatCaButtonChiTiet()
-    {
-        if (nutDongY != null)
-        {
-            nutDongY.gameObject.SetActive(false);
-        }
-
-        if (nutTuChoi != null)
-        {
-            nutTuChoi.gameObject.SetActive(false);
-        }
-
-        if (nutTraNhiemVu != null)
-        {
-            nutTraNhiemVu.gameObject.SetActive(false);
-        }
-    }
-
-
-    // =========================================================
-    // ĐÓNG QUEST
-    // =========================================================
-
-    public void DongBangQuest()
-    {
-        if (bangThoaiUI != null)
-        {
-            bangThoaiUI.SetActive(false);
-        }
-
-        questDangXem = null;
-
-        AnNoiDungQuest();
-    }
-
-
-    // =========================================================
-    // TÌM QUEST DATA THEO ID
-    // ĐƯỢC QUEST SAVE SYSTEM SỬ DỤNG
-    // =========================================================
-
-    public QuestData LayQuestDataTheoID(
-        int idQuest
-    )
-    {
-        if (danhSachQuest == null)
-        {
-            return null;
-        }
-
-
-        foreach (
-            QuestUISlot slot
-            in danhSachQuest
-        )
-        {
-            if (
-                slot == null
-                || slot.questData == null
-            )
-            {
-                continue;
-            }
-
-
-            if (
-                slot.questData.idQuest
-                == idQuest
-            )
-            {
-                return slot.questData;
-            }
-        }
-
-
-        return null;
+        npcRect.anchoredPosition = targetPos;
     }
 }

@@ -18,9 +18,6 @@ public class QuestUIElement
 
     [Tooltip("Nút bấm (Quest 1, Quest 2...) dùng để mở bảng thoại chi tiết")]
     public Button nutMoQuest;
-
-    [Tooltip("Đánh dấu đây là Quest chính (True) hay Quest phụ (False) để chạy animation NPC tương ứng")]
-    public bool isMainQuest = true;
 }
 
 public class QuestUIManager : MonoBehaviour
@@ -35,18 +32,6 @@ public class QuestUIManager : MonoBehaviour
     public GameObject bangThoaiUI;                      // Panel chứa toàn bộ UI giao tiếp Quest
     public TextMeshProUGUI textLoiThoaiNPC;             // Text (TMP) hiển thị Lời thoại NPC chung
 
-    [Header("--- HÌNH ẢNH NHÂN VẬT (GAMEOBJECT) ---")]
-    [Tooltip("GameObject hình ảnh NPC chính trên UI")]
-    public GameObject npcMainQuestObject;
-
-    [Tooltip("GameObject hình ảnh NPC phụ trên UI")]
-    public GameObject npcSideQuestObject;
-
-    [Header("--- CẤU HÌNH TRƯỢT NPC (SLIDE SETTINGS) ---")]
-    public Vector2 npcStopPosition = new Vector2(300f, 0f);
-    public float npcSlideOffsetDistance = 500f;
-    public float npcSlideDuration = 0.4f;
-
     [Header("--- CÁC NÚT BẤM XỬ LÝ TRONG BẢNG THOẠI (BUTTONS) ---")]
     public Button nutDongY;
     public Button nutTuChoi;
@@ -54,7 +39,6 @@ public class QuestUIManager : MonoBehaviour
     public Button nutDongBang;
 
     private QuestData questDangXem;
-    private Coroutine npcSlideCoroutine;
 
     private void Awake()
     {
@@ -90,11 +74,10 @@ public class QuestUIManager : MonoBehaviour
 
                     // Tạo biến tạm lưu data để tránh lỗi tham chiếu closure trong vòng lặp
                     QuestData targetData = element.questData;
-                    bool isMain = element.isMainQuest;
 
                     element.nutMoQuest.onClick.AddListener(() =>
                     {
-                        MoBangThoaiQuest(targetData, isMain);
+                        MoBangThoaiQuest(targetData);
                     });
                 }
             }
@@ -115,7 +98,7 @@ public class QuestUIManager : MonoBehaviour
     }
 
     // 🎯 HÀM MỞ BẢNG UI THOẠI KHI BẤM NÚT MỞ QUEST
-    public void MoBangThoaiQuest(QuestData questData, bool isMainQuest = true)
+    public void MoBangThoaiQuest(QuestData questData)
     {
         if (questData == null)
         {
@@ -126,9 +109,6 @@ public class QuestUIManager : MonoBehaviour
         questDangXem = questData;
 
         if (bangThoaiUI != null) bangThoaiUI.SetActive(true);
-
-        // KÍCH HOẠT HÌNH ẢNH GAMEOBJECT NPC TƯƠNG ỨNG
-        HandleNPCGameObjectDisplay(isMainQuest);
 
         // Lấy tiến trình từ hệ thống Save TXT
         ProgressQuest progress = QuestSaveSystem.Instance.LayTienTrinhQuest(questData.idQuest);
@@ -176,7 +156,6 @@ public class QuestUIManager : MonoBehaviour
 
     public void DongBangThoai()
     {
-        if (npcSlideCoroutine != null) StopCoroutine(npcSlideCoroutine);
         if (bangThoaiUI != null) bangThoaiUI.SetActive(false);
     }
 
@@ -196,49 +175,5 @@ public class QuestUIManager : MonoBehaviour
         }
 
         DongBangThoai();
-    }
-
-    // ==========================================
-    // XỬ LÝ HIỂN THỊ VÀ TRƯỢT GAMEOBJECT UI NPC
-    // ==========================================
-    private void HandleNPCGameObjectDisplay(bool isMainQuest)
-    {
-        if (npcMainQuestObject != null) npcMainQuestObject.SetActive(false);
-        if (npcSideQuestObject != null) npcSideQuestObject.SetActive(false);
-
-        GameObject targetNPCObject = isMainQuest ? npcMainQuestObject : npcSideQuestObject;
-        if (targetNPCObject == null) return;
-
-        targetNPCObject.SetActive(true);
-
-        RectTransform npcRect = targetNPCObject.GetComponent<RectTransform>();
-        if (npcRect != null)
-        {
-            if (npcSlideCoroutine != null) StopCoroutine(npcSlideCoroutine);
-            npcSlideCoroutine = StartCoroutine(Routine_SlideNPCObject(npcRect));
-        }
-    }
-
-    private IEnumerator Routine_SlideNPCObject(RectTransform npcRect)
-    {
-        Vector2 startPos = npcStopPosition + new Vector2(npcSlideOffsetDistance, 0f);
-        Vector2 targetPos = npcStopPosition;
-
-        npcRect.anchoredPosition = startPos;
-
-        float elapsedTime = 0f;
-
-        while (elapsedTime < npcSlideDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float progress = elapsedTime / npcSlideDuration;
-
-            float smoothProgress = Mathf.SmoothStep(0f, 1f, progress);
-
-            npcRect.anchoredPosition = Vector2.Lerp(startPos, targetPos, smoothProgress);
-            yield return null;
-        }
-
-        npcRect.anchoredPosition = targetPos;
     }
 }

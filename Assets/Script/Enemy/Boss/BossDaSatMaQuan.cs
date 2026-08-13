@@ -86,9 +86,6 @@ public class BossDaSatMaQuan : MonoBehaviour
     [Tooltip("Thời gian Boss khựng/đi chậm trước khi tung Skill (Giây)")]
     [SerializeField] private float skillPrepTime = 0.6f;
 
-    [Tooltip("Khoảng cách chấp nhận được về chiều cao Y để tránh giật rung")]
-    [SerializeField] private float stopDistanceY = 0.15f;
-
 
     // =========================================================
     // THỂ LỰC

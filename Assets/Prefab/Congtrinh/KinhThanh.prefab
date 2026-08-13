@@ -173,6 +173,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8410861699472594443}
     m_Modifications:
+    - target: {fileID: 951767937711993845, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: mapThuChachScene
+      value: 
+      objectReference: {fileID: 102900000, guid: 078f923096583ec43b4179f978a88a09, type: 3}
     - target: {fileID: 1561797035683224806, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -324,5 +328,5 @@ MonoBehaviour:
   map2Name: 
   Kinhthanhs: Kinhthanh
   VeMenu: 
-  Click: {fileID: 0}
+  Click: {fileID: 8300000, guid: fe980418dea2cd642b2236e9210d4548, type: 3}
   MainUi: {fileID: 0}

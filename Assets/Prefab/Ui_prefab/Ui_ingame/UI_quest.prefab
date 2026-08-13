@@ -423,7 +423,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1837655844004683866}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 10}
   m_LocalScale: {x: 0.05, y: 0.2, z: 0.025}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -432,7 +432,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -552.28, y: -291.28}
+  m_AnchoredPosition: {x: -550.631, y: -291.28}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6611897227187537261
@@ -784,7 +784,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2140965382521746608}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1581670381054428735}
+        m_TargetAssemblyTypeName: QuestUIManager, Assembly-CSharp
+        m_MethodName: OnClickDongYNhanQuest
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &3233315328044136402
 GameObject:
   m_ObjectHideFlags: 0
@@ -877,14 +889,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 10
-  m_fontSizeBase: 10
+  m_fontSize: 8
+  m_fontSizeBase: 8
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
-  m_HorizontalAlignment: 2
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -916,7 +928,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: -9.139987}
+  m_margin: {x: 27.519905, y: 0, z: 15.96843, w: -9.139987}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1042,7 +1054,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4114242455833708144}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1581670381054428735}
+        m_TargetAssemblyTypeName: QuestUIManager, Assembly-CSharp
+        m_MethodName: OnClickHuyHoacTuChoiQuest
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &4161786207312435645
 GameObject:
   m_ObjectHideFlags: 0
@@ -1074,6 +1098,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4289829806623582387}
+  - {fileID: 7224132181475234259}
   m_Father: {fileID: 7365653854758829219}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &6643557100757854833
@@ -1333,7 +1358,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5228232416410794188}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 10}
   m_LocalScale: {x: 0.03, y: 0.1, z: 0.04}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1426,7 +1451,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3119574071246616423}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1581670381054428735}
+        m_TargetAssemblyTypeName: QuestUIManager, Assembly-CSharp
+        m_MethodName: OnClickTraNhiemVu
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &5294604565208232251
 GameObject:
   m_ObjectHideFlags: 0
@@ -1519,14 +1556,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 10
-  m_fontSizeBase: 10
+  m_fontSize: 8
+  m_fontSizeBase: 8
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
-  m_HorizontalAlignment: 2
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -1558,7 +1595,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: -9.139987}
+  m_margin: {x: 27.519924, y: 0, z: 16.308125, w: -9.139987}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1817,7 +1854,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1354821751568256446}
-  - {fileID: 7224132181475234259}
   m_Father: {fileID: 1691844081293186506}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -2202,7 +2238,7 @@ GameObject:
   - component: {fileID: 4456645137921845911}
   - component: {fileID: 7779994807567664383}
   - component: {fileID: 1581670381054428735}
-  - component: {fileID: 4709585278853838731}
+  - component: {fileID: 1220693290936478603}
   m_Layer: 0
   m_Name: UI_quest
   m_TagString: Untagged
@@ -2311,27 +2347,19 @@ MonoBehaviour:
   - questData: {fileID: 11400000, guid: f771a1661bba7a44fa36375d69da8e46, type: 2}
     textTenNhiemVu: {fileID: 4575788459619011888}
     nutMoQuest: {fileID: 2644894801052583270}
-    isMainQuest: 1
   - questData: {fileID: 11400000, guid: e1d3a6b4e14fe1949806a00d8a2e9b26, type: 2}
     textTenNhiemVu: {fileID: 4053072254318330529}
     nutMoQuest: {fileID: 8654654082222399631}
-    isMainQuest: 1
   - questData: {fileID: 11400000, guid: b698ce79618919a4692da0d8610ea84f, type: 2}
     textTenNhiemVu: {fileID: 4218007469264966169}
     nutMoQuest: {fileID: 8453824638703580756}
-    isMainQuest: 1
-  bangThoaiUI: {fileID: 0}
   textLoiThoaiNPC: {fileID: 6734428147611600789}
-  npcMainQuestObject: {fileID: 0}
-  npcSideQuestObject: {fileID: 0}
-  npcStopPosition: {x: 300, y: 0}
-  npcSlideOffsetDistance: 500
-  npcSlideDuration: 0.4
+  textTienTrinhQuest: {fileID: 914527497195931557}
   nutDongY: {fileID: 2261915914043939927}
   nutTuChoi: {fileID: 1330615906353505630}
   nutTraNhiemVu: {fileID: 6260221804761133939}
-  nutDongBang: {fileID: 0}
---- !u!114 &4709585278853838731
+  nutDongBang: {fileID: 5811520698241077276}
+--- !u!114 &1220693290936478603
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2373,15 +2401,15 @@ RectTransform:
   m_GameObject: {fileID: 8933278691525084390}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.049999997, y: 0.049999993, z: 0.049999997}
+  m_LocalScale: {x: 0.03571428, y: 0.03571428, z: 0.03571428}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4289829806623582387}
+  m_Father: {fileID: 1691844081293186506}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -567.52, y: -305.885}
-  m_SizeDelta: {x: 60, y: -70}
+  m_AnchoredPosition: {x: -2.5357056, y: -1.2571716}
+  m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1695615019526496899
 CanvasRenderer:
@@ -2477,7 +2505,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: -12.740584, z: 0, w: 0}
+  m_margin: {x: 0, y: -5.388318, z: -142.14397, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -2575,14 +2603,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 10
-  m_fontSizeBase: 10
+  m_fontSize: 8
+  m_fontSizeBase: 8
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
-  m_HorizontalAlignment: 2
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -2614,7 +2642,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: -9.139987}
+  m_margin: {x: 29.558441, y: 0, z: 18.00697, w: -8.460483}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

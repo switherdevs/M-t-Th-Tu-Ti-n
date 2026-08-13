@@ -3,111 +3,108 @@ using UnityEngine;
 
 public class BuildingInteraction : MonoBehaviour
 {
-    [Header("Cấu hình Phóng to (Scale)")]
-    [SerializeField] private float targetScaleMultiplier = 1.2f; // Tỉ lệ to lên (1.2 tương đương to hơn 20%)
-    [SerializeField] private float scaleSpeed = 10f;             // Tốc độ phóng to / thu nhỏ (số càng lớn chuyển động càng nhanh)
+    [Header("--- CẤU HÌNH GIAO DIỆN (UI) ---")]
+    [Tooltip("Không cần kéo thả! Script sẽ tự tìm UI_quest khi chuyển Scene.")]
+    [SerializeField] private GameObject uiGameObject;
 
-    [Header("Cấu hình Đổi màu (Highlight)")]
-    [SerializeField] private Color hoverColor = new Color(1f, 1f, 1f, 1f); // Màu trắng nhẹ khi đưa chuột vào
-    private Color originalColor;                                            // Lưu lại màu gốc của công trình
+    [Header("--- CẤU HÌNH PHÓNG TO (SCALE) ---")]
+    [SerializeField] private float targetScaleMultiplier = 1.2f;
+    [SerializeField] private float scaleSpeed = 10f;
 
-    [Header("Cấu hình Giao diện (UI)")]
-    [SerializeField] private GameObject uiGameObject;                     // Kéo GameObject UI vào đây trong Inspector
+    [Header("--- CẤU HÌNH ĐỔI MÀU (HIGHLIGHT) ---")]
+    [SerializeField] private Color hoverColor = new Color(1f, 1f, 1f, 1f);
 
     private SpriteRenderer spriteRenderer;
-    private Vector3 originalScale;                                          // Lưu lại kích thước ban đầu
-    private Vector3 targetScale;                                            // Kích thước mục tiêu khi đưa chuột vào
-    private Coroutine scaleCoroutine;                                       // Quản lý tiến trình chạy mượt (Coroutine)
+    private Color originalColor;
+    private Vector3 originalScale;
+    private Vector3 targetScale;
+    private Coroutine scaleCoroutine;
 
-    private void Start()
+    private void Awake()
     {
-        // Lấy component SpriteRenderer để xử lý đổi màu
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
         {
             originalColor = spriteRenderer.color;
         }
 
-        // Lưu lại kích thước gốc của công trình
         originalScale = transform.localScale;
         targetScale = originalScale * targetScaleMultiplier;
-
-        // Đảm bảo ban đầu UI được ẩn đi
-        if (uiGameObject != null)
-        {
-            uiGameObject.SetActive(false);
-        }
     }
 
-    // --- CÁC SỰ KIỆN TƯƠNG TÁC CHUỘT (Dùng cho Collider2D) ---
-
-    // Khi con trỏ chuột bắt đầu di chuyển vào vùng Collider2D của công trình
-    private void OnMouseEnter()
+    private void Start()
     {
-        // 1. Xử lý đổi màu trắng nhẹ
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.color = hoverColor;
-        }
-
-        // 2. Xử lý phóng to từ từ mượt mà
-        StartSmoothScale(targetScale);
+        // Tự động liên kết với UI trong Scene
+        TimVaCapNhatUI();
     }
 
-    // Khi con trỏ chuột rời khỏi vùng Collider2D của công trình
-    private void OnMouseExit()
-    {
-        // 1. Trả lại màu sắc ban đầu
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.color = originalColor;
-        }
-
-        // 2. Xử lý thu nhỏ lại kích thước ban đầu mượt mà
-        StartSmoothScale(originalScale);
-    }
-
-    // Khi người chơi nhấn chuột trái vào công trình có Collider2D
+    // 🎯 TƯƠNG TÁC CLICK CHUỘT VÀO CÔNG TRÌNH
     private void OnMouseDown()
     {
+        // Kiểm tra và tìm lại UI phòng trường hợp vừa chuyển Scene sang
+        TimVaCapNhatUI();
+
         if (uiGameObject != null)
         {
-            // Đảo trạng thái hiển thị của UI (Đang tắt thì bật lên, đang bật thì tắt đi)
-            bool isActive = uiGameObject.activeSelf;
-            uiGameObject.SetActive(!isActive);
+            // Đảo trạng thái Bật / Tắt UI
+            bool trangThaiMoi = !uiGameObject.activeSelf;
+            uiGameObject.SetActive(trangThaiMoi);
 
-            Debug.Log("Đã click vào công trình, trạng thái UI: " + !isActive);
+            // Nếu Bật UI -> Load dữ liệu Quest mới nhất từ file Save
+            if (trangThaiMoi && QuestUIManager.Instance != null)
+            {
+                QuestUIManager.Instance.KhoiTaoDanhSachQuestUI();
+                QuestUIManager.Instance.DongBangThoai();
+            }
+
+            Debug.Log("<color=green>[Building]</color> Mở UI thành công trên Scene mới!");
         }
         else
         {
-            Debug.LogWarning("Chưa gán GameObject UI vào script!");
+            Debug.LogError("<color=red>[Building Error]</color> Không tìm thấy UI_quest hoặc QuestUIManager trong Scene KinhThanh!");
         }
     }
 
-    // --- HÀM THUẬT TOÁN HỖ TRỢ ---
+    // 🎯 TỰ ĐỘNG TÌM GAMEOBJECT UI DÙ CHUYỂN SCENE NÀO
+    private void TimVaCapNhatUI()
+    {
+        // 1. Ưu tiên lấy GameObject từ QuestUIManager Instance của Scene hiện tại
+        if (QuestUIManager.Instance != null)
+        {
+            uiGameObject = QuestUIManager.Instance.gameObject;
+        }
+        // 2. Nếu Instance chưa sẵn sàng, tìm trực tiếp tên 'UI_quest' trên Hierarchy
+        else if (uiGameObject == null)
+        {
+            uiGameObject = GameObject.Find("UI_quest");
+        }
+    }
 
-    // Hàm quản lý Coroutine để tránh bị chồng chéo lệnh scale khi di chuyển chuột nhanh ra vào
+    private void OnMouseEnter()
+    {
+        if (spriteRenderer != null) spriteRenderer.color = hoverColor;
+        StartSmoothScale(targetScale);
+    }
+
+    private void OnMouseExit()
+    {
+        if (spriteRenderer != null) spriteRenderer.color = originalColor;
+        StartSmoothScale(originalScale);
+    }
+
     private void StartSmoothScale(Vector3 endScale)
     {
-        if (scaleCoroutine != null)
-        {
-            StopCoroutine(scaleCoroutine);
-        }
+        if (scaleCoroutine != null) StopCoroutine(scaleCoroutine);
         scaleCoroutine = StartCoroutine(ScaleRoutine(endScale));
     }
 
-    // Thuật toán Lerp giúp đối tượng to lên hoặc nhỏ lại từ từ nhìn thấy được
     private IEnumerator ScaleRoutine(Vector3 destinationScale)
     {
-        // Lặp liên tục qua từng khung hình cho đến khi kích thước hiện tại gần sát với kích thước mục tiêu
         while (Vector3.Distance(transform.localScale, destinationScale) > 0.01f)
         {
-            // Mathf.Lerp giúp thay đổi giá trị một cách từ từ, mượt mà dựa theo thời gian thực (Time.deltaTime)
             transform.localScale = Vector3.Lerp(transform.localScale, destinationScale, scaleSpeed * Time.deltaTime);
-            yield return null; // Chờ đến khung hình tiếp theo
+            yield return null;
         }
-
-        // Gán chính xác kích thước đích ở khung hình cuối cùng để tránh sai số
         transform.localScale = destinationScale;
     }
 }

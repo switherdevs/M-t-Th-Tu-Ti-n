@@ -4931,8 +4931,6 @@ GameObject:
   - component: {fileID: 3137031585999233194}
   - component: {fileID: 8495692858874563973}
   - component: {fileID: -6367711509585734000}
-  - component: {fileID: 6853680852253267079}
-  - component: {fileID: 3352140404985623350}
   m_Layer: 0
   m_Name: Dan_chieu3
   m_TagString: Untagged
@@ -4950,7 +4948,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4241740004495662528}
@@ -5190,30 +5188,3 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &6853680852253267079
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8106306527046521838}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 060530a35c2e5d045813d5652cf23819, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseDamage: 200
-  targetTag: Enemy
---- !u!114 &3352140404985623350
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8106306527046521838}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17aa1ab8892b273478482249e725b070, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  time: 1

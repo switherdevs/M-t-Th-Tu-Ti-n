@@ -8,7 +8,7 @@ using PersistenceSystem;
 namespace StatsSystem.Components
 {
     [DisallowMultipleComponent]
-    public class CharacterStats : MonoBehaviour, IDamageable 
+    public class CharacterStats : MonoBehaviour, IDamageable
     {
         [Header("=== BASE STATS ===")]
         [SerializeField, Tooltip("Máu tối đa ban đầu")]
@@ -23,6 +23,19 @@ namespace StatsSystem.Components
         [Header("=== CURRENT STATE ===")]
         [SerializeField, ReadOnlyInspector]
         private float currentHealth;
+
+        // =========================================================
+        // THÊM TÍNH NĂNG BOSS (CHECKBOX INSPECTOR)
+        // =========================================================
+        [Header("=== BOSS CONFIGURATION ===")]
+        [SerializeField, Tooltip("Tick vào đây nếu GameObject này là Boss để kích hoạt cơ chế nhận X3 sát thương khi mệt")]
+        private bool isBoss = false;
+
+        [SerializeField, Tooltip("Hệ số nhân sát thương khi Boss bị mệt (Mặc định x3)")]
+        private float tiredDamageMultiplier = 3f;
+
+        // Tham chiếu tự động tới script Boss
+        private BossDaSatMaQuan bossController;
 
         // Properties
         public Stat MaxHealth => maxHealth;
@@ -41,6 +54,16 @@ namespace StatsSystem.Components
         private void Awake()
         {
             currentHealth = MaxHealth.Value;
+
+            // Nếu là Boss, tự động lấy Script BossDaSatMaQuan gắn trên cùng GameObject
+            if (isBoss)
+            {
+                bossController = GetComponent<BossDaSatMaQuan>();
+                if (bossController == null)
+                {
+                    Debug.LogWarning($"⚠️ [CharacterStats] {gameObject.name} được tick là Boss nhưng không tìm thấy script BossDaSatMaQuan!");
+                }
+            }
         }
 
         private void OnEnable()
@@ -63,6 +86,16 @@ namespace StatsSystem.Components
         public void TakeDamage(float rawDamage)
         {
             if (IsDead || rawDamage <= 0) return;
+
+            // KIỂM TRA ĐIỀU KIỆN BOSS VÀ TRẠNG THÁI MỆT
+            if (isBoss && bossController != null)
+            {
+                if (bossController.IsTired)
+                {
+                    rawDamage *= tiredDamageMultiplier; // Nhân 3 sát thương khi mệt
+                    Debug.Log($"💥 BOSS ĐANG MỆT! Sát thương nhận vào bị nhân {tiredDamageMultiplier} lần: {rawDamage}");
+                }
+            }
 
             // Tính toán sát thương thông qua DamageCalculator Service
             float finalDamage = DamageCalculator.CalculateDamage(rawDamage, Defense.Value);
@@ -110,7 +143,7 @@ namespace StatsSystem.Components
             };
         }
         #region PERSISTENCE SYSTEM
-        
+
         #endregion
     }
 

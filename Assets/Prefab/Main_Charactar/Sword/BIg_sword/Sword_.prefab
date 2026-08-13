@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 3137031585999233194}
   - component: {fileID: 3046501438908305485}
   - component: {fileID: 5475353191210675227}
-  - component: {fileID: 9107201550900443084}
   m_Layer: 0
   m_Name: Sword_
   m_TagString: Untagged
@@ -32,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -269,17 +268,3 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &9107201550900443084
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8106306527046521838}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 060530a35c2e5d045813d5652cf23819, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseDamage: 30
-  targetTag: Enemy

@@ -46,6 +46,7 @@ GameObject:
   - component: {fileID: 736769601141526187}
   - component: {fileID: -2037768626894670775}
   - component: {fileID: 3110940993423000525}
+  - component: {fileID: 5708453120537919081}
   m_Layer: 0
   m_Name: Dan_chieu2
   m_TagString: Untagged
@@ -330,6 +331,20 @@ MonoBehaviour:
   scatterDuration: 0.25
   homingSpeed: 60
   maxLifeTime: 3
+--- !u!114 &5708453120537919081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4282846749162037270}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 060530a35c2e5d045813d5652cf23819, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseDamage: 50
+  targetTag: Enemy
 --- !u!1 &5635728191066486403
 GameObject:
   m_ObjectHideFlags: 0

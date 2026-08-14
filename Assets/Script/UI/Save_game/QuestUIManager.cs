@@ -41,6 +41,10 @@ public class QuestUIManager : MonoBehaviour
     public Button nutTraNhiemVu;
     public Button nutDongBang;
 
+    [Header("--- TRẠNG THÁI HOÀN THÀNH TẤT CẢ QUEST ---")]
+    [Tooltip("Biến đúng khi TOÀN BỘ các QuestData trong mảng danhSachQuestUI đã ở trạng thái HoanThanh")]
+    public bool Complete = false;
+
     private QuestData questDangXem;
 
     private void Awake()
@@ -97,6 +101,40 @@ public class QuestUIManager : MonoBehaviour
                 }
             }
         }
+
+        // 🎯 KIỂM TRA TOÀN BỘ QUEST XEM ĐÃ HOÀN THÀNH CHƯA
+        KiemTraToanBoQuestHoanThanh();
+    }
+
+    // 🎯 HÀM KIỂM TRA XEM TẤT CẢ SCRIPTABLEOBJECT TRONG MẢNG ĐÃ HOÀN THÀNH CHƯA
+    public void KiemTraToanBoQuestHoanThanh()
+    {
+        if (danhSachQuestUI == null || danhSachQuestUI.Count == 0)
+        {
+            Complete = false;
+            return;
+        }
+
+        bool tatCaDaXong = true;
+
+        foreach (var element in danhSachQuestUI)
+        {
+            if (element != null && element.questData != null)
+            {
+                ProgressQuest progress = QuestSaveSystem.Instance != null
+                    ? QuestSaveSystem.Instance.LayTienTrinhQuest(element.questData.idQuest)
+                    : null;
+
+                // Nếu có dù chỉ 1 Quest chưa xong (khác HoanThanh) -> Complete = false
+                if (progress == null || progress.trangThai != TrangThaiQuest.HoanThanh)
+                {
+                    tatCaDaXong = false;
+                    break;
+                }
+            }
+        }
+
+        Complete = tatCaDaXong;
     }
 
     // 🎯 HÀM TÌM DỮ LIỆU QUEST THEO ID (DÙNG CHO QUESTSAVESYSTEM)

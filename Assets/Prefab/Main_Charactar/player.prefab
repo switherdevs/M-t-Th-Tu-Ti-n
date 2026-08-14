@@ -275,8 +275,6 @@ GameObject:
   - component: {fileID: 8254536555419453987}
   - component: {fileID: 8712972713771717828}
   - component: {fileID: -5719478494179254987}
-  - component: {fileID: 6722450276128608499}
-  - component: {fileID: 5858794822096081497}
   m_Layer: 7
   m_Name: player
   m_TagString: Player
@@ -576,6 +574,8 @@ MonoBehaviour:
   defense:
     baseValue: 0.25
   currentHealth: 300
+  isBoss: 0
+  tiredDamageMultiplier: 3
 --- !u!114 &8254536555419453987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -702,32 +702,6 @@ SortingGroup:
   m_SortingLayer: 0
   m_SortingOrder: 10
   m_SortAtRoot: 0
---- !u!114 &6722450276128608499
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2345805083975770352}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96565002a6d94c346ae45824964b801f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inventorySize: 24
-  slots: []
---- !u!114 &5858794822096081497
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2345805083975770352}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1c92b9344e36eaa40a9660cbd5e06c17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2390863112206969679
 GameObject:
   m_ObjectHideFlags: 0
@@ -1648,7 +1622,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f31591391685c80409d064cb1b91bdf6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerInventory: {fileID: 6722450276128608499}
+  playerInventory: {fileID: 0}
   itemLayer:
     serializedVersion: 2
     m_Bits: 256

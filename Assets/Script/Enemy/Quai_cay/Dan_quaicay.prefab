@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 688408086060954733}
   - component: {fileID: 6638620869072662400}
   - component: {fileID: 1137085015609456965}
+  - component: {fileID: -1346193194849150255}
   m_Layer: 0
   m_Name: Dan_quaicay
   m_TagString: Untagged
@@ -79,7 +80,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 50
   m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
-  m_Color: {r: 0.105633736, g: 1, b: 0, a: 1}
+  m_Color: {r: 0.105633736, g: 1, b: 0, a: 0.40392157}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -154,3 +155,17 @@ MonoBehaviour:
   speed: 30
   damage: 10
   destroyTime: 5
+--- !u!114 &-1346193194849150255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2779534502923475830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 060530a35c2e5d045813d5652cf23819, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseDamage: 30
+  targetTag: Enemy

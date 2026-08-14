@@ -1,31 +1,33 @@
 using UnityEngine;
 
-namespace StatsSystem.UI
+public class FixHealthBarRotation : MonoBehaviour
 {
-    public class UIFreezeFlip : MonoBehaviour
+    private Vector3 initialScale;
+
+    private void Start()
     {
-        private Vector3 initialScale;
+        // Lưu lại Scale ban đầu của Canvas
+        initialScale = transform.localScale;
+    }
 
-        private void Awake()
-        {
-            // Lưu lại Scale ban đầu của Canvas/Slider UI (VD: 0.5, 0.5, 0.5)
-            initialScale = transform.localScale;
-        }
+    private void LateUpdate()
+    {
+        if (transform.parent == null) return;
 
-        private void LateUpdate()
-        {
-            if (transform.parent == null) return;
+        // Ép Canvas giữ nguyên góc xoay chuẩn không bị quay Y = 180
+        transform.rotation = Quaternion.identity;
 
-            // Lấy Scale hiện tại của nhân vật cha
-            Vector3 parentScale = transform.parent.lossyScale;
+        // Triệt tiêu lỗi bị Scale âm (Lật ngược) từ quái vật cha
+        Vector3 parentScale = transform.parent.localScale;
 
-            // Thuật toán triệt tiêu Scale của cha: 
-            // Scale mong muốn = Scale ban đầu / Scale của Cha
-            // Giúp Canvas LUÔN LUÔN giữ nguyên Scale dương tuyệt đối trong Thế Giới (World Space)
-            float newScaleX = Mathf.Abs(initialScale.x) / (parentScale.x < 0 ? -1f : 1f);
-            float newScaleY = Mathf.Abs(initialScale.y) / (parentScale.y < 0 ? -1f : 1f);
+        transform.localScale = new Vector3(
+            Mathf.Abs(initialScale.x) * (parentScale.x < 0 ? -1 : 1),
+            initialScale.y,
+            initialScale.z
+        );
 
-            transform.localScale = new Vector3(newScaleX, newScaleY, initialScale.z);
-        }
+        // Đảm bảo Pos Z luôn luôn nổi lên trước Sprite quái
+        Vector3 currentPos = transform.localPosition;
+        transform.localPosition = new Vector3(currentPos.x, currentPos.y, -0.1f);
     }
 }

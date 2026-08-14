@@ -114,6 +114,8 @@ MonoBehaviour:
   defense:
     baseValue: 0.1
   currentHealth: 0
+  isBoss: 0
+  tiredDamageMultiplier: 3
 --- !u!114 &473414755262829701
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -127,7 +129,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idQuai: 4
-  destroyDelay: 3
+  destroyDelay: 1
   dieTriggerName: Die
 --- !u!1 &2369490013103673571
 GameObject:

@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 9048160730484934630}
   - component: {fileID: 5040993615570308671}
   - component: {fileID: 6504707584082378508}
-  - component: {fileID: 7097870043029100708}
   m_Layer: 7
   m_Name: Player_map
   m_TagString: Player
@@ -65,7 +64,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapGrid: {fileID: 0}
-  targetHighlight: {fileID: 0}
+  targetHighlight: {fileID: 5689187545136164943, guid: 48e5bebd66fa3b747ad12cc563adae74, type: 3}
   dateText: {fileID: 8262964678098286552}
   moveSpeed: 30
   isMovingAnimBool: IsWalking
@@ -253,20 +252,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &7097870043029100708
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1061776285454499220}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96565002a6d94c346ae45824964b801f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inventorySize: 24
-  slots: []
 --- !u!1 &5486973498043572599
 GameObject:
   m_ObjectHideFlags: 0

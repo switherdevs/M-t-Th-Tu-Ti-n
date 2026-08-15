@@ -1,13 +1,14 @@
 using UnityEngine;
 using System.Collections;
+using StatsSystem.Components;
 
 /// <summary>
 /// Script điều khiển AI Sói: Chạy rượt đuổi & Khựng lại phóng vồ (Pounce) + Tấn công
-/// Bổ sung: Tính năng xoay mặt (Rotation Y) tương thích với 2D Bone Animation.
+/// Bổ sung: Tính năng xoay mặt (Rotation Y) tương thích với 2D Bone Animation + Dừng hoàn toàn khi chết.
 /// </summary>
 public class WolfAI : MonoBehaviour
 {
-    public enum WolfState { Idle, Chase, PreparePounce, Pouncing, Attacking, Returning }
+    public enum WolfState { Idle, Chase, PreparePounce, Pouncing, Attacking, Returning, Dead }
 
     [Header("=== STATE CURRENT ===")]
     [SerializeField] private WolfState currentState = WolfState.Idle;
@@ -58,19 +59,51 @@ public class WolfAI : MonoBehaviour
     private Vector2 spawnPosition;
     private Transform playerTransform;
     private Animator animator;
+    private CharacterStats stats;
 
     private float lastPounceTime = -999f; // Đặt âm lớn để vào game dùng được kỹ năng ngay
 
     private void Start()
     {
         animator = GetComponentInChildren<Animator>();
+        stats = GetComponent<CharacterStats>();
+
+        // Đăng ký nghe event chết từ CharacterStats
+        if (stats != null)
+        {
+            stats.OnDeath += OnWolfDeath;
+        }
 
         spawnPosition = transform.position;
     }
 
+    private void OnDestroy()
+    {
+        if (stats != null)
+        {
+            stats.OnDeath -= OnWolfDeath;
+        }
+    }
+
+    // 🎯 HÀM TỰ ĐỘNG KHÓA VÀ DỪNG AI HOÀN TOÀN KHI HẾT MÁU
+    private void OnWolfDeath()
+    {
+        currentState = WolfState.Dead;
+
+        // Dừng toàn bộ các Coroutine đang chạy (chuỗi phóng vồ/tấn công)
+        StopAllCoroutines();
+
+        // Tắt animation chạy
+        SetAnimBool(runAnimBool, false);
+
+        // Vô hiệu hóa script này để không chạy Update nữa
+        this.enabled = false;
+    }
+
     private void Update()
     {
-        if (currentState == WolfState.PreparePounce || currentState == WolfState.Pouncing || currentState == WolfState.Attacking)
+        // 🎯 KIỂM TRA ĐIỀU KIỆN CHẾT HOẶC ĐANG TRONG TRẠNG THÁI KHÔNG THỂ DI CHUYỂN
+        if (currentState == WolfState.Dead || currentState == WolfState.PreparePounce || currentState == WolfState.Pouncing || currentState == WolfState.Attacking)
             return;
 
         ScanForPlayer();
@@ -94,6 +127,8 @@ public class WolfAI : MonoBehaviour
     // ==========================================
     private void ScanForPlayer()
     {
+        if (currentState == WolfState.Dead) return;
+
         Collider2D hit = Physics2D.OverlapCircle(transform.position, chaseRange, playerLayer);
 
         if (hit != null)
@@ -132,6 +167,8 @@ public class WolfAI : MonoBehaviour
         // --- KHỰNG LẠI ---
         yield return new WaitForSeconds(preparePounceTime);
 
+        if (currentState == WolfState.Dead) yield break;
+
         // --- TÍNH TOÁN ĐIỂM DỪNG (OFFSET X) ---
         currentState = WolfState.Pouncing;
         SetAnimTrigger(pounceAnimTrigger);
@@ -146,6 +183,8 @@ public class WolfAI : MonoBehaviour
         // --- PHÓNG TỚI ---
         while (Vector2.Distance(transform.position, targetPosition) > 0.1f)
         {
+            if (currentState == WolfState.Dead) yield break;
+
             transform.position = Vector2.MoveTowards(
                 transform.position,
                 targetPosition,
@@ -154,6 +193,8 @@ public class WolfAI : MonoBehaviour
             yield return null;
         }
 
+        if (currentState == WolfState.Dead) yield break;
+
         transform.position = targetPosition;
 
         // --- TẤN CÔNG ---
@@ -161,6 +202,8 @@ public class WolfAI : MonoBehaviour
         SetAnimTrigger(attackAnimTrigger);
 
         yield return new WaitForSeconds(0.5f);
+
+        if (currentState == WolfState.Dead) yield break;
 
         currentState = WolfState.Chase;
     }
@@ -222,18 +265,12 @@ public class WolfAI : MonoBehaviour
     // 4. HELPER FUNCTIONS
     // ==========================================
 
-    /// <summary>
-    /// Hàm xoay mặt dựa trên tọa độ X của mục tiêu (Tối ưu cho 2D Bone Animation)
-    /// </summary>
-    /// <param name="targetX">Tọa độ X của điểm muốn quay mặt về</param>
     private void Flip(float targetX)
     {
-        // Mục tiêu nằm bên Trái so với Sói -> Xoay Y = 180 độ
         if (targetX < transform.position.x)
         {
             transform.eulerAngles = new Vector3(0f, 180f, 0f);
         }
-        // Mục tiêu nằm bên Phải so với Sói -> Xoay Y = 0 độ
         else if (targetX > transform.position.x)
         {
             transform.eulerAngles = new Vector3(0f, 0f, 0f);
@@ -258,15 +295,12 @@ public class WolfAI : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        // 1. Vùng 1: Tầm Rượt đuổi (Màu Vàng)
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, chaseRange);
 
-        // 2. Vùng 2: Tầm Phóng vồ (Màu Đỏ)
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, pounceRange);
 
-        // 3. Vùng Mất dấu (Màu Xanh Dương)
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, loseRange);
     }

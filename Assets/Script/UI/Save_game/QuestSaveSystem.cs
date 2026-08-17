@@ -3,7 +3,6 @@ using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Enum quản lý 4 trạng thái của một nhiệm vụ
 public enum TrangThaiQuest
 {
     ChuaNhan = 0,
@@ -12,16 +11,14 @@ public enum TrangThaiQuest
     HoanThanh = 3
 }
 
-// Lớp lưu tiến trình cá nhân của từng nhiệm vụ
 [Serializable]
 public class ProgressQuest
 {
     public int idQuest;
     public TrangThaiQuest trangThai;
-    public int soBoXuongDaDiet; // Số lượng quái mục tiêu đã diệt được
+    public int soBoXuongDaDiet;
 }
 
-// Lớp bao gói danh sách tiến trình để JsonUtility có thể Serialize thành file TXT/JSON
 [Serializable]
 public class DanhSachSaveQuest
 {
@@ -30,11 +27,10 @@ public class DanhSachSaveQuest
 
 public class QuestSaveSystem : MonoBehaviour
 {
-    // Biến static lưu Instance dùng cho Design Pattern Singleton trong Scene
     public static QuestSaveSystem Instance;
 
     [Header("--- CẤU HÌNH DỮ LIỆU QUEST (KÉO SCRIPTABLE OBJECT VÀO ĐÂY) ---")]
-    [Tooltip("Danh sách các ScriptableObject QuestData trong game.")]
+    [Tooltip("Danh sách TẤT CẢ các ScriptableObject QuestData trong toàn bộ Game")]
     public List<QuestData> danhSachQuestData = new List<QuestData>();
 
     [Header("--- CẤU HÌNH SAVE ---")]
@@ -42,47 +38,34 @@ public class QuestSaveSystem : MonoBehaviour
     public string tenFileSave = "QuestProgressData.txt";
 
     private string duongDanTuyetDoi;
-
-    // Object chứa dữ liệu save đang hoạt động trên RAM
     public DanhSachSaveQuest duLieuSaveHienTai = new DanhSachSaveQuest();
 
     private void Awake()
     {
-        // 🎯 KIỂM TRA Singleton THEO TỪNG SCENE (KHÔNG DÙNG DontDestroyOnLoad)
         if (Instance == null)
         {
             Instance = this;
         }
         else if (Instance != this)
         {
-            // Nếu trong cùng 1 Scene lỡ có 2 QuestSaveSystem thì hủy bớt 1 cái
             Destroy(gameObject);
             return;
         }
 
-        // Tạo đường dẫn tuyệt đối đến file Save trong ổ cứng
         duongDanTuyetDoi = Path.Combine(
             Application.persistentDataPath,
             tenFileSave
         );
 
-        // Nạp dữ liệu Save ngay khi vào Scene mới
         LoadDuLieuQuestFromTxt();
     }
 
-    // =========================================================
-    // 1. LƯU DỮ LIỆU XUỐNG FILE TXT / JSON
-    // =========================================================
     public void SaveDuLieuQuestToTxt()
     {
         try
         {
-            // Chuyển C# Object thành chuỗi định dạng JSON
             string chuoiJson = JsonUtility.ToJson(duLieuSaveHienTai, true);
-
-            // Ghi file xuống đĩa cứng
             File.WriteAllText(duongDanTuyetDoi, chuoiJson);
-
             Debug.Log("<color=green>[Quest Save]</color> Đã lưu Quest: " + duongDanTuyetDoi);
         }
         catch (Exception e)
@@ -91,32 +74,17 @@ public class QuestSaveSystem : MonoBehaviour
         }
     }
 
-    // =========================================================
-    // 2. NẠP DỮ LIỆU TỪ Ổ CỨNG LÊN DỰ ÁN
-    // =========================================================
     public void LoadDuLieuQuestFromTxt()
     {
-        // Kiểm tra xem file TXT đã tồn tại hay chưa
         if (File.Exists(duongDanTuyetDoi))
         {
             try
             {
-                // Đọc chuỗi văn bản từ file TXT
                 string chuoiJson = File.ReadAllText(duongDanTuyetDoi);
-
-                // Chuyển lại thành C# Object
                 duLieuSaveHienTai = JsonUtility.FromJson<DanhSachSaveQuest>(chuoiJson);
 
-                // Bảo vệ chống Null Reference
-                if (duLieuSaveHienTai == null)
-                {
-                    duLieuSaveHienTai = new DanhSachSaveQuest();
-                }
-
-                if (duLieuSaveHienTai.danhSachProgress == null)
-                {
-                    duLieuSaveHienTai.danhSachProgress = new List<ProgressQuest>();
-                }
+                if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
+                if (duLieuSaveHienTai.danhSachProgress == null) duLieuSaveHienTai.danhSachProgress = new List<ProgressQuest>();
 
                 Debug.Log("<color=cyan>[Quest Load]</color> Đã load dữ liệu Quest.");
             }
@@ -128,7 +96,6 @@ public class QuestSaveSystem : MonoBehaviour
         }
         else
         {
-            // Nếu lần đầu chơi (chưa có file) thì tạo file save mới
             TaoFileSaveMoi();
         }
     }
@@ -139,9 +106,6 @@ public class QuestSaveSystem : MonoBehaviour
         SaveDuLieuQuestToTxt();
     }
 
-    // =========================================================
-    // 3. TÌM DỮ LIỆU QUESTDATA TRONG INSPECTOR TỰ ĐỘNG
-    // =========================================================
     public QuestData LayQuestDataTheoID(int idQuest)
     {
         foreach (QuestData q in danhSachQuestData)
@@ -154,22 +118,11 @@ public class QuestSaveSystem : MonoBehaviour
         return null;
     }
 
-    // =========================================================
-    // 4. LẤY HOẶC TẠO MỚI TIẾN TRÌNH QUEST CỦA PLAYER
-    // =========================================================
     public ProgressQuest LayTienTrinhQuest(int idQuest)
     {
-        if (duLieuSaveHienTai == null)
-        {
-            duLieuSaveHienTai = new DanhSachSaveQuest();
-        }
+        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
+        if (duLieuSaveHienTai.danhSachProgress == null) duLieuSaveHienTai.danhSachProgress = new List<ProgressQuest>();
 
-        if (duLieuSaveHienTai.danhSachProgress == null)
-        {
-            duLieuSaveHienTai.danhSachProgress = new List<ProgressQuest>();
-        }
-
-        // Tìm tiến trình nhiệm vụ đã lưu
         foreach (ProgressQuest quest in duLieuSaveHienTai.danhSachProgress)
         {
             if (quest.idQuest == idQuest)
@@ -178,7 +131,6 @@ public class QuestSaveSystem : MonoBehaviour
             }
         }
 
-        // Nếu Quest này chưa từng lưu trong file -> Tạo bản ghi mới ở trạng thái Chưa Nhận
         ProgressQuest questMoi = new ProgressQuest
         {
             idQuest = idQuest,
@@ -192,9 +144,6 @@ public class QuestSaveSystem : MonoBehaviour
         return questMoi;
     }
 
-    // =========================================================
-    // 5. CẬP NHẬT TRẠNG THÁI QUEST (NHẬN / HỦY / TRẢ QUEST)
-    // =========================================================
     public void CapNhatTrangThaiQuest(int idQuest, TrangThaiQuest trangThaiMoi)
     {
         ProgressQuest quest = LayTienTrinhQuest(idQuest);
@@ -205,9 +154,7 @@ public class QuestSaveSystem : MonoBehaviour
         Debug.Log("<color=yellow>[Quest]</color> Quest ID " + idQuest + " → " + trangThaiMoi);
     }
 
-    // =========================================================
-    // 6. GHI NHẬN QUÁI BỊ TIÊU DIỆT TỪ GAMEPLAY
-    // =========================================================
+    // 🎯 HÀM GHI NHẬN TIÊU DIỆT QUÁI (ĐÃ TỐI ƯU ĐỂ KHÔNG BỊ BỎ SÓT NHIỆM VỤ DÙ CHƠI Ở MAP NÀO)
     public void GhiNhanDietQuai(int idQuai, int soLuong = 1)
     {
         if (soLuong <= 0) return;
@@ -216,47 +163,48 @@ public class QuestSaveSystem : MonoBehaviour
 
         foreach (ProgressQuest questProgress in duLieuSaveHienTai.danhSachProgress)
         {
-            // Chỉ cập nhật nếu nhiệm vụ đó đang ở trạng thái 'Đang Làm'
+            // 1. Chỉ tính điểm khi Quest đang ở trạng thái 'Đang Làm' (TrangThai = 1)
             if (questProgress.trangThai != TrangThaiQuest.DangLam)
             {
                 continue;
             }
 
-            // Lấy thông tin thiết lập của Quest này
+            // 2. Tra cứu dữ liệu QuestData tương ứng
             QuestData questData = LayQuestDataTheoID(questProgress.idQuest);
 
+            // Nếu không tìm thấy QuestData trong danhSachQuestData -> Bỏ qua
             if (questData == null)
             {
+                Debug.LogWarning($"[QuestSaveSystem] Không tìm thấy QuestData cho Quest ID: {questProgress.idQuest}. Hãy kiểm tra lại Inspector!");
                 continue;
             }
 
-            // Đúng loại quái cần giết mới tính điểm
+            // 3. Kiểm tra xem loại quái bị diệt có đúng với yêu cầu của Quest không
             if (questData.idQuaiCanDiet != idQuai)
             {
                 continue;
             }
 
-            // Cộng dồn số quái đã tiêu diệt
+            // 4. Cộng dồn số lượng quái tiêu diệt
             questProgress.soBoXuongDaDiet += soLuong;
 
-            // Kiểm tra xem đã đạt số lượng tối đa yêu cầu chưa
+            // 5. Kiểm tra nếu đủ số lượng yêu cầu -> Đổi sang trạng thái 'Đã Xong Chưa Trả' (TrangThai = 2)
             if (questProgress.soBoXuongDaDiet >= questData.soLuongBoXuongCanDiet)
             {
                 questProgress.soBoXuongDaDiet = questData.soLuongBoXuongCanDiet;
-                questProgress.trangThai = TrangThaiQuest.DaXongChuaTra; // Đổi sang Chờ Trả Thưởng
+                questProgress.trangThai = TrangThaiQuest.DaXongChuaTra;
 
-                Debug.Log("<color=green>[Quest]</color> " + questData.tenNhiemVu + " đã đạt đủ điều kiện trả nhiệm vụ.");
+                Debug.Log("<color=green>[Quest]</color> " + questData.tenNhiemVu + " đã hoàn thành mục tiêu diệt quái!");
             }
 
             coThayDoi = true;
         }
 
-        // Lưu lại dữ liệu ngay nếu có thay đổi tiến trình
+        // Lưu dữ liệu và làm mới UI nếu có tiến trình thay đổi
         if (coThayDoi)
         {
             SaveDuLieuQuestToTxt();
 
-            // Cập nhật lại UI trong Scene nếu đang mở
             if (QuestUIManager.Instance != null)
             {
                 QuestUIManager.Instance.KhoiTaoDanhSachQuestUI();

@@ -67,6 +67,10 @@ MonoBehaviour:
   targetHighlight: {fileID: 5689187545136164943, guid: 48e5bebd66fa3b747ad12cc563adae74, type: 3}
   dateText: {fileID: 8262964678098286552}
   moveSpeed: 30
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 1
+  distanceThreshold: 0.9
   isMovingAnimBool: IsWalking
   startDay: 27
   startMonth: 5

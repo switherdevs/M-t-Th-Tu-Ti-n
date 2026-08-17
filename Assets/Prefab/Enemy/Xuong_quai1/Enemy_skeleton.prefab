@@ -87,7 +87,6 @@ GameObject:
   - component: {fileID: 9143493378835739666}
   - component: {fileID: 5468233399054359778}
   - component: {fileID: 3207378965861602507}
-  - component: {fileID: 778341747173131917}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -103,7 +102,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1619056172938092369}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 10}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -136,7 +135,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 50
+  m_SortingOrder: 75
   m_TargetDisplay: 0
 --- !u!114 &5468233399054359778
 MonoBehaviour:
@@ -178,18 +177,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &778341747173131917
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1619056172938092369}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 713a6fb831269004faf107b04e4901b3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2857833718465829450
 GameObject:
   m_ObjectHideFlags: 0
@@ -659,6 +646,8 @@ MonoBehaviour:
   defense:
     baseValue: 0.1
   currentHealth: 100
+  isBoss: 0
+  tiredDamageMultiplier: 3
 --- !u!114 &6637531207864386104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -671,22 +660,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25c754fe70f09834990cc9f682480427, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentState: 0
-  detectionRange: 8
-  attackRange: 1.5
-  stopDistance: 1.2
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 128
-  moveSpeed: 3
-  wallCheckDistance: 0.8
-  wallTag: Wall
-  attackHitbox: {fileID: 6066590522327865047}
-  damageActiveDelay: 0.3
-  damageDuration: 0.4
-  attackCooldown: 2
-  runAnimBool: IsRunning
-  attackAnimTrigger: Attack
+  idQuai: 1
+  destroyDelay: 2
+  dieTriggerName: Die
 --- !u!61 &2598972309679270092
 BoxCollider2D:
   m_ObjectHideFlags: 0

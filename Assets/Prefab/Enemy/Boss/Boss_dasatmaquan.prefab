@@ -297,6 +297,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5477a5b1fdef58344941ac6470fe3b57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  danhSachQuestData: []
   tenFileSave: QuestProgressData.txt
   duLieuSaveHienTai:
     danhSachProgress: []
@@ -359,7 +360,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   detectRange: 300
-  attackRange: 25
+  attackRange: 18
   wallLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -372,10 +373,9 @@ MonoBehaviour:
   attackRage: {fileID: 3806381652906834954}
   attackRageOffsetX: 0
   attackRageOffsetY: 0
-  moveSpeed: 30
+  moveSpeed: 40
   slowMoveSpeed: 10
   skillPrepTime: 1
-  stopDistanceY: 0.2
   maxStamina: 10
   currentStamina: 0
   tiredTime: 5

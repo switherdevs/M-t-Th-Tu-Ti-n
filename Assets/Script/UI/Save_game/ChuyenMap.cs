@@ -9,11 +9,14 @@ public class ChuyenMapManager : MonoBehaviour
     [Tooltip("Nút bấm dùng để chuyển sang Map mới")]
     public Button nutQuaMap;
 
+    [Tooltip("GameObject của nút bấm (hoặc Panel/UI chứa nút) sẽ bị ẩn biến mất hoàn toàn")]
+    [SerializeField] private GameObject objectNutCanAn;
+
     [Tooltip("Tên Scene map mới cần load khi bấm nút (có thể để trống nếu chỉ muốn ẩn nút)")]
     public string tenSceneMapMoi = "Map2";
 
     [Header("--- TÙY CHỌN ẨN NÚT KHI HOÀN THÀNH ---")]
-    [Tooltip("Nếu tích chọn, khi hoàn thành nhiệm vụ nút sẽ biến mất thay vì chuyển map")]
+    [Tooltip("Nếu tích chọn, khi hoàn thành nhiệm vụ GameObject nút sẽ biến mất hoàn toàn")]
     public bool anNutKhiXong = false;
 
     [Header("--- ĐIỀU KIỆN QUA MAP (NHIỆM VỤ YÊU CẦU) ---")]
@@ -29,6 +32,12 @@ public class ChuyenMapManager : MonoBehaviour
 
     private void Start()
     {
+        // Nếu chưa kéo objectNutCanAn trong Inspector, tự gán GameObject của Button vào luôn
+        if (objectNutCanAn == null && nutQuaMap != null)
+        {
+            objectNutCanAn = nutQuaMap.gameObject;
+        }
+
         if (nutQuaMap != null)
         {
             // Lấy hoặc tự thêm CanvasGroup để điều khiển độ mờ
@@ -52,7 +61,6 @@ public class ChuyenMapManager : MonoBehaviour
     // 🎯 HÀM KIỂM TRA XEM TẤT CẢ QUEST YÊU CẦU CHO MAP NÀY ĐÃ HOÀN THÀNH CHƯA
     public bool KiemTraKichHoatQuaMap()
     {
-        // Nếu không cài đặt nhiệm vụ yêu cầu nào -> Mặc định đã đủ điều kiện
         if (danhSachQuestYeuCau == null || danhSachQuestYeuCau.Count == 0)
         {
             return true;
@@ -62,12 +70,10 @@ public class ChuyenMapManager : MonoBehaviour
         {
             if (quest != null)
             {
-                // Tra cứu tiến trình quest trực tiếp từ QuestSaveSystem
                 ProgressQuest progress = QuestSaveSystem.Instance != null
                     ? QuestSaveSystem.Instance.LayTienTrinhQuest(quest.idQuest)
                     : null;
 
-                // Nếu có dù chỉ 1 quest chưa hoàn thành -> Chưa đủ điều kiện
                 if (progress == null || progress.trangThai != TrangThaiQuest.HoanThanh)
                 {
                     return false;
@@ -78,38 +84,38 @@ public class ChuyenMapManager : MonoBehaviour
         return true;
     }
 
-    // 🎯 HÀM CẬP NHẬT TRẠNG THÁI NÚT (KHÓA / MỜ / ẨN NÚT)
+    // 🎯 HÀM CẬP NHẬT TRẠNG THÁI NÚT (KHÓA / MỜ / ẨN GAMEOBJECT)
     private void CapNhatTrangThaiNutQuaMap()
     {
-        if (nutQuaMap == null) return;
-
         bool duDieuKienQuaMap = KiemTraKichHoatQuaMap();
 
         // 🎯 XỬ LÝ KHI TÍCH BIẾN "ẨN NÚT KHI XONG"
         if (anNutKhiXong && duDieuKienQuaMap)
         {
-            // Nếu đã hoàn thành nhiệm vụ và biến anNutKhiXong = true -> Biến mất nút
-            if (nutQuaMap.gameObject.activeSelf)
+            // Tắt hoàn toàn GameObject đã gán trong Inspector
+            if (objectNutCanAn != null && objectNutCanAn.activeSelf)
             {
-                nutQuaMap.gameObject.SetActive(false);
-                Debug.Log("<color=yellow>[Map Manager]</color> Đã hoàn thành nhiệm vụ, nút đã tự động biến mất!");
+                objectNutCanAn.SetActive(false);
+                Debug.Log("<color=yellow>[Map Manager]</color> Đã hoàn thành nhiệm vụ, GameObject nút đã biến mất hoàn toàn!");
             }
             return;
         }
 
-        // Đảm bảo nút được hiện nếu chưa đủ điều kiện hoặc không bật anNutKhiXong
-        if (!nutQuaMap.gameObject.activeSelf)
+        // Đảm bảo GameObject nút vẫn được bật nếu chưa đủ điều kiện hoặc không bật anNutKhiXong
+        if (objectNutCanAn != null && !objectNutCanAn.activeSelf)
         {
-            nutQuaMap.gameObject.SetActive(true);
+            objectNutCanAn.SetActive(true);
         }
 
-        // Bật / Tắt khả năng tương tác của Button
-        nutQuaMap.interactable = duDieuKienQuaMap;
-
-        // Chỉnh độ mờ (Alpha) của Button
-        if (canvasGroupNut != null)
+        // Điều khiển tương tác và độ mờ cho Button
+        if (nutQuaMap != null)
         {
-            canvasGroupNut.alpha = duDieuKienQuaMap ? 1f : doMoKhiKhoa;
+            nutQuaMap.interactable = duDieuKienQuaMap;
+
+            if (canvasGroupNut != null)
+            {
+                canvasGroupNut.alpha = duDieuKienQuaMap ? 1f : doMoKhiKhoa;
+            }
         }
     }
 
@@ -118,11 +124,14 @@ public class ChuyenMapManager : MonoBehaviour
     {
         if (KiemTraKichHoatQuaMap())
         {
-            // Nếu biến anNutKhiXong được tích thì ưu tiên ẩn nút
+            // Nếu biến anNutKhiXong được tích -> Tắt GameObject chứa nút
             if (anNutKhiXong)
             {
-                nutQuaMap.gameObject.SetActive(false);
-                Debug.Log("<color=yellow>[Map Manager]</color> Đã nhấn nút! Nút biến mất thay vì chuyển map.");
+                if (objectNutCanAn != null)
+                {
+                    objectNutCanAn.SetActive(false);
+                }
+                Debug.Log("<color=yellow>[Map Manager]</color> Đã nhấn nút! GameObject đã biến mất hoàn toàn.");
                 return;
             }
 

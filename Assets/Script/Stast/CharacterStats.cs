@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using StatsSystem.Core;
 using StatsSystem.Interfaces;
@@ -25,6 +26,22 @@ namespace StatsSystem.Components
         private float currentHealth;
 
         // =========================================================
+        // BỔ SUNG CONFIGURATION PLAYER
+        // =========================================================
+        [Header("=== PLAYER CONFIGURATION ===")]
+        [SerializeField, Tooltip("Tick vào đây nếu GameObject này là Player")]
+        private bool isPlayer = false;
+
+        [SerializeField, Tooltip("Tên Trigger/Bool Animation Chết")]
+        private string dieAnimName = "Die";
+
+        [SerializeField, Tooltip("Thời gian chờ (giây) trước khi dừng game và hiện UI")]
+        private float deathDelay = 2.0f;
+
+        [SerializeField, Tooltip("GameObject Canvas UI GameOver hiển thị khi người chơi chết")]
+        private GameObject gameOverUI;
+
+        // =========================================================
         // THÊM TÍNH NĂNG BOSS (CHECKBOX INSPECTOR)
         // =========================================================
         [Header("=== BOSS CONFIGURATION ===")]
@@ -34,8 +51,9 @@ namespace StatsSystem.Components
         [SerializeField, Tooltip("Hệ số nhân sát thương khi Boss bị mệt (Mặc định x3)")]
         private float tiredDamageMultiplier = 3f;
 
-        // Tham chiếu tự động tới script Boss
+        // Tham chiếu tự động tới script Boss & Animator
         private BossDaSatMaQuan bossController;
+        private Animator anim;
 
         // Properties
         public Stat MaxHealth => maxHealth;
@@ -54,6 +72,13 @@ namespace StatsSystem.Components
         private void Awake()
         {
             currentHealth = MaxHealth.Value;
+            anim = GetComponentInChildren<Animator>();
+
+            // Ẩn bảng UI GameOver lúc bắt đầu nếu chưa ẩn
+            if (gameOverUI != null)
+            {
+                gameOverUI.SetActive(false);
+            }
 
             // Nếu là Boss, tự động lấy Script BossDaSatMaQuan gắn trên cùng GameObject
             if (isBoss)
@@ -126,11 +151,45 @@ namespace StatsSystem.Components
         protected virtual void Die()
         {
             OnDeath?.Invoke();
-            // KHÔNG Destroy GameObject ở đây để Player/Enemy tự xử lý animation/audio/logic riêng.
+
+            // XỬ LÝ KHI OBJECT LÀ PLAYER CHẾT
+            if (isPlayer)
+            {
+                // 1. Đổi Tag và Layer thành "Default"
+                gameObject.tag = "Untagged";
+                gameObject.layer = LayerMask.NameToLayer("Default");
+
+                // 2. Chạy Animation chết (nếu có)
+                if (anim != null && !string.IsNullOrEmpty(dieAnimName))
+                {
+                    anim.SetTrigger(dieAnimName);
+                }
+
+                // 3. Khởi chạy đếm ngược gian chờ dừng game và mở UI
+                StartCoroutine(Routine_PlayerDeathSequence());
+            }
         }
 
         /// <summary>
-        /// Phương thức mở rộng để lấy Stat theo StatType (Rất hữu ích cho Hệ thống Buff/Trang bị sau này)
+        /// Coroutine đếm ngược sau khi Player chết
+        /// </summary>
+        private IEnumerator Routine_PlayerDeathSequence()
+        {
+            // Chờ hết khoảng thời gian delay thiết lập trên Inspector
+            yield return new WaitForSeconds(deathDelay);
+
+            // Bật UI GameOver (nếu đã kéo vào Inspector)
+            if (gameOverUI != null)
+            {
+                gameOverUI.SetActive(true);
+            }
+
+            // Tạm dừng toàn bộ Game
+            Time.timeScale = 0f;
+        }
+
+        /// <summary>
+        /// Phương thức mở rộng để lấy Stat theo StatType (Rất hữu ích cho Hệ thống Buff/Trang bị sau me)
         /// </summary>
         public Stat GetStat(StatType type)
         {

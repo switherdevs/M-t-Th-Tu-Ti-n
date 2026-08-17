@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using StatsSystem.Components; // Thêm Namespace để dùng CharacterStats
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Player : MonoBehaviour
@@ -17,6 +18,7 @@ public class Player : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Animator anim;
     private Camera mainCam;
+    private CharacterStats stats; // Thêm tham chiếu tới CharacterStats
 
     private Vector2 moveInput;
     private Vector2 lookDirection = Vector2.right; // Hướng nhìn từ nhân vật đến con trỏ chuột
@@ -35,6 +37,7 @@ public class Player : MonoBehaviour
         // Tự động tìm SpriteRenderer và Animator trên chính nó hoặc trên con
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         anim = GetComponentInChildren<Animator>();
+        stats = GetComponent<CharacterStats>(); // Lấy component Stats
         mainCam = Camera.main;
 
         rb.gravityScale = 0f;
@@ -65,11 +68,24 @@ public class Player : MonoBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
+        // Nếu đã chết thì không nhận Input di chuyển
+        if (stats != null && stats.IsDead)
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+
         moveInput = context.ReadValue<Vector2>().normalized;
     }
 
     public void OnSprint(InputAction.CallbackContext context)
     {
+        if (stats != null && stats.IsDead)
+        {
+            isSprinting = false;
+            return;
+        }
+
         if (context.performed)
         {
             isSprinting = true;
@@ -82,12 +98,26 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        // 🛑 Khóa di chuyển, xoay mặt và cập nhật animation di chuyển nếu Player đã chết
+        if (stats != null && stats.IsDead)
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+
         XoayMatTheoChuot();
         UpdateAnimations();
     }
 
     void FixedUpdate()
     {
+        // 🛑 Dừng lực di chuyển vật lý ngay lập tức khi chết
+        if (stats != null && stats.IsDead)
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
         float targetSpeed = isSprinting ? sprintSpeed : moveSpeed;
         rb.linearVelocity = moveInput * targetSpeed;
     }
@@ -166,6 +196,8 @@ public class Player : MonoBehaviour
     // Hàm gọi Animation Tấn Công công khai
     public void TriggerAttackAnimation()
     {
+        if (stats != null && stats.IsDead) return;
+
         if (HasParameter(attackAnimHash))
         {
             anim.SetTrigger(attackAnimHash);

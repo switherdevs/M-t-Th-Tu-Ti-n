@@ -209,6 +209,9 @@ public class QuestSaveSystem : MonoBehaviour
             {
                 QuestUIManager.Instance.KhoiTaoDanhSachQuestUI();
             }
+
+            // 🎯 TỰ ĐỘNG THÔNG BÁO CHO HUD TRACKER CẬP NHẬT THEO THỜI GIAN THỰC
+            QuestHUDTracker.ThongBaoCapNhatHUD();
         }
     }
 }

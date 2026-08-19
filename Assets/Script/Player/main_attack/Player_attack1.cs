@@ -1,5 +1,4 @@
 using StatsSystem.Components;
-using StatsSystem.Core;
 using UnityEngine;
 
 public class TanCong : MonoBehaviour
@@ -102,10 +101,13 @@ public class TanCong : MonoBehaviour
             rbKiem.linearVelocity = direction * bulletSpeed;
         }
 
+        // Tắt gọi hàm ngẫu nhiên cũ để tránh lỗi CS1061 vì Skill hiện tại đã kích hoạt bằng phím R, T, F riêng biệt
+        /*
         if (skillManager != null)
         {
             skillManager.TriggerAllSkills(shootPoint, direction);
         }
+        */
 
         // Tự động hủy viên đạn sau 3 giây để tránh tràn bộ nhớ
         Destroy(kiem, 3f);

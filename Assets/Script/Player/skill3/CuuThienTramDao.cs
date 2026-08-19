@@ -82,7 +82,8 @@ public class CuuThienTramDao : MonoBehaviour
         {
             if (hit.CompareTag("Enemy"))
             {
-                var victim = hit.GetComponentInParent<StatsSystem.Interfaces.IDamageable>();
+                // Đã sửa lại: Gọi thẳng IDamageable không qua namespace cũ
+                var victim = hit.GetComponentInParent<IDamageable>();
                 if (victim != null)
                 {
                     victim.TakeDamage(damage);

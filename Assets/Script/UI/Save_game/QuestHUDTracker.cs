@@ -1,18 +1,24 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Reflection; // Thư viện cốt lõi để chạy thuật toán quét biến tự động
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class QuestHUDTracker : MonoBehaviour
 {
     public static QuestHUDTracker Instance;
 
-    [Header("--- CẤU HÌNH TRUY VẤN MẢNG ---")]
-    [Tooltip("Tích chọn nếu ID Quest trong Game của bạn bắt đầu từ 1 (ID: 1, 2, 3...)\nBỏ tích nếu ID Quest bắt đầu từ 0 (ID: 0, 1, 2...)")]
-    public bool idQuestBatDauTu1 = true;
+    [Header("--- THÔNG BÁO MẶC ĐỊNH (KHI CHƯA CÓ QUEST HOẶC SAI MAP) ---")]
+    [Tooltip("Kéo Text TMP dùng để hiển thị thông báo hướng dẫn (Nằm NGOÀI mảng danh sách quest)")]
+    public TextMeshProUGUI textThongBaoMacDinh;
 
-    [Header("--- MẢNG TEXT HIỂN THỊ QUEST THEO ID ---")]
-    [Tooltip("Kéo các Text TMP vào đây theo đúng thứ tự mảng:\n- Element 0: Text cho Quest 1 (nếu idQuestBatDauTu1 = true)\n- Element 1: Text cho Quest 2...")]
+    [Tooltip("Nội dung hiển thị khi không có nhiệm vụ thuộc Map này")]
+    public string noiDungThongBaoMacDinh = "Hãy đến kinh thành nhận nhiệm vụ";
+
+    [Header("--- MẢNG TEXT HIỂN THỊ QUEST ĐỘNG ---")]
+    [Tooltip("Kéo các Text TMP dùng để hiển thị danh sách nhiệm vụ trên HUD vào đây.")]
     public TextMeshProUGUI[] danhSachTextQuestUI;
 
     // Sự kiện Cập nhật HUD real-time
@@ -60,16 +66,10 @@ public class QuestHUDTracker : MonoBehaviour
     }
 
     /// <summary>
-    /// Hàm duyệt mảng và hiển thị nội dung trực tiếp lên Text TMP dựa theo Index và ID Quest
+    /// Hàm kiểm tra và hiển thị danh sách Quest phù hợp với Scene hiện tại
     /// </summary>
     public void CapNhatGiaoDienHUD()
     {
-        if (danhSachTextQuestUI == null || danhSachTextQuestUI.Length == 0)
-        {
-            Debug.LogWarning("[QuestHUDTracker] Mảng danhSachTextQuestUI đang trống! Hãy kéo Text TMP vào Inspector.");
-            return;
-        }
-
         // 1. Mặc định ẩn toàn bộ Text trong mảng trước khi quét dữ liệu
         XoaRongToanBoText();
 
@@ -79,53 +79,107 @@ public class QuestHUDTracker : MonoBehaviour
             return;
         }
 
-        // 2. Duyệt qua mảng Text theo chỉ số index 'i'
-        for (int i = 0; i < danhSachTextQuestUI.Length; i++)
+        // 2. Lấy danh sách các Quest đang kích hoạt THUỘC SCENE HIỆN TẠI
+        List<ProgressQuest> danhSachTheoScene = LayDanhSachQuestThuocSceneHienTai();
+
+        // 3. XỬ LÝ TRƯỜNG HỢP: Không có nhiệm vụ nào thuộc Scene này
+        if (danhSachTheoScene.Count == 0)
         {
-            if (danhSachTextQuestUI[i] == null) continue;
-
-            // 🎯 TÍNH TOÁN ID QUEST THỰC TẾ ĐỂ TRÁNH BỊ LỆCH 1 GIÁ TRỊ:
-            // Nếu idQuestBatDauTu1 = true  -> index 0 tương ứng idQuest = 1 (i + 1)
-            // Nếu idQuestBatDauTu1 = false -> index 0 tương ứng idQuest = 0 (i)
-            int idQuestThucTe = idQuestBatDauTu1 ? (i + 1) : i;
-
-            // Lấy tiến trình Quest từ hệ thống Save dựa theo ID Quest thực tế
-            ProgressQuest progress = QuestSaveSystem.Instance.LayTienTrinhQuest(idQuestThucTe);
-
-            if (progress == null)
+            if (textThongBaoMacDinh != null)
             {
-                continue;
+                textThongBaoMacDinh.gameObject.SetActive(true);
+                textThongBaoMacDinh.text = noiDungThongBaoMacDinh;
+            }
+            return;
+        }
+
+        // 4. XỬ LÝ TRƯỜNG HỢP: Có nhiệm vụ thuộc Scene này
+        if (textThongBaoMacDinh != null)
+        {
+            textThongBaoMacDinh.gameObject.SetActive(false);
+        }
+
+        if (danhSachTextQuestUI == null || danhSachTextQuestUI.Length == 0)
+        {
+            Debug.LogWarning("[QuestHUDTracker] Mảng danhSachTextQuestUI đang trống! Hãy kéo Text TMP vào Inspector.");
+            return;
+        }
+
+        // 5. Duyệt danh sách Quest đã lọc và đổ dữ liệu vào mảng Text UI
+        for (int i = 0; i < danhSachTheoScene.Count; i++)
+        {
+            if (i >= danhSachTextQuestUI.Length)
+            {
+                Debug.LogWarning("[QuestHUDTracker] Số lượng Quest thuộc Scene này vượt quá số lượng Text UI trên HUD!");
+                break;
             }
 
-            Debug.Log($"[QuestHUDTracker] Mảng Index [{i}] -> Tìm Quest ID [{idQuestThucTe}] -> Trạng thái: {progress.trangThai}");
+            if (danhSachTextQuestUI[i] == null) continue;
 
-            // Chỉ hiển thị khi Quest đang ở trạng thái DangLam hoặc DaXongChuaTra
-            if (progress.trangThai == TrangThaiQuest.DangLam || progress.trangThai == TrangThaiQuest.DaXongChuaTra)
+            ProgressQuest progress = danhSachTheoScene[i];
+            QuestData data = QuestSaveSystem.Instance.LayQuestDataTheoID(progress.idQuest);
+
+            if (data != null)
             {
-                // Lấy ScriptableObject dữ liệu cố định của Quest theo ID thực tế
-                QuestData data = QuestSaveSystem.Instance.LayQuestDataTheoID(idQuestThucTe);
+                danhSachTextQuestUI[i].gameObject.SetActive(true);
 
-                if (data != null)
+                if (progress.trangThai == TrangThaiQuest.DangLam)
                 {
-                    // Bật GameObject chứa Text lên
-                    danhSachTextQuestUI[i].gameObject.SetActive(true);
-
-                    // Gán nội dung hiển thị dựa vào trạng thái
-                    if (progress.trangThai == TrangThaiQuest.DangLam)
-                    {
-                        danhSachTextQuestUI[i].text = $"• <b>{data.tenNhiemVu}</b>: {progress.soBoXuongDaDiet}/{data.soLuongBoXuongCanDiet}";
-                    }
-                    else if (progress.trangThai == TrangThaiQuest.DaXongChuaTra)
-                    {
-                        danhSachTextQuestUI[i].text = $"• <b>{data.tenNhiemVu}</b>: <color=green>[Hoàn thành] quay về thành trả nhiệm vụ!</color>";
-                    }
+                    danhSachTextQuestUI[i].text = $"• <b>{data.tenNhiemVu}</b>: {progress.soBoXuongDaDiet}/{data.soLuongBoXuongCanDiet}";
                 }
-                else
+                else if (progress.trangThai == TrangThaiQuest.DaXongChuaTra)
                 {
-                    Debug.LogWarning($"[QuestHUDTracker] Quest ID {idQuestThucTe} đang làm nhưng KHÔNG tìm thấy QuestData!");
+                    danhSachTextQuestUI[i].text = $"• <b>{data.tenNhiemVu}</b>: <color=green>[Hoàn thành] Trả nhiệm vụ!</color>";
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Hàm quét dữ liệu Save và tự động nhận diện biến Map nhờ Reflection
+    /// </summary>
+    private List<ProgressQuest> LayDanhSachQuestThuocSceneHienTai()
+    {
+        List<ProgressQuest> ketQua = new List<ProgressQuest>();
+        string tenSceneHienTai = SceneManager.GetActiveScene().name;
+
+        foreach (ProgressQuest progress in QuestSaveSystem.Instance.duLieuSaveHienTai.danhSachProgress)
+        {
+            if (progress.trangThai == TrangThaiQuest.DangLam || progress.trangThai == TrangThaiQuest.DaXongChuaTra)
+            {
+                QuestData data = QuestSaveSystem.Instance.LayQuestDataTheoID(progress.idQuest);
+
+                if (data != null)
+                {
+                    bool daTimThayMap = false;
+
+                    // Lấy ra danh sách toàn bộ các biến (Field) đang có trong class QuestData của bạn
+                    FieldInfo[] cacBienTrongQuestData = data.GetType().GetFields();
+
+                    // Quét từng biến một, không cần biết bạn đặt tên biến đó là gì
+                    foreach (FieldInfo bien in cacBienTrongQuestData)
+                    {
+                        // Lấy giá trị của biến đó ra (đối số truyền vào là file data hiện tại)
+                        object giaTriCuaBien = bien.GetValue(data);
+
+                        // Nếu biến có chứa dữ liệu và khi chuyển thành chữ, nó khớp 100% với tên Scene
+                        if (giaTriCuaBien != null && giaTriCuaBien.ToString() == tenSceneHienTai)
+                        {
+                            daTimThayMap = true;
+                            break; // Dừng quét biến để tối ưu hiệu suất vì đã tìm thấy kết quả
+                        }
+                    }
+
+                    // Nếu quét xong xác nhận đúng là Quest của map này thì nạp vào List trả về
+                    if (daTimThayMap)
+                    {
+                        ketQua.Add(progress);
+                    }
+                }
+            }
+        }
+
+        return ketQua;
     }
 
     /// <summary>

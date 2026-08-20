@@ -19,7 +19,6 @@ public class ProgressQuest
     public int soBoXuongDaDiet;
 }
 
-// 🎯 BỔ SUNG: Cấu trúc lưu vật phẩm vào File
 [Serializable]
 public class SaveItemData
 {
@@ -33,19 +32,32 @@ public class SaveItemData
     }
 }
 
+// 🎯 BỔ SUNG: Class Lưu Chỉ Số Nhân Vật
+[Serializable]
+public class PlayerStatsSaveData
+{
+    public string tenCanhGioi = "Luyện Khí Tầng 1";
+    public int level = 1;
+    public float maxHP = 100f;
+    public float damage = 15f;
+    public float armor = 5f;
+}
+
 [Serializable]
 public class DanhSachSaveQuest
 {
     public List<ProgressQuest> danhSachProgress = new List<ProgressQuest>();
-    // 🎯 BỔ SUNG: Danh sách lưu trữ vật phẩm
     public List<SaveItemData> danhSachItemSave = new List<SaveItemData>();
+
+    // 🎯 BỔ SUNG: Dữ liệu chỉ số Player
+    public PlayerStatsSaveData playerStats = new PlayerStatsSaveData();
 }
 
 public class QuestSaveSystem : MonoBehaviour
 {
     public static QuestSaveSystem Instance;
 
-    [Header("--- CẤU HINH DỮ LIỆU QUEST ---")]
+    [Header("--- CẤU HÌNH DỮ LIỆU QUEST ---")]
     public List<QuestData> danhSachQuestData = new List<QuestData>();
 
     [Header("--- CẤU HÌNH SAVE ---")]
@@ -100,6 +112,7 @@ public class QuestSaveSystem : MonoBehaviour
                 if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
                 if (duLieuSaveHienTai.danhSachProgress == null) duLieuSaveHienTai.danhSachProgress = new List<ProgressQuest>();
                 if (duLieuSaveHienTai.danhSachItemSave == null) duLieuSaveHienTai.danhSachItemSave = new List<SaveItemData>();
+                if (duLieuSaveHienTai.playerStats == null) duLieuSaveHienTai.playerStats = new PlayerStatsSaveData();
 
                 Debug.Log("<color=cyan>[Save System]</color> Đã load dữ liệu thành công.");
             }
@@ -121,36 +134,42 @@ public class QuestSaveSystem : MonoBehaviour
         SaveDuLieuQuestToTxt();
     }
 
-    // 🎯 HÀM BỔ SUNG: LƯU ITEM KHI THẮNG MÀN HOẶC NHẶT ĐỒ
     public void LuuItemVaoSaveGame(string idItem, int soLuong = 1)
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
         if (duLieuSaveHienTai.danhSachItemSave == null) duLieuSaveHienTai.danhSachItemSave = new List<SaveItemData>();
 
-        // Kiểm tra xem Item đã có trong Save chưa
         SaveItemData itemDaCo = duLieuSaveHienTai.danhSachItemSave.Find(x => x.idItem == idItem);
 
         if (itemDaCo != null)
         {
-            itemDaCo.soLuong += soLuong; // Nếu có rồi thì cộng dồn số lượng
+            itemDaCo.soLuong += soLuong;
+            if (itemDaCo.soLuong <= 0)
+            {
+                duLieuSaveHienTai.danhSachItemSave.Remove(itemDaCo);
+            }
         }
-        else
+        else if (soLuong > 0)
         {
-            duLieuSaveHienTai.danhSachItemSave.Add(new SaveItemData(idItem, soLuong)); // Chưa có thì thêm mới
+            duLieuSaveHienTai.danhSachItemSave.Add(new SaveItemData(idItem, soLuong));
         }
 
         SaveDuLieuQuestToTxt();
-        Debug.Log($"<color=yellow>[Save System]</color> Đã lưu Item ID: {idItem} (Số lượng: {soLuong}) vào File Save!");
+    }
+
+    public int LaySoLuongItemTrongKho(string idItem)
+    {
+        if (duLieuSaveHienTai == null || duLieuSaveHienTai.danhSachItemSave == null) return 0;
+
+        SaveItemData item = duLieuSaveHienTai.danhSachItemSave.Find(x => x.idItem == idItem);
+        return item != null ? item.soLuong : 0;
     }
 
     public QuestData LayQuestDataTheoID(int idQuest)
     {
         foreach (QuestData q in danhSachQuestData)
         {
-            if (q != null && q.idQuest == idQuest)
-            {
-                return q;
-            }
+            if (q != null && q.idQuest == idQuest) return q;
         }
         return null;
     }
@@ -162,10 +181,7 @@ public class QuestSaveSystem : MonoBehaviour
 
         foreach (ProgressQuest quest in duLieuSaveHienTai.danhSachProgress)
         {
-            if (quest.idQuest == idQuest)
-            {
-                return quest;
-            }
+            if (quest.idQuest == idQuest) return quest;
         }
 
         ProgressQuest questMoi = new ProgressQuest
@@ -185,37 +201,20 @@ public class QuestSaveSystem : MonoBehaviour
     {
         ProgressQuest quest = LayTienTrinhQuest(idQuest);
         quest.trangThai = trangThaiMoi;
-
         SaveDuLieuQuestToTxt();
-
-        Debug.Log("<color=yellow>[Quest]</color> Quest ID " + idQuest + " → " + trangThaiMoi);
     }
 
     public void GhiNhanDietQuai(int idQuai, int soLuong = 1)
     {
         if (soLuong <= 0) return;
-
         bool coThayDoi = false;
 
         foreach (ProgressQuest questProgress in duLieuSaveHienTai.danhSachProgress)
         {
-            if (questProgress.trangThai != TrangThaiQuest.DangLam)
-            {
-                continue;
-            }
+            if (questProgress.trangThai != TrangThaiQuest.DangLam) continue;
 
             QuestData questData = LayQuestDataTheoID(questProgress.idQuest);
-
-            if (questData == null)
-            {
-                Debug.LogWarning($"[QuestSaveSystem] Không tìm thấy QuestData cho Quest ID: {questProgress.idQuest}.");
-                continue;
-            }
-
-            if (questData.idQuaiCanDiet != idQuai)
-            {
-                continue;
-            }
+            if (questData == null || questData.idQuaiCanDiet != idQuai) continue;
 
             questProgress.soBoXuongDaDiet += soLuong;
 
@@ -223,8 +222,6 @@ public class QuestSaveSystem : MonoBehaviour
             {
                 questProgress.soBoXuongDaDiet = questData.soLuongBoXuongCanDiet;
                 questProgress.trangThai = TrangThaiQuest.DaXongChuaTra;
-
-                Debug.Log("<color=green>[Quest]</color> " + questData.tenNhiemVu + " đã hoàn thành mục tiêu diệt quái!");
             }
 
             coThayDoi = true;
@@ -233,12 +230,7 @@ public class QuestSaveSystem : MonoBehaviour
         if (coThayDoi)
         {
             SaveDuLieuQuestToTxt();
-
-            if (QuestUIManager.Instance != null)
-            {
-                QuestUIManager.Instance.KhoiTaoDanhSachQuestUI();
-            }
-
+            if (QuestUIManager.Instance != null) QuestUIManager.Instance.KhoiTaoDanhSachQuestUI();
             QuestHUDTracker.ThongBaoCapNhatHUD();
         }
     }

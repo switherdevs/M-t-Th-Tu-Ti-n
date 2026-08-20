@@ -10,7 +10,7 @@ public class StageManager : MonoBehaviour
         [Header("Thông Tin Màn Chơi")]
         public string stageName = "Ải 1";
 
-        [Tooltip("Tick vào đây nếu đây là trận cuối! Thắng sẽ hiện UI WinGame. Nếu KHÔNG TICK thì thắng sẽ hiện Tế Đàn dịch chuyển.")]
+        [Tooltip("Tick vào đây nếu đây là trận cuối! Thắng trận này mới được trao thưởng Item và hiện UI WinGame.")]
         public bool isFinalStage = false;
 
         [Header("Script Vùng Map (Chứa BoxCollider2D)")]
@@ -18,7 +18,7 @@ public class StageManager : MonoBehaviour
         public MapZoneChecker mapZone;
 
         [Header("Liên Kết Quản Lý Phần Thưởng")]
-        [Tooltip("Kéo GameObject có gắn script StageRewardManager của trận này vào đây")]
+        [Tooltip("Kéo GameObject có gắn script StageRewardManager vào đây")]
         public StageRewardManager rewardManager;
 
         [Header("Phần Thưởng / Lối Đi (Mở khi thắng)")]
@@ -86,20 +86,21 @@ public class StageManager : MonoBehaviour
             stage.isCompleted = true;
             Debug.Log($"<color=green>Đã vượt qua {stage.stageName}!</color>");
 
-            // 1. KÍCH HOẠT HIỆN ITEM THƯỞNG KHI WIN TRẬN
-            if (!stage.rewardClaimed)
-            {
-                stage.rewardClaimed = true;
-
-                if (stage.rewardManager != null)
-                {
-                    stage.rewardManager.TraoPhanThuongThangTran(); // Gọi script thưởng tạo Item ra màn hình
-                }
-            }
-
-            // 2. HIỂN THỊ UI HOẶC TẾ ĐÀN TÙY THEO Ô TICK
+            // 🎯 ĐÃ SỬA: CHỈ CHO PHÉP TRAO THƯỞNG VÀ BẬT UI KHI Ô isFinalStage ĐƯỢC TICK
             if (stage.isFinalStage)
             {
+                // 1. Trao thưởng Item (Chỉ cho trận Final)
+                if (!stage.rewardClaimed)
+                {
+                    stage.rewardClaimed = true;
+
+                    if (stage.rewardManager != null)
+                    {
+                        stage.rewardManager.TraoPhanThuongThangTran(); // Gọi script thưởng
+                    }
+                }
+
+                // 2. Hiện UI Win Game
                 if (stage.winUIObject != null)
                 {
                     stage.winUIObject.SetActive(true);
@@ -107,6 +108,7 @@ public class StageManager : MonoBehaviour
             }
             else
             {
+                // Nếu KHÔNG PHẢI ẢI CUỐI -> Chỉ hiện Tế Đàn dịch chuyển
                 if (stage.nextTeleportPortal != null)
                 {
                     stage.nextTeleportPortal.SetActive(true);

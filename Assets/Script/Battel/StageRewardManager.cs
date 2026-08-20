@@ -16,7 +16,7 @@ public class StageRewardManager : MonoBehaviour
 
         public int count = 1;
 
-        [Tooltip("Prefab của vật phẩm sẽ xuất hiện dưới đất khi thắng")]
+        [Tooltip("Prefab của vật phẩm UI (Có chứa RawImage/Image)")]
         public GameObject itemWorldPrefab;
     }
 
@@ -25,11 +25,11 @@ public class StageRewardManager : MonoBehaviour
     public List<DropItemConfig> rewardItemList = new List<DropItemConfig>();
 
     [Header("--- 2. DANH SÁCH VỊ TRÍ SPAWN TƯƠNG ỨNG ---")]
-    [Tooltip("Mảng các vị trí spawn. Phần tử [0] ở đây tương ứng với Item [0] ở mảng trên")]
+    [Tooltip("Kéo các GameObject Vị Trí (RectTransform trên Canvas) vào đây. Element [0] ứng với Item [0], Element [1] ứng với Item [1]")]
     public Transform[] spawnPositionList;
 
     /// <summary>
-    /// Hàm này CHỈ ĐƯỢC GỌI từ StageManager khi người chơi dọn sạch quái (Win trận)
+    /// Hàm xử lý sinh Item đúng theo từng vị trí Element trong mảng
     /// </summary>
     public void TraoPhanThuongThangTran()
     {
@@ -45,7 +45,7 @@ public class StageRewardManager : MonoBehaviour
 
             if (randomRoll <= config.dropChance)
             {
-                Debug.Log($"<color=cyan>[Reward]</color> Thắng trận! Trúng Item: {config.itemData.tenItem} (Tỉ lệ: {config.dropChance}%)");
+                Debug.Log($"<color=cyan>[Reward]</color> Thắng trận! Trúng Item index [{i}]: {config.itemData.tenItem}");
 
                 // 2. Lưu thông tin vật phẩm vào File Save
                 if (QuestSaveSystem.Instance != null)
@@ -53,17 +53,39 @@ public class StageRewardManager : MonoBehaviour
                     QuestSaveSystem.Instance.LuuItemVaoSaveGame(config.itemData.idItem, config.count);
                 }
 
-                // 3. Xác định vị trí xuất hiện dựa theo mảng vị trí (Index i)
-                Vector3 targetSpawnPos = transform.position;
+                // 3. Kiểm tra vị trí Spawn theo chỉ số i
+                Transform targetParent = null;
                 if (spawnPositionList != null && i < spawnPositionList.Length && spawnPositionList[i] != null)
                 {
-                    targetSpawnPos = spawnPositionList[i].position;
+                    targetParent = spawnPositionList[i]; // Lấy đúng ô vị trí thứ i
                 }
 
-                // 4. CHỈ KHI WIN MỚI SINH RA (SPAWN) ITEM TRÊN MÀN HÌNH
+                // 4. Sinh ra Item đúng vị trí cha (Target Parent)
                 if (config.itemWorldPrefab != null)
                 {
-                    Instantiate(config.itemWorldPrefab, targetSpawnPos, Quaternion.identity);
+                    GameObject spawnedItem;
+
+                    if (targetParent != null)
+                    {
+                        // Sinh ra làm con của vị trí spawnPositionList[i]
+                        spawnedItem = Instantiate(config.itemWorldPrefab, targetParent);
+
+                        // Đặt lại RectTransform để nằm vừa khít vị trí ô thứ i
+                        RectTransform rect = spawnedItem.GetComponent<RectTransform>();
+                        if (rect != null)
+                        {
+                            rect.anchoredPosition = Vector2.zero; // Nằm chính giữa ô vị trí i
+                            rect.localPosition = Vector3.zero;
+                        }
+                    }
+                    else
+                    {
+                        // Trường hợp không gán vị trí -> Spawn tại điểm mặc định của script
+                        spawnedItem = Instantiate(config.itemWorldPrefab, transform.position, Quaternion.identity);
+                    }
+
+                    // Đẩy Item lên trên cùng để không bị các lớp UI khác che
+                    spawnedItem.transform.SetAsLastSibling();
                 }
             }
         }

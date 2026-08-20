@@ -68,6 +68,9 @@ public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
         }
     }
 
+    /// <summary>
+    /// HÀM ĐÃ SỬA TRIỆT ĐỂ: Gọi sang Manager mà không can thiệp số lượng
+    /// </summary>
     public void OnClickDungItem()
     {
         if (itemDataHienTai != null && InventoryManager.Instance != null)

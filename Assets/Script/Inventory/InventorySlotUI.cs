@@ -1,20 +1,17 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems; // Thư viện bắt sự kiện chuột
+using UnityEngine.EventSystems;
 using TMPro;
 
 public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("--- UI THÀNH PHẦN TRONG Ô ---")]
-    public Image imageIcon;             // Ảnh icon vật phẩm
-    public TextMeshProUGUI textSoLuong; // Text hiển thị số lượng
+    public Image imageIcon;
+    public TextMeshProUGUI textSoLuong;
 
     [HideInInspector] public ItemData itemDataHienTai;
     [HideInInspector] public int soLuongHienTai;
 
-    /// <summary>
-    /// Hàm cập nhật giao diện của riêng ô này
-    /// </summary>
     public void CapNhatOUI(ItemData data, int soLuong)
     {
         itemDataHienTai = data;
@@ -22,16 +19,28 @@ public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
         if (itemDataHienTai != null && soLuongHienTai > 0)
         {
-            imageIcon.gameObject.SetActive(true);
-            imageIcon.sprite = itemDataHienTai.iconItem;
+            if (imageIcon != null)
+            {
+                imageIcon.gameObject.SetActive(true);
+                imageIcon.sprite = itemDataHienTai.iconItem;
+            }
 
-            // Nếu số lượng > 1 mới hiện số, ngược lại ẩn đi cho đẹp
-            textSoLuong.text = soLuongHienTai > 1 ? soLuongHienTai.ToString() : "";
+            CapNhatGiaoDienSoLuong();
         }
         else
         {
-            // Ô trống
             XoaRongO();
+        }
+    }
+
+    /// <summary>
+    /// Hàm trực tiếp cập nhật hiển thị số lượng chữ trên UI
+    /// </summary>
+    public void CapNhatGiaoDienSoLuong()
+    {
+        if (textSoLuong != null)
+        {
+            textSoLuong.text = soLuongHienTai > 1 ? soLuongHienTai.ToString() : "";
         }
     }
 
@@ -43,7 +52,6 @@ public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
         if (textSoLuong != null) textSoLuong.text = "";
     }
 
-    // --- SỰ KIỆN RÊ CHUỘT VÀO Ô ---
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (itemDataHienTai != null && InventoryManager.Instance != null)
@@ -52,7 +60,6 @@ public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
         }
     }
 
-    // --- SỰ KIỆN RÊ CHUỘT RA KHỎI Ô ---
     public void OnPointerExit(PointerEventData eventData)
     {
         if (InventoryManager.Instance != null)
@@ -61,7 +68,6 @@ public class InventorySlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
         }
     }
 
-    // --- SỰ KIỆN CLICK CHUỘT DÙNG ITEM ---
     public void OnClickDungItem()
     {
         if (itemDataHienTai != null && InventoryManager.Instance != null)

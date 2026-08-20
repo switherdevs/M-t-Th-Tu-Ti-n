@@ -10,16 +10,27 @@ public class StageManager : MonoBehaviour
         [Header("Thông Tin Màn Chơi")]
         public string stageName = "Ải 1";
 
+        [Tooltip("Tick vào đây nếu đây là trận cuối! Thắng sẽ hiện UI WinGame. Nếu KHÔNG TICK thì thắng sẽ hiện Tế Đàn dịch chuyển.")]
+        public bool isFinalStage = false;
+
         [Header("Script Vùng Map (Chứa BoxCollider2D)")]
-        [Tooltip("Kéo cái GameObject đại diện vùng map có gắn script MapZoneChecker vào đây")]
+        [Tooltip("Kéo GameObject đại diện vùng map có gắn script MapZoneChecker vào đây")]
         public MapZoneChecker mapZone;
 
+        [Header("Liên Kết Quản Lý Phần Thưởng")]
+        [Tooltip("Kéo GameObject có gắn script StageRewardManager của trận này vào đây")]
+        public StageRewardManager rewardManager;
+
         [Header("Phần Thưởng / Lối Đi (Mở khi thắng)")]
+        [Tooltip("Tế đàn / Cổng dịch chuyển sang ải tiếp (Hiện khi KHÔNG tick isFinalStage)")]
         public GameObject nextTeleportPortal;
+
+        [Tooltip("UI Win Game (Hiện khi CÓ TICK isFinalStage)")]
         public GameObject winUIObject;
 
         [Header("Trạng Thái")]
         [HideInInspector] public bool isCompleted = false;
+        [HideInInspector] public bool rewardClaimed = false;
     }
 
     [Header("Danh Sách Các Ải Trong Scene")]
@@ -33,8 +44,8 @@ public class StageManager : MonoBehaviour
     {
         for (int i = 0; i < stages.Count; i++)
         {
-            if (stages[i].nextTeleportPortal != null) stages[i].nextTeleportPortal.SetActive(false);
-            if (stages[i].winUIObject != null) stages[i].winUIObject.SetActive(false);
+            if (stages[i].nextTeleportPortal != null) stages[i].nextTeleportPortal.SetActive(false); // Hide portal
+            if (stages[i].winUIObject != null) stages[i].winUIObject.SetActive(false); // Hide Win UI
         }
     }
 
@@ -53,10 +64,9 @@ public class StageManager : MonoBehaviour
     {
         if (stage.mapZone == null) return;
 
-        // Lấy số lượng quái thông qua vùng quét riêng của map đó
+        // Đếm số lượng quái sống trong vùng map
         int aliveCount = stage.mapZone.GetRemainingEnemiesCount();
 
-        // Cập nhật giao diện chữ
         if (statusText != null)
         {
             if (aliveCount > 0)
@@ -70,32 +80,46 @@ public class StageManager : MonoBehaviour
             }
         }
 
-        // Nếu dọn sạch quái trong vùng map hiện tại
+        // KHI DIỆT SẠCH QUÁI (WIN TRẬN)
         if (aliveCount == 0)
         {
             stage.isCompleted = true;
             Debug.Log($"<color=green>Đã vượt qua {stage.stageName}!</color>");
 
-            if (stage.nextTeleportPortal != null)
+            // 1. KÍCH HOẠT HIỆN ITEM THƯỞNG KHI WIN TRẬN
+            if (!stage.rewardClaimed)
             {
-                stage.nextTeleportPortal.SetActive(true);
+                stage.rewardClaimed = true;
+
+                if (stage.rewardManager != null)
+                {
+                    stage.rewardManager.TraoPhanThuongThangTran(); // Gọi script thưởng tạo Item ra màn hình
+                }
             }
 
-            if (stage.winUIObject != null)
+            // 2. HIỂN THỊ UI HOẶC TẾ ĐÀN TÙY THEO Ô TICK
+            if (stage.isFinalStage)
             {
-                stage.winUIObject.SetActive(true);
+                if (stage.winUIObject != null)
+                {
+                    stage.winUIObject.SetActive(true);
+                }
+            }
+            else
+            {
+                if (stage.nextTeleportPortal != null)
+                {
+                    stage.nextTeleportPortal.SetActive(true);
+                }
             }
 
-            // [SỬA LỖI TẠI ĐÂY]: Tự động chuyển chỉ số sang ải tiếp theo ngay khi ải hiện tại hoàn thành
             currentStageIndex++;
             Debug.Log($"[StageManager] Đã tự động tăng chỉ số sang ải index: {currentStageIndex}");
         }
     }
 
-    // Hàm gọi khi bước qua cổng tele
     public void ProceedToNextStage()
     {
-        // Hàm này giữ nguyên cấu trúc để tránh lỗi tham chiếu nếu các script khác đang gọi nó
         Debug.Log($"[StageManager] Người chơi đã dịch chuyển qua cổng ải index: {currentStageIndex}");
     }
 }

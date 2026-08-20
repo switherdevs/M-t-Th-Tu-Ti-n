@@ -221,6 +221,37 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &1736337354470357289
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 639941691442140205}
+  m_Layer: 0
+  m_Name: objet_spa (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &639941691442140205
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1736337354470357289}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 527.91583, y: 405.75693, z: -303.85498}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 374578057659128003}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2296507404685868521
 GameObject:
   m_ObjectHideFlags: 0
@@ -460,6 +491,7 @@ GameObject:
   - component: {fileID: 374578057659128003}
   - component: {fileID: 8137328855503934684}
   - component: {fileID: 2646627047166738927}
+  - component: {fileID: 7634500143173431581}
   m_Layer: 0
   m_Name: Manager_batte
   m_TagString: Untagged
@@ -484,6 +516,8 @@ Transform:
   - {fileID: 5601635151722221941}
   - {fileID: 3197728190866592380}
   - {fileID: 1172402176974372570}
+  - {fileID: 2162458871630864363}
+  - {fileID: 639941691442140205}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8137328855503934684
@@ -500,15 +534,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stages:
   - stageName: 1
+    isFinalStage: 0
     mapZone: {fileID: 5673093357757416192}
+    rewardManager: {fileID: 7634500143173431581}
     nextTeleportPortal: {fileID: 0}
     winUIObject: {fileID: 0}
     isCompleted: 0
+    rewardClaimed: 0
   - stageName: 2
+    isFinalStage: 1
     mapZone: {fileID: 2089917202691266699}
+    rewardManager: {fileID: 7634500143173431581}
     nextTeleportPortal: {fileID: 0}
-    winUIObject: {fileID: 79537737541761604}
+    winUIObject: {fileID: 0}
     isCompleted: 0
+    rewardClaimed: 0
   currentStageIndex: 0
   statusText: {fileID: 3183318126197588083}
 --- !u!210 &2646627047166738927
@@ -523,6 +563,32 @@ SortingGroup:
   m_SortingLayer: 0
   m_SortingOrder: 180
   m_SortAtRoot: 0
+--- !u!114 &7634500143173431581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3864302266145260401}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e230dfa275267444e9995e7221494cd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rewardItemList:
+  - tenPhanThuong: "V\u1EADt ph\u1EA9m"
+    itemData: {fileID: 11400000, guid: 9d7827e2c47c86745b9d17a80a5560a1, type: 2}
+    dropChance: 50
+    count: 1
+    itemWorldPrefab: {fileID: 1426372664003512252, guid: 71bdac342081cca4fa19b45e62a8a868, type: 3}
+  - tenPhanThuong: "V\u1EADt ph\u1EA9m"
+    itemData: {fileID: 11400000, guid: 49e74c715b0a940448d6d98edc9cfede, type: 2}
+    dropChance: 20
+    count: 1
+    itemWorldPrefab: {fileID: 1761549658939969177, guid: ea111ff7bcac669409f8b6ffa16387bc, type: 3}
+  spawnPositionList:
+  - {fileID: 2162458871630864363}
+  - {fileID: 639941691442140205}
 --- !u!1 &5658587997107696860
 GameObject:
   m_ObjectHideFlags: 0
@@ -849,6 +915,37 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!1 &7324677567483806889
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2162458871630864363}
+  m_Layer: 0
+  m_Name: objet_spa
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2162458871630864363
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7324677567483806889}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 449.91583, y: 405.75693, z: -303.85498}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 374578057659128003}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8332421102474160256
 GameObject:
   m_ObjectHideFlags: 0

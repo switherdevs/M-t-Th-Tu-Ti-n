@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-// Cấu trúc dữ liệu lưu trữ 1 ô trong Save Game
 [System.Serializable]
 public class InventorySaveData
 {
@@ -16,17 +15,23 @@ public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;
 
-    [Header("--- QUẢN LÝ BẢNG CỐ ĐỊNH (RÊ CHUỘT HẠN CHẾ KHÔNG KHÍ) ---")]
-    public GameObject panelBangCoDinh;          // Panel chứa bảng thông tin
-    public TextMeshProUGUI textTenItemCoDinh;   // Text hiển thị Tên
-    public TextMeshProUGUI textCanhGioiCoDinh; // Text hiển thị Cảnh Giới yêu cầu
-    public TextMeshProUGUI textMoTaCoDinh;     // Text hiển thị Mô Tả
+    [Header("--- QUẢN LÝ BẬT / TẮT KHO ĐỒ ---")]
+    [Tooltip("Kéo Panel UI chứa toàn bộ Kho đồ vào đây")]
+    public GameObject panelKhoDo;
+    public KeyCode phimBatTat = KeyCode.Tab;
+
+    [Header("--- QUẢN LÝ BẢNG CỐ ĐỊNH ---")]
+    [Tooltip("Panel khung viền của bảng thông tin (Nếu không dùng thì để trống)")]
+    public GameObject panelBangCoDinh;
+    public TextMeshProUGUI textTenItemCoDinh;
+    public TextMeshProUGUI textCanhGioiCoDinh;
+    public TextMeshProUGUI textMoTaCoDinh;
 
     [Header("--- DANH SÁCH 36 Ô UI ---")]
-    public InventorySlotUI[] danhSach36SlotUI;  // Mảng chứa đúng 36 ô UI trong Canvas
+    public InventorySlotUI[] danhSach36SlotUI;
 
     [Header("--- CƠ SỞ DỮ LIỆU ITEM ---")]
-    public List<ItemData> cacItemDataTrongGame; // Kéo toàn bộ file ItemData trong project vào đây
+    public List<ItemData> cacItemDataTrongGame;
 
     private void Awake()
     {
@@ -36,82 +41,101 @@ public class InventoryManager : MonoBehaviour
 
     private void Start()
     {
-        // Ban đầu ẩn hoàn toàn chữ/bảng cố định
+        // Ban đầu xóa sạch chữ trên bảng cố định
         AnThongTinBangCoDinh();
+
+        // Mặc định ẩn kho đồ khi vừa vào game
+        if (panelKhoDo != null)
+        {
+            panelKhoDo.SetActive(false);
+        }
+    }
+
+    private void Update()
+    {
+        // Bắt sự kiện nhấn phím TAB để Đóng/Mở Kho đồ
+        if (Input.GetKeyDown(phimBatTat))
+        {
+            ToggleKhoDo();
+        }
+    }
+
+    public void ToggleKhoDo()
+    {
+        if (panelKhoDo != null)
+        {
+            bool trangThaiHienTai = panelKhoDo.activeSelf;
+            panelKhoDo.SetActive(!trangThaiHienTai);
+
+            if (trangThaiHienTai)
+            {
+                AnThongTinBangCoDinh();
+            }
+        }
     }
 
     /// <summary>
-    /// Hàm hiển thị thông tin lên Bảng Cố Định khi rê chuột vào ô
+    /// Hiện chữ thông tin item lên Bảng Cố Định khi rê chuột vào ô
     /// </summary>
     public void HienThongTinBangCoDinh(ItemData data)
     {
         if (data == null) return;
 
+        // Nếu có kéo Panel khung viền thì mới bật Panel lên
         if (panelBangCoDinh != null) panelBangCoDinh.SetActive(true);
 
-        if (textTenItemCoDinh != null) 
+        if (textTenItemCoDinh != null)
             textTenItemCoDinh.text = $"<b>{data.tenItem}</b>";
 
-        if (textCanhGioiCoDinh != null) 
+        if (textCanhGioiCoDinh != null)
             textCanhGioiCoDinh.text = $"Cảnh giới: <color=yellow>{data.canhGioiYeuCau}</color>";
 
-        if (textMoTaCoDinh != null) 
+        if (textMoTaCoDinh != null)
             textMoTaCoDinh.text = data.moTaItem;
     }
 
     /// <summary>
-    /// Hàm ẩn Bảng Cố Định khi rời chuột khỏi ô
+    /// Xóa chữ khi rời chuột khỏi ô (AN TOÀN: Không dùng SetActive false để tránh tắt nhầm Kho đồ)
     /// </summary>
     public void AnThongTinBangCoDinh()
     {
-        if (panelBangCoDinh != null) panelBangCoDinh.SetActive(false);
+        // CHỈ XÓA CHỮ, KHÔNG ẨN PANEL ĐỂ TRÁNH BỊ ẨN KHO ĐỒ KHI KÉO NHẦM INSPECTOR
         if (textTenItemCoDinh != null) textTenItemCoDinh.text = "";
         if (textCanhGioiCoDinh != null) textCanhGioiCoDinh.text = "";
         if (textMoTaCoDinh != null) textMoTaCoDinh.text = "";
+
+        // Nếu bạn tạo riêng 1 Panel khung nhỏ cho bảng cố định thì mới ẩn nó
+        if (panelBangCoDinh != null && panelBangCoDinh != panelKhoDo)
+        {
+            panelBangCoDinh.SetActive(false);
+        }
     }
 
-    /// <summary>
-    /// Xử lý dùng Item + Kiểm tra Cảnh Giới của Player
-    /// </summary>
     public void SuDungItem(InventorySlotUI slot)
     {
         ItemData item = slot.itemDataHienTai;
         if (item == null) return;
 
-        // Giả lập lấy cảnh giới người chơi (Ví dụ: lấy từ Player/CharacterStats)
-        CanhGioiYeuCau canhGioiPlayerHienTai = CanhGioiYeuCau.PhamNhan; 
+        CanhGioiYeuCau canhGioiPlayerHienTai = CanhGioiYeuCau.PhamNhan;
 
-        // KIỂM TRA ĐIỀU KIỆN CẢNH GIỚI:
         if ((int)canhGioiPlayerHienTai < (int)item.canhGioiYeuCau)
         {
             Debug.LogWarning($"[Kho Đồ] Chưa đủ cảnh giới! Yêu cầu: {item.canhGioiYeuCau}");
             return;
         }
 
-        // ĐỦ CẢNH GIỚI: Tiến hành trừ số lượng (xếp chồng tối đa 64)
         slot.soLuongHienTai--;
 
         if (slot.soLuongHienTai <= 0)
         {
             slot.XoaRongO();
-            AnThongTinBangCoDinh(); // Xóa sạch bảng nếu dùng hết item cuối cùng
+            AnThongTinBangCoDinh();
         }
         else
         {
-            slot.CapNhatGiaoDienUI_SoLuong(slot.soLuongHienTai);
+            slot.CapNhatGiaoDienSoLuong();
         }
 
         Debug.Log($"[Kho Đồ] Đã dùng 1 món: {item.tenItem}");
-    }
-}
-
-// Hàm phụ bổ sung cho slot UI
-public static class SlotUIExtension
-{
-    public static void CapNhatGiaoDienUI_SoLuong(this InventorySlotUI slot, int soLuongMoi)
-    {
-        slot.soLuongHienTai = soLuongMoi;
-        if (slot.textSoLuong != null)
-            slot.textSoLuong.text = soLuongMoi > 1 ? soLuongMoi.ToString() : "";
     }
 }

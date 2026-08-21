@@ -32,15 +32,15 @@ public class SaveItemData
     }
 }
 
-// 🎯 BỔ SUNG: Class Lưu Chỉ Số Nhân Vật
+// 🎯 CLASS LƯU THÔNG SỐ NHÂN VẬT VỚI LEVEL KIỂU SỐ THỰC (FLOAT)
 [Serializable]
 public class PlayerStatsSaveData
 {
     public string tenCanhGioi = "Luyện Khí Tầng 1";
-    public int level = 1;
+    public float level = 1f;     // 🎯 Level dạng số thực (float)
     public float maxHP = 100f;
-    public float damage = 15f;
-    public float armor = 5f;
+    public float damage = 20f;
+    public float armor = 0.1f;
 }
 
 [Serializable]
@@ -48,14 +48,15 @@ public class DanhSachSaveQuest
 {
     public List<ProgressQuest> danhSachProgress = new List<ProgressQuest>();
     public List<SaveItemData> danhSachItemSave = new List<SaveItemData>();
-
-    // 🎯 BỔ SUNG: Dữ liệu chỉ số Player
     public PlayerStatsSaveData playerStats = new PlayerStatsSaveData();
 }
 
 public class QuestSaveSystem : MonoBehaviour
 {
     public static QuestSaveSystem Instance;
+
+    // Event thông báo khi Level thay đổi
+    public event Action<float> OnLevelChanged;
 
     [Header("--- CẤU HÌNH DỮ LIỆU QUEST ---")]
     public List<QuestData> danhSachQuestData = new List<QuestData>();
@@ -71,6 +72,7 @@ public class QuestSaveSystem : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
         else if (Instance != this)
         {
@@ -132,6 +134,20 @@ public class QuestSaveSystem : MonoBehaviour
     {
         duLieuSaveHienTai = new DanhSachSaveQuest();
         SaveDuLieuQuestToTxt();
+    }
+
+    /// <summary>
+    /// Cộng thêm Level (số thực) trực tiếp vào Save File
+    /// </summary>
+    public void CongLevelChoPlayer(float luongLevel)
+    {
+        if (duLieuSaveHienTai == null || duLieuSaveHienTai.playerStats == null) return;
+
+        duLieuSaveHienTai.playerStats.level += luongLevel;
+        SaveDuLieuQuestToTxt();
+
+        OnLevelChanged?.Invoke(duLieuSaveHienTai.playerStats.level);
+        Debug.Log($"<color=green>[Save System]</color> Cộng {luongLevel} Level. Level hiện tại: {duLieuSaveHienTai.playerStats.level}");
     }
 
     public void LuuItemVaoSaveGame(string idItem, int soLuong = 1)

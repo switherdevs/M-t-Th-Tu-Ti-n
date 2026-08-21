@@ -21,8 +21,8 @@ public class SlotUIItemSingle
 public class BangDotPhaSingleUI : MonoBehaviour
 {
     [Header("--- THÔNG TIN CẢNH GIỚI BẢNG NÀY ---")]
-    public string tenCanhGioiMoi = "Kim Đan Kỳ";
-    public int levelYeuCau = 20;
+    public string tenCanhGioiMoi = "Luyện Khí Kỳ";
+    public float levelYeuCau = 20f; // 🎯 Chuyển sang kiểu float
 
     [Header("--- CHỈ SỐ CỘNG THÊM KHI ĐỘT PHÁ ---")]
     public float congDamage = 20f;
@@ -32,6 +32,12 @@ public class BangDotPhaSingleUI : MonoBehaviour
     [Header("--- THÀNH PHẦN UI CỦA BẢNG ---")]
     public TextMeshProUGUI textTenCanhGioi;
     public TextMeshProUGUI textLevelYeuCau;
+
+    [Tooltip("Kéo TextMeshPro hiển thị so sánh chỉ số Trước -> Sau đột phá vào đây")]
+    public TextMeshProUGUI textSoSanhDamage;
+    public TextMeshProUGUI textSoSanhMaxHP;
+    public TextMeshProUGUI textSoSanhArmor;
+
     public Button nutDotPha;
     public TextMeshProUGUI textThongBaoNut;
 
@@ -45,25 +51,49 @@ public class BangDotPhaSingleUI : MonoBehaviour
     }
 
     /// <summary>
-    /// Hàm kiểm tra Save Game và hiển thị đúng/sai lên Bảng
+    /// Hàm kiểm tra Save Game và hiển thị thông số Trước/Sau Đột Phá
     /// </summary>
     public void CapNhatGiaoDienBang()
     {
-        if (QuestSaveSystem.Instance == null || QuestSaveSystem.Instance.duLieuSaveHienTai == null) return;
+        if (textTenCanhGioi != null)
+        {
+            textTenCanhGioi.text = tenCanhGioiMoi;
+        }
 
-        PlayerStatsSaveData statsPlayer = QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats;
+        // 🎯 LẤY CHỈ SỐ VÀ LEVEL (FLOAT) TỪ HỆ THỐNG SAVE
+        float playerLevel = 0f;
+        float curDmg = 20f, curHP = 100f, curArmor = 0.1f;
 
-        // 1. Hiển thị Tên & Level
-        if (textTenCanhGioi != null) textTenCanhGioi.text = tenCanhGioiMoi;
+        bool hasSaveSystem = (QuestSaveSystem.Instance != null && QuestSaveSystem.Instance.duLieuSaveHienTai != null);
 
-        bool duLevel = statsPlayer.level >= levelYeuCau;
+        if (hasSaveSystem)
+        {
+            PlayerStatsSaveData stats = QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats;
+            playerLevel = stats.level;
+            curDmg = stats.damage;
+            curHP = stats.maxHP;
+            curArmor = stats.armor;
+        }
+
+        // HIỂN THỊ SO SÁNH CHỈ SỐ
+        if (textSoSanhDamage != null)
+            textSoSanhDamage.text = $"Sát thương: {curDmg} <color=green>➔ {curDmg + congDamage} (+{congDamage})</color>";
+
+        if (textSoSanhMaxHP != null)
+            textSoSanhMaxHP.text = $"Máu tối đa: {curHP} <color=green>➔ {curHP + congMaxHP} (+{congMaxHP})</color>";
+
+        if (textSoSanhArmor != null)
+            textSoSanhArmor.text = $"Phòng thủ: {curArmor} <color=green>➔ {curArmor + congArmor} (+{congArmor})</color>";
+
+        // HIỂN THỊ LEVEL YÊU CẦU (ĐỊNH DẠNG 1 CHỮ SỐ THẬP PHÂN)
+        bool duLevel = playerLevel >= levelYeuCau;
         if (textLevelYeuCau != null)
         {
             string mauLevel = duLevel ? "<color=green>" : "<color=red>";
-            textLevelYeuCau.text = $"Level Yêu Cầu: {mauLevel}{statsPlayer.level}/{levelYeuCau}</color>";
+            textLevelYeuCau.text = $"Level Yêu Cầu: {mauLevel}{playerLevel:F1}/{levelYeuCau:F1}</color>";
         }
 
-        // 2. Kiểm tra Item trong Kho
+        // KIỂM TRA ITEM YÊU CẦU
         bool duToanBoItem = true;
 
         for (int i = 0; i < danhSachSlotUI.Count; i++)
@@ -77,7 +107,12 @@ public class BangDotPhaSingleUI : MonoBehaviour
                 {
                     danhSachSlotUI[i].imageIcon.sprite = yeuCau.itemData.iconItem;
 
-                    int soLuongDangCo = QuestSaveSystem.Instance.LaySoLuongItemTrongKho(yeuCau.itemData.idItem);
+                    int soLuongDangCo = 0;
+                    if (hasSaveSystem)
+                    {
+                        soLuongDangCo = QuestSaveSystem.Instance.LaySoLuongItemTrongKho(yeuCau.itemData.idItem);
+                    }
+
                     bool duItem = soLuongDangCo >= yeuCau.soLuongYeuCau;
                     if (!duItem) duToanBoItem = false;
 
@@ -87,13 +122,15 @@ public class BangDotPhaSingleUI : MonoBehaviour
             }
             else
             {
-                // Slot thừa thì ẩn đi
-                danhSachSlotUI[i].imageIcon.gameObject.SetActive(false);
-                danhSachSlotUI[i].textSoLuong.text = "";
+                if (danhSachSlotUI[i].imageIcon != null)
+                    danhSachSlotUI[i].imageIcon.gameObject.SetActive(false);
+
+                if (danhSachSlotUI[i].textSoLuong != null)
+                    danhSachSlotUI[i].textSoLuong.text = "";
             }
         }
 
-        // 3. Khóa / Mở Nút Đột Phá
+        // KHÓA / MỞ NÚT ĐỘT PHÁ
         bool duDieuKien = duLevel && duToanBoItem;
 
         if (nutDotPha != null)
@@ -107,11 +144,14 @@ public class BangDotPhaSingleUI : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Gán trực tiếp vào Sự kiện OnClick() của Nút Đột Phá trên Bảng này
-    /// </summary>
     public void OnClickThucHienDotPha()
     {
+        if (QuestSaveSystem.Instance == null || QuestSaveSystem.Instance.duLieuSaveHienTai == null)
+        {
+            Debug.LogWarning("[Đột Phá] Chưa có QuestSaveSystem trong Scene!");
+            return;
+        }
+
         PlayerStatsSaveData statsPlayer = QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats;
 
         // 1. Trừ Item
@@ -123,20 +163,24 @@ public class BangDotPhaSingleUI : MonoBehaviour
             }
         }
 
-        // 2. Tăng Chỉ Số
+        // 2. Tăng Chỉ Số Save File
         statsPlayer.tenCanhGioi = tenCanhGioiMoi;
         statsPlayer.damage += congDamage;
         statsPlayer.maxHP += congMaxHP;
         statsPlayer.armor += congArmor;
 
-        // 3. Lưu Save File JSON
+        // 3. Lưu File Save JSON
         QuestSaveSystem.Instance.SaveDuLieuQuestToTxt();
 
-        // 4. Refresh UI
-        CapNhatGiaoDienBang();
+        // 4. Cập nhật trực tiếp vào Nhân Vật Player (CharacterStats)
+        CharacterStats[] allStats = FindObjectsByType<CharacterStats>(FindObjectsSortMode.None);
+        foreach (var stat in allStats)
+        {
+            stat.TaiThongSoTuSaveFile();
+        }
 
-        PlayerStatsUI statsUI = FindFirstObjectByType<PlayerStatsUI>();
-        if (statsUI != null) statsUI.CapNhatGiaoDienChiSo();
+        // 5. Refresh lại Bảng UI Đột phá
+        CapNhatGiaoDienBang();
 
         Debug.Log($"<color=green>[Đột Phá Success]</color> Đã nâng cảnh giới lên {tenCanhGioiMoi}");
     }

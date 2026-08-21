@@ -1,62 +1,48 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using StatsSystem.Components;
 
 namespace StatsSystem.UI
 {
     public class LevelUI : MonoBehaviour
     {
         [Header("=== UI REFERENCES ===")]
-        [SerializeField] private Slider expSlider;
-        [SerializeField] private TextMeshProUGUI levelText; // Hiển thị "Lv. 1"
-        [SerializeField] private TextMeshProUGUI expText;   // Hiển thị "0 / 5"
+        [SerializeField] private Slider levelProgressSlider;
+        [SerializeField] private TextMeshProUGUI levelText; // Hiển thị "Lv. 1.5"
 
         private void Start()
         {
-            // Kết nối Event ở Start() để đảm bảo LevelSystem.Instance đã khởi tạo xong!
-            if (LevelSystem.Instance != null)
+            if (QuestSaveSystem.Instance != null)
             {
-                LevelSystem.Instance.OnExpChanged += UpdateLevelUI;
+                QuestSaveSystem.Instance.OnLevelChanged += UpdateLevelUI;
 
-                // Cập nhật giao diện lần đầu tiên ngay khi vào game
-                UpdateLevelUI(
-                    LevelSystem.Instance.CurrentLevel,
-                    LevelSystem.Instance.CurrentExp,
-                    LevelSystem.Instance.MaxExp
-                );
-            }
-            else
-            {
-                Debug.LogError("[LevelUI] Vẫn không tìm thấy LevelSystem.Instance! Kiểm tra lại LevelManager trong Scene.");
+                if (QuestSaveSystem.Instance.duLieuSaveHienTai != null)
+                {
+                    UpdateLevelUI(QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats.level);
+                }
             }
         }
 
         private void OnDestroy()
         {
-            // Hủy đăng ký Event khi bị Destroy để tránh rò rỉ bộ nhớ
-            if (LevelSystem.Instance != null)
+            if (QuestSaveSystem.Instance != null)
             {
-                LevelSystem.Instance.OnExpChanged -= UpdateLevelUI;
+                QuestSaveSystem.Instance.OnLevelChanged -= UpdateLevelUI;
             }
         }
 
-        private void UpdateLevelUI(int level, float currentExp, float maxExp)
+        private void UpdateLevelUI(float currentLevel)
         {
-            if (expSlider != null)
-            {
-                expSlider.maxValue = maxExp;
-                expSlider.value = currentExp;
-            }
-
             if (levelText != null)
             {
-                levelText.text = $"Lv. {level}";
+                // Hiển thị 1 chữ số thập phân (VD: Lv. 1.5)
+                levelText.text = $"Lv. {currentLevel:F1}";
             }
 
-            if (expText != null)
+            if (levelProgressSlider != null)
             {
-                expText.text = $"{currentExp} / {maxExp}";
+                // Slider lấy phần thập phân lẻ làm tiến trình (VD: 1.5 -> value = 0.5)
+                levelProgressSlider.value = currentLevel % 1f;
             }
         }
     }

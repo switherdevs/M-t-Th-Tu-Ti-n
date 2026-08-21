@@ -10,7 +10,7 @@ public class StageManager : MonoBehaviour
         [Header("Thông Tin Màn Chơi")]
         public string stageName = "Ải 1";
 
-        [Tooltip("Tick vào đây nếu đây là trận cuối! Thắng trận này mới được trao thưởng Item và hiện UI WinGame.")]
+        [Tooltip("Tick vào đây nếu đây là trận cuối! Thắng trận này mới được trao thưởng Item và hiện UI WinGame/Button.")]
         public bool isFinalStage = false;
 
         [Header("Script Vùng Map (Chứa BoxCollider2D)")]
@@ -40,12 +40,23 @@ public class StageManager : MonoBehaviour
     [Header("UI Hiển Thị Chung")]
     [SerializeField] private TextMeshProUGUI statusText;
 
+    [Header("--- NÚT BẤM KHI THẮNG TRẬN CUỐI ---")]
+    [Tooltip("Kéo Button hoặc GameObject nút bấm (VD: Nút Chuyển Map / Về Thành) vào đây. Nút này sẽ bị ẩn và chỉ hiện khi thắng trận cuối!")]
+    [SerializeField] private GameObject buttonChuyenMap;
+
     void Start()
     {
+        // 1. Ẩn cổng dịch chuyển và UI Win Game ở tất cả các ải
         for (int i = 0; i < stages.Count; i++)
         {
             if (stages[i].nextTeleportPortal != null) stages[i].nextTeleportPortal.SetActive(false); // Hide portal
             if (stages[i].winUIObject != null) stages[i].winUIObject.SetActive(false); // Hide Win UI
+        }
+
+        // 2. Ẩn Button khi bắt đầu game (chỉ hiện sau trận cuối)
+        if (buttonChuyenMap != null)
+        {
+            buttonChuyenMap.SetActive(false);
         }
     }
 
@@ -86,7 +97,7 @@ public class StageManager : MonoBehaviour
             stage.isCompleted = true;
             Debug.Log($"<color=green>Đã vượt qua {stage.stageName}!</color>");
 
-            // 🎯 ĐÃ SỬA: CHỈ CHO PHÉP TRAO THƯỞNG VÀ BẬT UI KHI Ô isFinalStage ĐƯỢC TICK
+            // 🎯 CHỈ CHO PHÉP TRAO THƯỞNG, BẬT UI VÀ HIỆN BUTTON KHI TRẬN NÀY LÀ TRẬN CUỐI (isFinalStage)
             if (stage.isFinalStage)
             {
                 // 1. Trao thưởng Item (Chỉ cho trận Final)
@@ -104,6 +115,13 @@ public class StageManager : MonoBehaviour
                 if (stage.winUIObject != null)
                 {
                     stage.winUIObject.SetActive(true);
+                }
+
+                // 3. HIỆN BUTTON CHUYỂN MAP / VỀ THÀNH KHI XONG TRẬN CUỐI
+                if (buttonChuyenMap != null)
+                {
+                    buttonChuyenMap.SetActive(true);
+                    Debug.Log("<color=cyan>[StageManager]</color> Đã dọn sạch trận cuối! Nút chuyển map đã hiện.");
                 }
             }
             else

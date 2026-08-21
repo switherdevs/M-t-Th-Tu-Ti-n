@@ -1,21 +1,21 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Cinemachine; // Nếu Unity bản cũ hiển thị lỗi đỏ ở đây, bạn đổi thành: using Cinemachine;
 
 public class CameraControllerSlider : MonoBehaviour
 {
     public static CameraControllerSlider Instance;
 
-    [Header("--- DANH SÁCH VỊ TRÍ CAMERA (Empty GameObjects) ---")]
-    [Tooltip("Kéo các Transform vị trí (Kinh Thành, Tu Luyện, ...) vào đây")]
-    public List<Transform> danhSachViTri = new List<Transform>();
+    [Header("--- CINEMACHINE CAMERA ---")]
+    [Tooltip("Kéo CinemachineCamera / VirtualCamera vào đây")]
+    public CinemachineCamera cinemachineCamera;
+    // Mẹo: Nếu Unity báo lỗi kiểu dữ liệu ở trên, đổi chữ "CinemachineCamera" thành "CinemachineVirtualCamera"
 
-    [Header("--- CẤU HÌNH TRƯỢT ---")]
-    [Tooltip("Tốc độ trượt camera")]
-    public float tocDoTruot = 5f;
+    [Header("--- DANH SÁCH TARGET CAMERA (Empty GameObjects) ---")]
+    [Tooltip("Kéo các điểm Target (KinhThanh_cam, DotPha_cam,...) theo đúng thứ tự từ trái sang phải vào đây")]
+    public List<Transform> danhSachTarget = new List<Transform>();
 
-    private int indexViTriHienTai = 0;
-    private Coroutine coroutineTruotCamera;
+    private int indexHienTai = 0;
 
     private void Awake()
     {
@@ -23,61 +23,49 @@ public class CameraControllerSlider : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    /// <summary>
-    /// Hàm di chuyển Camera tới vị trí theo Index trong danh sách
-    /// </summary>
-    /// <param name="index">Chỉ số vị trí (0, 1, 2,...)</param>
-    public void ChuyenDenViTri(int index)
+    private void Start()
     {
-        if (index < 0 || index >= danhSachViTri.Count || danhSachViTri[index] == null)
-        {
-            Debug.LogWarning("[CameraSlider] Index vị trí không hợp lệ!");
-            return;
-        }
-
-        indexViTriHienTai = index;
-
-        if (coroutineTruotCamera != null)
-        {
-            StopCoroutine(coroutineTruotCamera);
-        }
-
-        coroutineTruotCamera = StartCoroutine(CoTruotCamera(danhSachViTri[index].position));
+        // Tự động gán vị trí đầu tiên (Index 0) khi bắt đầu Game
+        CapNhatTargetCamera();
     }
 
     /// <summary>
-    /// Hàm trượt tới vị trí kế tiếp
+    /// Gán vào OnClick() của Nút Mũi Tên Phải (Lướt sang vị trí kế tiếp)
     /// </summary>
     public void ViTriKeTiep()
     {
-        if (indexViTriHienTai < danhSachViTri.Count - 1)
+        if (indexHienTai < danhSachTarget.Count - 1)
         {
-            ChuyenDenViTri(indexViTriHienTai + 1);
+            indexHienTai++;
+            CapNhatTargetCamera();
         }
     }
 
     /// <summary>
-    /// Hàm trượt về vị trí trước
+    /// Gán vào OnClick() của Nút Mũi Tên Trái (Lướt về vị trí trước đó)
     /// </summary>
     public void ViTriTruocDo()
     {
-        if (indexViTriHienTai > 0)
+        if (indexHienTai > 0)
         {
-            ChuyenDenViTri(indexViTriHienTai - 1);
+            indexHienTai--;
+            CapNhatTargetCamera();
         }
     }
 
-    private IEnumerator CoTruotCamera(Vector3 viTriDich)
+    private void CapNhatTargetCamera()
     {
-        // Giữ nguyên trục Z của Camera (thường là -10 trong 2D)
-        viTriDich.z = transform.position.z;
+        if (cinemachineCamera == null || danhSachTarget.Count == 0) return;
 
-        while (Vector3.Distance(transform.position, viTriDich) > 0.01f)
+        Transform targetMoi = danhSachTarget[indexHienTai];
+
+        if (targetMoi != null)
         {
-            transform.position = Vector3.Lerp(transform.position, viTriDich, Time.deltaTime * tocDoTruot);
-            yield return null;
-        }
+            // Đổi điểm Follow của Cinemachine sang Target mới
+            cinemachineCamera.Follow = targetMoi;
 
-        transform.position = viTriDich;
+            // Nếu Cinemachine của bạn có xài thuộc tính LookAt thì bật thêm dòng dưới:
+            // cinemachineCamera.LookAt = targetMoi;
+        }
     }
-}
+} 

@@ -2,6 +2,10 @@ using System;
 using System.Collections;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 // --- DỮ LIỆU STAT CƠ BẢN GIÚP BẠN KHÔNG CẦN SCRIPT CŨ NỮA ---
 [System.Serializable]
 public class Stat
@@ -47,7 +51,7 @@ public class CharacterStats : MonoBehaviour, IDamageable
     [SerializeField, Tooltip("Sát thương gây ra ban đầu")]
     private Stat attack = new Stat(20f);
 
-    [SerializeField, Tooltip("Tỷ lệ giảm sát thương (0.2 = 20%, tối đa 0.95)")]
+    [SerializeField, Tooltip("Tỷ lệ giảm sát thương (0.1 = 10%)")]
     private Stat defense = new Stat(0.1f);
 
     [Header("=== CURRENT STATE ===")]
@@ -68,13 +72,12 @@ public class CharacterStats : MonoBehaviour, IDamageable
     private GameObject gameOverUI;
 
     [Header("=== BOSS CONFIGURATION ===")]
-    [SerializeField, Tooltip("Tick vào đây nếu GameObject này là Boss để kích hoạt cơ chế nhận X3 sát thương khi mệt")]
+    [SerializeField, Tooltip("Tick vào đây nếu GameObject này là Boss")]
     private bool isBoss = false;
 
-    [SerializeField, Tooltip("Hệ số nhân sát thương khi Boss bị mệt (Mặc định x3)")]
+    [SerializeField, Tooltip("Hệ số nhân sát thương khi Boss bị mệt")]
     private float tiredDamageMultiplier = 3f;
 
-    // Tham chiếu tự động tới script Boss & Animator
     private BossDaSatMaQuan bossController;
     private Animator anim;
 
@@ -87,14 +90,13 @@ public class CharacterStats : MonoBehaviour, IDamageable
     public bool IsDead => currentHealth <= 0;
 
     // EVENTS
-    public event Action<float, float> OnHealthChanged; // (currentHP, maxHP)
-    public event Action<float> OnDamaged;              // (damageTaken)
-    public event Action<float> OnHealed;               // (healAmount)
+    public event Action<float, float> OnHealthChanged;
+    public event Action<float> OnDamaged;
+    public event Action<float> OnHealed;
     public event Action OnDeath;
 
     private void Awake()
     {
-        currentHealth = MaxHealth.Value;
         anim = GetComponentInChildren<Animator>();
 
         if (gameOverUI != null)
@@ -105,10 +107,39 @@ public class CharacterStats : MonoBehaviour, IDamageable
         if (isBoss)
         {
             bossController = GetComponent<BossDaSatMaQuan>();
-            if (bossController == null)
-            {
-                Debug.LogWarning($"⚠️ [CharacterStats] {gameObject.name} được tick là Boss nhưng không tìm thấy script BossDaSatMaQuan!");
-            }
+        }
+    }
+
+    private void Start()
+    {
+        // 🎯 TỰ ĐỘNG LẤY CHỈ SỐ TỪ SAVE FILE KHI VÀO GAME (NẾU LÀ PLAYER)
+        if (isPlayer)
+        {
+            TaiThongSoTuSaveFile();
+        }
+        else
+        {
+            currentHealth = MaxHealth.Value;
+        }
+    }
+
+    /// <summary>
+    /// Đọc file save và ghi đè toàn bộ chỉ số thực tế của Player
+    /// </summary>
+    public void TaiThongSoTuSaveFile()
+    {
+        if (QuestSaveSystem.Instance != null && QuestSaveSystem.Instance.duLieuSaveHienTai != null)
+        {
+            PlayerStatsSaveData statsSave = QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats;
+
+            maxHealth.Value = statsSave.maxHP;
+            attack.Value = statsSave.damage;
+            defense.Value = statsSave.armor;
+
+            currentHealth = maxHealth.Value;
+
+            OnHealthChanged?.Invoke(currentHealth, maxHealth.Value);
+            Debug.Log($"<color=green>[CharacterStats]</color> Đã nạp thành công Stat từ Save: HP={MaxHealth.Value}, Atk={Attack.Value}, Def={Defense.Value}");
         }
     }
 
@@ -137,11 +168,9 @@ public class CharacterStats : MonoBehaviour, IDamageable
             if (bossController.IsTired)
             {
                 rawDamage *= tiredDamageMultiplier;
-                Debug.Log($"💥 BOSS ĐANG MỆT! Sát thương nhận vào bị nhân {tiredDamageMultiplier} lần: {rawDamage}");
             }
         }
 
-        // TÍNH SÁT THƯƠNG ĐƠN GIẢN NỘI BỘ (Không cần DamageCalculator cũ nữa)
         float finalDamage = rawDamage * (1f - Mathf.Clamp(Defense.Value, 0f, 0.95f));
 
         currentHealth -= finalDamage;
@@ -209,4 +238,18 @@ public class CharacterStats : MonoBehaviour, IDamageable
     }
 }
 
+// 🎯 ĐỊNH NGHĨA KẾT HỢP DÙNG CHO ATTRIBUTE READONLY TRÊN INSPECTOR
 public class ReadOnlyInspectorAttribute : PropertyAttribute { }
+
+#if UNITY_EDITOR
+[CustomPropertyDrawer(typeof(ReadOnlyInspectorAttribute))]
+public class ReadOnlyInspectorDrawer : PropertyDrawer
+{
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        GUI.enabled = false;
+        EditorGUI.PropertyField(position, property, label, true);
+        GUI.enabled = true;
+    }
+}
+#endif

@@ -432,7 +432,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -550.631, y: -291.28}
+  m_AnchoredPosition: {x: -552.5357, y: -293.05356}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6611897227187537261
@@ -2358,7 +2358,8 @@ MonoBehaviour:
   nutDongY: {fileID: 2261915914043939927}
   nutTuChoi: {fileID: 1330615906353505630}
   nutTraNhiemVu: {fileID: 6260221804761133939}
-  nutDongBang: {fileID: 5811520698241077276}
+  nutDongBang: {fileID: 0}
+  Complete: 0
 --- !u!114 &1220693290936478603
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2371,9 +2372,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5477a5b1fdef58344941ac6470fe3b57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  danhSachQuestData: []
   tenFileSave: QuestProgressData.txt
   duLieuSaveHienTai:
     danhSachProgress: []
+    danhSachItemSave: []
+    playerStats:
+      tenCanhGioi: "Luy\u1EC7n Kh\xED T\u1EA7ng 1"
+      level: 1
+      maxHP: 100
+      damage: 15
+      armor: 5
 --- !u!1 &8933278691525084390
 GameObject:
   m_ObjectHideFlags: 0

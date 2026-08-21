@@ -1,11 +1,13 @@
 using System.Collections;
+using System.Collections.Generic; // 🎯 Thêm thư viện để dùng List
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class BuildingInteraction : MonoBehaviour
+public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    [Header("--- CẤU HÌNH GIAO DIỆN (UI) ---")]
-    [Tooltip("Không cần kéo thả! Script sẽ tự tìm UI_quest khi chuyển Scene.")]
-    [SerializeField] private GameObject uiGameObject;
+    [Header("--- CẤU HÌNH GIAO DIỆN / OBJECT (UI) ---")]
+    [Tooltip("Kéo thả bao nhiêu UI / GameObjects vào đây tùy ý. Click vào nhà sẽ Bật/Tắt tất cả!")]
+    [SerializeField] private List<GameObject> danhSachUIGameObject = new List<GameObject>();
 
     [Header("--- CẤU HÌNH PHÓNG TO (SCALE) ---")]
     [SerializeField] private float targetScaleMultiplier = 1.2f;
@@ -34,59 +36,69 @@ public class BuildingInteraction : MonoBehaviour
 
     private void Start()
     {
-        // Tự động liên kết với UI trong Scene
         TimVaCapNhatUI();
     }
 
     // 🎯 TƯƠNG TÁC CLICK CHUỘT VÀO CÔNG TRÌNH
-    private void OnMouseDown()
+    public void OnPointerClick(PointerEventData eventData)
     {
-        // Kiểm tra và tìm lại UI phòng trường hợp vừa chuyển Scene sang
         TimVaCapNhatUI();
 
-        if (uiGameObject != null)
+        if (danhSachUIGameObject != null && danhSachUIGameObject.Count > 0)
         {
-            // Đảo trạng thái Bật / Tắt UI
-            bool trangThaiMoi = !uiGameObject.activeSelf;
-            uiGameObject.SetActive(trangThaiMoi);
+            // Lấy trạng thái ngược lại của Object đầu tiên để đảo trạng thái (Toggle)
+            bool trangThaiMoi = !danhSachUIGameObject[0].activeSelf;
 
-            // Nếu Bật UI -> Load dữ liệu Quest mới nhất từ file Save
+            // Vòng lặp duyệt qua tất cả các Object trong mảng để Ẩn / Hiện đồng loạt
+            foreach (GameObject uiItem in danhSachUIGameObject)
+            {
+                if (uiItem != null)
+                {
+                    uiItem.SetActive(trangThaiMoi);
+                }
+            }
+
+            // Nếu trạng thái mới là Bật -> Tải lại dữ liệu Quest
             if (trangThaiMoi && QuestUIManager.Instance != null)
             {
                 QuestUIManager.Instance.KhoiTaoDanhSachQuestUI();
                 QuestUIManager.Instance.DongBangThoai();
             }
 
-            Debug.Log("<color=green>[Building]</color> Mở UI thành công trên Scene mới!");
+            Debug.Log($"<color=green>[Building]</color> Đã {(trangThaiMoi ? "MỞ" : "TẮT")} thành công {danhSachUIGameObject.Count} UI!");
         }
         else
         {
-            Debug.LogError("<color=red>[Building Error]</color> Không tìm thấy UI_quest hoặc QuestUIManager trong Scene KinhThanh!");
+            Debug.LogError("<color=red>[Building Error]</color> Danh sách UI đang trống, không tìm thấy GameObject nào!");
         }
     }
 
-    // 🎯 TỰ ĐỘNG TÌM GAMEOBJECT UI DÙ CHUYỂN SCENE NÀO
+    // 🎯 TỰ ĐỘNG TÌM LẠI NẾU DANH SÁCH TRỐNG
     private void TimVaCapNhatUI()
     {
-        // 1. Ưu tiên lấy GameObject từ QuestUIManager Instance của Scene hiện tại
-        if (QuestUIManager.Instance != null)
+        // Nếu danh sách chưa được kéo tay trong Inspector
+        if (danhSachUIGameObject.Count == 0)
         {
-            uiGameObject = QuestUIManager.Instance.gameObject;
-        }
-        // 2. Nếu Instance chưa sẵn sàng, tìm trực tiếp tên 'UI_quest' trên Hierarchy
-        else if (uiGameObject == null)
-        {
-            uiGameObject = GameObject.Find("UI_quest");
+            if (QuestUIManager.Instance != null)
+            {
+                danhSachUIGameObject.Add(QuestUIManager.Instance.gameObject);
+            }
+            else
+            {
+                GameObject uiQuest = GameObject.Find("UI_quest");
+                if (uiQuest != null) danhSachUIGameObject.Add(uiQuest);
+            }
         }
     }
 
-    private void OnMouseEnter()
+    // 🎯 TƯƠNG TÁC RÊ CHUỘT VÀO / RA
+    public void OnPointerEnter(PointerEventData eventData)
     {
         if (spriteRenderer != null) spriteRenderer.color = hoverColor;
         StartSmoothScale(targetScale);
     }
 
-    private void OnMouseExit()
+    public void OnPointerExit(PointerEventData eventData)
     {
         if (spriteRenderer != null) spriteRenderer.color = originalColor;
         StartSmoothScale(originalScale);

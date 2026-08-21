@@ -611,11 +611,12 @@ MonoBehaviour:
     mapZone: {fileID: 2089917202691266699}
     rewardManager: {fileID: 7634500143173431581}
     nextTeleportPortal: {fileID: 0}
-    winUIObject: {fileID: 0}
+    winUIObject: {fileID: 788684078935146741}
     isCompleted: 0
     rewardClaimed: 0
   currentStageIndex: 0
   statusText: {fileID: 3183318126197588083}
+  buttonChuyenMap: {fileID: 6026436113647108882}
 --- !u!114 &7634500143173431581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -632,7 +633,7 @@ MonoBehaviour:
   - tenPhanThuong: "V\u1EADt ph\u1EA9m"
     itemData: {fileID: 11400000, guid: 9d7827e2c47c86745b9d17a80a5560a1, type: 2}
     dropChance: 50
-    count: 1
+    count: 2
     itemWorldPrefab: {fileID: 3579708442594343827, guid: ee36514cacd5c0340b04c4e805bed4cc, type: 3}
   - tenPhanThuong: "V\u1EADt ph\u1EA9m"
     itemData: {fileID: 11400000, guid: 49e74c715b0a940448d6d98edc9cfede, type: 2}
@@ -642,6 +643,10 @@ MonoBehaviour:
   spawnPositionList:
   - {fileID: 2162458871630864363}
   - {fileID: 639941691442140205}
+  - {fileID: 5572024517039803721}
+  - {fileID: 6175738540784633511}
+  - {fileID: 7020677904401701551}
+  - {fileID: 5128288015429182959}
 --- !u!1 &5281402482243483022
 GameObject:
   m_ObjectHideFlags: 0

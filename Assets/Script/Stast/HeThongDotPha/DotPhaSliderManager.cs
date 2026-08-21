@@ -1,69 +1,56 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DotPhaSliderManager : MonoBehaviour
+public class DotPhaSimpleManager : MonoBehaviour
 {
-    [Header("--- PANEL CHA (Chứa toàn bộ các Bảng UI con) ---")]
-    [Tooltip("Kéo Panel cha chứa các bảng DotPha_0, DotPha_1... vào đây")]
-    public RectTransform panelChaChuaCacBang;
+    [Header("--- DANH SÁCH CÁC BẢNG UI ĐỘT PHÁ ---")]
+    [Tooltip("Kéo tất cả các Bảng UI (DotPha_0, DotPha_UI_1,...) vào đây theo thứ tự")]
+    public List<GameObject> danhSachBangUI = new List<GameObject>();
 
-    [Header("--- CẤU HÌNH TRƯỢT ---")]
-    [Tooltip("Khoảng cách vị trí X giữa 2 Bảng UI (Ví dụ: 800 hoặc 1000)")]
-    public float khoangCachMoiBangX = 800f;
-    public float tocDoTruot = 10f;
-    public int tongSoBangUI = 3;
+    private int indexHienTai = 0;
 
-    private int indexBangHienTai = 0;
-    private Coroutine coroutineTruot;
+    private void OnEnable()
+    {
+        // Khi mở bảng lên, luôn hiển thị bảng đầu tiên (Index 0)
+        indexHienTai = 0;
+        CapNhatHienThiBang();
+    }
 
     /// <summary>
-    /// Gán vào OnClick() của Mũi Tên Phải (Trượt sang bảng kế tiếp)
+    /// Gán vào OnClick() của Mũi Tên Phải
     /// </summary>
     public void NutSangBangPhai()
     {
-        if (indexBangHienTai < tongSoBangUI - 1)
+        if (indexHienTai < danhSachBangUI.Count - 1)
         {
-            indexBangHienTai++;
-            CapNhatViTriTruot();
+            indexHienTai++;
+            CapNhatHienThiBang();
         }
     }
 
     /// <summary>
-    /// Gán vào OnClick() của Mũi Tên Trái (Trượt về bảng trước)
+    /// Gán vào OnClick() của Mũi Tên Trái
     /// </summary>
     public void NutSangBangTrai()
     {
-        if (indexBangHienTai > 0)
+        if (indexHienTai > 0)
         {
-            indexBangHienTai--;
-            CapNhatViTriTruot();
+            indexHienTai--;
+            CapNhatHienThiBang();
         }
     }
 
-    private void CapNhatViTriTruot()
+    private void CapNhatHienThiBang()
     {
-        if (panelChaChuaCacBang == null) return;
-
-        // Tọa độ X mục tiêu = âm (index * khoảng cách)
-        Vector2 viTriDich = new Vector2(-indexBangHienTai * khoangCachMoiBangX, panelChaChuaCacBang.anchoredPosition.y);
-
-        if (coroutineTruot != null) StopCoroutine(coroutineTruot);
-        coroutineTruot = StartCoroutine(CoTruotPanel(viTriDich));
-    }
-
-    private IEnumerator CoTruotPanel(Vector2 viTriDich)
-    {
-        while (Vector2.Distance(panelChaChuaCacBang.anchoredPosition, viTriDich) > 0.1f)
+        // Vòng lặp kiểm tra từng Bảng trong danh sách
+        for (int i = 0; i < danhSachBangUI.Count; i++)
         {
-            panelChaChuaCacBang.anchoredPosition = Vector2.Lerp(
-                panelChaChuaCacBang.anchoredPosition,
-                viTriDich,
-                Time.deltaTime * tocDoTruot
-            );
-            yield return null;
+            if (danhSachBangUI[i] != null)
+            {
+                // Nếu đúng chỉ số Index hiện tại thì BẬT (true), còn lại TẮT (false)
+                bool laBangChon = (i == indexHienTai);
+                danhSachBangUI[i].SetActive(laBangChon);
+            }
         }
-
-        panelChaChuaCacBang.anchoredPosition = viTriDich;
     }
 }

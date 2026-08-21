@@ -646,6 +646,10 @@ MonoBehaviour:
   defense:
     baseValue: 0.1
   currentHealth: 100
+  isPlayer: 0
+  dieAnimName: Die
+  deathDelay: 2
+  gameOverUI: {fileID: 0}
   isBoss: 0
   tiredDamageMultiplier: 3
 --- !u!114 &6637531207864386104
@@ -661,6 +665,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idQuai: 1
+  levelNhanDuoc: 0.01
   destroyDelay: 2
   dieTriggerName: Die
 --- !u!61 &2598972309679270092

@@ -32,12 +32,13 @@ public class SaveItemData
     }
 }
 
-// 🎯 CLASS LƯU THÔNG SỐ NHÂN VẬT VỚI LEVEL KIỂU SỐ THỰC (FLOAT)
 [Serializable]
 public class PlayerStatsSaveData
 {
     public string tenCanhGioi = "Luyện Khí Tầng 1";
-    public float level = 1f;     // 🎯 Level dạng số thực (float)
+    public float level = 1f;
+    public float currentExp = 0f;
+    public float maxExp = 5f;
     public float maxHP = 100f;
     public float damage = 20f;
     public float armor = 0.1f;
@@ -54,9 +55,6 @@ public class DanhSachSaveQuest
 public class QuestSaveSystem : MonoBehaviour
 {
     public static QuestSaveSystem Instance;
-
-    // Event thông báo khi Level thay đổi
-    public event Action<float> OnLevelChanged;
 
     [Header("--- CẤU HÌNH DỮ LIỆU QUEST ---")]
     public List<QuestData> danhSachQuestData = new List<QuestData>();
@@ -112,9 +110,15 @@ public class QuestSaveSystem : MonoBehaviour
                 duLieuSaveHienTai = JsonUtility.FromJson<DanhSachSaveQuest>(chuoiJson);
 
                 if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
-                if (duLieuSaveHienTai.danhSachProgress == null) duLieuSaveHienTai.danhSachProgress = new List<ProgressQuest>();
-                if (duLieuSaveHienTai.danhSachItemSave == null) duLieuSaveHienTai.danhSachItemSave = new List<SaveItemData>();
-                if (duLieuSaveHienTai.playerStats == null) duLieuSaveHienTai.playerStats = new PlayerStatsSaveData();
+
+                if (duLieuSaveHienTai.danhSachProgress == null)
+                    duLieuSaveHienTai.danhSachProgress = new List<ProgressQuest>();
+
+                if (duLieuSaveHienTai.danhSachItemSave == null)
+                    duLieuSaveHienTai.danhSachItemSave = new List<SaveItemData>();
+
+                if (duLieuSaveHienTai.playerStats == null)
+                    duLieuSaveHienTai.playerStats = new PlayerStatsSaveData();
 
                 Debug.Log("<color=cyan>[Save System]</color> Đã load dữ liệu thành công.");
             }
@@ -136,24 +140,12 @@ public class QuestSaveSystem : MonoBehaviour
         SaveDuLieuQuestToTxt();
     }
 
-    /// <summary>
-    /// Cộng thêm Level (số thực) trực tiếp vào Save File
-    /// </summary>
-    public void CongLevelChoPlayer(float luongLevel)
-    {
-        if (duLieuSaveHienTai == null || duLieuSaveHienTai.playerStats == null) return;
-
-        duLieuSaveHienTai.playerStats.level += luongLevel;
-        SaveDuLieuQuestToTxt();
-
-        OnLevelChanged?.Invoke(duLieuSaveHienTai.playerStats.level);
-        Debug.Log($"<color=green>[Save System]</color> Cộng {luongLevel} Level. Level hiện tại: {duLieuSaveHienTai.playerStats.level}");
-    }
-
     public void LuuItemVaoSaveGame(string idItem, int soLuong = 1)
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
-        if (duLieuSaveHienTai.danhSachItemSave == null) duLieuSaveHienTai.danhSachItemSave = new List<SaveItemData>();
+
+        if (duLieuSaveHienTai.danhSachItemSave == null)
+            duLieuSaveHienTai.danhSachItemSave = new List<SaveItemData>();
 
         SaveItemData itemDaCo = duLieuSaveHienTai.danhSachItemSave.Find(x => x.idItem == idItem);
 
@@ -193,7 +185,9 @@ public class QuestSaveSystem : MonoBehaviour
     public ProgressQuest LayTienTrinhQuest(int idQuest)
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
-        if (duLieuSaveHienTai.danhSachProgress == null) duLieuSaveHienTai.danhSachProgress = new List<ProgressQuest>();
+
+        if (duLieuSaveHienTai.danhSachProgress == null)
+            duLieuSaveHienTai.danhSachProgress = new List<ProgressQuest>();
 
         foreach (ProgressQuest quest in duLieuSaveHienTai.danhSachProgress)
         {

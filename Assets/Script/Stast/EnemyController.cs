@@ -10,8 +10,8 @@ namespace StatsSystem.Components
         [SerializeField, Tooltip("ID của loại quái này (VD: 1 = Bộ Xương, 2 = Quái Cây)")]
         private int idQuai = 1;
 
-        [SerializeField, Tooltip("Lượng Level (số thực) người chơi nhận được khi diệt quái này")]
-        private float levelNhanDuoc = 0.5f;
+        [SerializeField, Tooltip("Lượng Kinh Nghiệm (EXP) người chơi nhận được khi diệt quái này")]
+        private float expNhanDuoc = 1f;
 
         [Header("=== THỜI GIAN BIẾN MẤT ===")]
         [SerializeField, Tooltip("Thời gian (giây) quái biến mất hoàn toàn sau khi chết")]
@@ -50,10 +50,19 @@ namespace StatsSystem.Components
                 animator.SetTrigger(dieTriggerName);
             }
 
-            // 2. CỘNG TRỰC TIẾP LEVEL SỐ THỰC VÀO QUEST SAVE SYSTEM
+            // 2. CỘNG EXP CHO PLAYER THÔNG QUA LEVEL SYSTEM
+            if (LevelSystem.Instance != null)
+            {
+                LevelSystem.Instance.AddExp(expNhanDuoc);
+            }
+            else
+            {
+                Debug.LogWarning("[EnemyController] Không tìm thấy LevelSystem.Instance trong Scene!");
+            }
+
+            // 3. GHI NHẬN TIẾN TRÌNH QUEST
             if (QuestSaveSystem.Instance != null)
             {
-                QuestSaveSystem.Instance.CongLevelChoPlayer(levelNhanDuoc);
                 QuestSaveSystem.Instance.GhiNhanDietQuai(idQuai, 1);
             }
             else
@@ -61,11 +70,11 @@ namespace StatsSystem.Components
                 Debug.LogWarning("[EnemyController] Không tìm thấy QuestSaveSystem.Instance trong Scene!");
             }
 
-            // 3. TẮT COLLIDER CỦA QUÁI
+            // 4. TẮT COLLIDER CỦA QUÁI
             Collider2D col = GetComponent<Collider2D>();
             if (col != null) col.enabled = false;
 
-            // 4. CHỜ THỜI GIAN VÀ XÓA GAMEOBJECT
+            // 5. CHỜ THỜI GIAN VÀ XÓA GAMEOBJECT
             StartCoroutine(DestroyAfterDelay(destroyDelay));
         }
 

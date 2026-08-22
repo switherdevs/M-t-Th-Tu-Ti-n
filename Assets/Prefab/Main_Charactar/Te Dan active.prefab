@@ -89,6 +89,37 @@ PolygonCollider2D:
       - {x: 0.58778536, y: -0.80901694}
       - {x: 2.755009, y: -0.29689085}
   m_UseDelaunayMesh: 0
+--- !u!1 &4347710644277411814
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 124410382251777967}
+  m_Layer: 0
+  m_Name: B
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &124410382251777967
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4347710644277411814}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 12.5, y: -0.31155664, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3289399593632576558}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5880187979500462814
 GameObject:
   m_ObjectHideFlags: 0
@@ -102,7 +133,7 @@ GameObject:
   - component: {fileID: 4305594687385907484}
   - component: {fileID: 3886581422532659948}
   m_Layer: 0
-  m_Name: Te_dan
+  m_Name: Te Dan active
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -118,10 +149,11 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 44, y: -0.37688673, z: 0}
-  m_LocalScale: {x: 2.5, y: 2.5, z: 2.5}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8544785400081700706}
+  - {fileID: 124410382251777967}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1957337646760279761
@@ -167,8 +199,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 8
-  m_Sprite: {fileID: 2087581751149120018, guid: 2dc2300bd5d49f0468809e6898282fe1, type: 3}
+  m_SortingOrder: 9
+  m_Sprite: {fileID: -2706535426372558054, guid: 7e183fb3c1a804240aac90d86751e141, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -186,7 +218,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5880187979500462814}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -217,7 +249,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 10.24, y: 5.59}
+    oldSize: {x: 9.21, y: 6.74}
     newSize: {x: 10.24, y: 5.59}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -237,7 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9836692a0d7f232458f5b398e9e998a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  destinationB: {fileID: 0}
+  destinationB: {fileID: 124410382251777967}
   virtualCamera: {fileID: 0}
   oldMapCollider: {fileID: 0}
   newMapCollider: {fileID: 0}

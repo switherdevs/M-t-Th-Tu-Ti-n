@@ -2238,7 +2238,6 @@ GameObject:
   - component: {fileID: 4456645137921845911}
   - component: {fileID: 7779994807567664383}
   - component: {fileID: 1581670381054428735}
-  - component: {fileID: 1220693290936478603}
   m_Layer: 0
   m_Name: UI_quest
   m_TagString: Untagged
@@ -2360,29 +2359,6 @@ MonoBehaviour:
   nutTraNhiemVu: {fileID: 6260221804761133939}
   nutDongBang: {fileID: 0}
   Complete: 0
---- !u!114 &1220693290936478603
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7625159656455838923}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5477a5b1fdef58344941ac6470fe3b57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  danhSachQuestData: []
-  tenFileSave: QuestProgressData.txt
-  duLieuSaveHienTai:
-    danhSachProgress: []
-    danhSachItemSave: []
-    playerStats:
-      tenCanhGioi: "Luy\u1EC7n Kh\xED T\u1EA7ng 1"
-      level: 1
-      maxHP: 100
-      damage: 15
-      armor: 5
 --- !u!1 &8933278691525084390
 GameObject:
   m_ObjectHideFlags: 0

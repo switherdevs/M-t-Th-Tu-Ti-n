@@ -70,7 +70,6 @@ public class QuestSaveSystem : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else if (Instance != this)
         {
@@ -207,10 +206,18 @@ public class QuestSaveSystem : MonoBehaviour
         return questMoi;
     }
 
+    // 🎯 HÀM CẬP NHẬT TRẠNG THÁI QUEST VÀ LƯU THẲNG VÀO TXT
     public void CapNhatTrangThaiQuest(int idQuest, TrangThaiQuest trangThaiMoi)
     {
         ProgressQuest quest = LayTienTrinhQuest(idQuest);
         quest.trangThai = trangThaiMoi;
+
+        // Nếu người chơi HỦY quest (về ChưaNhan) -> Reset tiến trình quái diệt về 0
+        if (trangThaiMoi == TrangThaiQuest.ChuaNhan)
+        {
+            quest.soBoXuongDaDiet = 0;
+        }
+
         SaveDuLieuQuestToTxt();
     }
 

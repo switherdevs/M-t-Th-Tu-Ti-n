@@ -373,7 +373,7 @@ RectTransform:
   m_GameObject: {fileID: 4850192867339302481}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.080646366, y: 0.080646366, z: 0.080646366}
+  m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8448111856087003901}
@@ -393,7 +393,7 @@ Canvas:
   m_GameObject: {fileID: 4850192867339302481}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 2
+  m_RenderMode: 0
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -974,7 +974,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8eb9348dd05e01348b595c424cf3eaa3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doDichChuyen: {x: -550, y: 0}
+  macDinhAn: 0
+  doDichChuyen: {x: -500, y: 0}
   tocDoTruot: 10
 --- !u!223 &3507841470007645448
 Canvas:

@@ -536,8 +536,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25c754fe70f09834990cc9f682480427, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  idQuai: 5
-  expNhanDuoc: 0.05
+  idQuai: 6
+  expNhanDuoc: 0.5
   destroyDelay: 2
   dieTriggerName: Die
 --- !u!50 &6489939854110820507
@@ -585,6 +585,8 @@ MonoBehaviour:
   isBurst: 0
   burstBulletCount: 3
   burstDelay: 0.1
+  aimingAnimBool: isAiming
+  shootAnimTrigger: Shoot
   detectRange: 80
   playerLayer:
     serializedVersion: 2

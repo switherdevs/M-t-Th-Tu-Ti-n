@@ -527,14 +527,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentState: 0
-  detectionRange: 70
-  attackRange: 10
+  detectionRange: 120
+  attackRange: 15
   attackCenterOffset: {x: -1.18, y: 5.56}
   stopDistance: 1.2
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
-  moveSpeed: 8
+  moveSpeed: 10
   wallCheckDistance: 0.8
   wallTag: Wall
   attackSpeed: 1
@@ -621,8 +621,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25c754fe70f09834990cc9f682480427, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  idQuai: 5
-  expNhanDuoc: 0.05
+  idQuai: 7
+  expNhanDuoc: 10
   destroyDelay: 2
   dieTriggerName: Die
 --- !u!50 &1921641991296392193

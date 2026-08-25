@@ -14,12 +14,30 @@ public class QuestUIElement
     public Button nutMoQuest;
 }
 
+// Cấu trúc đại diện cho 1 ô hiển thị Item thưởng trong Bảng Thông Tin Chung
+[Serializable]
+public class RewardSlotUI
+{
+    [Tooltip("GameObject chứa toàn bộ ô Item thưởng này (Dùng để Bật/Tắt)")]
+    public GameObject slotGameObject;
+
+    [Tooltip("Component Image hiển thị Icon của Item")]
+    public Image imageIcon;
+
+    [Tooltip("Text TMP hiển thị Số Lượng Item (VD: x5, x10)")]
+    public TextMeshProUGUI textSoLuong;
+}
+
 public class QuestUIManager : MonoBehaviour
 {
     public static QuestUIManager Instance;
 
-    [Header("--- DANH SÁCH / MẢNG CÁC PHẦN TỬ UI NHIỆM VỤ ---")]
+    [Header("--- DANH SÁCH DÒNG NHIỆM VỤ ---")]
     public List<QuestUIElement> danhSachQuestUI = new List<QuestUIElement>();
+
+    [Header("--- KHU VỰC HIỂN THỊ PHẦN THƯỞNG DÙNG CHUNG (NGOÀI MẢNG) ---")]
+    [Tooltip("Mảng/Danh sách các Ô UI hiển thị phần thưởng dùng chung cho bảng thông tin")]
+    public List<RewardSlotUI> danhSachSlotThuongUI = new List<RewardSlotUI>();
 
     [Header("--- THÀNH PHẦN UI GIAO TIẾP CHUNG CẦN KÉO VÀO ---")]
     public TextMeshProUGUI textLoiThoaiNPC;
@@ -127,6 +145,9 @@ public class QuestUIManager : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// Mở Bảng Thoại & Cập nhật mảng Phần Thưởng Dùng Chung theo Quest được click
+    /// </summary>
     public void MoBangThoaiQuest(QuestData questData)
     {
         if (questData == null) return;
@@ -136,6 +157,10 @@ public class QuestUIManager : MonoBehaviour
         if (textLoiThoaiNPC != null) textLoiThoaiNPC.gameObject.SetActive(true);
         if (textTienTrinhQuest != null) textTienTrinhQuest.gameObject.SetActive(true);
 
+        // 1. CẬP NHẬT HIỂN THỊ MẢNG PHẦN THƯỞNG DÙNG CHUNG
+        CapNhatGiaoDienPhanThuongDungChung(questData);
+
+        // 2. TÍNH TOÁN TRẠNG THÁI VÀ BẬT/TẮT CÁC NÚT BẤM
         ProgressQuest progress = QuestSaveSystem.Instance != null
             ? QuestSaveSystem.Instance.LayTienTrinhQuest(questData.idQuest)
             : null;
@@ -183,65 +208,92 @@ public class QuestUIManager : MonoBehaviour
         }
     }
 
-    // 🎯 HÀM ĐỒNG Ý NHẬN QUEST
+    /// <summary>
+    /// Hàm phụ trách Bật/Tắt và gán dữ liệu vào mảng Ô Thưởng Dùng Chung
+    /// </summary>
+    private void CapNhatGiaoDienPhanThuongDungChung(QuestData questData)
+    {
+        if (danhSachSlotThuongUI == null || danhSachSlotThuongUI.Count == 0) return;
+
+        // Ẩn tất cả các ô thưởng cũ
+        foreach (var slot in danhSachSlotThuongUI)
+        {
+            if (slot != null && slot.slotGameObject != null)
+            {
+                slot.slotGameObject.SetActive(false);
+            }
+        }
+
+        // Duyệt danh sách phần thưởng của Quest được chọn và hiển thị lên các Slot UI tương ứng
+        if (questData.danhSachPhanThuong != null)
+        {
+            for (int i = 0; i < questData.danhSachPhanThuong.Count; i++)
+            {
+                // Tránh vượt quá số lượng ô UI được chuẩn bị sẵn trên Editor
+                if (i >= danhSachSlotThuongUI.Count) break;
+
+                ItemRewardData reward = questData.danhSachPhanThuong[i];
+                RewardSlotUI slotUI = danhSachSlotThuongUI[i];
+
+                if (reward != null && slotUI != null)
+                {
+                    // Bật ô UI lên
+                    if (slotUI.slotGameObject != null) slotUI.slotGameObject.SetActive(true);
+
+                    // Gán Sprite Icon
+                    if (slotUI.imageIcon != null && reward.iconItem != null)
+                    {
+                        slotUI.imageIcon.sprite = reward.iconItem;
+                    }
+
+                    // Gán Text số lượng
+                    if (slotUI.textSoLuong != null)
+                    {
+                        slotUI.textSoLuong.text = $"x{reward.soLuong}";
+                    }
+                }
+            }
+        }
+    }
+
     public void OnClickDongYNhanQuest()
     {
         if (questDangXem == null) return;
 
-        // 1. Cập nhật Save
         QuestSaveSystem.Instance.CapNhatTrangThaiQuest(questDangXem.idQuest, TrangThaiQuest.DangLam);
 
-        // 2. Refresh UI bảng thoại
         KhoiTaoDanhSachQuestUI();
         MoBangThoaiQuest(questDangXem);
 
-        // 3. 🎯 PHÁT TÍN HIỆU CẬP NHẬT HUD THỜI GIAN THỰC
         QuestHUDTracker.ThongBaoCapNhatHUD();
-
-        Debug.Log("<color=yellow>[QuestUI]</color> Đã nhận nhiệm vụ ID: " + questDangXem.idQuest);
     }
 
-    // 🎯 HÀM HỦY NHIỆM VỤ / TỪ CHỐI
     public void OnClickHuyHoacTuChoiQuest()
     {
         if (questDangXem == null) return;
 
-        // 1. Cập nhật Save về ChưaNhan
         QuestSaveSystem.Instance.CapNhatTrangThaiQuest(questDangXem.idQuest, TrangThaiQuest.ChuaNhan);
 
-        // 2. Reset bảng thoại
         KhoiTaoDanhSachQuestUI();
         DongBangThoai();
 
-        // 3. 🎯 PHÁT TÍN HIỆU CẬP NHẬT HUD THỜI GIAN THỰC (XÓA DÒNG QUEST HỦY KHỎI HUD NGAY)
         QuestHUDTracker.ThongBaoCapNhatHUD();
-
-        Debug.Log("<color=red>[QuestUI]</color> Đã hủy/từ chối nhiệm vụ ID: " + questDangXem.idQuest);
     }
 
-    // 🎯 HÀM TRẢ NHIỆM VỤ
     public void OnClickTraNhiemVu()
     {
         if (questDangXem == null) return;
 
-        // 1. Cập nhật Save
+        // 1. Cập nhật trạng thái Quest sang Hoàn Thành
         QuestSaveSystem.Instance.CapNhatTrangThaiQuest(questDangXem.idQuest, TrangThaiQuest.HoanThanh);
 
-        // 2. Trao thưởng
-        if (questDangXem.prefabItemPhanThuong != null)
-        {
-            for (int i = 0; i < questDangXem.soLuongItemThuong; i++)
-            {
-                Instantiate(questDangXem.prefabItemPhanThuong, transform.position + new Vector3(0, 1f, 0), Quaternion.identity);
-            }
-            Debug.Log($"<color=green>[Reward]</color> Đã trao {questDangXem.soLuongItemThuong}x {questDangXem.prefabItemPhanThuong.name}");
-        }
+        // 2. Tự động lưu toàn bộ mảng phần thưởng vào Save Game
+        questDangXem.LuuPhanThuongVaoSaveGame();
 
         // 3. Refresh UI thoại
         KhoiTaoDanhSachQuestUI();
         DongBangThoai();
 
-        // 4. 🎯 PHÁT TÍN HIỆU CẬP NHẬT HUD THỜI GIAN THỰC
         QuestHUDTracker.ThongBaoCapNhatHUD();
     }
 
@@ -254,6 +306,18 @@ public class QuestUIManager : MonoBehaviour
         if (nutTuChoi != null) nutTuChoi.gameObject.SetActive(false);
         if (nutTraNhiemVu != null) nutTraNhiemVu.gameObject.SetActive(false);
         if (nutDongBang != null) nutDongBang.gameObject.SetActive(false);
+
+        // Ẩn mảng ô thưởng dùng chung khi đóng bảng thoại
+        if (danhSachSlotThuongUI != null)
+        {
+            foreach (var slot in danhSachSlotThuongUI)
+            {
+                if (slot != null && slot.slotGameObject != null)
+                {
+                    slot.slotGameObject.SetActive(false);
+                }
+            }
+        }
     }
 
     private string LayChuoiTrangThai(TrangThaiQuest trangThai)

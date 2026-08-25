@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6638620869072662400}
   - component: {fileID: 1137085015609456965}
   - component: {fileID: -1346193194849150255}
+  - component: {fileID: 6707657991390534597}
   m_Layer: 0
   m_Name: Dan_quaicay
   m_TagString: Untagged
@@ -171,6 +172,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseDamage: 30
   targetTag: Enemy
+--- !u!114 &6707657991390534597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2779534502923475830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17aa1ab8892b273478482249e725b070, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  time: 2
 --- !u!1 &5218714936418398694
 GameObject:
   m_ObjectHideFlags: 0
@@ -220,7 +234,7 @@ MonoBehaviour:
   m_BlendStyleIndex: 0
   m_FalloffIntensity: 0.5
   m_Color: {r: 0.18953574, g: 1, b: 0, a: 1}
-  m_Intensity: 1
+  m_Intensity: 2
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
   m_ApplyToSortingLayers: 00000000
@@ -297,7 +311,7 @@ ParticleSystem:
   m_GameObject: {fileID: 6733460277909647340}
   serializedVersion: 8
   lengthInSec: 5
-  simulationSpeed: 1
+  simulationSpeed: 2
   stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
@@ -542,7 +556,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.025
+      scalar: 0.075
       minScalar: 1
       maxCurve:
         serializedVersion: 2

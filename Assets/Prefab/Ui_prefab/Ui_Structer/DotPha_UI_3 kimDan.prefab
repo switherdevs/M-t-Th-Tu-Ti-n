@@ -1386,9 +1386,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: DotPhaManager, Assembly-CSharp
-        m_MethodName: NutChuyenCapTruoc
+      - m_Target: {fileID: 3433467906021780341}
+        m_TargetAssemblyTypeName: BangDotPhaSingleUI, Assembly-CSharp
+        m_MethodName: OnClickThucHienDotPha
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2004,11 +2004,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 811a71021f6f4bd4a9bd6d36bf180754, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tenCanhGioiMoi: "Luy\u1EC7n kh\xED"
-  levelYeuCau: 10
-  congDamage: 20
-  congMaxHP: 100
-  congArmor: 10
+  tenCanhGioiMoi: "Kim \u0110an"
+  levelYeuCau: 30
+  congDamage: 600
+  congMaxHP: 500
+  congArmor: 20
   textTenCanhGioi: {fileID: 7326472508211829947}
   textLevelYeuCau: {fileID: 2999007627785391047}
   textSoSanhDamage: {fileID: 160991800309488821}

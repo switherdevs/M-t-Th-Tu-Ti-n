@@ -214,7 +214,7 @@ Transform:
   m_GameObject: {fileID: 428353517}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.74757004, y: 0.00000005147674, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2035,12 +2035,12 @@ MonoBehaviour:
   danhSachUIGameObject:
   - {fileID: 1164739618}
   - {fileID: 830294604}
-  - {fileID: 830294604}
-  - {fileID: 830294604}
-  - {fileID: 830294604}
-  - {fileID: 830294604}
-  - {fileID: 830294604}
-  - {fileID: 830294604}
+  - {fileID: 808744355}
+  - {fileID: 1561297260}
+  - {fileID: 1287077821}
+  - {fileID: 1239001015}
+  - {fileID: 1911802353}
+  - {fileID: 1805604571}
   targetScaleMultiplier: 1.2
   scaleSpeed: 10
   hoverColor: {r: 1, g: 1, b: 1, a: 1}
@@ -2685,6 +2685,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas_nv
       objectReference: {fileID: 0}
+    - target: {fileID: 4850192867339302481, guid: 895ec10e27d370d44af5c11272ab41ad, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5236275082635098082, guid: 895ec10e27d370d44af5c11272ab41ad, type: 3}
       propertyPath: danhSachQuestData.Array.size
       value: 3
@@ -2812,6 +2816,11 @@ MonoBehaviour:
   - {fileID: 1164739618}
   - {fileID: 830294604}
   - {fileID: 808744355}
+  - {fileID: 1561297260}
+  - {fileID: 1287077821}
+  - {fileID: 1239001015}
+  - {fileID: 1911802353}
+  - {fileID: 1805604571}
 --- !u!114 &1626895279
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -14,8 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: CuuLongKiem
   skillPrefab: {fileID: 8106306527046521838, guid: bd533657b441a1a419eee13bb054a0ad, type: 3}
-  triggerChance: 10
-  projectileSpeed: 12
+  cooldownTime: 5
+  manaCost: 30
   skillDamage: 80
   aoeRadius: 2.5
   stunDuration: 1.5
+  searchRadius: 90
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 512

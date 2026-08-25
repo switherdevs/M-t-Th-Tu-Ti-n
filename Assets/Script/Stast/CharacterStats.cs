@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-// --- DỮ LIỆU STAT CƠ BẢN GIÚP BẠN KHÔNG CẦN SCRIPT CŨ NỮA ---
 [System.Serializable]
 public class Stat
 {
@@ -58,6 +57,9 @@ public class CharacterStats : MonoBehaviour, IDamageable
     [SerializeField, ReadOnlyInspector]
     private float currentHealth;
 
+    [SerializeField, ReadOnlyInspector]
+    private bool isPoisoned = false;
+
     [Header("=== PLAYER CONFIGURATION ===")]
     [SerializeField, Tooltip("Tick vào đây nếu GameObject này là Player")]
     private bool isPlayer = false;
@@ -65,7 +67,7 @@ public class CharacterStats : MonoBehaviour, IDamageable
     [SerializeField, Tooltip("Tên Trigger/Bool Animation Chết")]
     private string dieAnimName = "Die";
 
-    [SerializeField, Tooltip("Thời gian chờ (giây) trước khi dừng game và hiện UI")]
+    [SerializeField, Tooltip("Thời gian chờ (giây) trước khi hiện UI GameOver")]
     private float deathDelay = 2.0f;
 
     [SerializeField, Tooltip("GameObject Canvas UI GameOver hiển thị khi người chơi chết")]
@@ -80,6 +82,7 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     private BossDaSatMaQuan bossController;
     private Animator anim;
+    private Coroutine poisonCoroutine;
 
     // Properties
     public Stat MaxHealth => maxHealth;
@@ -88,6 +91,8 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     public float CurrentHealth => currentHealth;
     public bool IsDead => currentHealth <= 0;
+    public bool IsPlayer => isPlayer;
+    public bool IsPoisoned => isPoisoned;
 
     // EVENTS
     public event Action<float, float> OnHealthChanged;
@@ -112,7 +117,6 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     private void Start()
     {
-        // 🎯 TỰ ĐỘNG LẤY CHỈ SỐ TỪ SAVE FILE KHI VÀO GAME (NẾU LÀ PLAYER)
         if (isPlayer)
         {
             TaiThongSoTuSaveFile();
@@ -123,9 +127,6 @@ public class CharacterStats : MonoBehaviour, IDamageable
         }
     }
 
-    /// <summary>
-    /// Đọc file save và ghi đè toàn bộ chỉ số thực tế của Player
-    /// </summary>
     public void TaiThongSoTuSaveFile()
     {
         if (QuestSaveSystem.Instance != null && QuestSaveSystem.Instance.duLieuSaveHienTai != null)
@@ -185,6 +186,39 @@ public class CharacterStats : MonoBehaviour, IDamageable
         }
     }
 
+    /// <summary>
+    /// Kích hoạt trạng thái nhiễm độc dành riêng cho Player
+    /// </summary>
+    public void ApplyPoison(float duration, float damagePerSecond)
+    {
+        // Chỉ Player mới dính độc và phải còn sống
+        if (!isPlayer || IsDead) return;
+
+        // Nếu đang bị độc thì dừng Coroutine cũ để reset lại thời gian nhiễm độc
+        if (poisonCoroutine != null)
+        {
+            StopCoroutine(poisonCoroutine);
+        }
+
+        poisonCoroutine = StartCoroutine(Routine_PoisonDamage(duration, damagePerSecond));
+    }
+
+    private IEnumerator Routine_PoisonDamage(float duration, float damagePerSecond)
+    {
+        isPoisoned = true;
+        float timer = 0f;
+
+        while (timer < duration && !IsDead)
+        {
+            yield return new WaitForSeconds(1f);
+            TakeDamage(damagePerSecond);
+            timer += 1f;
+        }
+
+        isPoisoned = false;
+        poisonCoroutine = null;
+    }
+
     public void Heal(float amount)
     {
         if (IsDead || amount <= 0) return;
@@ -200,9 +234,16 @@ public class CharacterStats : MonoBehaviour, IDamageable
     {
         OnDeath?.Invoke();
 
+        // Dừng độc ngay khi chết
+        if (poisonCoroutine != null)
+        {
+            StopCoroutine(poisonCoroutine);
+            isPoisoned = false;
+        }
+
         if (isPlayer)
         {
-            gameObject.tag = "Untagged";
+            gameObject.tag = "Default";
             gameObject.layer = LayerMask.NameToLayer("Default");
 
             if (anim != null && !string.IsNullOrEmpty(dieAnimName))
@@ -216,14 +257,12 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     private IEnumerator Routine_PlayerDeathSequence()
     {
-        yield return new WaitForSeconds(deathDelay);
+        yield return new WaitForSecondsRealtime(deathDelay);
 
         if (gameOverUI != null)
         {
             gameOverUI.SetActive(true);
         }
-
-        Time.timeScale = 0f;
     }
 
     public Stat GetStat(StatType type)
@@ -238,7 +277,6 @@ public class CharacterStats : MonoBehaviour, IDamageable
     }
 }
 
-// 🎯 ĐỊNH NGHĨA KẾT HỢP DÙNG CHO ATTRIBUTE READONLY TRÊN INSPECTOR
 public class ReadOnlyInspectorAttribute : PropertyAttribute { }
 
 #if UNITY_EDITOR

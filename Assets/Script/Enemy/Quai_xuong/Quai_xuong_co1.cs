@@ -1,14 +1,15 @@
 using UnityEngine;
 using System.Collections;
-using StatsSystem.Components; // BỔ SUNG: Thêm namespace để tham chiếu đến CharacterStats
+using StatsSystem.Components;
 
 /// <summary>
 /// AI Quái cơ bản: Phát hiện người chơi -> Đi tới (có khoảng cách dừng & né tường bằng Tag Wall) -> Tấn công (Bật Hitbox sát thương).
 /// Đã bổ sung: Lắng nghe trạng thái chết từ CharacterStats để ngừng di chuyển/tấn công và play animation chết.
+/// ĐÃ NÂNG CẤP: Chuyển Hitbox sang dạng mảng GameObject[], hỗ trợ dịch chuyển tâm vùng tấn công và TỰ ĐỘNG ĐIỀU CHỈNH TỐC ĐỘ ĐÁNH (Attack Speed).
 /// </summary>
 public class BasicEnemyAI : MonoBehaviour
 {
-    public enum EnemyState { Idle, Chasing, Attacking, Dead } // BỔ SUNG: Thêm trạng thái Dead
+    public enum EnemyState { Idle, Chasing, Attacking, Dead }
 
     [Header("=== STATE ===")]
     [SerializeField] private EnemyState currentState = EnemyState.Idle;
@@ -20,7 +21,10 @@ public class BasicEnemyAI : MonoBehaviour
     [Tooltip("Vùng 2: Bán kính đủ gần để tung chiêu đánh")]
     [SerializeField] private float attackRange = 1.5f;
 
-    [Tooltip("BỔ SUNG: Khoảng cách giữ an toàn, quái dừng lại không chui vào người Player (Nên đặt nhỏ hơn hoặc bằng attackRange)")]
+    [Tooltip("Tọa độ lệch tâm (X, Y) của vùng tấn công so với gốc của Quái")]
+    [SerializeField] private Vector2 attackCenterOffset = Vector2.zero;
+
+    [Tooltip("Khoảng cách giữ an toàn, quái dừng lại không chui vào người Player")]
     [SerializeField] private float stopDistance = 1.2f;
 
     [Tooltip("Layer chứa GameObject Người chơi")]
@@ -37,13 +41,16 @@ public class BasicEnemyAI : MonoBehaviour
     [SerializeField] private string wallTag = "Wall";
 
     [Header("=== ATTACK & DAMAGE GAMEOBJECT ===")]
-    [Tooltip("GameObject chứa Collider gây sát thương (Mặc định sẽ bị tắt)")]
-    [SerializeField] private GameObject attackHitbox;
+    [Tooltip("Tốc độ đánh (1 = Mặc định, 2 = Đánh nhanh gấp đôi, 0.5 = Đánh chậm một nửa)")]
+    [SerializeField] private float attackSpeed = 1f;
 
-    [Tooltip("Thời gian chờ trước khi bật Hitbox sát thương (Ví dụ: vung tay)")]
+    [Tooltip("Mảng chứa các GameObject Hitbox gây sát thương")]
+    [SerializeField] private GameObject[] attackHitboxes;
+
+    [Tooltip("Thời gian chờ gốc trước khi bật Hitbox sát thương (Sẽ tự chia theo Attack Speed)")]
     [SerializeField] private float damageActiveDelay = 0.3f;
 
-    [Tooltip("Thời gian Hitbox sát thương tồn tại (Ví dụ: thời gian ra đòn)")]
+    [Tooltip("Thời gian Hitbox sát thương tồn tại gốc (Sẽ tự chia theo Attack Speed)")]
     [SerializeField] private float damageDuration = 0.4f;
 
     [Tooltip("Thời gian hồi chiêu giữa 2 lần đánh")]
@@ -52,12 +59,12 @@ public class BasicEnemyAI : MonoBehaviour
     [Header("=== ANIMATION PARAMETERS ===")]
     [SerializeField] private string runAnimBool = "IsRunning";
     [SerializeField] private string attackAnimTrigger = "Attack";
-    [SerializeField] private string deathAnimTrigger = "Die"; // BỔ SUNG: Parameter Trigger khi chết
+    [SerializeField] private string deathAnimTrigger = "Die";
 
     // Biến riêng tư
     private Transform playerTransform;
     private Animator animator;
-    private CharacterStats characterStats; // BỔ SUNG: Biến lưu tham chiếu CharacterStats
+    private CharacterStats characterStats;
 
     private float lastAttackTime = -999f;
     private bool isAttacking = false;
@@ -67,12 +74,8 @@ public class BasicEnemyAI : MonoBehaviour
     {
         animator = GetComponentInChildren<Animator>();
 
-        if (attackHitbox != null)
-        {
-            attackHitbox.SetActive(false);
-        }
+        SetAllHitboxesActive(false);
 
-        // BỔ SUNG: Lấy CharacterStats và đăng ký sự kiện OnDeath
         characterStats = GetComponent<CharacterStats>();
         if (characterStats != null)
         {
@@ -82,7 +85,6 @@ public class BasicEnemyAI : MonoBehaviour
 
     private void OnDestroy()
     {
-        // BỔ SUNG: Hủy đăng ký sự kiện khi GameObject bị phá hủy để tránh memory leak
         if (characterStats != null)
         {
             characterStats.OnDeath -= HandleDeath;
@@ -91,13 +93,10 @@ public class BasicEnemyAI : MonoBehaviour
 
     private void Update()
     {
-        // BỔ SUNG: Nếu quái đã chết thì ngắt toàn bộ Update logic
         if (currentState == EnemyState.Dead) return;
 
-        // KHẮC PHỤC LỖI ANIMATION: Nếu đang tấn công thì ngưng không can thiệp Rotation hay di chuyển
         if (isAttacking) return;
 
-        // Cập nhật hướng quay mặt khi không tấn công
         UpdateFacingRotation();
 
         ScanForPlayer();
@@ -120,24 +119,32 @@ public class BasicEnemyAI : MonoBehaviour
     }
 
     // ==========================================
-    // BỔ SUNG: XỬ LÝ SỰ KIỆN KHI QUÁI CHẾT
+    // HÀM LẤY TÂM TẤN CÔNG THEO HƯỚNG XOAY
+    // ==========================================
+    /// <summary>
+    /// Tính toán vị trí tâm tấn công trong không gian thế giới, tự động đảo chiều X khi quái quay mặt.
+    /// </summary>
+    public Vector2 GetAttackCenterPosition()
+    {
+        Vector2 offsetVector = transform.right * attackCenterOffset.x + transform.up * attackCenterOffset.y;
+        return (Vector2)transform.position + offsetVector;
+    }
+
+    // ==========================================
+    // XỬ LÝ SỰ KIỆN KHI QUÁI CHẾT
     // ==========================================
     private void HandleDeath()
     {
-        // 1. Chuyển State sang Dead
         currentState = EnemyState.Dead;
 
-        // 2. Tắt toàn bộ Coroutine đang chạy (Ví dụ: Coroutine tấn công dở dang)
         StopAllCoroutines();
         isAttacking = false;
 
-        // 3. Tắt ngay lập tức Hitbox sát thương nếu đang bật
-        if (attackHitbox != null)
-        {
-            attackHitbox.SetActive(false);
-        }
+        // Reset lại tốc độ Animator về 1 khi chết
+        if (animator != null) animator.speed = 1f;
 
-        // 4. Tắt Anim di chuyển và kích hoạt Trigger Animation Chết
+        SetAllHitboxesActive(false);
+
         SetAnimBool(runAnimBool, false);
         SetAnimTrigger(deathAnimTrigger);
     }
@@ -149,12 +156,10 @@ public class BasicEnemyAI : MonoBehaviour
     {
         if (playerTransform == null) return;
 
-        // Player ở bên Trái -> Xoay Y = 180
         if (playerTransform.position.x < transform.position.x)
         {
             transform.eulerAngles = new Vector3(0f, 180f, 0f);
         }
-        // Player ở bên Phải -> Xoay Y = 0
         else if (playerTransform.position.x > transform.position.x)
         {
             transform.eulerAngles = new Vector3(0f, 0f, 0f);
@@ -171,9 +176,11 @@ public class BasicEnemyAI : MonoBehaviour
         if (hit != null)
         {
             playerTransform = hit.transform;
-            float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
 
-            if (distanceToPlayer <= attackRange && Time.time >= lastAttackTime + attackCooldown)
+            Vector2 attackCenter = GetAttackCenterPosition();
+            float distanceToAttackCenter = Vector2.Distance(attackCenter, playerTransform.position);
+
+            if (distanceToAttackCenter <= attackRange && Time.time >= lastAttackTime + attackCooldown)
             {
                 currentState = EnemyState.Attacking;
             }
@@ -190,7 +197,7 @@ public class BasicEnemyAI : MonoBehaviour
     }
 
     // ==========================================
-    // 2. DI CHUYỂN & KHOẢNG CÁCH DỪNG (STOP DISTANCE)
+    // 2. DI CHUYỂN & KHOẢNG CÁCH DỪNG
     // ==========================================
     private void MoveTowardsPlayerWithPathfinding()
     {
@@ -198,14 +205,12 @@ public class BasicEnemyAI : MonoBehaviour
 
         float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
 
-        // KHẮC PHỤC LỖI XÔNG VÀO NGƯỜI: Nếu đã đi vào khoảng cách dừng thì đứng lại và tắt Anim Chạy
         if (distanceToPlayer <= stopDistance)
         {
             SetAnimBool(runAnimBool, false);
             return;
         }
 
-        // Nếu còn xa hơn stopDistance thì bật Anim Chạy và tiến tới
         SetAnimBool(runAnimBool, true);
 
         Vector2 directPath = (playerTransform.position - transform.position).normalized;
@@ -254,32 +259,42 @@ public class BasicEnemyAI : MonoBehaviour
     }
 
     // ==========================================
-    // 3. CHUỖI TẤN CÔNG (ĐÃ FIX ANIMATION)
+    // 3. CHUỖI TẤN CÔNG (ĐÃ TÍNH TỐC ĐỘ ĐÁNH)
     // ==========================================
     private IEnumerator Routine_PerformAttack()
     {
         isAttacking = true;
         lastAttackTime = Time.time;
 
-        // Quay mặt về phía Player một lần cuối chuẩn xác trước khi tung animation đánh
         UpdateFacingRotation();
 
-        // Kích hoạt Trigger animation đánh
-        SetAnimTrigger(attackAnimTrigger);
+        // 1. Đảm bảo Tốc độ đánh không bị <= 0 gây ra lỗi chia cho 0
+        float currentAttackSpeed = Mathf.Max(0.1f, attackSpeed);
 
-        // Chờ vung đòn
-        yield return new WaitForSeconds(damageActiveDelay);
-
-        if (attackHitbox != null)
+        // 2. Tăng/Giảm tốc độ múa Animation theo Attack Speed
+        if (animator != null)
         {
-            attackHitbox.SetActive(true);
+            animator.speed = currentAttackSpeed;
         }
 
-        yield return new WaitForSeconds(damageDuration);
+        SetAnimTrigger(attackAnimTrigger);
 
-        if (attackHitbox != null)
+        // 3. Tự động thu ngắn thời gian delay/duration của Hitbox theo Attack Speed
+        float scaledDelay = damageActiveDelay / currentAttackSpeed;
+        float scaledDuration = damageDuration / currentAttackSpeed;
+
+        yield return new WaitForSeconds(scaledDelay);
+
+        SetAllHitboxesActive(true);
+
+        yield return new WaitForSeconds(scaledDuration);
+
+        SetAllHitboxesActive(false);
+
+        // 4. Trả tốc độ Animator về 1 bình thường cho các anim di chuyển
+        if (animator != null)
         {
-            attackHitbox.SetActive(false);
+            animator.speed = 1f;
         }
 
         isAttacking = false;
@@ -289,6 +304,19 @@ public class BasicEnemyAI : MonoBehaviour
     // ==========================================
     // 4. HELPER FUNCTIONS
     // ==========================================
+    private void SetAllHitboxesActive(bool isActive)
+    {
+        if (attackHitboxes == null || attackHitboxes.Length == 0) return;
+
+        for (int i = 0; i < attackHitboxes.Length; i++)
+        {
+            if (attackHitboxes[i] != null)
+            {
+                attackHitboxes[i].SetActive(isActive);
+            }
+        }
+    }
+
     private void SetAnimBool(string name, bool value)
     {
         if (animator != null && !string.IsNullOrEmpty(name))
@@ -306,19 +334,16 @@ public class BasicEnemyAI : MonoBehaviour
     // ==========================================
     private void OnDrawGizmos()
     {
-        // Vùng nhìn (Vàng)
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-        // Vùng đánh (Đỏ)
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        Vector2 attackCenter = Application.isPlaying ? GetAttackCenterPosition() : (Vector2)transform.position + (Vector2)(transform.right * attackCenterOffset.x + transform.up * attackCenterOffset.y);
+        Gizmos.DrawWireSphere(attackCenter, attackRange);
 
-        // Khoảng cách dừng (Xanh lá - Bổ sung mới)
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, stopDistance);
 
-        // Tia kiểm tra tường (Xanh dương)
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(transform.position, moveDirection * wallCheckDistance);
     }

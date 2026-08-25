@@ -15,7 +15,7 @@ public class VanKiemBatPhuong : MonoBehaviour
     [SerializeField] private float maxLifeTime = 3f;      // Thời gian sống tối đa của kiếm
 
     private float damage;
-    private float knockbackForce;
+    private float stunDuration;
     private Vector2 moveDirection;
     private CharacterStats characterStats;
 
@@ -26,11 +26,11 @@ public class VanKiemBatPhuong : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
-    public void Setup(Vector2 direction, float damageValue, float knockbackValue, CharacterStats stats)
+    public void Setup(Vector2 direction, float damageValue, float stunTime, CharacterStats stats)
     {
         moveDirection = direction;
         damage = damageValue;
-        knockbackForce = knockbackValue;
+        stunDuration = stunTime;
         characterStats = stats;
 
         // Xoay hướng của kiếm theo hướng bay tỏa tròn
@@ -133,20 +133,19 @@ public class VanKiemBatPhuong : MonoBehaviour
     {
         if (collision.CompareTag("Enemy"))
         {
-            // 1. Xử lý gây sát thương (Mở comment nếu bạn đã có script máu của Enemy)
+            // 1. Gây sát thương nếu quái có Component nhận sát thương
             // EnemyHealth enemyHealth = collision.GetComponent<EnemyHealth>();
             // if (enemyHealth != null) { enemyHealth.TakeDamage(damage, characterStats); }
 
-            // 2. Xử lý Đẩy lùi (Knockback)
-            Rigidbody2D enemyRb = collision.GetComponent<Rigidbody2D>();
-            if (enemyRb != null)
+            // 2. KÍCH HOẠT STUN THÔNG QUA INTERFACE
+            IStunable stunableEnemy = collision.GetComponentInParent<IStunable>();
+            if (stunableEnemy != null)
             {
-                Vector2 knockbackDir = (collision.transform.position - transform.position).normalized;
-                enemyRb.AddForce(knockbackDir * knockbackForce, ForceMode2D.Impulse);
+                stunableEnemy.ApplyStun(stunDuration);
             }
 
-            // Giai đoạn lao đi (Homing) nếu đâm trúng quái có thể chọn xuyên qua hoặc tự hủy kiếm
-            // Destroy(gameObject); // Bỏ comment dòng này nếu muốn kiếm biến mất ngay khi chạm trúng kẻ địch đầu tiên
+            // Tự hủy kiếm sau khi trúng mục tiêu
+            Destroy(gameObject);
         }
     }
 }

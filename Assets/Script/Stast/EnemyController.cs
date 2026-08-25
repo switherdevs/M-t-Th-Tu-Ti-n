@@ -4,7 +4,7 @@ using UnityEngine;
 namespace StatsSystem.Components
 {
     [RequireComponent(typeof(CharacterStats))]
-    public class EnemyController : MonoBehaviour
+    public class EnemyController : MonoBehaviour, IStunable
     {
         [Header("--- THÔNG TIN QUÁI ---")]
         [SerializeField, Tooltip("ID của loại quái này (VD: 1 = Bộ Xương, 2 = Quái Cây)")]
@@ -23,11 +23,14 @@ namespace StatsSystem.Components
 
         private CharacterStats stats;
         private Animator animator;
+        private Rigidbody2D rb;
+        private bool isStunned = false;
 
         private void Awake()
         {
             stats = GetComponent<CharacterStats>();
             animator = GetComponentInChildren<Animator>();
+            rb = GetComponent<Rigidbody2D>();
         }
 
         private void OnEnable()
@@ -40,9 +43,53 @@ namespace StatsSystem.Components
             stats.OnDeath -= HandleDeath;
         }
 
+        // ==========================================
+        // XỬ LÝ CHOÁNG (STUN) TỪ INTERFACE ISTUNABLE
+        // ==========================================
+        public void ApplyStun(float duration)
+        {
+            // Nếu quái đang choáng thì không trùng lặp Coroutine
+            if (isStunned) return;
+
+            StartCoroutine(StunRoutine(duration));
+        }
+
+        private IEnumerator StunRoutine(float duration)
+        {
+            isStunned = true;
+
+            // 1. Dừng ngay lực đẩy/di chuyển của Rigidbody2D để quái không bị văng map
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
+            // 2. Chạy Animation Tử Trận / Choáng
+            if (animator != null)
+            {
+                animator.SetTrigger(dieTriggerName);
+            }
+
+            // 3. Chờ hết thời gian Stun
+            yield return new WaitForSeconds(duration);
+
+            // 4. Hồi phục lại trạng thái bình thường (Reset Trigger)
+            isStunned = false;
+            if (animator != null)
+            {
+                animator.ResetTrigger(dieTriggerName);
+            }
+        }
+
+        // ==========================================
+        // XỬ LÝ CHẾT HOÀN TOÀN TỪ CHARACTERSTATS
+        // ==========================================
         private void HandleDeath()
         {
             Debug.Log($"{gameObject.name} (ID Quái: {idQuai}) đã chết!");
+
+            // Dừng Coroutine Stun nếu quái chết hẳn trong lúc đang choáng
+            StopAllCoroutines();
 
             // 1. KÍCH HOẠT ANIMATION CHẾT
             if (animator != null)

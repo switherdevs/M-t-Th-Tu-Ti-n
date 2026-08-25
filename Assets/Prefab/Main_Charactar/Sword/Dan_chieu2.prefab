@@ -43,13 +43,13 @@ GameObject:
   - component: {fileID: 1658403112979934206}
   - component: {fileID: 8987816833463367653}
   - component: {fileID: 7633753316879991081}
-  - component: {fileID: 736769601141526187}
   - component: {fileID: -2037768626894670775}
   - component: {fileID: 3110940993423000525}
   - component: {fileID: 5708453120537919081}
+  - component: {fileID: 7906965854689651224}
   m_Layer: 0
   m_Name: Dan_chieu2
-  m_TagString: Untagged
+  m_TagString: Kiem
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -114,7 +114,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 20
+  m_SortingOrder: 70
   m_Sprite: {fileID: 712035800519618848, guid: bb4491adcd787a64a955d381e5b2199b, type: 3}
   m_Color: {r: 0.26274508, g: 0.66008246, b: 0.74509805, a: 1}
   m_FlipX: 0
@@ -199,23 +199,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &736769601141526187
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4282846749162037270}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 505a87e6821992043ba8f427b0beb1b0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  skillSpeed: 200
-  lifeTime: 3
-  hitSound: {fileID: 8300000, guid: 891d6d1bc97cb924198575d4d24c8109, type: 3}
-  hitEffectPrefab: {fileID: 6866004461401601130, guid: 3ed39e6f36a74ce4f994a6e2170ce801, type: 3}
-  soundVolume: 1
 --- !u!82 &-2037768626894670775
 AudioSource:
   m_ObjectHideFlags: 0
@@ -325,7 +308,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6491cbe50b82acd4f89146eedac1d3ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shakeIntensity: 30
+  shakeIntensity: 80
   shakeDuration: 0.25
   initialSpeed: 100
   scatterDuration: 0.25
@@ -345,6 +328,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseDamage: 50
   targetTag: Enemy
+--- !u!114 &7906965854689651224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4282846749162037270}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17aa1ab8892b273478482249e725b070, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  time: 2
 --- !u!1 &5635728191066486403
 GameObject:
   m_ObjectHideFlags: 0

@@ -22,41 +22,45 @@ public class CuuThienTramDao : MonoBehaviour
 
     private bool hasImpacted = false; // Đảm bảo hiệu ứng chạm đất nổ AoE chỉ phát 1 lần
 
-    public void Setup(Transform target, float dmg, float stunTime, float radius)
+    /// <summary>
+    /// Khởi tạo vị trí và kích hoạt rơi cự kiếm từ trên trời xuống điểm chỉ định.
+    /// </summary>
+    public void Setup(Transform target, Vector2 fallbackPos, float dmg, float stunTime, float radius)
     {
         targetEnemy = target;
         damage = dmg;
         stunDuration = stunTime;
         aoeRadius = radius;
 
-        if (targetEnemy != null)
-        {
-            targetPosition = targetEnemy.position;
-            Vector3 spawnPosition = new Vector3(targetPosition.x, targetPosition.y + 12f, 0f);
-            transform.position = spawnPosition;
-            transform.rotation = Quaternion.Euler(0, 0, -90f);
+        // Xác định vị trí đích
+        targetPosition = targetEnemy != null ? (Vector2)targetEnemy.position : fallbackPos;
 
-            isFalling = true;
-            Debug.Log("<color=cyan>[CỬU THIÊN TRẢM]</color> Đã spawn kiếm trên trời, bắt đầu rơi xuống!");
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        // Đặt vị trí xuất phát trên cao (Y + 12f)
+        Vector3 spawnPosition = new Vector3(targetPosition.x, targetPosition.y + 12f, 0f);
+        transform.position = spawnPosition;
+
+        // Xoay lưỡi kiếm hướng xuống đất
+        transform.rotation = Quaternion.Euler(0, 0, -90f);
+
+        isFalling = true;
+        Debug.Log("<color=cyan>[CỬU THIÊN TRẢM]</color> Đã spawn kiếm trên trời, bắt đầu rơi xuống!");
     }
 
     void Update()
     {
         if (!isFalling) return;
 
+        // Nếu kẻ địch vẫn còn sống, liên tục bám theo vị trí của nó
         if (targetEnemy != null)
         {
             targetPosition = targetEnemy.position;
         }
 
+        // Lao thẳng xuống vị trí mục tiêu
         transform.position = Vector2.MoveTowards(transform.position, targetPosition, fallSpeed * Time.deltaTime);
 
-        if (Vector2.Distance(transform.position, targetPosition) <= 0.2f)
+        // Khi tiến gần sát mặt đất/mục tiêu thì kích hoạt nổ AoE
+        if (Vector2.Distance(transform.position, targetPosition) <= 0.3f)
         {
             ImpactExplosion();
         }
@@ -70,19 +74,18 @@ public class CuuThienTramDao : MonoBehaviour
         isFalling = false;
         Debug.Log("<color=orange>[CỬU THIÊN TRẢM ĐAO]</color> Cự kiếm đã chạm đất, gây nổ AoE!");
 
-        // Rung camera khi cự kiếm cắm đất
+        // 1. Rung camera khi cự kiếm cắm đất
         if (CameraShake.Instance != null)
         {
             CameraShake.Instance.Shake(shakeIntensity, shakeTime);
         }
 
-        // 1. Quét gây sát thương diện rộng
+        // 2. Quét gây sát thương diện rộng tại vị trí chạm đất
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position, aoeRadius);
         foreach (var hit in hitEnemies)
         {
             if (hit.CompareTag("Enemy"))
             {
-                // Đã sửa lại: Gọi thẳng IDamageable không qua namespace cũ
                 var victim = hit.GetComponentInParent<IDamageable>();
                 if (victim != null)
                 {
@@ -91,7 +94,7 @@ public class CuuThienTramDao : MonoBehaviour
             }
         }
 
-        // 2. Xử lý âm thanh nổ và hiệu ứng vụ nổ diện rộng
+        // 3. Xử lý âm thanh nổ và hiệu ứng vụ nổ diện rộng
         if (impactEffectPrefab != null)
         {
             Instantiate(impactEffectPrefab, transform.position, Quaternion.identity);
@@ -102,12 +105,13 @@ public class CuuThienTramDao : MonoBehaviour
             AudioSource.PlayClipAtPoint(impactSound, transform.position, soundVolume);
         }
 
-        // 3. Hủy cự kiếm
-        Destroy(gameObject, 0.1f);
+        // 4. Hủy cự kiếm ngay lập tức sau khi hoàn thành hiệu ứng
+        Destroy(gameObject);
     }
 
     private void OnDrawGizmosSelected()
     {
+        // Vẽ vòng tròn tầm nổ AoE của cự kiếm
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, aoeRadius);
     }

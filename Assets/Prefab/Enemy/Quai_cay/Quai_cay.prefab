@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5814737650442116504}
   - component: {fileID: 4215513559171865095}
   - component: {fileID: 473414755262829701}
+  - component: {fileID: 5205318671387780005}
   m_Layer: 9
   m_Name: Quai_cay
   m_TagString: Enemy
@@ -114,6 +115,7 @@ MonoBehaviour:
   defense:
     baseValue: 0.1
   currentHealth: 0
+  isPoisoned: 0
   isPlayer: 0
   dieAnimName: Die
   deathDelay: 2
@@ -133,9 +135,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idQuai: 4
-  levelNhanDuoc: 0.01
+  expNhanDuoc: 1
   destroyDelay: 1
   dieTriggerName: Die
+--- !u!114 &5205318671387780005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1032673849458545659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9e5e93e1ab52a345970bfa0ab643253, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthSlider: {fileID: 1967471599697607956}
+  targetStats: {fileID: 4215513559171865095}
+  isPlayer: 0
+  weaponTag: Kiem
+  hideOnDeath: 1
 --- !u!1 &2369490013103673571
 GameObject:
   m_ObjectHideFlags: 0
@@ -329,7 +348,7 @@ GameObject:
   - component: {fileID: 9074654690582312936}
   - component: {fileID: 5772542194158083285}
   - component: {fileID: 1540958369232630475}
-  - component: {fileID: 2560571059619853512}
+  - component: {fileID: 1744038856431593058}
   m_Layer: 9
   m_Name: Canvas
   m_TagString: Untagged
@@ -378,7 +397,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 50
+  m_SortingOrder: 75
   m_TargetDisplay: 0
 --- !u!114 &5772542194158083285
 MonoBehaviour:
@@ -420,7 +439,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &2560571059619853512
+--- !u!114 &1744038856431593058
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -429,7 +448,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4172193973449253491}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 713a6fb831269004faf107b04e4901b3, type: 3}
+  m_Script: {fileID: 11500000, guid: 41104a177fd87cd419f92e5d973a697c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &6786975681168392315
@@ -478,7 +497,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2331978656760581277}
   - component: {fileID: 1967471599697607956}
-  - component: {fileID: 4542389947307840771}
   m_Layer: 9
   m_Name: Slider_healt
   m_TagString: Untagged
@@ -494,7 +512,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7299023365002298495}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -27.522816}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.075, y: 0.075, z: 0.075}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -558,21 +576,6 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &4542389947307840771
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7299023365002298495}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9e5e93e1ab52a345970bfa0ab643253, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  healthSlider: {fileID: 1967471599697607956}
-  targetStats: {fileID: 4215513559171865095}
-  hideOnDeath: 1
 --- !u!1001 &7187840066152615693
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 9107201550900443084}
   m_Layer: 0
   m_Name: Sword_
-  m_TagString: Untagged
+  m_TagString: Kiem
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -80,7 +80,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 10
+  m_SortingOrder: 60
   m_Sprite: {fileID: 712035800519618848, guid: bb4491adcd787a64a955d381e5b2199b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -281,5 +281,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 060530a35c2e5d045813d5652cf23819, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseDamage: 30
+  baseDamage: 20
   targetTag: Enemy

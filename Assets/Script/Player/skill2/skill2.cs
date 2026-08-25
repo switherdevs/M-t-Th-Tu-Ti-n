@@ -10,8 +10,8 @@ public class VanKiemBatPhuongData : SkillData
     [Tooltip("Tốc độ bay của sóng kiếm tỏa ra")]
     public float swordSpeed = 10f;
 
-    [Tooltip("Lực đẩy lùi (Knockback) tác động lên enemy")]
-    public float knockbackForce = 7f;
+    [Tooltip("Thời gian quái bị đứng yên (Stun)")]
+    public float stunDuration = 2f;
 
     [Tooltip("Sát thương của mỗi tia kiếm")]
     public float skillDamage = 25f;
@@ -45,7 +45,7 @@ public class VanKiemBatPhuongData : SkillData
             VanKiemBatPhuong effect = skillObj.GetComponent<VanKiemBatPhuong>();
             if (effect != null)
             {
-                effect.Setup(spreadDirection, skillDamage, knockbackForce, null);
+                effect.Setup(spreadDirection, skillDamage, stunDuration, null);
             }
         }
     }

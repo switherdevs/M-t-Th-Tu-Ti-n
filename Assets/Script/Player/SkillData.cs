@@ -6,9 +6,6 @@ public class SkillData : ScriptableObject
     public string skillName;
     public GameObject skillPrefab;
 
-    [Tooltip("Tỷ lệ xuất hiện kỹ năng (%)")]
-    public float triggerChance = 100f;
-
     [Header("Cấu Hình Hồi Chiêu & Năng Lượng")]
     [Tooltip("Thời gian hồi chiêu của kỹ năng (tính bằng giây)")]
     public float cooldownTime = 5f;

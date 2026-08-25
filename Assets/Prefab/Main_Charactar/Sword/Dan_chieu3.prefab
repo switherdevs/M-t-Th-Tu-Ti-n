@@ -4935,7 +4935,7 @@ GameObject:
   - component: {fileID: 3352140404985623350}
   m_Layer: 0
   m_Name: Dan_chieu3
-  m_TagString: Untagged
+  m_TagString: Kiem
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5000,7 +5000,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 10
+  m_SortingOrder: 80
   m_Sprite: {fileID: 712035800519618848, guid: bb4491adcd787a64a955d381e5b2199b, type: 3}
   m_Color: {r: 0.97992563, g: 1, b: 0, a: 1}
   m_FlipX: 0
@@ -5088,7 +5088,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62a75672cada480439275fa7a82ee19b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shakeIntensity: 50
+  shakeIntensity: 100
   shakeTime: 0.35
   impactSound: {fileID: 8300000, guid: 0519466b633460a44ab768064e737fb9, type: 3}
   impactEffectPrefab: {fileID: 6866004461401601130, guid: 3ed39e6f36a74ce4f994a6e2170ce801, type: 3}
@@ -5216,4 +5216,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17aa1ab8892b273478482249e725b070, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  time: 1
+  time: 2

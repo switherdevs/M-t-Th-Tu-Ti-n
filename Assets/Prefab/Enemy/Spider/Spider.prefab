@@ -154,6 +154,7 @@ GameObject:
   - component: {fileID: 6682775006107975237}
   - component: {fileID: 8038329428725064117}
   - component: {fileID: 8742870990272294177}
+  - component: {fileID: 6560680352055975966}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -169,7 +170,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4438280865385731312}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 10}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -202,7 +203,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 50
+  m_SortingOrder: 75
   m_TargetDisplay: 0
 --- !u!114 &8038329428725064117
 MonoBehaviour:
@@ -244,6 +245,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &6560680352055975966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4438280865385731312}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41104a177fd87cd419f92e5d973a697c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5334881496587365009
 GameObject:
   m_ObjectHideFlags: 0
@@ -254,7 +267,6 @@ GameObject:
   m_Component:
   - component: {fileID: 945245016522555004}
   - component: {fileID: 2013805673217767450}
-  - component: {fileID: 7032045193024511189}
   m_Layer: 5
   m_Name: Spider_health_bar
   m_TagString: Untagged
@@ -270,7 +282,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5334881496587365009}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 10}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.02, y: 0.02, z: 0.02}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -334,21 +346,6 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &7032045193024511189
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5334881496587365009}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9e5e93e1ab52a345970bfa0ab643253, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  healthSlider: {fileID: 2013805673217767450}
-  targetStats: {fileID: 8545496531093312733}
-  hideOnDeath: 1
 --- !u!1 &7698720020623274281
 GameObject:
   m_ObjectHideFlags: 0
@@ -440,6 +437,7 @@ GameObject:
   - component: {fileID: 8545496531093312733}
   - component: {fileID: 6369325766192288725}
   - component: {fileID: 8806840496599172377}
+  - component: {fileID: 2562676053721647904}
   m_Layer: 9
   m_Name: Spider
   m_TagString: Enemy
@@ -608,12 +606,16 @@ MonoBehaviour:
   enemyBullet: {fileID: 4888295969053469004, guid: 4388fd1e92ae4b4409b5c9c92d396e7f, type: 3}
   firePoint: {fileID: 2875601457321823158}
   shootCooldown: 2
+  isBurst: 0
+  burstBulletCount: 3
+  burstDelay: 0.1
   detectRange: 80
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
   moveSpeed: 7
   attackRange: 20
+  dieAnimTrigger: Die
 --- !u!114 &8545496531093312733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -633,6 +635,7 @@ MonoBehaviour:
   defense:
     baseValue: 0.1
   currentHealth: 0
+  isPoisoned: 0
   isPlayer: 0
   dieAnimName: Die
   deathDelay: 2
@@ -652,7 +655,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idQuai: 2
-  levelNhanDuoc: 0.02
+  expNhanDuoc: 1
   destroyDelay: 1
   dieTriggerName: Die
 --- !u!58 &8806840496599172377
@@ -691,6 +694,24 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0.5440788}
   m_Radius: 1.0440788
+--- !u!114 &2562676053721647904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8534153256746552208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9e5e93e1ab52a345970bfa0ab643253, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthSlider: {fileID: 2013805673217767450}
+  cavan: {fileID: 4438280865385731312}
+  targetStats: {fileID: 8545496531093312733}
+  isPlayer: 0
+  weaponTag: Kiem
+  hideOnDeath: 1
 --- !u!1001 &4731914313623269426
 PrefabInstance:
   m_ObjectHideFlags: 0

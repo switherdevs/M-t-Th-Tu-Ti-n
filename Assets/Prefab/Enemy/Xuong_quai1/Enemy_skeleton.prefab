@@ -87,6 +87,7 @@ GameObject:
   - component: {fileID: 9143493378835739666}
   - component: {fileID: 5468233399054359778}
   - component: {fileID: 3207378965861602507}
+  - component: {fileID: 7097769976059264960}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -177,6 +178,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &7097769976059264960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619056172938092369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41104a177fd87cd419f92e5d973a697c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2857833718465829450
 GameObject:
   m_ObjectHideFlags: 0
@@ -223,7 +236,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8496619905746818931}
   - component: {fileID: 8557456101546263304}
-  - component: {fileID: 684837633640270020}
   m_Layer: 5
   m_Name: Enemy_health_bar
   m_TagString: Untagged
@@ -303,21 +315,6 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &684837633640270020
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4829977528559086262}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9e5e93e1ab52a345970bfa0ab643253, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  healthSlider: {fileID: 8557456101546263304}
-  targetStats: {fileID: 2399408769851875274}
-  hideOnDeath: 1
 --- !u!1 &5922871560273311158
 GameObject:
   m_ObjectHideFlags: 0
@@ -396,6 +393,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8048841485205173059}
   - component: {fileID: 8766628903197921094}
+  - component: {fileID: 6617501103260589990}
   m_Layer: 9
   m_Name: hitBox
   m_TagString: Untagged
@@ -412,11 +410,11 @@ Transform:
   m_GameObject: {fileID: 6066590522327865047}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.25881857, w: 0.965926}
-  m_LocalPosition: {x: 1.712, y: 0.17, z: 0}
+  m_LocalPosition: {x: 1.3570004, y: -0.7099999, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8564060139753983079}
+  m_Father: {fileID: 4859637607674951190}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -30}
 --- !u!70 &8766628903197921094
 CapsuleCollider2D:
@@ -455,6 +453,20 @@ CapsuleCollider2D:
   m_Offset: {x: 0.08736563, y: 0.041699708}
   m_Size: {x: 0.73956144, y: 0.19515958}
   m_Direction: 1
+--- !u!114 &6617501103260589990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6066590522327865047}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 060530a35c2e5d045813d5652cf23819, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseDamage: 30
+  targetTag: Player
 --- !u!1 &7182354119422908273
 GameObject:
   m_ObjectHideFlags: 0
@@ -546,6 +558,7 @@ GameObject:
   - component: {fileID: 455179450714755068}
   - component: {fileID: 2300347228243727094}
   - component: {fileID: 548920370642440125}
+  - component: {fileID: 6960215050283073285}
   m_Layer: 9
   m_Name: Enemy_skeleton
   m_TagString: Enemy
@@ -568,7 +581,6 @@ Transform:
   m_Children:
   - {fileID: 8566912408332929219}
   - {fileID: 2819361567985310069}
-  - {fileID: 8048841485205173059}
   - {fileID: 9114549914387404982}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -646,6 +658,7 @@ MonoBehaviour:
   defense:
     baseValue: 0.1
   currentHealth: 100
+  isPoisoned: 0
   isPlayer: 0
   dieAnimName: Die
   deathDelay: 2
@@ -665,7 +678,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idQuai: 1
-  levelNhanDuoc: 0.01
+  expNhanDuoc: 1
   destroyDelay: 2
   dieTriggerName: Die
 --- !u!61 &2598972309679270092
@@ -768,6 +781,7 @@ MonoBehaviour:
   currentState: 0
   detectionRange: 90
   attackRange: 6
+  attackCenterOffset: {x: 0, y: 0}
   stopDistance: 5
   playerLayer:
     serializedVersion: 2
@@ -775,13 +789,32 @@ MonoBehaviour:
   moveSpeed: 10
   wallCheckDistance: 0.8
   wallTag: Wall
-  attackHitbox: {fileID: 6066590522327865047}
+  attackSpeed: 1
+  attackHitboxes: []
   damageActiveDelay: 0.3
   damageDuration: 0.4
   attackCooldown: 2
   runAnimBool: IsRunning
   attackAnimTrigger: Attack
   deathAnimTrigger: Die
+--- !u!114 &6960215050283073285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7573028713283715629}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9e5e93e1ab52a345970bfa0ab643253, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthSlider: {fileID: 8557456101546263304}
+  cavan: {fileID: 1619056172938092369}
+  targetStats: {fileID: 2399408769851875274}
+  isPlayer: 0
+  weaponTag: Kiem
+  hideOnDeath: 1
 --- !u!1001 &3463184978168438955
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -856,7 +889,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -900910366175078723, guid: e5989fd2ce3c4fa4099abbe2be67c9d9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8048841485205173059}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: -8653719598885068355, guid: e5989fd2ce3c4fa4099abbe2be67c9d9, type: 3}
       insertIndex: -1
@@ -894,3 +930,8 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!4 &4859637607674951190 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -900910366175078723, guid: e5989fd2ce3c4fa4099abbe2be67c9d9, type: 3}
+  m_PrefabInstance: {fileID: 3463184978168438955}
+  m_PrefabAsset: {fileID: 0}

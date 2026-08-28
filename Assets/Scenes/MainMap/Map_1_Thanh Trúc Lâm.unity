@@ -1903,9 +1903,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   danhSachQuestData:
-  - {fileID: 11400000, guid: f771a1661bba7a44fa36375d69da8e46, type: 2}
-  - {fileID: 11400000, guid: e1d3a6b4e14fe1949806a00d8a2e9b26, type: 2}
-  - {fileID: 11400000, guid: b698ce79618919a4692da0d8610ea84f, type: 2}
+  - {fileID: 11400000, guid: f940202dcc69d5e4c8449a307d1fa7ba, type: 2}
+  - {fileID: 11400000, guid: 8404b171e57c22c4d81e07c69136625e, type: 2}
+  - {fileID: 11400000, guid: 98e4ebb428fabb94e8e36ec078e62acf, type: 2}
   tenFileSave: QuestProgressData.txt
   duLieuSaveHienTai:
     danhSachProgress: []
@@ -7746,21 +7746,25 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7330655762628494426, guid: 5aa83c6ed491e534fb388931ff46de88, type: 3}
+      propertyPath: anNutKhiXong
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7330655762628494426, guid: 5aa83c6ed491e534fb388931ff46de88, type: 3}
       propertyPath: danhSachQuestYeuCau.Array.size
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7330655762628494426, guid: 5aa83c6ed491e534fb388931ff46de88, type: 3}
       propertyPath: 'danhSachQuestYeuCau.Array.data[0]'
       value: 
-      objectReference: {fileID: 11400000, guid: f771a1661bba7a44fa36375d69da8e46, type: 2}
+      objectReference: {fileID: 11400000, guid: f940202dcc69d5e4c8449a307d1fa7ba, type: 2}
     - target: {fileID: 7330655762628494426, guid: 5aa83c6ed491e534fb388931ff46de88, type: 3}
       propertyPath: 'danhSachQuestYeuCau.Array.data[1]'
       value: 
-      objectReference: {fileID: 11400000, guid: e1d3a6b4e14fe1949806a00d8a2e9b26, type: 2}
+      objectReference: {fileID: 11400000, guid: 8404b171e57c22c4d81e07c69136625e, type: 2}
     - target: {fileID: 7330655762628494426, guid: 5aa83c6ed491e534fb388931ff46de88, type: 3}
       propertyPath: 'danhSachQuestYeuCau.Array.data[2]'
       value: 
-      objectReference: {fileID: 11400000, guid: b698ce79618919a4692da0d8610ea84f, type: 2}
+      objectReference: {fileID: 11400000, guid: 98e4ebb428fabb94e8e36ec078e62acf, type: 2}
     - target: {fileID: 8331098430226810336, guid: 5aa83c6ed491e534fb388931ff46de88, type: 3}
       propertyPath: m_Name
       value: PhongAn

@@ -15,6 +15,9 @@ public class QuestHUDTracker : MonoBehaviour
     [Tooltip("Nội dung hiển thị khi chưa nhận Quest")]
     public string noiDungThongBaoMacDinh = "Hãy đến kinh thành nhận nhiệm vụ";
 
+    [Tooltip("Nội dung hiển thị khi đã hoàn thành tất cả nhiệm vụ")]
+    public string noiDungHoanThanhTatCa = "Cảnh giới bạn đã cao, hãy đập đá";
+
     [Header("--- MẢNG TEXT HIỂN THỊ QUEST ĐỘNG ---")]
     [Tooltip("Kéo các Text TMP dùng để hiển thị danh sách nhiệm vụ trên HUD vào đây.")]
     public TextMeshProUGUI[] danhSachTextQuestUI;
@@ -66,16 +69,27 @@ public class QuestHUDTracker : MonoBehaviour
 
         List<ProgressQuest> danhSachQuestDangActive = LayToanBoQuestDangKichHoat();
 
+        // 🎯 KIỂM TRA: Nếu không có quest nào đang Active (Đang làm / Chờ trả)
         if (danhSachQuestDangActive.Count == 0)
         {
             if (textThongBaoMacDinh != null)
             {
                 textThongBaoMacDinh.gameObject.SetActive(true);
-                textThongBaoMacDinh.text = noiDungThongBaoMacDinh;
+
+                // Kiểm tra xem có phải đã làm xong TẤT CẢ các quest hay chưa
+                if (KiemTraDaHoanThanhTatCaQuest())
+                {
+                    textThongBaoMacDinh.text = noiDungHoanThanhTatCa;
+                }
+                else
+                {
+                    textThongBaoMacDinh.text = noiDungThongBaoMacDinh;
+                }
             }
             return;
         }
 
+        // Nếu có quest đang làm thì ẩn text mặc định đi
         if (textThongBaoMacDinh != null)
         {
             textThongBaoMacDinh.gameObject.SetActive(false);
@@ -105,6 +119,40 @@ public class QuestHUDTracker : MonoBehaviour
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// 🎯 Hàm phụ trợ: Kiểm tra xem toàn bộ Quest trong Save Data đã Hoàn Thành hay chưa
+    /// </summary>
+    private bool KiemTraDaHoanThanhTatCaQuest()
+    {
+        List<ProgressQuest> danhSachProgress = QuestSaveSystem.Instance.duLieuSaveHienTai.danhSachProgress;
+
+        // Nếu trong Save File chưa có quest nào hoặc danh sách Data bị rỗng
+        if (danhSachProgress == null || danhSachProgress.Count == 0)
+        {
+            return false;
+        }
+
+        // Đếm xem trong QuestSaveSystem có đúng bao nhiêu QuestData gốc
+        int tongSoQuestTrongGame = QuestSaveSystem.Instance.danhSachQuestData.Count;
+
+        // Nếu số quest trong file save chưa đủ bằng số quest tạo sẵn trong game -> Chưa xong hết
+        if (danhSachProgress.Count < tongSoQuestTrongGame)
+        {
+            return false;
+        }
+
+        // Duyệt từng quest xem có quest nào CHƯA hoàn thành không
+        foreach (ProgressQuest progress in danhSachProgress)
+        {
+            if (progress.trangThai != TrangThaiQuest.HoanThanh)
+            {
+                return false; // Còn ít nhất 1 quest chưa xong
+            }
+        }
+
+        return true; // Tất cả quest đều đã HoanThanh
     }
 
     private List<ProgressQuest> LayToanBoQuestDangKichHoat()

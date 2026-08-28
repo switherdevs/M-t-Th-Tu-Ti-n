@@ -4,7 +4,7 @@ using StatsSystem.Components;
 
 /// <summary>
 /// Script điều khiển AI Sói: Chạy rượt đuổi & Khựng lại phóng vồ (Pounce) + Tấn công
-/// Bổ sung: Tính năng xoay mặt (Rotation Y) tương thích với 2D Bone Animation + Dừng hoàn toàn khi chết.
+/// Bổ sung: Tính năng né chướng ngại vật mượt qua Layer/Tag (Wall) + Xoay mặt 2D Bone + Dừng khi chết.
 /// </summary>
 public class WolfAI : MonoBehaviour
 {
@@ -25,6 +25,19 @@ public class WolfAI : MonoBehaviour
 
     [Tooltip("Layer dành riêng cho Player để sói quét trúng")]
     [SerializeField] private LayerMask playerLayer;
+
+    [Header("=== OBSTACLE AVOIDANCE (NÉ CHƯỚNG NGẠI VẬT) ===")]
+    [Tooltip("Layer dành cho tường/chướng ngại vật cần né")]
+    [SerializeField] private LayerMask obstacleLayer;
+
+    [Tooltip("Khoảng cách quét phía trước để phát hiện tường né sớm")]
+    [SerializeField] private float obstacleCheckDistance = 1.8f;
+
+    [Tooltip("Bán kính quét Raycast vòng xòe xung quanh để tìm đường né")]
+    [SerializeField] private float avoidanceRadius = 1.2f;
+
+    [Tooltip("Độ mượt khi bẻ hướng di chuyển né tường (càng cao bẻ hướng càng nhanh)")]
+    [SerializeField] private float avoidanceSteerSmooth = 6f;
 
     [Header("=== MOVEMENT & POUNCE ===")]
     [Tooltip("Tốc độ 1: Rượt theo người chơi bình thường")]
@@ -61,14 +74,14 @@ public class WolfAI : MonoBehaviour
     private Animator animator;
     private CharacterStats stats;
 
-    private float lastPounceTime = -999f; // Đặt âm lớn để vào game dùng được kỹ năng ngay
+    private float lastPounceTime = -999f;
+    private Vector2 currentMoveDirection; // Biến lưu hướng di chuyển mượt
 
     private void Start()
     {
         animator = GetComponentInChildren<Animator>();
         stats = GetComponent<CharacterStats>();
 
-        // Đăng ký nghe event chết từ CharacterStats
         if (stats != null)
         {
             stats.OnDeath += OnWolfDeath;
@@ -85,24 +98,17 @@ public class WolfAI : MonoBehaviour
         }
     }
 
-    // 🎯 HÀM TỰ ĐỘNG KHÓA VÀ DỪNG AI HOÀN TOÀN KHI HẾT MÁU
     private void OnWolfDeath()
     {
         currentState = WolfState.Dead;
 
-        // Dừng toàn bộ các Coroutine đang chạy (chuỗi phóng vồ/tấn công)
         StopAllCoroutines();
-
-        // Tắt animation chạy
         SetAnimBool(runAnimBool, false);
-
-        // Vô hiệu hóa script này để không chạy Update nữa
         this.enabled = false;
     }
 
     private void Update()
     {
-        // 🎯 KIỂM TRA ĐIỀU KIỆN CHẾT HOẶC ĐANG TRONG TRẠNG THÁI KHÔNG THỂ DI CHUYỂN
         if (currentState == WolfState.Dead || currentState == WolfState.PreparePounce || currentState == WolfState.Pouncing || currentState == WolfState.Attacking)
             return;
 
@@ -164,12 +170,10 @@ public class WolfAI : MonoBehaviour
         SetAnimBool(runAnimBool, false);
         Flip(playerTransform.position.x);
 
-        // --- KHỰNG LẠI ---
         yield return new WaitForSeconds(preparePounceTime);
 
         if (currentState == WolfState.Dead) yield break;
 
-        // --- TÍNH TOÁN ĐIỂM DỪNG (OFFSET X) ---
         currentState = WolfState.Pouncing;
         SetAnimTrigger(pounceAnimTrigger);
 
@@ -180,7 +184,6 @@ public class WolfAI : MonoBehaviour
             playerTransform.position.y
         );
 
-        // --- PHÓNG TỚI ---
         while (Vector2.Distance(transform.position, targetPosition) > 0.1f)
         {
             if (currentState == WolfState.Dead) yield break;
@@ -197,7 +200,6 @@ public class WolfAI : MonoBehaviour
 
         transform.position = targetPosition;
 
-        // --- TẤN CÔNG ---
         currentState = WolfState.Attacking;
         SetAnimTrigger(attackAnimTrigger);
 
@@ -209,11 +211,12 @@ public class WolfAI : MonoBehaviour
     }
 
     // ==========================================
-    // 3. DI CHUYỂN BÌNH THƯỜNG
+    // 3. DI CHUYỂN BÌNH THƯỜNG & NÉ CHƯỚNG NGẠI VẬT
     // ==========================================
     private void UpdateIdle()
     {
         SetAnimBool(runAnimBool, false);
+        currentMoveDirection = Vector2.zero;
     }
 
     private void UpdateChase()
@@ -234,31 +237,81 @@ public class WolfAI : MonoBehaviour
         }
 
         SetAnimBool(runAnimBool, true);
-        transform.position = Vector2.MoveTowards(
-            transform.position,
-            playerTransform.position,
-            chaseSpeed * Time.deltaTime
-        );
 
-        Flip(playerTransform.position.x);
+        // Hướng gốc muốn đi tới người chơi
+        Vector2 targetDirection = (playerTransform.position - transform.position).normalized;
+
+        // Tính hướng di chuyển đã xử lý né chướng ngại vật
+        Vector2 finalDirection = CalculateAvoidanceDirection(targetDirection);
+
+        // Nội suy Lerp giúp bẻ lái mượt mà không bị giật
+        currentMoveDirection = Vector2.Lerp(currentMoveDirection, finalDirection, Time.deltaTime * avoidanceSteerSmooth);
+
+        transform.Translate(currentMoveDirection * chaseSpeed * Time.deltaTime, Space.World);
+
+        Flip(transform.position.x + currentMoveDirection.x);
     }
 
     private void UpdateReturning()
     {
         SetAnimBool(runAnimBool, true);
 
-        transform.position = Vector2.MoveTowards(
-            transform.position,
-            spawnPosition,
-            returnSpeed * Time.deltaTime
-        );
+        Vector2 targetDirection = ((Vector3)spawnPosition - transform.position).normalized;
+        Vector2 finalDirection = CalculateAvoidanceDirection(targetDirection);
 
-        Flip(spawnPosition.x);
+        currentMoveDirection = Vector2.Lerp(currentMoveDirection, finalDirection, Time.deltaTime * avoidanceSteerSmooth);
+
+        transform.Translate(currentMoveDirection * returnSpeed * Time.deltaTime, Space.World);
+
+        Flip(transform.position.x + currentMoveDirection.x);
 
         if (Vector2.Distance(transform.position, spawnPosition) < 0.1f)
         {
             currentState = WolfState.Idle;
         }
+    }
+
+    /// <summary>
+    /// Hàm thuật toán né chướng ngại vật thông minh (Context-Based Steering)
+    /// Quét tia Raycast các góc xòe để tìm đường trống né tường
+    /// </summary>
+    private Vector2 CalculateAvoidanceDirection(Vector2 desiredDirection)
+    {
+        // 1. Kiểm tra tia thẳng phía trước
+        RaycastHit2D hitCenter = Physics2D.Raycast(transform.position, desiredDirection, obstacleCheckDistance, obstacleLayer);
+
+        // Nếu phía trước trống hoặc không đụng phải tường/vật cản Tag "Wall", đi thẳng
+        if (!hitCenter || (!hitCenter.collider.CompareTag("Wall") && obstacleLayer == 0))
+        {
+            return desiredDirection;
+        }
+
+        // 2. Nếu vướng tường, bắn 8 tia xòe xung quanh để tìm đường đi không bị chắn
+        float[] rayAngles = { 45f, -45f, 90f, -90f, 135f, -135f, 180f };
+        Vector2 bestDirection = desiredDirection;
+        float maxScore = -999f;
+
+        foreach (float angle in rayAngles)
+        {
+            Vector2 checkDir = Quaternion.Euler(0, 0, angle) * desiredDirection;
+
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, checkDir, avoidanceRadius, obstacleLayer);
+
+            bool isWall = hit && (hit.collider.CompareTag("Wall") || (obstacleLayer & (1 << hit.collider.gameObject.layer)) != 0);
+
+            if (!isWall)
+            {
+                // Điểm số ưu tiên hướng gần nhất với hướng mục tiêu
+                float score = Vector2.Dot(checkDir, desiredDirection);
+                if (score > maxScore)
+                {
+                    maxScore = score;
+                    bestDirection = checkDir;
+                }
+            }
+        }
+
+        return bestDirection.normalized;
     }
 
     // ==========================================
@@ -267,11 +320,11 @@ public class WolfAI : MonoBehaviour
 
     private void Flip(float targetX)
     {
-        if (targetX < transform.position.x)
+        if (targetX < transform.position.x - 0.05f)
         {
             transform.eulerAngles = new Vector3(0f, 180f, 0f);
         }
-        else if (targetX > transform.position.x)
+        else if (targetX > transform.position.x + 0.05f)
         {
             transform.eulerAngles = new Vector3(0f, 0f, 0f);
         }
@@ -303,5 +356,9 @@ public class WolfAI : MonoBehaviour
 
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, loseRange);
+
+        // Vẽ tia quét chướng ngại vật trên Scene
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawRay(transform.position, currentMoveDirection * obstacleCheckDistance);
     }
 }

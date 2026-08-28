@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 1137085015609456965}
   - component: {fileID: -1346193194849150255}
   - component: {fileID: 6707657991390534597}
+  - component: {fileID: -6538422330340555376}
+  - component: {fileID: 8208729206255268090}
   m_Layer: 0
   m_Name: Dan_quaicay
   m_TagString: Untagged
@@ -170,7 +172,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 060530a35c2e5d045813d5652cf23819, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseDamage: 30
+  baseDamage: 10
   targetTag: Enemy
 --- !u!114 &6707657991390534597
 MonoBehaviour:
@@ -185,6 +187,54 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   time: 2
+--- !u!114 &-6538422330340555376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2779534502923475830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e5911bec756a3d46a1f74eb60c95ed5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 0
+  damage: 0
+  destroyTags:
+  - Player
+  - Wall
+  - Ground
+  isPoisonous: 0
+  poisonDuration: 5
+  poisonDamagePerSecond: 2
+--- !u!50 &8208729206255268090
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2779534502923475830}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &5218714936418398694
 GameObject:
   m_ObjectHideFlags: 0

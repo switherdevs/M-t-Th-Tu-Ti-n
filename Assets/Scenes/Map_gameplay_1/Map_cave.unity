@@ -1551,7 +1551,7 @@ Transform:
   - {fileID: 850013118}
   - {fileID: 1300857005}
   - {fileID: 809987756}
-  - {fileID: 1302636160}
+  - {fileID: 1896119413}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!61 &360349303
@@ -19673,66 +19673,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5880187979500462814, guid: e79247549400a2549955e67209bcf565, type: 3}
   m_PrefabInstance: {fileID: 1300857004}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1302636158
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1302636160}
-  - component: {fileID: 1302636159}
-  m_Layer: 0
-  m_Name: save 1
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1302636159
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1302636158}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5477a5b1fdef58344941ac6470fe3b57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  danhSachQuestData:
-  - {fileID: 11400000, guid: f771a1661bba7a44fa36375d69da8e46, type: 2}
-  - {fileID: 11400000, guid: e1d3a6b4e14fe1949806a00d8a2e9b26, type: 2}
-  - {fileID: 11400000, guid: b698ce79618919a4692da0d8610ea84f, type: 2}
-  tenFileSave: QuestProgressData.txt
-  duLieuSaveHienTai:
-    danhSachProgress: []
-    danhSachItemSave: []
-    playerStats:
-      tenCanhGioi: "Luy\u1EC7n Kh\xED T\u1EA7ng 1"
-      level: 1
-      currentExp: 0
-      maxExp: 5
-      maxHP: 100
-      damage: 20
-      armor: 0.1
---- !u!4 &1302636160
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1302636158}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -1, z: -0, w: 0}
-  m_LocalPosition: {x: -0.086586714, y: -0.7880448, z: 0.00722612}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 360349302}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1310141755
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20392,7 +20332,7 @@ Transform:
   m_GameObject: {fileID: 1462711482}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 31.331491, y: -5.7211547, z: 0}
+  m_LocalPosition: {x: 24.006413, y: -5.7211547, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -21312,11 +21252,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7634500143173431581, guid: 3d67599577e5f13408f615eb64020993, type: 3}
       propertyPath: rewardItemList.Array.data[0].count
-      value: 11
+      value: 35
       objectReference: {fileID: 0}
     - target: {fileID: 7634500143173431581, guid: 3d67599577e5f13408f615eb64020993, type: 3}
       propertyPath: rewardItemList.Array.data[1].count
-      value: 7
+      value: 21
       objectReference: {fileID: 0}
     - target: {fileID: 7634500143173431581, guid: 3d67599577e5f13408f615eb64020993, type: 3}
       propertyPath: rewardItemList.Array.data[2].count
@@ -21332,7 +21272,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7634500143173431581, guid: 3d67599577e5f13408f615eb64020993, type: 3}
       propertyPath: rewardItemList.Array.data[1].dropChance
-      value: 100
+      value: 58.4
       objectReference: {fileID: 0}
     - target: {fileID: 7634500143173431581, guid: 3d67599577e5f13408f615eb64020993, type: 3}
       propertyPath: rewardItemList.Array.data[1].itemWorldPrefab
@@ -22095,6 +22035,67 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3956782889683372624, guid: 92ddf7e9e8ecbfd44ba5ca7aa074b93e, type: 3}
   m_PrefabInstance: {fileID: 1879311145}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1896119412
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1896119413}
+  - component: {fileID: 1896119414}
+  m_Layer: 0
+  m_Name: save 1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1896119413
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1896119412}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -1, z: -0, w: 0}
+  m_LocalPosition: {x: 7.777861, y: -2.3652813, z: 0.043072324}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 360349302}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1896119414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1896119412}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5477a5b1fdef58344941ac6470fe3b57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  danhSachQuestData:
+  - {fileID: 11400000, guid: f940202dcc69d5e4c8449a307d1fa7ba, type: 2}
+  - {fileID: 11400000, guid: 8404b171e57c22c4d81e07c69136625e, type: 2}
+  - {fileID: 11400000, guid: 98e4ebb428fabb94e8e36ec078e62acf, type: 2}
+  tenFileSave: QuestProgressData.txt
+  duLieuSaveHienTai:
+    danhSachProgress: []
+    danhSachItemSave: []
+    playerStats:
+      tenCanhGioi: "Luy\u1EC7n Kh\xED T\u1EA7ng 1"
+      level: 1
+      currentExp: 0
+      maxExp: 5
+      maxHP: 100
+      damage: 15
+      armor: 5
+      maxEnergy: 100
 --- !u!4 &1901763974 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 374578057659128003, guid: 3d67599577e5f13408f615eb64020993, type: 3}

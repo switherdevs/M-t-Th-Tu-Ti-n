@@ -42,6 +42,9 @@ public class PlayerStatsSaveData
     public float maxHP = 100f;
     public float damage = 20f;
     public float armor = 0.1f;
+
+    // 🎯 BỔ SUNG: Energy tối đa (Mặc định 100)
+    public float maxEnergy = 100f;
 }
 
 [Serializable]
@@ -206,13 +209,11 @@ public class QuestSaveSystem : MonoBehaviour
         return questMoi;
     }
 
-    // 🎯 HÀM CẬP NHẬT TRẠNG THÁI QUEST VÀ LƯU THẲNG VÀO TXT
     public void CapNhatTrangThaiQuest(int idQuest, TrangThaiQuest trangThaiMoi)
     {
         ProgressQuest quest = LayTienTrinhQuest(idQuest);
         quest.trangThai = trangThaiMoi;
 
-        // Nếu người chơi HỦY quest (về ChưaNhan) -> Reset tiến trình quái diệt về 0
         if (trangThaiMoi == TrangThaiQuest.ChuaNhan)
         {
             quest.soBoXuongDaDiet = 0;

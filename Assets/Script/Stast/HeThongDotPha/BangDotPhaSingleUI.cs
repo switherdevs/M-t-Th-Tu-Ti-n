@@ -22,21 +22,23 @@ public class BangDotPhaSingleUI : MonoBehaviour
 {
     [Header("--- THÔNG TIN CẢNH GIỚI BẢNG NÀY ---")]
     public string tenCanhGioiMoi = "Luyện Khí Kỳ";
-    public float levelYeuCau = 20f; // 🎯 Chuyển sang kiểu float
+    public float levelYeuCau = 20f;
 
     [Header("--- CHỈ SỐ CỘNG THÊM KHI ĐỘT PHÁ ---")]
     public float congDamage = 20f;
     public float congMaxHP = 100f;
     public float congArmor = 10f;
+    [Tooltip("Mỗi cấp cảnh giới cộng thêm 10 Energy")]
+    public float congEnergy = 10f; // 🎯 BỔ SUNG: 10 Energy cố định
 
     [Header("--- THÀNH PHẦN UI CỦA BẢNG ---")]
     public TextMeshProUGUI textTenCanhGioi;
     public TextMeshProUGUI textLevelYeuCau;
 
-    [Tooltip("Kéo TextMeshPro hiển thị so sánh chỉ số Trước -> Sau đột phá vào đây")]
     public TextMeshProUGUI textSoSanhDamage;
     public TextMeshProUGUI textSoSanhMaxHP;
     public TextMeshProUGUI textSoSanhArmor;
+    public TextMeshProUGUI textSoSanhEnergy; // 🎯 BỔ SUNG: Text UI so sánh Energy
 
     public Button nutDotPha;
     public TextMeshProUGUI textThongBaoNut;
@@ -50,9 +52,6 @@ public class BangDotPhaSingleUI : MonoBehaviour
         CapNhatGiaoDienBang();
     }
 
-    /// <summary>
-    /// Hàm kiểm tra Save Game và hiển thị thông số Trước/Sau Đột Phá
-    /// </summary>
     public void CapNhatGiaoDienBang()
     {
         if (textTenCanhGioi != null)
@@ -60,9 +59,8 @@ public class BangDotPhaSingleUI : MonoBehaviour
             textTenCanhGioi.text = tenCanhGioiMoi;
         }
 
-        // 🎯 LẤY CHỈ SỐ VÀ LEVEL (FLOAT) TỪ HỆ THỐNG SAVE
         float playerLevel = 0f;
-        float curDmg = 20f, curHP = 100f, curArmor = 0.1f;
+        float curDmg = 20f, curHP = 100f, curArmor = 0.1f, curEnergy = 100f;
 
         bool hasSaveSystem = (QuestSaveSystem.Instance != null && QuestSaveSystem.Instance.duLieuSaveHienTai != null);
 
@@ -73,6 +71,7 @@ public class BangDotPhaSingleUI : MonoBehaviour
             curDmg = stats.damage;
             curHP = stats.maxHP;
             curArmor = stats.armor;
+            curEnergy = stats.maxEnergy; // 🎯 Lấy Energy hiện tại
         }
 
         // HIỂN THỊ SO SÁNH CHỈ SỐ
@@ -85,7 +84,11 @@ public class BangDotPhaSingleUI : MonoBehaviour
         if (textSoSanhArmor != null)
             textSoSanhArmor.text = $"Phòng thủ: {curArmor} <color=green>➔ {curArmor + congArmor} (+{congArmor})</color>";
 
-        // HIỂN THỊ LEVEL YÊU CẦU (ĐỊNH DẠNG 1 CHỮ SỐ THẬP PHÂN)
+        // 🎯 BỔ SUNG: Hiển thị so sánh Energy
+        if (textSoSanhEnergy != null)
+            textSoSanhEnergy.text = $"Năng lượng: {curEnergy} <color=green>➔ {curEnergy + congEnergy} (+{congEnergy})</color>";
+
+        // HIỂN THỊ LEVEL YÊU CẦU
         bool duLevel = playerLevel >= levelYeuCau;
         if (textLevelYeuCau != null)
         {
@@ -130,7 +133,6 @@ public class BangDotPhaSingleUI : MonoBehaviour
             }
         }
 
-        // KHÓA / MỞ NÚT ĐỘT PHÁ
         bool duDieuKien = duLevel && duToanBoItem;
 
         if (nutDotPha != null)
@@ -168,15 +170,23 @@ public class BangDotPhaSingleUI : MonoBehaviour
         statsPlayer.damage += congDamage;
         statsPlayer.maxHP += congMaxHP;
         statsPlayer.armor += congArmor;
+        statsPlayer.maxEnergy += congEnergy; // 🎯 BỔ SUNG: Cộng 10 Energy vào Save Data
 
         // 3. Lưu File Save JSON
         QuestSaveSystem.Instance.SaveDuLieuQuestToTxt();
 
-        // 4. Cập nhật trực tiếp vào Nhân Vật Player (CharacterStats)
+        // 4. Cập nhật trực tiếp vào Nhân Vật Player
         CharacterStats[] allStats = FindObjectsByType<CharacterStats>(FindObjectsSortMode.None);
         foreach (var stat in allStats)
         {
             stat.TaiThongSoTuSaveFile();
+        }
+
+        // 🎯 BỔ SUNG: Đồng bộ lại Năng lượng tối đa sang PlayerSkillManager
+        PlayerSkillManager skillManager = FindFirstObjectByType<PlayerSkillManager>();
+        if (skillManager != null)
+        {
+            skillManager.CapNhatMaxEnergyTuSave();
         }
 
         // 5. Refresh lại Bảng UI Đột phá

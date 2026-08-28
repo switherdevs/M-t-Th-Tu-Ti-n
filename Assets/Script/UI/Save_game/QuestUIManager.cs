@@ -196,13 +196,13 @@ public class QuestUIManager : MonoBehaviour
                 break;
 
             case TrangThaiQuest.DaXongChuaTra:
-                if (textLoiThoaiNPC != null) textLoiThoaiNPC.text = "Tốt lắm! Ngươi đã hoàn thành nhiệm vụ. Đây là phần thưởng!";
+                if (textLoiThoaiNPC != null) textLoiThoaiNPC.text = !string.IsNullOrEmpty(questData.loiThoaiHoanThanh) ? questData.loiThoaiHoanThanh : "Tốt lắm! Ngươi đã hoàn thành nhiệm vụ. Đây là phần thưởng!";
                 if (nutTraNhiemVu != null) nutTraNhiemVu.gameObject.SetActive(true);
                 if (nutTuChoi != null) nutTuChoi.gameObject.SetActive(true);
                 break;
 
             case TrangThaiQuest.HoanThanh:
-                if (textLoiThoaiNPC != null) textLoiThoaiNPC.text = "Cảm ơn đại hiệp đã giúp đỡ dân lành!";
+                if (textLoiThoaiNPC != null) textLoiThoaiNPC.text = !string.IsNullOrEmpty(questData.loiThoaiHoanThanh) ? questData.loiThoaiHoanThanh : "Cảm ơn đại hiệp đã giúp đỡ dân lành!";
                 if (nutDongBang != null) nutDongBang.gameObject.SetActive(true);
                 break;
         }
@@ -292,7 +292,7 @@ public class QuestUIManager : MonoBehaviour
 
         // 3. Refresh UI thoại
         KhoiTaoDanhSachQuestUI();
-        DongBangThoai();
+        MoBangThoaiQuest(questDangXem);
 
         QuestHUDTracker.ThongBaoCapNhatHUD();
     }

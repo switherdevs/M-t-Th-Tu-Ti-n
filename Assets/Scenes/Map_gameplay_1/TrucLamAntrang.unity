@@ -1296,7 +1296,7 @@ Transform:
   - {fileID: 1372426216}
   - {fileID: 2137997969}
   - {fileID: 638188861}
-  - {fileID: 668990632}
+  - {fileID: 764791179}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!60 &557825159
@@ -1462,66 +1462,6 @@ Transform:
   - {fileID: 1772856607}
   m_Father: {fileID: 557825158}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &668990631
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 668990632}
-  - component: {fileID: 668990633}
-  m_Layer: 0
-  m_Name: save_1
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &668990632
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 668990631}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -12.223338, y: -4.386728, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 557825158}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &668990633
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 668990631}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5477a5b1fdef58344941ac6470fe3b57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  danhSachQuestData:
-  - {fileID: 11400000, guid: f771a1661bba7a44fa36375d69da8e46, type: 2}
-  - {fileID: 11400000, guid: e1d3a6b4e14fe1949806a00d8a2e9b26, type: 2}
-  - {fileID: 11400000, guid: b698ce79618919a4692da0d8610ea84f, type: 2}
-  tenFileSave: QuestProgressData.txt
-  duLieuSaveHienTai:
-    danhSachProgress: []
-    danhSachItemSave: []
-    playerStats:
-      tenCanhGioi: "Luy\u1EC7n Kh\xED T\u1EA7ng 1"
-      level: 1
-      currentExp: 0
-      maxExp: 5
-      maxHP: 100
-      damage: 20
-      armor: 0.1
 --- !u!1001 &677017199
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1859,6 +1799,67 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8564060139753983079, guid: 7e92edfa8c1c2084caf09075dc0aad32, type: 3}
   m_PrefabInstance: {fileID: 763909120}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &764791178
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 764791179}
+  - component: {fileID: 764791180}
+  m_Layer: 0
+  m_Name: save 1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &764791179
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 764791178}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -8.177861, y: -2.3652813, z: -0.043072324}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 557825158}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &764791180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 764791178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5477a5b1fdef58344941ac6470fe3b57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  danhSachQuestData:
+  - {fileID: 11400000, guid: f940202dcc69d5e4c8449a307d1fa7ba, type: 2}
+  - {fileID: 11400000, guid: 8404b171e57c22c4d81e07c69136625e, type: 2}
+  - {fileID: 11400000, guid: 98e4ebb428fabb94e8e36ec078e62acf, type: 2}
+  tenFileSave: QuestProgressData.txt
+  duLieuSaveHienTai:
+    danhSachProgress: []
+    danhSachItemSave: []
+    playerStats:
+      tenCanhGioi: "Luy\u1EC7n Kh\xED T\u1EA7ng 1"
+      level: 1
+      currentExp: 0
+      maxExp: 5
+      maxHP: 100
+      damage: 15
+      armor: 5
+      maxEnergy: 100
 --- !u!1001 &798464295
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2105,15 +2106,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7634500143173431581, guid: 3d67599577e5f13408f615eb64020993, type: 3}
       propertyPath: rewardItemList.Array.data[0].count
-      value: 17
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 7634500143173431581, guid: 3d67599577e5f13408f615eb64020993, type: 3}
       propertyPath: rewardItemList.Array.data[1].count
-      value: 12
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 7634500143173431581, guid: 3d67599577e5f13408f615eb64020993, type: 3}
       propertyPath: rewardItemList.Array.data[2].count
-      value: 2
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7634500143173431581, guid: 3d67599577e5f13408f615eb64020993, type: 3}
       propertyPath: rewardItemList.Array.data[2].itemData
@@ -2595,7 +2596,7 @@ Transform:
   m_GameObject: {fileID: 960541616}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 9.535946, y: 0, z: 0}
+  m_LocalPosition: {x: 8.265831, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

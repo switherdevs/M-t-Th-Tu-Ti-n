@@ -267,7 +267,6 @@ GameObject:
   - component: {fileID: 3988947514577897818}
   - component: {fileID: 7780228865513897783}
   - component: {fileID: 7185315144967521851}
-  - component: {fileID: 2536939092124851327}
   - component: {fileID: 6335035127653870276}
   - component: {fileID: 7203826478942902169}
   - component: {fileID: 48603072204280625}
@@ -275,6 +274,7 @@ GameObject:
   - component: {fileID: 8254536555419453987}
   - component: {fileID: 8712972713771717828}
   - component: {fileID: -5719478494179254987}
+  - component: {fileID: 5908089489488820278}
   m_Layer: 7
   m_Name: player
   m_TagString: Player
@@ -420,27 +420,10 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &2536939092124851327
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2345805083975770352}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72a2fcde7299e70448d54eb3234a58d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 20
-  sprintSpeed: 30
-  walkAnimName: IsWalking
-  sprintAnimName: IsSprinting
-  attackAnimName: 
 --- !u!114 &6335035127653870276
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -487,8 +470,8 @@ MonoBehaviour:
   m_ActionEvents:
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2536939092124851327}
-        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+      - m_Target: {fileID: 5908089489488820278}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
         m_MethodName: OnMove
         m_Mode: 0
         m_Arguments:
@@ -502,25 +485,13 @@ MonoBehaviour:
     m_ActionId: 49f8e9a1-0a3b-437b-85b6-2ce78ccd70a8
     m_ActionName: 'playerMove/New action[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]'
   - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2345805083975770352}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_ActionId: d85e0b10-61f0-48b8-a385-a05cb6087886
     m_ActionName: 'playerMove/shooting[/Mouse/leftButton]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2536939092124851327}
-        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+      - m_Target: {fileID: 5908089489488820278}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
         m_MethodName: OnSprint
         m_Mode: 0
         m_Arguments:
@@ -717,6 +688,23 @@ SortingGroup:
   m_SortingLayer: 0
   m_SortingOrder: 10
   m_SortAtRoot: 0
+--- !u!114 &5908089489488820278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2345805083975770352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc9abb9782928b946804c84b4ba2eff0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 20
+  sprintSpeed: 30
+  walkAnimName: IsWalking
+  sprintAnimName: IsSprinting
+  attackAnimName: 
 --- !u!1 &2390863112206969679
 GameObject:
   m_ObjectHideFlags: 0

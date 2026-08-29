@@ -42,9 +42,10 @@ public class PlayerStatsSaveData
     public float maxHP = 100f;
     public float damage = 20f;
     public float armor = 0.1f;
-
-    // 🎯 BỔ SUNG: Energy tối đa (Mặc định 100)
     public float maxEnergy = 100f;
+
+    // Danh sách lưu lại các ID Cảnh Giới đã đột phá (Khóa nút vĩnh viễn)
+    public List<string> danhSachCanhGioiDaDotPha = new List<string>();
 }
 
 [Serializable]
@@ -121,6 +122,9 @@ public class QuestSaveSystem : MonoBehaviour
 
                 if (duLieuSaveHienTai.playerStats == null)
                     duLieuSaveHienTai.playerStats = new PlayerStatsSaveData();
+
+                if (duLieuSaveHienTai.playerStats.danhSachCanhGioiDaDotPha == null)
+                    duLieuSaveHienTai.playerStats.danhSachCanhGioiDaDotPha = new List<string>();
 
                 Debug.Log("<color=cyan>[Save System]</color> Đã load dữ liệu thành công.");
             }

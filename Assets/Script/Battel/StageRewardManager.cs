@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro; // Đã thêm namespace TextMeshPro
 
 public class StageRewardManager : MonoBehaviour
 {
@@ -24,7 +25,11 @@ public class StageRewardManager : MonoBehaviour
     [Header("--- 2. DANH SÁCH VỊ TRÍ SPAWN TƯƠNG ỨNG ---")]
     public Transform[] spawnPositionList;
 
-    [Header("--- 3. HIỆU ỨNG VÀ ÂM THANH ---")]
+    [Header("--- 3. DANH SÁCH TEXT HIỂN THỊ SỐ LƯỢNG TƯƠNG ỨNG ---")]
+    [Tooltip("Kéo các UI TextMeshProUGUI hiển thị số lượng tương ứng với từng Index vào đây")]
+    public TextMeshProUGUI[] rewardCountTextList;
+
+    [Header("--- 4. HIỆU ỨNG VÀ ÂM THANH ---")]
     [Tooltip("Prefab hiệu ứng UI (Đã chuyển sang dùng UI Image thay vì SpriteRenderer)")]
     public GameObject[] effectPrefabList;
 
@@ -35,6 +40,42 @@ public class StageRewardManager : MonoBehaviour
     private float soundVolume = 1f;
 
     public float delayBetweenRewards = 0.3f;
+
+    private void Start()
+    {
+        // Tự động ẩn toàn bộ UI phần thưởng khi vừa vào game
+        AnToanBoUIPhanThuong();
+    }
+
+    /// <summary>
+    /// Ẩn toàn bộ ô Icon và Text hiển thị số lượng khi vừa vào Game
+    /// </summary>
+    private void AnToanBoUIPhanThuong()
+    {
+        // 1. Ẩn toàn bộ vị trí/khung hiển thị Icon
+        if (spawnPositionList != null)
+        {
+            foreach (Transform spawnPoint in spawnPositionList)
+            {
+                if (spawnPoint != null)
+                {
+                    spawnPoint.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        // 2. Ẩn toàn bộ Text Mesh Pro hiển thị số lượng
+        if (rewardCountTextList != null)
+        {
+            foreach (TextMeshProUGUI countText in rewardCountTextList)
+            {
+                if (countText != null)
+                {
+                    countText.gameObject.SetActive(false);
+                }
+            }
+        }
+    }
 
     public void TraoPhanThuongThangTran()
     {
@@ -64,9 +105,11 @@ public class StageRewardManager : MonoBehaviour
                 if (spawnPositionList != null && i < spawnPositionList.Length && spawnPositionList[i] != null)
                 {
                     targetParent = spawnPositionList[i];
+                    // BẬT ACTIVE Ô VỊ TRÍ PHẦN THƯỞNG KHI ĐƯỢC NHẬN
+                    targetParent.gameObject.SetActive(true);
                 }
 
-                // 1. SPAWN ITEM UI VÀO CANVAS (GIỮ NGUYÊN)
+                // 1. SPAWN ITEM UI VÀO CANVAS
                 if (config.itemWorldPrefab != null)
                 {
                     GameObject spawnedItem;
@@ -87,7 +130,18 @@ public class StageRewardManager : MonoBehaviour
                     spawnedItem.transform.SetAsLastSibling();
                 }
 
-                // 2. SPAWN HIỆU ỨNG UI VÀO DÚNG TÂM Ô PHẦN THƯỞNG
+                // 2. HIỆN VÀ GÁN SỐ LƯỢNG VÀO TEXT MESH PRO
+                if (rewardCountTextList != null && i < rewardCountTextList.Length && rewardCountTextList[i] != null)
+                {
+                    // BẬT ACTIVE CẢ VÙNG CHỨA TEXT ĐỂ ĐẢM BẢO KHÔNG BỊ KHỦNG ẢNH HƯỞNG BỞI OBJECT CHA
+                    rewardCountTextList[i].gameObject.SetActive(true);
+                    rewardCountTextList[i].text = "x" + soLuongThucTeNhan.ToString();
+
+                    // Đưa Text lên trên cùng để tránh bị Prefab đè mất
+                    rewardCountTextList[i].transform.SetAsLastSibling();
+                }
+
+                // 3. SPAWN HIỆU ỨNG UI VÀO DÚNG TÂM Ô PHẦN THƯỞNG
                 if (effectPrefabList != null && i < effectPrefabList.Length && effectPrefabList[i] != null)
                 {
                     Transform effectParent = targetParent != null ? targetParent : transform;
@@ -105,7 +159,7 @@ public class StageRewardManager : MonoBehaviour
                     effectObj.transform.SetAsLastSibling();
                 }
 
-                // 3. ÂM THANH PHÁT 1 LẦN
+                // 4. ÂM THANH PHÁT 1 LẦN
                 if (rewardSpawnSound != null)
                 {
                     Vector3 soundPos = targetParent != null ? targetParent.position : transform.position;

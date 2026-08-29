@@ -10,6 +10,17 @@ public class DamageDealer : MonoBehaviour
     [Tooltip("Tag của đối tượng mà đạn/vũ khí này được phép gây sát thương (Vd: Enemy, Player)")]
     [SerializeField] private string targetTag = "Enemy";
 
+    // Biến lưu lượng sát thương cộng thêm từ độ khó
+    private float bonusDamage = 0f;
+
+    /// <summary>
+    /// Hàm nhận lượng sát thương được cộng thêm từ EnemyDifficultyManager
+    /// </summary>
+    public void AddBonusDamage(float amount)
+    {
+        bonusDamage += amount;
+    }
+
     // Hàm mặc định của Unity, kích hoạt khi có 1 Collider2D khác chạm vào (Cần tick isTrigger ở Collider)
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -23,9 +34,10 @@ public class DamageDealer : MonoBehaviour
         // 3. Nếu tìm thấy script (Nghĩa là cục này có máu, có thể nhận sát thương)
         if (targetStats != null)
         {
-            // Truyền lượng sát thương vào hàm TakeDamage
-            targetStats.TakeDamage(baseDamage);
-            
+            // Truyền tổng sát thương (Gốc + Cộng thêm từ độ khó) vào hàm TakeDamage
+            float finalDamage = baseDamage + bonusDamage;
+            targetStats.TakeDamage(finalDamage);
+
             // Xóa đạn sau khi gây sát thương (Nếu đây là đạn bắn ra)
             // Destroy(gameObject); 
         }

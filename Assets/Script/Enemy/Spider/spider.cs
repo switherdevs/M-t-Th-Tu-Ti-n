@@ -29,6 +29,20 @@ public class SpiderEnemy : MonoBehaviour
     [SerializeField] private float detectRange = 5f;
     [SerializeField] private LayerMask playerLayer;
 
+    [Header("Kiểm tra Vật Cản Đường Bắn")]
+    [Tooltip("Layer của tường, địa hình hoặc chướng ngại vật cản đạn")]
+    [SerializeField] private LayerMask obstacleLayer;
+
+    [Header("Né Đồng Đội (Separation)")]
+    [Tooltip("Bán kính quét để phát hiện và né quái đồng đội")]
+    [SerializeField] private float avoidDistance = 1.2f;
+
+    [Tooltip("Độ mạnh của lực đẩy né đồng đội")]
+    [SerializeField] private float avoidWeight = 1.5f;
+
+    [Tooltip("Tag của quái đồng đội cần né")]
+    [SerializeField] private string allyTag = "Enemy";
+
     [Header("Di chuyển")]
     [SerializeField] private float moveSpeed = 2f;
 
@@ -46,12 +60,16 @@ public class SpiderEnemy : MonoBehaviour
     private float shootTimer;
     private bool isDead = false;
     private bool isShootingBurst = false; // Cờ kiểm tra xem nhện có đang trong chu kỳ xả đạn không
+    private int strafeDirection = 1;      // Hướng dạt ngang khi bị cản: 1 (Phải/Trên), -1 (Trái/Dưới)
 
     private void Start()
     {
         animator = GetComponentInChildren<Animator>();
         enemyCollider = GetComponent<Collider2D>();
         shootTimer = 0f;
+
+        // Quyết định hướng dạt ngẫu nhiên ban đầu
+        strafeDirection = Random.value > 0.5f ? 1 : -1;
 
         // Lắng nghe sự kiện chết từ CharacterStats
         characterStats = GetComponent<CharacterStats>();
@@ -95,13 +113,28 @@ public class SpiderEnemy : MonoBehaviour
 
             FlipTowardsPlayer();
 
-            Collider2D attackCollider = Physics2D.OverlapCircle(
-                transform.position,
-                attackRange,
-                playerLayer
-            );
+            // 1. Tính toán lực né đồng đội
+            Vector2 avoidanceForce = CalculateAllyAvoidance();
 
-            if (attackCollider != null)
+            // 2. Kiểm tra xem đường bắn tới Player có bị vật cản che khuất không
+            bool isLineOfSightBlocked = CheckLineOfSightBlocked();
+
+            float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+
+            // BỊ CẢN ĐƯỜNG BẮN: Di chuyển dạt ngang tìm vị trí ngắm mới
+            if (isLineOfSightBlocked)
+            {
+                animator.SetBool("isWalking", true);
+
+                // Tạo vector dạt ngang vuông góc với hướng tới Player
+                Vector2 dirToPlayer = (player.position - transform.position).normalized;
+                Vector2 strafeDir = new Vector2(-dirToPlayer.y, dirToPlayer.x) * strafeDirection;
+
+                Vector2 finalMoveDir = (strafeDir + avoidanceForce * avoidWeight).normalized;
+                transform.position += (Vector3)finalMoveDir * moveSpeed * Time.deltaTime;
+            }
+            // ĐƯỜNG BẮN THÔNG THOÁNG VÀ ĐÃ TRONG TẦM BẮN
+            else if (distanceToPlayer <= attackRange)
             {
                 animator.SetBool("isWalking", false);
 
@@ -123,21 +156,67 @@ public class SpiderEnemy : MonoBehaviour
                     shootTimer = shootCooldown;
                 }
             }
+            // ĐƯỜNG BẮN THÔNG THOÁNG NHƯNG CHƯA ĐẾN TẦM BẮN -> Tiến tới Player + Né đồng đội
             else
             {
                 animator.SetBool("isWalking", true);
 
-                transform.position = Vector2.MoveTowards(
-                    transform.position,
-                    player.position,
-                    moveSpeed * Time.deltaTime
-                );
+                Vector2 dirToPlayer = (player.position - transform.position).normalized;
+                Vector2 finalMoveDir = (dirToPlayer + avoidanceForce * avoidWeight).normalized;
+
+                transform.position += (Vector3)finalMoveDir * moveSpeed * Time.deltaTime;
             }
         }
         else
         {
             animator.SetBool("isWalking", false);
         }
+    }
+
+    /// <summary>
+    /// Kiểm tra xem có Collider thuộc obstacleLayer cản từ firePoint đến Player hay không
+    /// </summary>
+    private bool CheckLineOfSightBlocked()
+    {
+        if (player == null) return false;
+
+        Vector3 startPos = firePoint != null ? firePoint.position : transform.position;
+        Vector2 direction = player.position - startPos;
+        float distance = direction.magnitude;
+
+        // Bắn Raycast từ firePoint tới Player trên Layer vật cản
+        RaycastHit2D hit = Physics2D.Raycast(startPos, direction.normalized, distance, obstacleLayer);
+
+        return hit.collider != null; // Trả về true nếu chạm phải vật cản
+    }
+
+    /// <summary>
+    /// Thuật toán Separation: Tạo lực đẩy né đồng đội khi đi quá sát nhau
+    /// </summary>
+    private Vector2 CalculateAllyAvoidance()
+    {
+        Vector2 avoidanceVector = Vector2.zero;
+        Collider2D[] allies = Physics2D.OverlapCircleAll(transform.position, avoidDistance);
+
+        int neighborCount = 0;
+        foreach (Collider2D ally in allies)
+        {
+            // Bỏ qua bản thân và chỉ tính các Object có Tag đồng đội
+            if (ally != null && ally.gameObject != gameObject && ally.CompareTag(allyTag))
+            {
+                Vector2 diff = (Vector2)(transform.position - ally.transform.position);
+                // Khoảng cách càng gần thì lực đẩy càng mạnh
+                avoidanceVector += diff.normalized / Mathf.Max(diff.magnitude, 0.1f);
+                neighborCount++;
+            }
+        }
+
+        if (neighborCount > 0)
+        {
+            avoidanceVector /= neighborCount;
+        }
+
+        return avoidanceVector;
     }
 
     // ==========================================
@@ -249,10 +328,24 @@ public class SpiderEnemy : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+        // Bán kính tầm nhìn
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectRange);
 
+        // Bán kính tầm bắn
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        // Bán kính né đồng đội (Separation)
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, avoidDistance);
+
+        // Vẽ đường kiểm tra Raycast tầm bắn nếu đang chạy Play Mode
+        if (Application.isPlaying && player != null)
+        {
+            Vector3 startPos = firePoint != null ? firePoint.position : transform.position;
+            Gizmos.color = CheckLineOfSightBlocked() ? Color.red : Color.green;
+            Gizmos.DrawLine(startPos, player.position);
+        }
     }
 }

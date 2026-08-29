@@ -609,10 +609,18 @@ MonoBehaviour:
   isBurst: 0
   burstBulletCount: 3
   burstDelay: 0.1
-  detectRange: 80
+  aimingAnimBool: isAiming
+  shootAnimTrigger: Shoot
+  detectRange: 120
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  avoidDistance: 6
+  avoidWeight: 1.5
+  allyTag: Enemy
   moveSpeed: 7
   attackRange: 20
   dieAnimTrigger: Die

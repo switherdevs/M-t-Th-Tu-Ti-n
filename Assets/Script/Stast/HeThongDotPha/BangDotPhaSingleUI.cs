@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,6 +22,9 @@ public class SlotUIItemSingle
 public class BangDotPhaSingleUI : MonoBehaviour
 {
     [Header("--- THÔNG TIN CẢNH GIỚI BẢNG NÀY ---")]
+    [Tooltip("ID duy nhất của cảnh giới này (dùng để kiểm tra save file, VD: DotPha_LuyenKhi, DotPha_TrucCo)")]
+    public string idCanhGioi = "DotPha_LuyenKhi";
+
     public string tenCanhGioiMoi = "Luyện Khí Kỳ";
     public float levelYeuCau = 20f;
 
@@ -29,7 +33,7 @@ public class BangDotPhaSingleUI : MonoBehaviour
     public float congMaxHP = 100f;
     public float congArmor = 10f;
     [Tooltip("Mỗi cấp cảnh giới cộng thêm 10 Energy")]
-    public float congEnergy = 10f; // 🎯 BỔ SUNG: 10 Energy cố định
+    public float congEnergy = 10f;
 
     [Header("--- THÀNH PHẦN UI CỦA BẢNG ---")]
     public TextMeshProUGUI textTenCanhGioi;
@@ -38,7 +42,7 @@ public class BangDotPhaSingleUI : MonoBehaviour
     public TextMeshProUGUI textSoSanhDamage;
     public TextMeshProUGUI textSoSanhMaxHP;
     public TextMeshProUGUI textSoSanhArmor;
-    public TextMeshProUGUI textSoSanhEnergy; // 🎯 BỔ SUNG: Text UI so sánh Energy
+    public TextMeshProUGUI textSoSanhEnergy;
 
     public Button nutDotPha;
     public TextMeshProUGUI textThongBaoNut;
@@ -61,6 +65,7 @@ public class BangDotPhaSingleUI : MonoBehaviour
 
         float playerLevel = 0f;
         float curDmg = 20f, curHP = 100f, curArmor = 0.1f, curEnergy = 100f;
+        bool daDotPhaRot = false;
 
         bool hasSaveSystem = (QuestSaveSystem.Instance != null && QuestSaveSystem.Instance.duLieuSaveHienTai != null);
 
@@ -71,7 +76,13 @@ public class BangDotPhaSingleUI : MonoBehaviour
             curDmg = stats.damage;
             curHP = stats.maxHP;
             curArmor = stats.armor;
-            curEnergy = stats.maxEnergy; // 🎯 Lấy Energy hiện tại
+            curEnergy = stats.maxEnergy;
+
+            // KIỂM TRA XEM ID CẢNH GIỚI NÀY ĐÃ ĐƯỢC LƯU TRONG DANH SÁCH ĐÃ ĐỘT PHÁ CHƯA
+            if (stats.danhSachCanhGioiDaDotPha != null && stats.danhSachCanhGioiDaDotPha.Contains(idCanhGioi))
+            {
+                daDotPhaRot = true;
+            }
         }
 
         // HIỂN THỊ SO SÁNH CHỈ SỐ
@@ -84,7 +95,6 @@ public class BangDotPhaSingleUI : MonoBehaviour
         if (textSoSanhArmor != null)
             textSoSanhArmor.text = $"Phòng thủ: {curArmor} <color=green>➔ {curArmor + congArmor} (+{congArmor})</color>";
 
-        // 🎯 BỔ SUNG: Hiển thị so sánh Energy
         if (textSoSanhEnergy != null)
             textSoSanhEnergy.text = $"Năng lượng: {curEnergy} <color=green>➔ {curEnergy + congEnergy} (+{congEnergy})</color>";
 
@@ -133,16 +143,25 @@ public class BangDotPhaSingleUI : MonoBehaviour
             }
         }
 
-        bool duDieuKien = duLevel && duToanBoItem;
-
-        if (nutDotPha != null)
+        // XỬ LÝ KHÓA NÚT BẤM VÀ THÔNG BÁO VĨNH VIỄN NẾU ĐÃ ĐỘT PHÁ
+        if (daDotPhaRot)
         {
-            nutDotPha.interactable = duDieuKien;
+            if (nutDotPha != null) nutDotPha.interactable = false;
+            if (textThongBaoNut != null) textThongBaoNut.text = "<color=yellow>ĐÃ ĐỘT PHÁ</color>";
         }
-
-        if (textThongBaoNut != null)
+        else
         {
-            textThongBaoNut.text = duDieuKien ? "ĐỘT PHÁ" : "CHƯA ĐỦ ĐIỀU KIỆN";
+            bool duDieuKien = duLevel && duToanBoItem;
+
+            if (nutDotPha != null)
+            {
+                nutDotPha.interactable = duDieuKien;
+            }
+
+            if (textThongBaoNut != null)
+            {
+                textThongBaoNut.text = duDieuKien ? "ĐỘT PHÁ" : "CHƯA ĐỦ ĐIỀU KIỆN";
+            }
         }
     }
 
@@ -155,6 +174,13 @@ public class BangDotPhaSingleUI : MonoBehaviour
         }
 
         PlayerStatsSaveData statsPlayer = QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats;
+
+        // KIỂM TRA LẠI MỘT LẦN NỮA ĐỂ TRÁNH SPAM CLICK NÚT
+        if (statsPlayer.danhSachCanhGioiDaDotPha != null && statsPlayer.danhSachCanhGioiDaDotPha.Contains(idCanhGioi))
+        {
+            Debug.LogWarning("[Đột Phá] Cảnh giới này đã được đột phá rồi!");
+            return;
+        }
 
         // 1. Trừ Item
         foreach (var yeuCau in danhSachItemYeuCau)
@@ -170,7 +196,17 @@ public class BangDotPhaSingleUI : MonoBehaviour
         statsPlayer.damage += congDamage;
         statsPlayer.maxHP += congMaxHP;
         statsPlayer.armor += congArmor;
-        statsPlayer.maxEnergy += congEnergy; // 🎯 BỔ SUNG: Cộng 10 Energy vào Save Data
+        statsPlayer.maxEnergy += congEnergy;
+
+        // 🎯 GHI NHẬN ID CẢNH GIỚI NÀY VÀO DANH SÁCH ĐÃ ĐỘT PHÁ
+        if (statsPlayer.danhSachCanhGioiDaDotPha == null)
+        {
+            statsPlayer.danhSachCanhGioiDaDotPha = new List<string>();
+        }
+        if (!statsPlayer.danhSachCanhGioiDaDotPha.Contains(idCanhGioi))
+        {
+            statsPlayer.danhSachCanhGioiDaDotPha.Add(idCanhGioi);
+        }
 
         // 3. Lưu File Save JSON
         QuestSaveSystem.Instance.SaveDuLieuQuestToTxt();
@@ -182,16 +218,16 @@ public class BangDotPhaSingleUI : MonoBehaviour
             stat.TaiThongSoTuSaveFile();
         }
 
-        // 🎯 BỔ SUNG: Đồng bộ lại Năng lượng tối đa sang PlayerSkillManager
+        // 5. Đồng bộ lại Năng lượng tối đa sang PlayerSkillManager
         PlayerSkillManager skillManager = FindFirstObjectByType<PlayerSkillManager>();
         if (skillManager != null)
         {
             skillManager.CapNhatMaxEnergyTuSave();
         }
 
-        // 5. Refresh lại Bảng UI Đột phá
+        // 6. Refresh lại Bảng UI Đột phá (Sẽ tự động khóa nút vĩnh viễn)
         CapNhatGiaoDienBang();
 
-        Debug.Log($"<color=green>[Đột Phá Success]</color> Đã nâng cảnh giới lên {tenCanhGioiMoi}");
+        Debug.Log($"<color=green>[Đột Phá Success]</color> Đã nâng cảnh giới lên {tenCanhGioiMoi} và lưu trạng thái khóa bảng.");
     }
 }

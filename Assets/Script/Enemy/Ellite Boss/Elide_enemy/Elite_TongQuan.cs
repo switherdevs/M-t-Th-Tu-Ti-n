@@ -3,30 +3,40 @@ using UnityEngine;
 
 public class Elite_TongQuan : MonoBehaviour
 {
-    public enum State { Idle, Chasing, Attacking, JumpSlam }
-
-    [Header("--- THÔNG SỐ DI CHUYỂN & TẦM ---")]
-    [Tooltip("Khoảng cách bắt đầu vung đao đánh thường")]
+    [Header("--- TẦM NHÌN & TẤN CÔNG ---")]
+    [SerializeField] private float detectionRange = 10f;
     [SerializeField] private float attackRange = 1.8f;
+    [SerializeField] private Vector2 attackOffset = Vector2.zero;
     [SerializeField] private float moveSpeed = 3.5f;
-    [Tooltip("Layer nhận diện Player")]
     [SerializeField] private LayerMask playerLayer;
+
+    [Header("--- TÌM ĐƯỜNG & NÉ VẬT CẢN ---")]
+    [SerializeField] private LayerMask obstacleLayer;
+    [SerializeField] private float avoidRadius = 0.6f;
 
     [Header("--- KỸ NĂNG JUMP SLAM ---")]
     [SerializeField] private float skillCooldown = 8f;
+    [SerializeField] private float windupTime = 1.5f;
+    [SerializeField] private float slowMultiplier = 0.4f;
     [SerializeField] private float slamRadius = 2.5f;
     [SerializeField] private float jumpHeight = 3f;
     [SerializeField] private float jumpDuration = 0.5f;
     [SerializeField] private float damage = 25f;
-
-    [Header("--- CẤU HÌNH TRỰC QUAN ---")]
     [SerializeField] private Transform slamHitboxPoint;
 
-    private State currentState = State.Idle;
+    [Header("--- ANIMATION STRINGS ---")]
+    [SerializeField] private string animWalk = "isWalking";
+    [SerializeField] private string animAttack = "Attack";
+    [SerializeField] private string animPrepareJump = "PrepareJump";
+    [SerializeField] private string animJumpAir = "JumpAir";
+    [SerializeField] private string animLand = "Land";
+
     private Transform playerTransform;
     private Animator animator;
     private float skillTimer;
-    private bool isDead = false;
+    
+    private bool isBusy = false;
+    private bool isWindingUp = false;
 
     private void Start()
     {
@@ -36,76 +46,107 @@ public class Elite_TongQuan : MonoBehaviour
 
     private void Update()
     {
-        if (isDead) return;
-
-        if (skillTimer > 0) skillTimer -= Time.deltaTime;
+        if (isBusy) return;
 
         FindPlayer();
         if (playerTransform == null) return;
 
-        switch (currentState)
-        {
-            case State.Idle:
-            case State.Chasing:
-                HandleMovementAndState();
-                break;
-        }
-    }
+        if (skillTimer > 0) skillTimer -= Time.deltaTime;
 
-    private void FindPlayer()
-    {
-        if (playerTransform != null) return;
-        Collider2D hit = Physics2D.OverlapCircle(transform.position, 10f, playerLayer);
-        if (hit != null) playerTransform = hit.transform;
-    }
-
-    private void HandleMovementAndState()
-    {
-        float distance = Vector2.Distance(transform.position, playerTransform.position);
+        Vector3 attackCenter = GetAttackCenter();
+        float distance = Vector2.Distance(attackCenter, playerTransform.position);
         FlipTowards(playerTransform.position);
+
+        if (isWindingUp)
+        {
+            MoveSmoothly(playerTransform.position, moveSpeed);
+            return;
+        }
 
         if (skillTimer <= 0)
         {
             StartCoroutine(Routine_JumpSlam());
-            return;
         }
-
-        if (distance <= attackRange)
+        else if (distance <= attackRange)
         {
             StartCoroutine(Routine_NormalAttack());
         }
         else
         {
-            currentState = State.Chasing;
-            animator.SetBool("isWalking", true);
-            transform.position = Vector2.MoveTowards(transform.position, playerTransform.position, moveSpeed * Time.deltaTime);
+            animator.SetBool(animWalk, true);
+            MoveSmoothly(playerTransform.position, moveSpeed);
         }
+    }
+
+    private void FindPlayer()
+    {
+        if (playerTransform != null)
+        {
+            if (Vector2.Distance(transform.position, playerTransform.position) > detectionRange * 1.5f)
+            {
+                playerTransform = null;
+                animator.SetBool(animWalk, false);
+            }
+            return;
+        }
+
+        Collider2D hit = Physics2D.OverlapCircle(transform.position, detectionRange, playerLayer);
+        if (hit != null) playerTransform = hit.transform;
+    }
+
+    private void MoveSmoothly(Vector3 targetPosition, float speed)
+    {
+        Vector2 currentPos = transform.position;
+        Vector2 dirToTarget = ((Vector2)targetPosition - currentPos).normalized;
+        Vector2 moveDir = dirToTarget;
+
+        RaycastHit2D hit = Physics2D.CircleCast(currentPos, avoidRadius, dirToTarget, 1f, obstacleLayer);
+        if (hit.collider != null && !hit.collider.isTrigger)
+        {
+            Vector2 slideDir = Vector2.Perpendicular(hit.normal).normalized;
+            if (Vector2.Dot(dirToTarget, slideDir) < 0) slideDir = -slideDir;
+            moveDir = (dirToTarget + slideDir * 1.5f).normalized;
+        }
+
+        transform.position += (Vector3)(moveDir * (speed * Time.deltaTime));
     }
 
     private IEnumerator Routine_NormalAttack()
     {
-        currentState = State.Attacking;
-        animator.SetBool("isWalking", false);
-        animator.SetTrigger("Attack");
+        isBusy = true;
+        animator.SetBool(animWalk, false);
+        animator.SetTrigger(animAttack);
 
         yield return new WaitForSeconds(1.0f);
-        currentState = State.Idle;
+        isBusy = false;
     }
 
     private IEnumerator Routine_JumpSlam()
     {
-        currentState = State.JumpSlam;
+        isWindingUp = true;
         skillTimer = skillCooldown;
-        animator.SetBool("isWalking", false);
-        animator.SetTrigger("PrepareJump");
+        
+        float originalSpeed = moveSpeed;
+        float originalAnimSpeed = animator.speed;
+        moveSpeed *= slowMultiplier;
+        animator.speed *= slowMultiplier;
+
+        yield return new WaitForSeconds(windupTime);
+
+        isWindingUp = false;
+        isBusy = true;
+        moveSpeed = originalSpeed;
+        animator.speed = originalAnimSpeed;
+
+        animator.SetBool(animWalk, false);
+        animator.SetTrigger(animPrepareJump);
 
         yield return new WaitForSeconds(0.3f);
+        animator.SetTrigger(animJumpAir);
 
         Vector3 startPos = transform.position;
         Vector3 targetPos = playerTransform.position;
         float elapsed = 0f;
-
-        animator.SetTrigger("JumpAir");
 
         while (elapsed < jumpDuration)
         {
@@ -117,23 +158,16 @@ public class Elite_TongQuan : MonoBehaviour
             yield return null;
         }
 
-        ExecuteSlamDamage();
-        animator.SetTrigger("Land");
-
-        yield return new WaitForSeconds(0.5f);
-        currentState = State.Idle;
-    }
-
-    private void ExecuteSlamDamage()
-    {
-        Vector3 point = slamHitboxPoint != null ? slamHitboxPoint.position : transform.position;
-        Collider2D[] targets = Physics2D.OverlapCircleAll(point, slamRadius, playerLayer);
-        
+        Vector3 hitPoint = slamHitboxPoint != null ? slamHitboxPoint.position : transform.position;
+        Collider2D[] targets = Physics2D.OverlapCircleAll(hitPoint, slamRadius, playerLayer);
         foreach (var target in targets)
         {
-            var stats = target.GetComponent<CharacterStats>();
-            if (stats != null) stats.TakeDamage(damage * 1.5f);
+            target.SendMessage("TakeDamage", damage * 1.5f, SendMessageOptions.DontRequireReceiver);
         }
+
+        animator.SetTrigger(animLand);
+        yield return new WaitForSeconds(0.5f);
+        isBusy = false;
     }
 
     private void FlipTowards(Vector3 target)
@@ -143,15 +177,19 @@ public class Elite_TongQuan : MonoBehaviour
         transform.localScale = scale;
     }
 
+    public Vector3 GetAttackCenter()
+    {
+        float direction = transform.localScale.x >= 0 ? 1f : -1f;
+        return transform.position + new Vector3(attackOffset.x * direction, attackOffset.y, 0f);
+    }
+
     private void OnDrawGizmosSelected()
     {
-        // 1. Tầm đánh thường
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
-
-        // 2. Bán kính Dậm Đất (Slam Radius)
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
         Gizmos.color = Color.red;
-        Vector3 slamPoint = slamHitboxPoint != null ? slamHitboxPoint.position : transform.position;
-        Gizmos.DrawWireSphere(slamPoint, slamRadius);
+        Gizmos.DrawWireSphere(GetAttackCenter(), attackRange);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, avoidRadius);
     }
 }

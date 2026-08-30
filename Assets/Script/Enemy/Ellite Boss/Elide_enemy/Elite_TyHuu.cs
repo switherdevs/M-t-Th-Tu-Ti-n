@@ -3,23 +3,37 @@ using UnityEngine;
 
 public class Elite_TyHuu : MonoBehaviour
 {
-    public enum State { Idle, Chasing, Attacking, StoneBreath }
-
-    [Header("--- DI CHUYỂN & TẤN CÔNG ---")]
+    [Header("--- TẦM NHÌN & TẤN CÔNG ---")]
+    [SerializeField] private float detectionRange = 12f;
     [SerializeField] private float attackRange = 1.5f;
+    [SerializeField] private Vector2 attackOffset = Vector2.zero;
     [SerializeField] private float moveSpeed = 2.5f;
     [SerializeField] private LayerMask playerLayer;
 
+    [Header("--- TÌM ĐƯỜNG & NÉ VẬT CẢN ---")]
+    [SerializeField] private LayerMask obstacleLayer;
+    [SerializeField] private float avoidRadius = 0.5f;
+
     [Header("--- KỸ NĂNG STONE BREATH ---")]
     [SerializeField] private float skillCooldown = 6f;
+    [SerializeField] private float windupTime = 1.5f;
+    [SerializeField] private float slowMultiplier = 0.4f;
     [SerializeField] private Transform mouthPoint;
     [SerializeField] private SimpleObjectPool stoneProjectilePool;
     [SerializeField] private float projectileSpeed = 8f;
 
-    private State currentState = State.Idle;
+    [Header("--- ANIMATION STRINGS ---")]
+    [SerializeField] private string animWalk = "isWalking";
+    [SerializeField] private string animClaw1 = "Claw1";
+    [SerializeField] private string animClaw2 = "Claw2";
+    [SerializeField] private string animRoar = "Roar";
+
     private Transform playerTransform;
     private Animator animator;
     private float skillTimer;
+
+    private bool isBusy = false;
+    private bool isWindingUp = false;
 
     private void Start()
     {
@@ -29,60 +43,104 @@ public class Elite_TyHuu : MonoBehaviour
 
     private void Update()
     {
-        if (skillTimer > 0) skillTimer -= Time.deltaTime;
+        if (isBusy) return;
 
         FindPlayer();
         if (playerTransform == null) return;
 
-        if (currentState == State.Idle || currentState == State.Chasing)
-        {
-            float distance = Vector2.Distance(transform.position, playerTransform.position);
-            FlipTowards(playerTransform.position);
+        if (skillTimer > 0) skillTimer -= Time.deltaTime;
 
-            if (skillTimer <= 0)
-            {
-                StartCoroutine(Routine_StoneBreath());
-            }
-            else if (distance <= attackRange)
-            {
-                StartCoroutine(Routine_DoubleClaw());
-            }
-            else
-            {
-                currentState = State.Chasing;
-                animator.SetBool("isWalking", true);
-                transform.position = Vector2.MoveTowards(transform.position, playerTransform.position, moveSpeed * Time.deltaTime);
-            }
+        Vector3 attackCenter = GetAttackCenter();
+        float distance = Vector2.Distance(attackCenter, playerTransform.position);
+        FlipTowards(playerTransform.position);
+
+        if (isWindingUp)
+        {
+            MoveSmoothly(playerTransform.position, moveSpeed);
+            return;
+        }
+
+        if (skillTimer <= 0)
+        {
+            StartCoroutine(Routine_StoneBreath());
+        }
+        else if (distance <= attackRange)
+        {
+            StartCoroutine(Routine_DoubleClaw());
+        }
+        else
+        {
+            animator.SetBool(animWalk, true);
+            MoveSmoothly(playerTransform.position, moveSpeed);
         }
     }
 
     private void FindPlayer()
     {
-        if (playerTransform != null) return;
-        Collider2D hit = Physics2D.OverlapCircle(transform.position, 12f, playerLayer);
+        if (playerTransform != null)
+        {
+            if (Vector2.Distance(transform.position, playerTransform.position) > detectionRange * 1.5f)
+            {
+                playerTransform = null;
+                animator.SetBool(animWalk, false);
+            }
+            return;
+        }
+
+        Collider2D hit = Physics2D.OverlapCircle(transform.position, detectionRange, playerLayer);
         if (hit != null) playerTransform = hit.transform;
+    }
+
+    private void MoveSmoothly(Vector3 targetPosition, float speed)
+    {
+        Vector2 currentPos = transform.position;
+        Vector2 dirToTarget = ((Vector2)targetPosition - currentPos).normalized;
+        Vector2 moveDir = dirToTarget;
+
+        RaycastHit2D hit = Physics2D.CircleCast(currentPos, avoidRadius, dirToTarget, 1f, obstacleLayer);
+        if (hit.collider != null && !hit.collider.isTrigger)
+        {
+            Vector2 slideDir = Vector2.Perpendicular(hit.normal).normalized;
+            if (Vector2.Dot(dirToTarget, slideDir) < 0) slideDir = -slideDir;
+            moveDir = (dirToTarget + slideDir * 1.5f).normalized;
+        }
+
+        transform.position += (Vector3)(moveDir * (speed * Time.deltaTime));
     }
 
     private IEnumerator Routine_DoubleClaw()
     {
-        currentState = State.Attacking;
-        animator.SetBool("isWalking", false);
+        isBusy = true;
+        animator.SetBool(animWalk, false);
         
-        animator.SetTrigger("Claw1");
+        animator.SetTrigger(animClaw1);
         yield return new WaitForSeconds(0.4f);
         
-        animator.SetTrigger("Claw2");
+        animator.SetTrigger(animClaw2);
         yield return new WaitForSeconds(0.6f);
 
-        currentState = State.Idle;
+        isBusy = false;
     }
 
     private IEnumerator Routine_StoneBreath()
     {
-        currentState = State.StoneBreath;
+        isWindingUp = true;
         skillTimer = skillCooldown;
-        animator.SetBool("isWalking", false);
-        animator.SetTrigger("Roar");
+        
+        float originalSpeed = moveSpeed;
+        float originalAnimSpeed = animator.speed;
+        moveSpeed *= slowMultiplier;
+        animator.speed *= slowMultiplier;
+
+        yield return new WaitForSeconds(windupTime);
+
+        isWindingUp = false;
+        isBusy = true;
+        moveSpeed = originalSpeed;
+        animator.speed = originalAnimSpeed;
+
+        animator.SetBool(animWalk, false);
+        animator.SetTrigger(animRoar);
 
         yield return new WaitForSeconds(0.5f);
 
@@ -104,7 +162,7 @@ public class Elite_TyHuu : MonoBehaviour
         }
 
         yield return new WaitForSeconds(0.8f);
-        currentState = State.Idle;
+        isBusy = false;
     }
 
     private void FlipTowards(Vector3 target)
@@ -114,17 +172,19 @@ public class Elite_TyHuu : MonoBehaviour
         transform.localScale = scale;
     }
 
+    public Vector3 GetAttackCenter()
+    {
+        float direction = transform.localScale.x >= 0 ? 1f : -1f;
+        return transform.position + new Vector3(attackOffset.x * direction, attackOffset.y, 0f);
+    }
+
     private void OnDrawGizmosSelected()
     {
-        // 1. Tầm cào cận chiến
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
-
-        // 2. Điểm Phun Đá (Mouth Point)
-        if (mouthPoint != null)
-        {
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(mouthPoint.position, 0.2f);
-        }
+        Gizmos.DrawWireSphere(GetAttackCenter(), attackRange);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, avoidRadius);
     }
 }

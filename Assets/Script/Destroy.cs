@@ -1,23 +1,49 @@
 using UnityEngine;
 
-// Đổi tên Class thành AutoDestroy để tránh trùng tên với hàm Destroy gốc của Unity
+// Script quản lý tự hủy & va chạm tường tương thích Object Pool
 public class AutoDestroy : MonoBehaviour
 {
-    [Header("Thời gian tự hủy")]
-    [SerializeField] private float time = 3f; // Khoảng thời gian (tính bằng giây) trước khi object bị xóa
+    [Header("THỜI GIAN TỰ HỦY")]
+    [SerializeField] private float time = 3f; // Khoảng thời gian tự hủy tối đa
 
-    void Start()
+    [Header("MIỄN TRỪ VA CHẠM BAN ĐẦU")]
+    [SerializeField] private float ignoreWallTime = 0.2f; // Thời gian miễn dịch va chạm tường khi vừa spawn
+
+    private float spawnTimer;
+
+    // Sử dụng OnEnable thay vì Start để mỗi lần lấy từ Object Pool ra timer đều chạy lại
+    private void OnEnable()
     {
-        // Gọi hàm tự hủy ngay khi đối tượng được khởi tạo vào Game
-        TuHuy();
+        spawnTimer = 0f;
+        CancelInvoke(nameof(TuHuyDirect)); // Hủy các lệnh đếm ngược cũ nếu có
+        Invoke(nameof(TuHuyDirect), time);  // Đếm ngược thời gian tự hủy mới
     }
 
-    // Hàm thực hiện việc xóa GameObject
-    public void TuHuy()
+    private void Update()
     {
-        // Hàm Destroy có 2 đối số: 
-        // 1. gameObject: Đối tượng sẽ bị xóa (chính là đối tượng gắn script này)
-        // 2. time: Thời gian đếm ngược (tính bằng giây) trước khi thực sự xóa
-        Destroy(gameObject, time);
+        // Tính thời gian đã trôi qua kể từ khi đạn xuất hiện
+        if (spawnTimer < ignoreWallTime)
+        {
+            spawnTimer += Time.deltaTime;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        // Chỉ phá hủy nếu đạn đã xuất hiện vượt qua khoảng thời gian ignoreWallTime
+        if (spawnTimer >= ignoreWallTime && other.gameObject.CompareTag("Wall"))
+        {
+            TuHuyDirect();
+        }
+    }
+
+    // Hàm gọi hủy/trả về Pool
+    public void TuHuyDirect()
+    {
+        // Nếu bạn dùng SetActive(false) cho Object Pool thì thay bằng line dưới:
+        // gameObject.SetActive(false);
+
+        // Mặc định phá hủy GameObject nếu không dùng Pooling trực tiếp trong đạn:
+        Destroy(gameObject);
     }
 }

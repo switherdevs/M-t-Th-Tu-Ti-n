@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class SimpleObjectPool : MonoBehaviour
 {
-    public static SimpleObjectPool Instance { get; private set; }
+    // ĐÃ XÓA BỎ: public static SimpleObjectPool Instance { get; private set; } 
+    // Lý do xóa: Tránh việc các kho đạn tự xóa lẫn nhau!
 
     [SerializeField] private GameObject prefab;
     [SerializeField] private int poolSize = 20;
@@ -12,14 +13,13 @@ public class SimpleObjectPool : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
-
         InitializePool();
     }
 
     private void InitializePool()
     {
+        if (prefab == null) return;
+
         for (int i = 0; i < poolSize; i++)
         {
             GameObject obj = Instantiate(prefab, transform);
@@ -30,7 +30,21 @@ public class SimpleObjectPool : MonoBehaviour
 
     public GameObject GetFromPool(Vector3 position, Quaternion rotation)
     {
-        GameObject obj = (poolQueue.Count > 0) ? poolQueue.Dequeue() : Instantiate(prefab);
+        GameObject obj = null;
+
+        // Lặp để lọc các Object bị null trong Queue
+        while (poolQueue.Count > 0)
+        {
+            obj = poolQueue.Dequeue();
+            if (obj != null) break;
+        }
+
+        // Nếu Queue hết đạn hợp lệ, tạo mới 1 đạn Prefab
+        if (obj == null)
+        {
+            obj = Instantiate(prefab, transform);
+        }
+
         obj.transform.position = position;
         obj.transform.rotation = rotation;
         obj.SetActive(true);
@@ -39,6 +53,8 @@ public class SimpleObjectPool : MonoBehaviour
 
     public void ReturnToPool(GameObject obj)
     {
+        if (obj == null) return;
+
         obj.SetActive(false);
         obj.transform.SetParent(transform);
         poolQueue.Enqueue(obj);

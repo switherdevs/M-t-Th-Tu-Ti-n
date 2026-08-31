@@ -44,7 +44,7 @@ public class PlayerStatsSaveData
     public float armor = 0.1f;
     public float maxEnergy = 100f;
 
-    // Danh sách lưu lại các ID Cảnh Giới đã đột phá (Khóa nút vĩnh viễn)
+    // Danh sách lưu lại các ID Cảnh Giới đã đột phá (Lưu file Save)
     public List<string> danhSachCanhGioiDaDotPha = new List<string>();
 }
 
@@ -255,5 +255,14 @@ public class QuestSaveSystem : MonoBehaviour
             if (QuestUIManager.Instance != null) QuestUIManager.Instance.KhoiTaoDanhSachQuestUI();
             QuestHUDTracker.ThongBaoCapNhatHUD();
         }
+    }
+
+    // 🎯 HÀM KIỂM TRA PLAYER ĐÃ ĐẠT CẢNH GIỚI THEO ID CHƯA
+    public bool KiemTraDaDatCanhGioi(string idCanhGioi)
+    {
+        if (duLieuSaveHienTai == null || duLieuSaveHienTai.playerStats == null) return false;
+        if (duLieuSaveHienTai.playerStats.danhSachCanhGioiDaDotPha == null) return false;
+
+        return duLieuSaveHienTai.playerStats.danhSachCanhGioiDaDotPha.Contains(idCanhGioi);
     }
 }

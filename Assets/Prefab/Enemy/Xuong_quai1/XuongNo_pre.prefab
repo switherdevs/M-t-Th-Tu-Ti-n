@@ -384,6 +384,12 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  avoidDistance: 1.2
+  avoidWeight: 1.5
+  allyTag: Enemy
   moveSpeed: 10
   attackRange: 60
   dieAnimTrigger: Die
@@ -443,7 +449,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25c754fe70f09834990cc9f682480427, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  idQuai: 8
+  idQuai: 9
   expNhanDuoc: 1.2
   destroyDelay: 2
   dieTriggerName: Die

@@ -1,12 +1,13 @@
 using System.Collections;
-using System.Collections.Generic; // 🎯 Thêm thư viện để dùng List
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("--- CẤU HÌNH GIAO DIỆN / OBJECT (UI) ---")]
-    [Tooltip("Kéo thả bao nhiêu UI / GameObjects vào đây tùy ý. Click vào nhà sẽ Bật/Tắt tất cả!")]
+    [Tooltip("Kéo thả các UI cần MỞ khi click vào công trình này")]
     [SerializeField] private List<GameObject> danhSachUIGameObject = new List<GameObject>();
 
     [Header("--- CẤU HÌNH PHÓNG TO (SCALE) ---")]
@@ -42,41 +43,83 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
     // 🎯 TƯƠNG TÁC CLICK CHUỘT VÀO CÔNG TRÌNH
     public void OnPointerClick(PointerEventData eventData)
     {
+        // 1. Kiểm tra nếu người chơi đang click TRỰC TIẾP vào chính BẢNG UI CÔNG TRÌNH đang mở thì không bật/tắt lại
+        if (KiemTraChuotDangDeLenChinhBangUI(eventData))
+        {
+            return;
+        }
+
         TimVaCapNhatUI();
 
         if (danhSachUIGameObject != null && danhSachUIGameObject.Count > 0)
         {
-            // Lấy trạng thái ngược lại của Object đầu tiên để đảo trạng thái (Toggle)
-            bool trangThaiMoi = !danhSachUIGameObject[0].activeSelf;
+            // 2. Kiểm tra xem Bảng UI hiện tại đang BẬT hay TẮT
+            bool dangMo = danhSachUIGameObject[0].activeSelf;
 
-            // Vòng lặp duyệt qua tất cả các Object trong mảng để Ẩn / Hiện đồng loạt
-            foreach (GameObject uiItem in danhSachUIGameObject)
+            if (!dangMo)
             {
-                if (uiItem != null)
+                // Nếu đang TẮT -> BẬT UI LÊN
+                foreach (GameObject uiItem in danhSachUIGameObject)
                 {
-                    uiItem.SetActive(trangThaiMoi);
+                    if (uiItem != null) uiItem.SetActive(true);
                 }
-            }
 
-            // Nếu trạng thái mới là Bật -> Tải lại dữ liệu Quest
-            if (trangThaiMoi && QuestUIManager.Instance != null)
+                if (QuestUIManager.Instance != null)
+                {
+                    QuestUIManager.Instance.KhoiTaoDanhSachQuestUI();
+                    QuestUIManager.Instance.DongBangThoai();
+                }
+
+                Debug.Log($"<color=green>[Building]</color> Đã MỞ {danhSachUIGameObject.Count} UI!");
+            }
+            else
             {
-                QuestUIManager.Instance.KhoiTaoDanhSachQuestUI();
-                QuestUIManager.Instance.DongBangThoai();
-            }
+                // Nếu đang MỞ mà click TRỰC TIẾP VÀO CÔNG TRÌNH (World Object) -> TẮT UI
+                foreach (GameObject uiItem in danhSachUIGameObject)
+                {
+                    if (uiItem != null) uiItem.SetActive(false);
+                }
 
-            Debug.Log($"<color=green>[Building]</color> Đã {(trangThaiMoi ? "MỞ" : "TẮT")} thành công {danhSachUIGameObject.Count} UI!");
+                Debug.Log($"<color=yellow>[Building]</color> Đã TẮT {danhSachUIGameObject.Count} UI!");
+            }
         }
         else
         {
-            Debug.LogError("<color=red>[Building Error]</color> Danh sách UI đang trống, không tìm thấy GameObject nào!");
+            Debug.LogError("<color=red>[Building Error]</color> Danh sách UI đang trống!");
         }
+    }
+
+    /// <summary>
+    /// Bắn tia Raycast UI thủ công để kiểm tra xem chuột có đang click TRÚNG vào chính Bảng UI đang bật không
+    /// </summary>
+    private bool KiemTraChuotDangDeLenChinhBangUI(PointerEventData eventData)
+    {
+        if (EventSystem.current == null) return false;
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        foreach (RaycastResult result in results)
+        {
+            // Duyệt từng UI trúng Raycast, nếu trúng 1 trong các UI trong danh bạ Bảng UI công trình -> Trả về true
+            foreach (GameObject uiTarget in danhSachUIGameObject)
+            {
+                if (uiTarget != null && uiTarget.activeSelf)
+                {
+                    if (result.gameObject == uiTarget || result.gameObject.transform.IsChildOf(uiTarget.transform))
+                    {
+                        return true; // Chuột đang click vào bên trong Bảng UI
+                    }
+                }
+            }
+        }
+
+        return false; // Chuột click vào Công Trình World 2D
     }
 
     // 🎯 TỰ ĐỘNG TÌM LẠI NẾU DANH SÁCH TRỐNG
     private void TimVaCapNhatUI()
     {
-        // Nếu danh sách chưa được kéo tay trong Inspector
         if (danhSachUIGameObject.Count == 0)
         {
             if (QuestUIManager.Instance != null)

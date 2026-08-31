@@ -436,6 +436,7 @@ GameObject:
   - component: {fileID: 6489939854110820507}
   - component: {fileID: 5824551892255239345}
   - component: {fileID: 2022831468828464221}
+  - component: {fileID: -3693103567094758234}
   m_Layer: 9
   m_Name: Sotac_2
   m_TagString: Enemy
@@ -591,6 +592,12 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  avoidDistance: 1.2
+  avoidWeight: 1.5
+  allyTag: Enemy
   moveSpeed: 7
   attackRange: 50
   dieAnimTrigger: Die
@@ -612,6 +619,18 @@ MonoBehaviour:
   isPlayer: 0
   weaponTag: Kiem
   hideOnDeath: 1
+--- !u!210 &-3693103567094758234
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7014485643774121954}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 10
+  m_SortAtRoot: 0
 --- !u!1001 &5352979477844572451
 PrefabInstance:
   m_ObjectHideFlags: 0

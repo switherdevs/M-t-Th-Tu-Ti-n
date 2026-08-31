@@ -16,12 +16,15 @@ public class ChuyenMapManager : MonoBehaviour
     public string tenSceneMapMoi = "Map2";
 
     [Header("--- TÙY CHỌN ẨN NÚT KHI HOÀN THÀNH ---")]
-    [Tooltip("Nếu tích chọn, khi hoàn thành nhiệm vụ GameObject nút sẽ biến mất hoàn toàn")]
+    [Tooltip("Nếu tích chọn, khi hoàn thành điều kiện GameObject nút sẽ biến mất hoàn toàn")]
     public bool anNutKhiXong = false;
 
-    [Header("--- ĐIỀU KIỆN QUA MAP (NHIỆM VỤ YÊU CẦU) ---")]
+    [Header("--- ĐIỀU KIỆN QUA MAP (NHIỆM VỤ & CẢNH GIỚI) ---")]
     [Tooltip("Danh sách các Quest BẮT BUỘC phải hoàn thành riêng cho cổng/map này")]
     public List<QuestData> danhSachQuestYeuCau = new List<QuestData>();
+
+    [Tooltip("Danh sách ID các Cảnh Giới BẮT BUỘC người chơi phải đột phá để mở chuyển map")]
+    public List<string> danhSachCanhGioiYeuCau = new List<string>();
 
     [Header("--- TÙY CHỌN MÀU SẮC KHI MỜ (TÙY CHỌN) ---")]
     [Tooltip("Độ trong suốt khi nút bị khóa (mờ)")]
@@ -32,7 +35,6 @@ public class ChuyenMapManager : MonoBehaviour
 
     private void Start()
     {
-        // Nếu chưa kéo objectNutCanAn trong Inspector, tự gán GameObject của Button vào luôn
         if (objectNutCanAn == null && nutQuaMap != null)
         {
             objectNutCanAn = nutQuaMap.gameObject;
@@ -40,14 +42,12 @@ public class ChuyenMapManager : MonoBehaviour
 
         if (nutQuaMap != null)
         {
-            // Lấy hoặc tự thêm CanvasGroup để điều khiển độ mờ
             canvasGroupNut = nutQuaMap.GetComponent<CanvasGroup>();
             if (canvasGroupNut == null)
             {
                 canvasGroupNut = nutQuaMap.gameObject.AddComponent<CanvasGroup>();
             }
 
-            // Đăng ký sự kiện Click cho nút qua map
             nutQuaMap.onClick.RemoveAllListeners();
             nutQuaMap.onClick.AddListener(OnClickQuaMap);
         }
@@ -58,25 +58,39 @@ public class ChuyenMapManager : MonoBehaviour
         CapNhatTrangThaiNutQuaMap();
     }
 
-    // 🎯 HÀM KIỂM TRA XEM TẤT CẢ QUEST YÊU CẦU CHO MAP NÀY ĐÃ HOÀN THÀNH CHƯA
+    // 🎯 HÀM KIỂM TRA ĐIỀU KIỆN QUA MAP (QUEST & CẢNH GIỚI)
     public bool KiemTraKichHoatQuaMap()
     {
-        if (danhSachQuestYeuCau == null || danhSachQuestYeuCau.Count == 0)
+        if (QuestSaveSystem.Instance == null) return false;
+
+        // 1. Kiểm tra toàn bộ Quest yêu cầu
+        if (danhSachQuestYeuCau != null && danhSachQuestYeuCau.Count > 0)
         {
-            return true;
+            foreach (QuestData quest in danhSachQuestYeuCau)
+            {
+                if (quest != null)
+                {
+                    ProgressQuest progress = QuestSaveSystem.Instance.LayTienTrinhQuest(quest.idQuest);
+                    if (progress == null || progress.trangThai != TrangThaiQuest.HoanThanh)
+                    {
+                        return false;
+                    }
+                }
+            }
         }
 
-        foreach (QuestData quest in danhSachQuestYeuCau)
+        // 2. Kiểm tra toàn bộ Cảnh Giới ID yêu cầu
+        if (danhSachCanhGioiYeuCau != null && danhSachCanhGioiYeuCau.Count > 0)
         {
-            if (quest != null)
+            foreach (string idCanhGioi in danhSachCanhGioiYeuCau)
             {
-                ProgressQuest progress = QuestSaveSystem.Instance != null
-                    ? QuestSaveSystem.Instance.LayTienTrinhQuest(quest.idQuest)
-                    : null;
-
-                if (progress == null || progress.trangThai != TrangThaiQuest.HoanThanh)
+                if (!string.IsNullOrEmpty(idCanhGioi))
                 {
-                    return false;
+                    bool daDat = QuestSaveSystem.Instance.KiemTraDaDatCanhGioi(idCanhGioi);
+                    if (!daDat)
+                    {
+                        return false;
+                    }
                 }
             }
         }
@@ -84,30 +98,26 @@ public class ChuyenMapManager : MonoBehaviour
         return true;
     }
 
-    // 🎯 HÀM CẬP NHẬT TRẠNG THÁI NÚT (KHÓA / MỜ / ẨN GAMEOBJECT)
+    // 🎯 HÀM CẬP NHẬT TRẠNG THÁI NÚT
     private void CapNhatTrangThaiNutQuaMap()
     {
         bool duDieuKienQuaMap = KiemTraKichHoatQuaMap();
 
-        // 🎯 XỬ LÝ KHI TÍCH BIẾN "ẨN NÚT KHI XONG"
         if (anNutKhiXong && duDieuKienQuaMap)
         {
-            // Tắt hoàn toàn GameObject đã gán trong Inspector
             if (objectNutCanAn != null && objectNutCanAn.activeSelf)
             {
                 objectNutCanAn.SetActive(false);
-                Debug.Log("<color=yellow>[Map Manager]</color> Đã hoàn thành nhiệm vụ, GameObject nút đã biến mất hoàn toàn!");
+                Debug.Log("<color=yellow>[Map Manager]</color> Đã đủ điều kiện, GameObject nút đã biến mất!");
             }
             return;
         }
 
-        // Đảm bảo GameObject nút vẫn được bật nếu chưa đủ điều kiện hoặc không bật anNutKhiXong
         if (objectNutCanAn != null && !objectNutCanAn.activeSelf)
         {
             objectNutCanAn.SetActive(true);
         }
 
-        // Điều khiển tương tác và độ mờ cho Button
         if (nutQuaMap != null)
         {
             nutQuaMap.interactable = duDieuKienQuaMap;
@@ -124,7 +134,6 @@ public class ChuyenMapManager : MonoBehaviour
     {
         if (KiemTraKichHoatQuaMap())
         {
-            // Nếu biến anNutKhiXong được tích -> Tắt GameObject chứa nút
             if (anNutKhiXong)
             {
                 if (objectNutCanAn != null)
@@ -135,10 +144,9 @@ public class ChuyenMapManager : MonoBehaviour
                 return;
             }
 
-            // Nếu không chọn ẩn nút và có điền tên Scene thì mới chuyển Map
             if (!string.IsNullOrEmpty(tenSceneMapMoi))
             {
-                Debug.Log("<color=green>[Map Manager]</color> Đã hoàn thành tất cả nhiệm vụ yêu cầu! Đang chuyển sang Scene: " + tenSceneMapMoi);
+                Debug.Log("<color=green>[Map Manager]</color> Đã đủ điều kiện cảnh giới & quest! Đang chuyển sang Scene: " + tenSceneMapMoi);
                 SceneManager.LoadScene(tenSceneMapMoi);
             }
             else
@@ -148,7 +156,7 @@ public class ChuyenMapManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[Map Manager] Chưa hoàn thành các nhiệm vụ yêu cầu của map này, không thể qua map!");
+            Debug.LogWarning("[Map Manager] Chưa đạt đủ Cảnh Giới hoặc chưa hoàn thành Quest yêu cầu!");
         }
     }
 }

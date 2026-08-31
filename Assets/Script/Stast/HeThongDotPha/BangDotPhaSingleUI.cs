@@ -22,8 +22,8 @@ public class SlotUIItemSingle
 public class BangDotPhaSingleUI : MonoBehaviour
 {
     [Header("--- THÔNG TIN CẢNH GIỚI BẢNG NÀY ---")]
-    [Tooltip("ID duy nhất của cảnh giới này (dùng để kiểm tra save file, VD: DotPha_LuyenKhi, DotPha_TrucCo)")]
-    public string idCanhGioi = "DotPha_LuyenKhi";
+    [Tooltip("ID duy nhất của cảnh giới này (dùng để lưu file save, VD: DotPha_LuyenKhi_1, DotPha_TrucCo)")]
+    public string idCanhGioi = "DotPha_LuyenKhi_1";
 
     public string tenCanhGioiMoi = "Luyện Khí Kỳ";
     public float levelYeuCau = 20f;
@@ -32,7 +32,7 @@ public class BangDotPhaSingleUI : MonoBehaviour
     public float congDamage = 20f;
     public float congMaxHP = 100f;
     public float congArmor = 10f;
-    [Tooltip("Mỗi cấp cảnh giới cộng thêm 10 Energy")]
+    [Tooltip("Mỗi cấp cảnh giới cộng thêm Energy")]
     public float congEnergy = 10f;
 
     [Header("--- THÀNH PHẦN UI CỦA BẢNG ---")]
@@ -47,13 +47,58 @@ public class BangDotPhaSingleUI : MonoBehaviour
     public Button nutDotPha;
     public TextMeshProUGUI textThongBaoNut;
 
+    [Header("--- HIỆU ỨNG THÔNG BÁO ĐỘT PHÁ ---")]
+    [Tooltip("Text TMP dùng để hiển thị chữ Đột Phá Thành Công")]
+    public TextMeshProUGUI textThongBaoDotPha;
+    [Tooltip("Thời gian hiển thị trước khi mờ dần (giây)")]
+    public float thoiGianChoMo = 1.0f;
+    [Tooltip("Tốc độ mờ dần")]
+    public float tocDoMo = 1.5f;
+
     [Header("--- YÊU CẦU ITEM ---")]
     public List<ItemYeuCauSingle> danhSachItemYeuCau = new List<ItemYeuCauSingle>();
     public List<SlotUIItemSingle> danhSachSlotUI = new List<SlotUIItemSingle>();
 
+    private Coroutine hieuUngThongBaoCoroutine;
+    private CanvasGroup canvasGroup;
+
+    private void Awake()
+    {
+        if (!TryGetComponent<CanvasGroup>(out canvasGroup))
+        {
+            canvasGroup = gameObject.AddComponent<CanvasGroup>();
+        }
+
+        if (textThongBaoDotPha != null)
+        {
+            textThongBaoDotPha.gameObject.SetActive(false);
+        }
+    }
+
     private void OnEnable()
     {
+        // 1. Ép bảng UI này nhảy xuống cuối cùng trong Hierarchy để đè lên toàn bộ UI khác
+        transform.SetAsLastSibling();
+
+        // 2. Kích hoạt chặn raycast của CanvasGroup
+        ThietLapChanTuongTacChuyenXuyen(true);
+
+        // 3. Cập nhật dữ liệu
         CapNhatGiaoDienBang();
+    }
+
+    private void OnDisable()
+    {
+        ThietLapChanTuongTacChuyenXuyen(false);
+    }
+
+    private void ThietLapChanTuongTacChuyenXuyen(bool kichHoat)
+    {
+        if (canvasGroup != null)
+        {
+            canvasGroup.blocksRaycasts = kichHoat;
+            canvasGroup.interactable = kichHoat;
+        }
     }
 
     public void CapNhatGiaoDienBang()
@@ -78,14 +123,12 @@ public class BangDotPhaSingleUI : MonoBehaviour
             curArmor = stats.armor;
             curEnergy = stats.maxEnergy;
 
-            // KIỂM TRA XEM ID CẢNH GIỚI NÀY ĐÃ ĐƯỢC LƯU TRONG DANH SÁCH ĐÃ ĐỘT PHÁ CHƯA
-            if (stats.danhSachCanhGioiDaDotPha != null && stats.danhSachCanhGioiDaDotPha.Contains(idCanhGioi))
+            if (QuestSaveSystem.Instance.KiemTraDaDatCanhGioi(idCanhGioi))
             {
                 daDotPhaRot = true;
             }
         }
 
-        // HIỂN THỊ SO SÁNH CHỈ SỐ
         if (textSoSanhDamage != null)
             textSoSanhDamage.text = $"Sát thương: {curDmg} <color=green>➔ {curDmg + congDamage} (+{congDamage})</color>";
 
@@ -98,7 +141,6 @@ public class BangDotPhaSingleUI : MonoBehaviour
         if (textSoSanhEnergy != null)
             textSoSanhEnergy.text = $"Năng lượng: {curEnergy} <color=green>➔ {curEnergy + congEnergy} (+{congEnergy})</color>";
 
-        // HIỂN THỊ LEVEL YÊU CẦU
         bool duLevel = playerLevel >= levelYeuCau;
         if (textLevelYeuCau != null)
         {
@@ -106,7 +148,6 @@ public class BangDotPhaSingleUI : MonoBehaviour
             textLevelYeuCau.text = $"Level Yêu Cầu: {mauLevel}{playerLevel:F1}/{levelYeuCau:F1}</color>";
         }
 
-        // KIỂM TRA ITEM YÊU CẦU
         bool duToanBoItem = true;
 
         for (int i = 0; i < danhSachSlotUI.Count; i++)
@@ -143,7 +184,6 @@ public class BangDotPhaSingleUI : MonoBehaviour
             }
         }
 
-        // XỬ LÝ KHÓA NÚT BẤM VÀ THÔNG BÁO VĨNH VIỄN NẾU ĐÃ ĐỘT PHÁ
         if (daDotPhaRot)
         {
             if (nutDotPha != null) nutDotPha.interactable = false;
@@ -175,14 +215,12 @@ public class BangDotPhaSingleUI : MonoBehaviour
 
         PlayerStatsSaveData statsPlayer = QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats;
 
-        // KIỂM TRA LẠI MỘT LẦN NỮA ĐỂ TRÁNH SPAM CLICK NÚT
-        if (statsPlayer.danhSachCanhGioiDaDotPha != null && statsPlayer.danhSachCanhGioiDaDotPha.Contains(idCanhGioi))
+        if (QuestSaveSystem.Instance.KiemTraDaDatCanhGioi(idCanhGioi))
         {
             Debug.LogWarning("[Đột Phá] Cảnh giới này đã được đột phá rồi!");
             return;
         }
 
-        // 1. Trừ Item
         foreach (var yeuCau in danhSachItemYeuCau)
         {
             if (yeuCau.itemData != null)
@@ -191,14 +229,12 @@ public class BangDotPhaSingleUI : MonoBehaviour
             }
         }
 
-        // 2. Tăng Chỉ Số Save File
         statsPlayer.tenCanhGioi = tenCanhGioiMoi;
         statsPlayer.damage += congDamage;
         statsPlayer.maxHP += congMaxHP;
         statsPlayer.armor += congArmor;
         statsPlayer.maxEnergy += congEnergy;
 
-        // 🎯 GHI NHẬN ID CẢNH GIỚI NÀY VÀO DANH SÁCH ĐÃ ĐỘT PHÁ
         if (statsPlayer.danhSachCanhGioiDaDotPha == null)
         {
             statsPlayer.danhSachCanhGioiDaDotPha = new List<string>();
@@ -208,26 +244,60 @@ public class BangDotPhaSingleUI : MonoBehaviour
             statsPlayer.danhSachCanhGioiDaDotPha.Add(idCanhGioi);
         }
 
-        // 3. Lưu File Save JSON
         QuestSaveSystem.Instance.SaveDuLieuQuestToTxt();
 
-        // 4. Cập nhật trực tiếp vào Nhân Vật Player
         CharacterStats[] allStats = FindObjectsByType<CharacterStats>(FindObjectsSortMode.None);
         foreach (var stat in allStats)
         {
             stat.TaiThongSoTuSaveFile();
         }
 
-        // 5. Đồng bộ lại Năng lượng tối đa sang PlayerSkillManager
         PlayerSkillManager skillManager = FindFirstObjectByType<PlayerSkillManager>();
         if (skillManager != null)
         {
             skillManager.CapNhatMaxEnergyTuSave();
         }
 
-        // 6. Refresh lại Bảng UI Đột phá (Sẽ tự động khóa nút vĩnh viễn)
         CapNhatGiaoDienBang();
+        HienThongBaoDotPhaThanhCong();
 
-        Debug.Log($"<color=green>[Đột Phá Success]</color> Đã nâng cảnh giới lên {tenCanhGioiMoi} và lưu trạng thái khóa bảng.");
+        Debug.Log($"<color=green>[Đột Phá Success]</color> Đã nâng cảnh giới lên {tenCanhGioiMoi} (ID: {idCanhGioi}).");
+    }
+
+    private void HienThongBaoDotPhaThanhCong()
+    {
+        if (textThongBaoDotPha == null) return;
+
+        if (hieuUngThongBaoCoroutine != null)
+        {
+            StopCoroutine(hieuUngThongBaoCoroutine);
+        }
+
+        hieuUngThongBaoCoroutine = StartCoroutine(Routine_HieuUngMoDanText());
+    }
+
+    private IEnumerator Routine_HieuUngMoDanText()
+    {
+        textThongBaoDotPha.gameObject.SetActive(true);
+        textThongBaoDotPha.text = $"<color=yellow>ĐỘT PHÁ THÀNH CÔNG!\nĐẠT: {tenCanhGioiMoi}</color>";
+
+        Color mauGoc = textThongBaoDotPha.color;
+        mauGoc.a = 1f;
+        textThongBaoDotPha.color = mauGoc;
+
+        yield return new WaitForSeconds(thoiGianChoMo);
+
+        while (textThongBaoDotPha.color.a > 0f)
+        {
+            Color mauHienTai = textThongBaoDotPha.color;
+            mauHienTai.a -= Time.deltaTime * tocDoMo;
+            textThongBaoDotPha.color = mauHienTai;
+            yield return null;
+        }
+
+        mauGoc.a = 1f;
+        textThongBaoDotPha.color = mauGoc;
+        textThongBaoDotPha.gameObject.SetActive(false);
+        hieuUngThongBaoCoroutine = null;
     }
 }

@@ -10,7 +10,7 @@ namespace StatsSystem.Components
         [SerializeField, Tooltip("ID của loại quái này (VD: 1 = Bộ Xương, 2 = Quái Cây)")]
         private int idQuai = 1;
 
-        [SerializeField, Tooltip("Lượng Kinh Nghiệm (EXP) người chơi nhận được khi diệt quái này")]
+        [SerializeField, Tooltip("Lượng Kinh Nghiệm (EXP) gốc người chơi nhận được khi diệt quái này")]
         private float expNhanDuoc = 1f;
 
         [Header("=== THỜI GIAN BIẾN MẤT ===")]
@@ -43,14 +43,22 @@ namespace StatsSystem.Components
             stats.OnDeath -= HandleDeath;
         }
 
+        /// <summary>
+        /// Hàm nhân dồn EXP nhận được theo hệ số độ khó từ DifficultyManager
+        /// </summary>
+        /// <param name="heSoDoKho">Hệ số nhân (VD: 1.5x, 2.0x, 3.0x)</param>
+        public void NhanExpTheoDoKho(float heSoDoKho)
+        {
+            expNhanDuoc *= heSoDoKho;
+            Debug.Log($"[EnemyController] {gameObject.name} được dồn EXP mới: {expNhanDuoc} (Hệ số: x{heSoDoKho})");
+        }
+
         // ==========================================
         // XỬ LÝ CHOÁNG (STUN) TỪ INTERFACE ISTUNABLE
         // ==========================================
         public void ApplyStun(float duration)
         {
-            // Nếu quái đang choáng thì không trùng lặp Coroutine
             if (isStunned) return;
-
             StartCoroutine(StunRoutine(duration));
         }
 
@@ -58,22 +66,18 @@ namespace StatsSystem.Components
         {
             isStunned = true;
 
-            // 1. Dừng ngay lực đẩy/di chuyển của Rigidbody2D để quái không bị văng map
             if (rb != null)
             {
                 rb.linearVelocity = Vector2.zero;
             }
 
-            // 2. Chạy Animation Tử Trận / Choáng
             if (animator != null)
             {
                 animator.SetTrigger(dieTriggerName);
             }
 
-            // 3. Chờ hết thời gian Stun
             yield return new WaitForSeconds(duration);
 
-            // 4. Hồi phục lại trạng thái bình thường (Reset Trigger)
             isStunned = false;
             if (animator != null)
             {
@@ -88,16 +92,13 @@ namespace StatsSystem.Components
         {
             Debug.Log($"{gameObject.name} (ID Quái: {idQuai}) đã chết!");
 
-            // Dừng Coroutine Stun nếu quái chết hẳn trong lúc đang choáng
             StopAllCoroutines();
 
-            // 1. KÍCH HOẠT ANIMATION CHẾT
             if (animator != null)
             {
                 animator.SetTrigger(dieTriggerName);
             }
 
-            // 2. CỘNG EXP CHO PLAYER THÔNG QUA LEVEL SYSTEM
             if (LevelSystem.Instance != null)
             {
                 LevelSystem.Instance.AddExp(expNhanDuoc);
@@ -107,7 +108,6 @@ namespace StatsSystem.Components
                 Debug.LogWarning("[EnemyController] Không tìm thấy LevelSystem.Instance trong Scene!");
             }
 
-            // 3. GHI NHẬN TIẾN TRÌNH QUEST
             if (QuestSaveSystem.Instance != null)
             {
                 QuestSaveSystem.Instance.GhiNhanDietQuai(idQuai, 1);
@@ -117,11 +117,9 @@ namespace StatsSystem.Components
                 Debug.LogWarning("[EnemyController] Không tìm thấy QuestSaveSystem.Instance trong Scene!");
             }
 
-            // 4. TẮT COLLIDER CỦA QUÁI
             Collider2D col = GetComponent<Collider2D>();
             if (col != null) col.enabled = false;
 
-            // 5. CHỜ THỜI GIAN VÀ XÓA GAMEOBJECT
             StartCoroutine(DestroyAfterDelay(destroyDelay));
         }
 

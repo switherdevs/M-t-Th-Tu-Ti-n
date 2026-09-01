@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2ef0947ff593a574b8c3d93484930841, type: 3}
-  m_Name: QuestData_New_nv1 5
+  m_Name: q55
   m_EditorClassIdentifier: 
   idQuest: 66
   tenNhiemVu: "Tr\u1EA3m \u0110ao Ti\u1EC1n Tr\u1EA3m"
@@ -29,11 +29,17 @@ MonoBehaviour:
     b\xF3c c\u1EE7a ch\xFAng \u0111\xE3 b\u1ECB \u0111\u1EA1i hi\u1EC7p \u0111\xE1nh
     tan t\xE0nh."
   idQuaiCanDiet: 5
-  soLuongBoXuongCanDiet: 5
+  soLuongBoXuongCanDiet: 450
   danhSachPhanThuong:
   - itemData: {fileID: 11400000, guid: 9d7827e2c47c86745b9d17a80a5560a1, type: 2}
     iconItem: {fileID: -5636343253877202797, guid: aefe25d351898004d9bd8d89735db828, type: 3}
-    soLuong: 50
+    soLuong: 550
   - itemData: {fileID: 11400000, guid: 49e74c715b0a940448d6d98edc9cfede, type: 2}
     iconItem: {fileID: -1311454706999046921, guid: 957a3a12ba6173a46b98408672503bd5, type: 3}
-    soLuong: 10
+    soLuong: 200
+  - itemData: {fileID: 11400000, guid: aceef73ce69d085418ec1b8390453ee6, type: 2}
+    iconItem: {fileID: 6612041103238939525, guid: 637f6c7d44182c84788b7d8a32e80dee, type: 3}
+    soLuong: 150
+  - itemData: {fileID: 11400000, guid: 112846c507611554597519f6f3681603, type: 2}
+    iconItem: {fileID: -5811498811225418235, guid: fffa210defa38b749aa6ae3a345bc37d, type: 3}
+    soLuong: 55

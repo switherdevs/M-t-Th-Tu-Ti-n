@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2ef0947ff593a574b8c3d93484930841, type: 3}
-  m_Name: QuestData_New_nv1 6
+  m_Name: q888
   m_EditorClassIdentifier: 
-  idQuest: 70
+  idQuest: 999
   tenNhiemVu: "Th\u1EA3o Ph\u1EA1t S\u01A1n Kh\u1EA5u"
   loiThoaiNhanQuest: "T\xEAn Th\u1EE7 L\u0129nh S\u01A1n T\u1EB7c \xE1p gi\u1EA3i
     ma kh\xED \u0111\xE3 bi\u1EBFn Doanh Tr\u1EA1i th\xE0nh m\u1ED9t hang \u1ED5
@@ -28,11 +28,23 @@ MonoBehaviour:
     T\u1EB7c ch\xEDnh th\u1EE9c tan r\xE3! Ng\xE0i ch\xEDnh l\xE0 \u0111\u1EA1i c\u1EE9u
     tinh c\u1EE7a to\xE0n b\u1ED9 b\xE1 t\xE1nh v\xF9ng Thanh Tr\xFAc L\xE2m!"
   idQuaiCanDiet: 7
-  soLuongBoXuongCanDiet: 5
+  soLuongBoXuongCanDiet: 50
   danhSachPhanThuong:
   - itemData: {fileID: 11400000, guid: 9d7827e2c47c86745b9d17a80a5560a1, type: 2}
     iconItem: {fileID: -5636343253877202797, guid: aefe25d351898004d9bd8d89735db828, type: 3}
-    soLuong: 300
+    soLuong: 500
   - itemData: {fileID: 11400000, guid: 49e74c715b0a940448d6d98edc9cfede, type: 2}
     iconItem: {fileID: -1311454706999046921, guid: 957a3a12ba6173a46b98408672503bd5, type: 3}
-    soLuong: 120
+    soLuong: 200
+  - itemData: {fileID: 11400000, guid: aceef73ce69d085418ec1b8390453ee6, type: 2}
+    iconItem: {fileID: 6612041103238939525, guid: 637f6c7d44182c84788b7d8a32e80dee, type: 3}
+    soLuong: 125
+  - itemData: {fileID: 11400000, guid: 112846c507611554597519f6f3681603, type: 2}
+    iconItem: {fileID: -5811498811225418235, guid: fffa210defa38b749aa6ae3a345bc37d, type: 3}
+    soLuong: 80
+  - itemData: {fileID: 11400000, guid: be17af58e643d0540a5bf12f054a2959, type: 2}
+    iconItem: {fileID: -1670773418415759112, guid: 2be3f9995e6689148b9897ad311f4c40, type: 3}
+    soLuong: 40
+  - itemData: {fileID: 11400000, guid: 082ca09b9c581ba4692d29f0cafb7b30, type: 2}
+    iconItem: {fileID: 3915544672107269375, guid: b27692a4c52199744aedb2b0eeeda5f9, type: 3}
+    soLuong: 20

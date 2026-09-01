@@ -183,7 +183,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 4, y: 4, z: 4}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8470432618780942324}
@@ -203,7 +203,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   detectionRange: 150
-  attackRange: 70
+  attackRange: 90
   attackOffset: {x: 0, y: 7.24}
   moveSpeed: 20
   playerLayer:
@@ -212,8 +212,8 @@ MonoBehaviour:
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 64
-  avoidRadius: 10
-  wallCheckOffset: {x: 0.66, y: 5.77}
+  avoidRadius: 20
+  wallCheckOffset: {x: 0.66, y: 19.07}
   blastCooldown: 2
   blastPool: {fileID: 5843626928804625001, guid: bec1c8335926e3c4d8cc83c5ce015e6f, type: 3}
   handPoint: {fileID: 6697599525351215742}

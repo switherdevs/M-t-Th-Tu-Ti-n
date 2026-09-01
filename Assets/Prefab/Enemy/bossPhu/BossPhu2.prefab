@@ -5198,7 +5198,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -8, y: -11, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 4, y: 4, z: 4}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1459320062006765230}
@@ -5221,8 +5221,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   detectionRange: 150
   flySpeed: 10
-  attackRange: 6
-  attackOffset: {x: 20.1, y: 16.8}
+  attackRange: 20
+  attackOffset: {x: 42, y: 34.5}
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -5230,9 +5230,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   wallTag: Wall
-  avoidRadius: 12
+  avoidRadius: 20
   wallPushForce: 10
-  wallCheckOffset: {x: 0, y: 14.4}
+  wallCheckOffset: {x: 0, y: 29}
   tailSwingDamage: 0
   tailAttackHitbox: {fileID: 3351064027712194063}
   skillCooldown: 7

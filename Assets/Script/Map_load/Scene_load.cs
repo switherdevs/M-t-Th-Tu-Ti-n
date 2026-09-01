@@ -16,6 +16,10 @@ public class Scene_load : MonoBehaviour
     private void Start()
     {
         Sfx = GetComponent<AudioSource>();
+
+        // Mặc định cho game chạy bình thường khi vừa vào Scene
+        Time.timeScale = 1f;
+
         if (MainUi != null) MainUi.SetActive(false);
     }
 
@@ -29,10 +33,37 @@ public class Scene_load : MonoBehaviour
         }
     }
 
+    // 🎯 HÀM BẬT MENU & TẠM DỪNG GAME
+    public void Bat_MainMenu()
+    {
+        PlayClickSound();
+        if (MainUi != null)
+        {
+            MainUi.SetActive(true);
+
+            // Dừng toàn bộ thời gian trong game
+            Time.timeScale = 0f;
+        }
+    }
+
+    // 🎯 HÀM TẮT MENU & TIẾP TỤC GAME
+    public void Resume()
+    {
+        PlayClickSound();
+        if (MainUi != null)
+        {
+            MainUi.SetActive(false);
+        }
+
+        // Khôi phục lại thời gian bình thường cho game
+        Time.timeScale = 1f;
+    }
+
     // Hàm chuyển đến Scene MainMap
     public void MainMaps()
     {
         PlayClickSound();
+        Time.timeScale = 1f; // Trả thời gian về 1 trước khi load scene mới
         SceneManager.LoadScene(mainMapName);
     }
 
@@ -40,46 +71,36 @@ public class Scene_load : MonoBehaviour
     public void Map1s()
     {
         PlayClickSound();
+        Time.timeScale = 1f; // Trả thời gian về 1 trước khi load scene mới
         SceneManager.LoadScene(map1Name);
     }
 
     public void Map2()
     {
         PlayClickSound();
+        Time.timeScale = 1f; // Trả thời gian về 1 trước khi load scene mới
         SceneManager.LoadScene(map2Name);
     }
 
     public void Kinhthanh()
     {
         PlayClickSound();
+        Time.timeScale = 1f; // Trả thời gian về 1 trước khi load scene mới
         SceneManager.LoadScene(Kinhthanhs);
     }
 
     public void VeMenues()
     {
         PlayClickSound();
+        Time.timeScale = 1f; // Trả thời gian về 1 trước khi load scene mới
         SceneManager.LoadScene(VeMenu);
-    }
-
-    public void Resume()
-    {
-        PlayClickSound();
-        MainUi.SetActive(false);
-    }
-
-    public void Bat_MainMenu()
-    {
-        PlayClickSound();
-        if (MainUi != null)
-        {
-            MainUi.SetActive(true);
-        }
     }
 
     // Hàm chuyển đến Scene Map2
     public void Map2s()
     {
         PlayClickSound();
+        Time.timeScale = 1f; // Trả thời gian về 1 trước khi load scene mới
         SceneManager.LoadScene(map2Name);
     }
 }

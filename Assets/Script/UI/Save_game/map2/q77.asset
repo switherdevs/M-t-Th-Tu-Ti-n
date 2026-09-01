@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2ef0947ff593a574b8c3d93484930841, type: 3}
-  m_Name: QuestData_New_nv1 7
+  m_Name: q77
   m_EditorClassIdentifier: 
   idQuest: 80
   tenNhiemVu: "X\u01B0\u01A1ng Kh\xF4 Khung N\u1ECF"
@@ -28,11 +28,14 @@ MonoBehaviour:
     s\u1EA1ch ma kh\xED v\xE0 \u0111em l\u1EA1i s\u1EF1 thanh th\u1EA3n cho v\xF9ng
     \u0111\u1EA5t n\xE0y."
   idQuaiCanDiet: 9
-  soLuongBoXuongCanDiet: 40
+  soLuongBoXuongCanDiet: 250
   danhSachPhanThuong:
   - itemData: {fileID: 11400000, guid: 9d7827e2c47c86745b9d17a80a5560a1, type: 2}
     iconItem: {fileID: -5636343253877202797, guid: aefe25d351898004d9bd8d89735db828, type: 3}
-    soLuong: 60
+    soLuong: 300
   - itemData: {fileID: 11400000, guid: 49e74c715b0a940448d6d98edc9cfede, type: 2}
     iconItem: {fileID: -1311454706999046921, guid: 957a3a12ba6173a46b98408672503bd5, type: 3}
-    soLuong: 20
+    soLuong: 275
+  - itemData: {fileID: 11400000, guid: aceef73ce69d085418ec1b8390453ee6, type: 2}
+    iconItem: {fileID: 6612041103238939525, guid: 637f6c7d44182c84788b7d8a32e80dee, type: 3}
+    soLuong: 60

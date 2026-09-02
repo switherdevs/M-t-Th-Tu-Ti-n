@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2511526375480054699
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4129000169094611130}
+  - component: {fileID: 8294308981834339793}
+  m_Layer: 0
+  m_Name: save_2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4129000169094611130
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2511526375480054699}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -131.58337, y: -1.6772814, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8294308981834339793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2511526375480054699}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5477a5b1fdef58344941ac6470fe3b57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  danhSachQuestData:
+  - {fileID: 11400000, guid: e0dcdb3316fc82243adb50662684e1a8, type: 2}
+  - {fileID: 11400000, guid: a33cf54d6ea6f3c41974b6f5e86aeb4d, type: 2}
+  - {fileID: 11400000, guid: 2f0b951a370ed144f824b3cc11115dad, type: 2}
+  - {fileID: 11400000, guid: fc00640b13b1d9843ab552460144a36c, type: 2}
+  - {fileID: 11400000, guid: 4d250e7ddd7e92b4ea0018d37f622c2a, type: 2}
+  - {fileID: 11400000, guid: 708ddcb4ecdf8c44a955c06ee24820b9, type: 2}
+  - {fileID: 11400000, guid: e99e368cff7c3984aad38a9f83a39a71, type: 2}
+  - {fileID: 11400000, guid: 2039c06519689c849b1e860ddac14308, type: 2}
+  tenFileSave: QuestProgressData.txt
+  duLieuSaveHienTai:
+    danhSachProgress: []
+    danhSachItemSave: []
+    playerStats:
+      tenCanhGioi: "Luy\u1EC7n Kh\xED T\u1EA7ng 1"
+      level: 1
+      currentExp: 0
+      maxExp: 5
+      maxHP: 100
+      damage: 20
+      armor: 0.1
+      maxEnergy: 100
+      danhSachCanhGioiDaDotPha: []

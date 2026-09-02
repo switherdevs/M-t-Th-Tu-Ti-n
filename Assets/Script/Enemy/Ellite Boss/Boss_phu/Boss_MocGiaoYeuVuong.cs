@@ -31,7 +31,6 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
     [SerializeField] private SimpleObjectPool orbPool;
     [SerializeField] private Transform mouthPoint;
     [SerializeField] private float orbSpeed = 10f;
-    [SerializeField] private float orbDamage = 15f;
 
     [Header("--- ANIMATION STRINGS ---")]
     [SerializeField] private string animSwing = "TailSwing";
@@ -40,7 +39,7 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
 
     private Transform playerTransform;
     private CharacterStats playerStats;
-    private CharacterStats bossStats; // Tham chiếu CharacterStats để lắng nghe sự kiện chết[cite: 3]
+    private CharacterStats bossStats;
     private Animator animator;
 
     private float skillTimer;
@@ -68,7 +67,7 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
     {
         if (bossStats != null)
         {
-            bossStats.OnDeath += HandleBossDeath; // Đăng ký sự kiện khi chết[cite: 3]
+            bossStats.OnDeath += HandleBossDeath;
         }
     }
 
@@ -76,7 +75,7 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
     {
         if (bossStats != null)
         {
-            bossStats.OnDeath -= HandleBossDeath; // Hủy đăng ký[cite: 3]
+            bossStats.OnDeath -= HandleBossDeath;
         }
     }
 
@@ -93,40 +92,32 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
         Vector3 attackCenter = GetAttackCenter();
         float distance = Vector2.Distance(attackCenter, playerTransform.position);
 
-        // Đang gồng chiêu -> Bay chậm bám theo Player
         if (isWindingUp)
         {
             FlyAndAvoidWalls(playerTransform.position, flySpeed * slowMultiplier);
             return;
         }
 
-        // Ưu tiên 1: Kích hoạt Skill Bắn Cầu Gỗ
         if (skillTimer <= 0)
         {
             StartCoroutine(Routine_TripleWoodOrbLine());
         }
-        // Ưu tiên 2: Đánh thường (Quật đuôi)
         else if (distance <= attackRange)
         {
             StartCoroutine(Routine_TailSwing());
         }
-        // Trạng thái thường: Bay tiến về phía Player và né tường
         else
         {
             FlyAndAvoidWalls(playerTransform.position, flySpeed);
         }
     }
 
-    /// <summary>
-    /// Di chuyển mượt mà và bẻ lái né Wall/Obstacle từ vị trí offset tùy chỉnh
-    /// </summary>
     private void FlyAndAvoidWalls(Vector3 targetPosition, float speed)
     {
         Vector2 checkOrigin = GetWallCheckCenter();
         Vector2 dirToTarget = ((Vector2)targetPosition - checkOrigin).normalized;
         Vector2 finalMoveDir = dirToTarget;
 
-        // Quét tìm vật cản bằng CircleCast từ vị trí offset X, Y
         RaycastHit2D hit = Physics2D.CircleCast(checkOrigin, avoidRadius, dirToTarget, 1.5f, obstacleLayer);
 
         if (hit.collider != null && !hit.collider.isTrigger)
@@ -236,7 +227,6 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
 
         if (tailAttackHitbox != null) tailAttackHitbox.SetActive(false);
 
-        // Vô hiệu hóa toàn bộ Collider trên Boss
         Collider2D[] allColliders = GetComponentsInChildren<Collider2D>();
         foreach (Collider2D col in allColliders)
         {
@@ -278,7 +268,6 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(GetAttackCenter(), attackRange);
 
-        // Vòng tròn màu Cyan biểu diễn vị trí quét né tường (tính theo Offset X và Y)
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(GetWallCheckCenter(), avoidRadius);
     }

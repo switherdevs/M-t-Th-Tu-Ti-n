@@ -178,4 +178,20 @@ public class PlayerSkillManager : MonoBehaviour
 
         return direction == Vector2.zero ? Vector2.right : direction;
     }
+
+    /// <summary>
+    /// 🎯 HÀM MỚI BỔ SUNG: Cho phép item map hồi trực tiếp năng lượng cho Player
+    /// </summary>
+    public bool HoiNangLuongTrucTiep(float amount)
+    {
+        if (nangLuongHienTai >= nangLuongToiDa) return false;
+
+        nangLuongHienTai += amount;
+        if (nangLuongHienTai > nangLuongToiDa)
+        {
+            nangLuongHienTai = nangLuongToiDa;
+        }
+
+        return true;
+    }
 }

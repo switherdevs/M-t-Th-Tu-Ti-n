@@ -14,35 +14,66 @@ public class Elite_TyHuu : MonoBehaviour
     [SerializeField] private LayerMask obstacleLayer;
     [SerializeField] private float avoidRadius = 0.5f;
 
-    [Header("--- KỸ NĂNG STONE BREATH ---")]
+    [Header("--- KỸ NĂNG 1: STONE BREATH (BẮN ĐÁ) ---")]
     [SerializeField] private float skillCooldown = 6f;
     [SerializeField] private float windupTime = 1.5f;
     [SerializeField] private float slowMultiplier = 0.4f;
     [SerializeField] private Transform mouthPoint;
     [SerializeField] private SimpleObjectPool stoneProjectilePool;
     [SerializeField] private float projectileSpeed = 8f;
+    [SerializeField] private int shootsBeforeRoar = 3;
+
+    [Header("--- KỸ NĂNG 2: ROAR SKILL (GẦM) ---")]
+    [SerializeField] private float roarWindupTime = 1f;              // Thời gian gồng trước khi gầm
+    [SerializeField] private float roarDuration = 2f;                // Thời gian giữ tư thế gầm (Bool = true)
+    [SerializeField] private AudioClip sfxRoar;                       // Âm thanh tiếng gầm riêng biệt
+    [SerializeField] private float roarCameraShakeIntensity = 2.5f;  // Độ rung màn hình
+    [SerializeField] private float roarCameraShakeDuration = 0.8f;   // Thời gian rung màn hình
+    [SerializeField] private float playerSlowMultiplier = 0.3f;     // Tốc độ di chuyển người chơi bị giảm còn 30%
+    [SerializeField] private float playerSlowDuration = 2.5f;        // Thời gian người chơi bị làm chậm
+    [SerializeField] private float roarAffectRadius = 10f;           // Tầm ảnh hưởng của tiếng gầm
+
+    [Header("--- ÂM THANH (AUDIO) ---")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip sfxPrepareAttack;
+    [SerializeField] private AudioClip sfxAttack;
+    [SerializeField] private AudioClip sfxDeath;
 
     [Header("--- ANIMATION STRINGS ---")]
     [SerializeField] private string animWalk = "isWalking";
     [SerializeField] private string animClaw1 = "Claw1";
     [SerializeField] private string animClaw2 = "Claw2";
-    [SerializeField] private string animRoar = "Roar";
+    [SerializeField] private string animAttack = "Attack";     // Trigger bắn đá
+    [SerializeField] private string animIsRoaring = "isRoaring"; // Bool gầm (mới)
 
     private Transform playerTransform;
     private Animator animator;
+    private CharacterStats stats;
+    private Collider2D mainCollider;
     private float skillTimer;
 
+    private int shootCount = 0;
     private bool isBusy = false;
     private bool isWindingUp = false;
+    private bool isDeadHandled = false;
+
+    private void Awake()
+    {
+        animator = GetComponentInChildren<Animator>();
+        stats = GetComponent<CharacterStats>();
+        mainCollider = GetComponent<Collider2D>();
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
+    }
 
     private void Start()
     {
-        animator = GetComponentInChildren<Animator>();
         skillTimer = skillCooldown;
+        shootCount = 0;
     }
 
     private void Update()
     {
+        if (CheckAndHandleDeath()) return;
         if (isBusy) return;
 
         FindPlayer();
@@ -62,7 +93,14 @@ public class Elite_TyHuu : MonoBehaviour
 
         if (skillTimer <= 0)
         {
-            StartCoroutine(Routine_StoneBreath());
+            if (shootCount < shootsBeforeRoar)
+            {
+                StartCoroutine(Routine_StoneBreath());
+            }
+            else
+            {
+                StartCoroutine(Routine_RoarSkill());
+            }
         }
         else if (distance <= attackRange)
         {
@@ -73,6 +111,27 @@ public class Elite_TyHuu : MonoBehaviour
             animator.SetBool(animWalk, true);
             MoveSmoothly(playerTransform.position, moveSpeed);
         }
+    }
+
+    private bool CheckAndHandleDeath()
+    {
+        if (stats != null && stats.IsDead)
+        {
+            if (!isDeadHandled)
+            {
+                isDeadHandled = true;
+                isBusy = true;
+                if (mainCollider != null) mainCollider.enabled = false;
+                if (animator != null)
+                {
+                    animator.SetBool(animWalk, false);
+                    animator.SetBool(animIsRoaring, false);
+                }
+                PlaySFX(sfxDeath);
+            }
+            return true;
+        }
+        return false;
     }
 
     private void FindPlayer()
@@ -112,11 +171,16 @@ public class Elite_TyHuu : MonoBehaviour
     {
         isBusy = true;
         animator.SetBool(animWalk, false);
-        
+
+        PlaySFX(sfxPrepareAttack);
+        yield return new WaitForSeconds(0.2f);
+
         animator.SetTrigger(animClaw1);
+        PlaySFX(sfxAttack);
         yield return new WaitForSeconds(0.4f);
-        
+
         animator.SetTrigger(animClaw2);
+        PlaySFX(sfxAttack);
         yield return new WaitForSeconds(0.6f);
 
         isBusy = false;
@@ -126,7 +190,9 @@ public class Elite_TyHuu : MonoBehaviour
     {
         isWindingUp = true;
         skillTimer = skillCooldown;
-        
+
+        PlaySFX(sfxPrepareAttack);
+
         float originalSpeed = moveSpeed;
         float originalAnimSpeed = animator.speed;
         moveSpeed *= slowMultiplier;
@@ -140,12 +206,13 @@ public class Elite_TyHuu : MonoBehaviour
         animator.speed = originalAnimSpeed;
 
         animator.SetBool(animWalk, false);
-        animator.SetTrigger(animRoar);
+        animator.SetTrigger(animAttack);
+        PlaySFX(sfxAttack);
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.3f);
 
         float[] angles = { -15f, 0f, 15f };
-        Vector3 spawnPos = mouthPoint != null ? mouthPoint.position : transform.position;
+        Vector3 spawnPos = mouthPoint != null ? mouthPoint.position : GetAttackCenter();
         Vector2 baseDir = playerTransform != null ? (Vector2)(playerTransform.position - spawnPos).normalized : (Vector2)transform.right;
 
         foreach (float angle in angles)
@@ -156,13 +223,86 @@ public class Elite_TyHuu : MonoBehaviour
             if (stoneProjectilePool != null)
             {
                 GameObject stone = stoneProjectilePool.GetFromPool(spawnPos, Quaternion.identity);
-                Rigidbody2D rb = stone.GetComponent<Rigidbody2D>();
-                if (rb != null) rb.linearVelocity = finalDir * projectileSpeed;
+                if (stone.TryGetComponent<Rigidbody2D>(out Rigidbody2D rb))
+                {
+                    rb.linearVelocity = finalDir * projectileSpeed;
+                }
             }
         }
 
+        shootCount++;
+
         yield return new WaitForSeconds(0.8f);
         isBusy = false;
+    }
+
+    // SKILL 2: TIẾNG GẦM (ROAR SKILL - DÙNG ANIMATION BOOL)
+    private IEnumerator Routine_RoarSkill()
+    {
+        isWindingUp = true;
+        skillTimer = skillCooldown;
+
+        PlaySFX(sfxPrepareAttack);
+
+        float originalSpeed = moveSpeed;
+        float originalAnimSpeed = animator.speed;
+        moveSpeed *= slowMultiplier;
+        animator.speed *= slowMultiplier;
+
+        // Thời gian gồng chiêu
+        yield return new WaitForSeconds(roarWindupTime);
+
+        isWindingUp = false;
+        isBusy = true;
+        moveSpeed = originalSpeed;
+        animator.speed = originalAnimSpeed;
+
+        // Dừng đi bộ và Bật Bool Gầm thành true
+        animator.SetBool(animWalk, false);
+        animator.SetBool(animIsRoaring, true);
+
+        // Kích hoạt âm thanh, rung màn hình và làm chậm người chơi
+        ExecuteRoarEffects();
+
+        // Giữ trạng thái Gầm trong khoảng thời gian roarDuration (Tỳ Hưu đứng yên tại chỗ)
+        yield return new WaitForSeconds(roarDuration);
+
+        // Hết thời gian Gầm -> Tắt Bool Gầm thành false
+        animator.SetBool(animIsRoaring, false);
+
+        // Reset biến đếm để quay lại chu kỳ bắn đá 3 lần
+        shootCount = 0;
+        isBusy = false;
+    }
+
+    private void ExecuteRoarEffects()
+    {
+        PlaySFX(sfxRoar != null ? sfxRoar : sfxAttack);
+
+        if (CameraShake.Instance != null)
+        {
+            CameraShake.Instance.Shake(roarCameraShakeIntensity, roarCameraShakeDuration);
+        }
+
+        if (playerTransform != null)
+        {
+            float distToPlayer = Vector2.Distance(transform.position, playerTransform.position);
+            if (distToPlayer <= roarAffectRadius)
+            {
+                if (playerTransform.TryGetComponent<PlayerController>(out PlayerController playerController))
+                {
+                    playerController.ApplySlow(playerSlowMultiplier, playerSlowDuration);
+                }
+            }
+        }
+    }
+
+    private void PlaySFX(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
     }
 
     private void FlipTowards(Vector3 target)
@@ -186,5 +326,7 @@ public class Elite_TyHuu : MonoBehaviour
         Gizmos.DrawWireSphere(GetAttackCenter(), attackRange);
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, avoidRadius);
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(transform.position, roarAffectRadius);
     }
 }

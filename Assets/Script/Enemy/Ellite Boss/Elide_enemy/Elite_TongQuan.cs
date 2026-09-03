@@ -24,29 +24,78 @@ public class Elite_TongQuan : MonoBehaviour
     [SerializeField] private float damage = 25f;
     [SerializeField] private Transform slamHitboxPoint;
 
-    [Header("--- ANIMATION STRINGS ---")]
+    [Header("--- KỸ NĂNG ĐỠ ĐÒN & CHOÁNG ---")]
+    [SerializeField] private float blockDuration = 2.5f;
+    [SerializeField] private float stunDuration = 2f;
+    [SerializeField] private GameObject blockShieldPrefab; // Prefab lá chắn
+    [SerializeField] private Transform shieldSpawnPoint;    // Vị trí cố định để sinh ra lá chắn
+    [SerializeField] private string playerSwordTag = "PlayerSword";
+
+    [Header("--- ÂM THANH (AUDIO) ---")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip sfxPrepareAttack;
+    [SerializeField] private AudioClip sfxAttack;
+    [SerializeField] private AudioClip sfxBlock;
+    [SerializeField] private AudioClip sfxStun;
+    [SerializeField] private AudioClip sfxDeath;
+
+    [Header("--- ANIMATION PARAMETERS ---")]
     [SerializeField] private string animWalk = "isWalking";
     [SerializeField] private string animAttack = "Attack";
     [SerializeField] private string animPrepareJump = "PrepareJump";
     [SerializeField] private string animJumpAir = "JumpAir";
     [SerializeField] private string animLand = "Land";
+    [SerializeField] private string animIsBlocking = "isBlocking";
+    [SerializeField] private string animIsStunned = "isStunned";
 
     private Transform playerTransform;
     private Animator animator;
+    private CharacterStats stats;
+    private Collider2D mainCollider;
     private float skillTimer;
-    
+
     private bool isBusy = false;
     private bool isWindingUp = false;
+    private bool isBlocking = false;
+    private bool isStunned = false;
+    private bool isDeadHandled = false;
+
+    private GameObject currentSpawnedShield; // Lưu lá chắn được sinh ra trong World
+    private Coroutine currentBehaviorCoroutine;
+
+    private void Awake()
+    {
+        animator = GetComponentInChildren<Animator>();
+        stats = GetComponent<CharacterStats>();
+        mainCollider = GetComponent<Collider2D>();
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
+    }
 
     private void Start()
     {
-        animator = GetComponentInChildren<Animator>();
         skillTimer = skillCooldown;
+
+        if (stats != null)
+        {
+            stats.OnDamaged += HandleDamaged;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (stats != null)
+        {
+            stats.OnDamaged -= HandleDamaged;
+        }
+
+        // Dọn dẹp lá chắn nếu object bị xóa giữa chừng
+        DestroyCurrentShield();
     }
 
     private void Update()
     {
-        if (isBusy) return;
+        if (CheckAndHandleDeath()) return;
+        if (isBusy || isStunned) return;
 
         FindPlayer();
         if (playerTransform == null) return;
@@ -65,16 +114,50 @@ public class Elite_TongQuan : MonoBehaviour
 
         if (skillTimer <= 0)
         {
-            StartCoroutine(Routine_JumpSlam());
+            currentBehaviorCoroutine = StartCoroutine(Routine_BlockThenJumpSlam());
         }
         else if (distance <= attackRange)
         {
-            StartCoroutine(Routine_NormalAttack());
+            currentBehaviorCoroutine = StartCoroutine(Routine_NormalAttack());
         }
         else
         {
             animator.SetBool(animWalk, true);
             MoveSmoothly(playerTransform.position, moveSpeed);
+        }
+    }
+
+    private bool CheckAndHandleDeath()
+    {
+        if (stats != null && stats.IsDead)
+        {
+            if (!isDeadHandled)
+            {
+                isDeadHandled = true;
+                isBusy = true;
+                isBlocking = false;
+                isStunned = false;
+
+                if (mainCollider != null) mainCollider.enabled = false;
+                DestroyCurrentShield();
+
+                animator.SetBool(animWalk, false);
+                animator.SetBool(animIsBlocking, false);
+                animator.SetBool(animIsStunned, false);
+
+                PlaySFX(sfxDeath);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private void HandleDamaged(float damageTaken)
+    {
+        if (isBlocking && !isStunned && !stats.IsDead)
+        {
+            if (currentBehaviorCoroutine != null) StopCoroutine(currentBehaviorCoroutine);
+            StartCoroutine(Routine_GetStunned());
         }
     }
 
@@ -115,17 +198,40 @@ public class Elite_TongQuan : MonoBehaviour
     {
         isBusy = true;
         animator.SetBool(animWalk, false);
-        animator.SetTrigger(animAttack);
 
-        yield return new WaitForSeconds(1.0f);
+        PlaySFX(sfxPrepareAttack);
+        yield return new WaitForSeconds(0.2f);
+
+        animator.SetTrigger(animAttack);
+        PlaySFX(sfxAttack);
+
+        yield return new WaitForSeconds(0.8f);
         isBusy = false;
     }
 
-    private IEnumerator Routine_JumpSlam()
+    private IEnumerator Routine_BlockThenJumpSlam()
     {
-        isWindingUp = true;
+        isBusy = true;
+        isBlocking = true;
         skillTimer = skillCooldown;
-        
+
+        animator.SetBool(animWalk, false);
+        animator.SetBool(animIsBlocking, true);
+
+        // Tạo Prefab lá chắn ngoài World (Không đặt parent để hoàn toàn độc lập vị trí và Collider)
+        SpawnShield();
+        PlaySFX(sfxBlock);
+
+        yield return new WaitForSeconds(blockDuration);
+
+        // Hết thời gian đỡ đòn mà không dính đòn -> Hủy khiên và nhảy bổ
+        DestroyCurrentShield();
+        animator.SetBool(animIsBlocking, false);
+        isBlocking = false;
+
+        isWindingUp = true;
+        PlaySFX(sfxPrepareAttack);
+
         float originalSpeed = moveSpeed;
         float originalAnimSpeed = animator.speed;
         moveSpeed *= slowMultiplier;
@@ -134,18 +240,17 @@ public class Elite_TongQuan : MonoBehaviour
         yield return new WaitForSeconds(windupTime);
 
         isWindingUp = false;
-        isBusy = true;
         moveSpeed = originalSpeed;
         animator.speed = originalAnimSpeed;
 
-        animator.SetBool(animWalk, false);
         animator.SetTrigger(animPrepareJump);
-
         yield return new WaitForSeconds(0.3f);
+
         animator.SetTrigger(animJumpAir);
+        PlaySFX(sfxAttack);
 
         Vector3 startPos = transform.position;
-        Vector3 targetPos = playerTransform.position;
+        Vector3 targetPos = playerTransform != null ? playerTransform.position : transform.position;
         float elapsed = 0f;
 
         while (elapsed < jumpDuration)
@@ -170,6 +275,64 @@ public class Elite_TongQuan : MonoBehaviour
         isBusy = false;
     }
 
+    private IEnumerator Routine_GetStunned()
+    {
+        isBlocking = false;
+        isWindingUp = false;
+        isStunned = true;
+        isBusy = true;
+
+        DestroyCurrentShield();
+        animator.SetBool(animIsBlocking, false);
+        animator.SetBool(animIsStunned, true);
+        PlaySFX(sfxStun);
+
+        yield return new WaitForSeconds(stunDuration);
+
+        animator.SetBool(animIsStunned, false);
+        isStunned = false;
+        isBusy = false;
+    }
+
+    private void SpawnShield()
+    {
+        DestroyCurrentShield();
+
+        if (blockShieldPrefab != null)
+        {
+            Vector3 spawnPos = shieldSpawnPoint != null ? shieldSpawnPoint.position : GetAttackCenter();
+            Quaternion spawnRot = shieldSpawnPoint != null ? shieldSpawnPoint.rotation : Quaternion.identity;
+
+            // Instantiate trực tiếp ra World (không truyền 'transform' làm parent)
+            currentSpawnedShield = Instantiate(blockShieldPrefab, spawnPos, spawnRot);
+
+            // Gắn component xử lý va chạm với kiếm người chơi lên Prefab vừa tạo
+            ShieldBlocker shieldScript = currentSpawnedShield.GetComponent<ShieldBlocker>();
+            if (shieldScript == null)
+            {
+                shieldScript = currentSpawnedShield.AddComponent<ShieldBlocker>();
+            }
+            shieldScript.Init(playerSwordTag);
+        }
+    }
+
+    private void DestroyCurrentShield()
+    {
+        if (currentSpawnedShield != null)
+        {
+            Destroy(currentSpawnedShield);
+            currentSpawnedShield = null;
+        }
+    }
+
+    private void PlaySFX(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
+    }
+
     private void FlipTowards(Vector3 target)
     {
         Vector3 scale = transform.localScale;
@@ -191,5 +354,24 @@ public class Elite_TongQuan : MonoBehaviour
         Gizmos.DrawWireSphere(GetAttackCenter(), attackRange);
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, avoidRadius);
+    }
+}
+
+// Script phụ tự động được đính kèm vào Prefab Lá Chắn khi tạo ra
+public class ShieldBlocker : MonoBehaviour
+{
+    private string targetSwordTag;
+
+    public void Init(string swordTag)
+    {
+        targetSwordTag = swordTag;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (!string.IsNullOrEmpty(targetSwordTag) && collision.CompareTag(targetSwordTag))
+        {
+            Destroy(collision.gameObject);
+        }
     }
 }

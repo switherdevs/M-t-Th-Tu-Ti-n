@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 using StatsSystem.Components;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -27,6 +28,10 @@ public class PlayerController : MonoBehaviour
     private bool isSprinting = false;
     private bool isFacingRight = true;
 
+    // Slow Debuff Variables
+    private float currentSlowMultiplier = 1f;
+    private Coroutine slowCoroutine;
+
     // Animation Hashes
     private int walkAnimHash;
     private int sprintAnimHash;
@@ -40,9 +45,8 @@ public class PlayerController : MonoBehaviour
         stats = GetComponent<CharacterStats>();
         mainCam = Camera.main;
 
-        // Cấu hình Rigidbody2D chuẩn xác để chống trôi và va chạm mượt
         rb.gravityScale = 0f;
-        rb.linearDamping = 5f; 
+        rb.linearDamping = 5f;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
 
@@ -56,9 +60,6 @@ public class PlayerController : MonoBehaviour
         if (!string.IsNullOrEmpty(attackAnimName)) attackAnimHash = Animator.StringToHash(attackAnimName);
     }
 
-    // ==========================================
-    // 1. INPUT SYSTEM CALLBACKS
-    // ==========================================
     public void OnMove(InputAction.CallbackContext context)
     {
         if (stats != null && stats.IsDead)
@@ -82,9 +83,6 @@ public class PlayerController : MonoBehaviour
         else if (context.canceled) isSprinting = false;
     }
 
-    // ==========================================
-    // 2. GAME LOOP (UPDATE & FIXED UPDATE)
-    // ==========================================
     private void Update()
     {
         if (stats != null && stats.IsDead)
@@ -106,36 +104,46 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Di chuyển bằng linearVelocity mượt mà, không dùng Force đẩy văng
-        float targetSpeed = isSprinting ? sprintSpeed : moveSpeed;
+        // Áp dụng hệ số làm chậm currentSlowMultiplier vào tốc độ
+        float targetSpeed = (isSprinting ? sprintSpeed : moveSpeed) * currentSlowMultiplier;
         rb.linearVelocity = moveInput * targetSpeed;
     }
 
     // ==========================================
-    // 3. LOGIC LẬT MẶT & CẬP NHẬT CHUỘT
+    // DEBUFF SLOW LOGIC
     // ==========================================
+    public void ApplySlow(float slowMultiplier, float duration)
+    {
+        if (slowCoroutine != null) StopCoroutine(slowCoroutine);
+        slowCoroutine = StartCoroutine(Routine_ApplySlow(slowMultiplier, duration));
+    }
+
+    private IEnumerator Routine_ApplySlow(float slowMultiplier, float duration)
+    {
+        currentSlowMultiplier = Mathf.Clamp01(slowMultiplier);
+        yield return new WaitForSeconds(duration);
+        currentSlowMultiplier = 1f;
+        slowCoroutine = null;
+    }
+
     private void HandleMouseRotation()
     {
         if (mainCam == null) mainCam = Camera.main;
         if (mainCam == null) return;
 
-        // Lấy vị trí chuột
         Vector3 mouseScreenPos = Mouse.current.position.ReadValue();
 
-        // CHỐNG LỖI VĂNG Y: Kiểm tra nếu chuột ra khỏi cửa sổ Game View
         if (mouseScreenPos.x < 0 || mouseScreenPos.x > Screen.width ||
             mouseScreenPos.y < 0 || mouseScreenPos.y > Screen.height)
         {
             return;
         }
 
-        // Chuyển tọa độ màn hình sang tọa độ thế giới 2D an toàn
         mouseScreenPos.z = Mathf.Abs(mainCam.transform.position.z);
         Vector3 mouseWorldPos = mainCam.ScreenToWorldPoint(mouseScreenPos);
 
         lookDirection = ((Vector2)mouseWorldPos - (Vector2)transform.position).normalized;
 
-        // Lật mặt bằng eulerAngles Y (không can thiệp scale âm gây đè Collider)
         if (lookDirection.x > 0f && !isFacingRight)
         {
             FlipCharacter(true);
@@ -149,14 +157,9 @@ public class PlayerController : MonoBehaviour
     private void FlipCharacter(bool faceRight)
     {
         isFacingRight = faceRight;
-
-        // Dùng phương pháp quay Y = 0 hoặc 180 chuẩn 2D/3D (Tương thích 100% với Bone Animation)
         transform.eulerAngles = faceRight ? new Vector3(0f, 0f, 0f) : new Vector3(0f, 180f, 0f);
     }
 
-    // ==========================================
-    // 4. ANIMATION & PUBLIC METHODS
-    // ==========================================
     private void UpdateAnimations()
     {
         if (anim == null) return;

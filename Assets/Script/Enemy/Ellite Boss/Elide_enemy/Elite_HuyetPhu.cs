@@ -6,7 +6,7 @@ public class Elite_HuyetPhu : MonoBehaviour
 {
     [Header("--- TẦM NHÌN & TẦM BẮN ---")]
     [SerializeField] private float detectionRange = 15f;
-    [SerializeField] private float attackRange = 7f; // Vòng tròn tầm bắn
+    [SerializeField] private float attackRange = 7f;
     [SerializeField] private Vector2 attackOffset = Vector2.zero;
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private LayerMask playerLayer;
@@ -16,17 +16,23 @@ public class Elite_HuyetPhu : MonoBehaviour
     [SerializeField] private float avoidRadius = 0.4f;
 
     [Header("--- KỸ NĂNG THƯỜNG (BASIC SKILL) ---")]
-    [SerializeField] private SimpleObjectPool basicTalismanPool; // Pool đạn bắn thường
-    [SerializeField] private float normalShootSpeed = 7f;        // Tốc độ đạn bắn thường
-    [SerializeField] private int attacksToSpecial = 5;           // Số lần bắn thường để xả 1 lần chiêu đặc biệt
+    [SerializeField] private SimpleObjectPool basicTalismanPool;
+    [SerializeField] private float normalShootSpeed = 7f;
+    [SerializeField] private int attacksToSpecial = 5;
 
     [Header("--- KỸ NĂNG ĐẶC BIỆT (SIX TALISMANS) ---")]
-    [SerializeField] private SimpleObjectPool specialTalismanPool; // Pool bùa tuyệt chiêu
+    [SerializeField] private SimpleObjectPool specialTalismanPool;
     [SerializeField] private float windupTime = 2f;
     [SerializeField] private float slowMultiplier = 0.3f;
     [SerializeField] private float orbitRadius = 1.5f;
-    [SerializeField] private float orbitRotationSpeed = 180f;      // Tốc độ xoay bùa (độ/giây)
-    [SerializeField] private float specialShootSpeed = 12f;         // Tốc độ bùa tuyệt chiêu khi phóng đi
+    [SerializeField] private float orbitRotationSpeed = 180f;
+    [SerializeField] private float specialShootSpeed = 12f;
+
+    [Header("--- ÂM THANH (AUDIO) ---")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip sfxPrepareAttack;
+    [SerializeField] private AudioClip sfxAttack;
+    [SerializeField] private AudioClip sfxDeath;
 
     [Header("--- ANIMATION STRINGS ---")]
     [SerializeField] private string animCastBasic = "CastBasic";
@@ -34,24 +40,34 @@ public class Elite_HuyetPhu : MonoBehaviour
 
     private Transform playerTransform;
     private Animator animator;
+    private CharacterStats stats;
+    private Collider2D mainCollider;
 
-    private int basicAttackCount = 0; // Bộ đếm số lần bắn thường hiện tại
+    private int basicAttackCount = 0;
     private bool isBusy = false;
     private bool isWindingUp = false;
+    private bool isDeadHandled = false;
 
-    // Cache các YieldInstruction để tránh tạo rác GC
     private WaitForSeconds waitBasicShootDelay = new WaitForSeconds(0.3f);
     private WaitForSeconds waitBasicShootEnd = new WaitForSeconds(1.2f);
     private WaitForSeconds waitTalismanLaunchDelay = new WaitForSeconds(0.2f);
 
-    private void Start()
+    private void Awake()
     {
         animator = GetComponentInChildren<Animator>();
+        stats = GetComponent<CharacterStats>();
+        mainCollider = GetComponent<Collider2D>();
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
+    }
+
+    private void Start()
+    {
         basicAttackCount = 0;
     }
 
     private void Update()
     {
+        if (CheckAndHandleDeath()) return;
         if (isBusy) return;
 
         FindPlayer();
@@ -60,34 +76,45 @@ public class Elite_HuyetPhu : MonoBehaviour
         Vector3 attackCenter = GetAttackCenter();
         FlipTowards(playerTransform.position);
 
-        // Trạng thái gồng chiêu: Di chuyển chậm tới Player
         if (isWindingUp)
         {
             MoveSmoothly(playerTransform.position, moveSpeed);
             return;
         }
 
-        // Kiểm tra Player có nằm trong tầm bắn không
         bool isPlayerInAttackRange = Physics2D.OverlapCircle(attackCenter, attackRange, playerLayer) != null;
 
         if (isPlayerInAttackRange)
         {
-            // Nếu đã tích đủ số lần bắn thường -> Dùng kỹ năng đặc biệt
             if (basicAttackCount >= attacksToSpecial)
             {
                 StartCoroutine(Routine_SixTalismansArray());
             }
             else
             {
-                // Ngược lại -> Bắn thường
                 StartCoroutine(Routine_NormalShoot());
             }
         }
         else
         {
-            // Player ngoài tầm bắn -> Rượt theo Player
             MoveSmoothly(playerTransform.position, moveSpeed);
         }
+    }
+
+    private bool CheckAndHandleDeath()
+    {
+        if (stats != null && stats.IsDead)
+        {
+            if (!isDeadHandled)
+            {
+                isDeadHandled = true;
+                isBusy = true;
+                if (mainCollider != null) mainCollider.enabled = false;
+                PlaySFX(sfxDeath);
+            }
+            return true;
+        }
+        return false;
     }
 
     private void FindPlayer()
@@ -125,11 +152,12 @@ public class Elite_HuyetPhu : MonoBehaviour
     private IEnumerator Routine_NormalShoot()
     {
         isBusy = true;
+        PlaySFX(sfxPrepareAttack);
         animator.SetTrigger(animCastBasic);
 
         yield return waitBasicShootDelay;
 
-        // Bắn đạn thường
+        PlaySFX(sfxAttack);
         if (basicTalismanPool != null && playerTransform != null)
         {
             Vector3 spawnPos = GetAttackCenter();
@@ -142,9 +170,7 @@ public class Elite_HuyetPhu : MonoBehaviour
             }
         }
 
-        // Tăng bộ đếm số lần bắn thường
         basicAttackCount++;
-
         yield return waitBasicShootEnd;
         isBusy = false;
     }
@@ -152,13 +178,13 @@ public class Elite_HuyetPhu : MonoBehaviour
     private IEnumerator Routine_SixTalismansArray()
     {
         isWindingUp = true;
+        PlaySFX(sfxPrepareAttack);
 
         float originalSpeed = moveSpeed;
         float originalAnimSpeed = animator.speed;
         moveSpeed *= slowMultiplier;
         animator.speed *= slowMultiplier;
 
-        // Giai đoạn 1: Vận công (Windup)
         yield return new WaitForSeconds(windupTime);
 
         isWindingUp = false;
@@ -170,7 +196,6 @@ public class Elite_HuyetPhu : MonoBehaviour
 
         List<GameObject> spawnedTalismans = new List<GameObject>();
 
-        // Giai đoạn 2: Tạo trận bùa 6 lá hình lục giác
         for (int i = 0; i < 6; i++)
         {
             float angle = i * 60f * Mathf.Deg2Rad;
@@ -183,7 +208,6 @@ public class Elite_HuyetPhu : MonoBehaviour
             }
         }
 
-        // Giai đoạn 3: Xoay trận bùa quanh quái
         float elapsed = 0f;
         while (elapsed < 1.5f)
         {
@@ -197,11 +221,11 @@ public class Elite_HuyetPhu : MonoBehaviour
             yield return null;
         }
 
-        // Giai đoạn 4: Lần lượt phóng từng lá bùa tuyệt chiêu
         foreach (var talisman in spawnedTalismans)
         {
             if (talisman != null && playerTransform != null)
             {
+                PlaySFX(sfxAttack);
                 if (talisman.TryGetComponent<Rigidbody2D>(out Rigidbody2D rb))
                 {
                     Vector2 dir = (playerTransform.position - talisman.transform.position).normalized;
@@ -211,10 +235,16 @@ public class Elite_HuyetPhu : MonoBehaviour
             yield return waitTalismanLaunchDelay;
         }
 
-        // Reset bộ đếm số lần bắn thường sau khi dùng xong tuyệt chiêu
         basicAttackCount = 0;
-
         isBusy = false;
+    }
+
+    private void PlaySFX(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
     }
 
     private void FlipTowards(Vector3 target)
@@ -232,15 +262,10 @@ public class Elite_HuyetPhu : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // Tầm phát hiện (Vàng)
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
-
-        // Vòng tròn tầm bắn (Đỏ)
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(GetAttackCenter(), attackRange);
-
-        // Bán kính né vật cản (Xanh dương)
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, avoidRadius);
     }

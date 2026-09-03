@@ -32,6 +32,12 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
     [SerializeField] private Transform mouthPoint;
     [SerializeField] private float orbSpeed = 10f;
 
+    [Header("--- ÂM THANH (AUDIO) ---")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip sfxNormalAttack;   // Âm thanh đánh thường (quật đuôi)
+    [SerializeField] private AudioClip sfxSpecialPrepare; // Âm thanh gồng chiêu đặc biệt (Triple Wood Orb)
+    [SerializeField] private AudioClip sfxSpecialCast;    // Âm thanh khi nhả đạn đạn đặc biệt
+
     [Header("--- ANIMATION STRINGS ---")]
     [SerializeField] private string animSwing = "TailSwing";
     [SerializeField] private string animSpit = "SpitStart";
@@ -51,6 +57,7 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
     {
         animator = GetComponentInChildren<Animator>();
         bossStats = GetComponent<CharacterStats>();
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
     }
 
     private void Start()
@@ -158,6 +165,7 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
     {
         isBusy = true;
         animator.SetTrigger(animSwing);
+        PlaySFX(sfxNormalAttack); // Âm thanh tấn công thường
 
         if (tailAttackHitbox != null) tailAttackHitbox.SetActive(true);
 
@@ -184,6 +192,8 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
         isWindingUp = true;
         skillTimer = skillCooldown;
 
+        PlaySFX(sfxSpecialPrepare); // Âm thanh chuẩn bị ra chiêu đặc biệt
+
         float originalAnimSpeed = animator.speed;
         animator.speed *= slowMultiplier;
 
@@ -194,6 +204,7 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
         animator.speed = originalAnimSpeed;
 
         animator.SetTrigger(animSpit);
+        PlaySFX(sfxSpecialCast); // Âm thanh tung chiêu đặc biệt
 
         yield return new WaitForSeconds(0.3f);
 
@@ -239,6 +250,14 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
         }
 
         Debug.Log("<color=green>[Mộc Giao Yêu Vương]</color> Boss đã bị tiêu diệt!");
+    }
+
+    private void PlaySFX(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
     }
 
     private void FlipTowards(Vector3 target)

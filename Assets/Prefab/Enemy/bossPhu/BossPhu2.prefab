@@ -5241,7 +5241,6 @@ MonoBehaviour:
   orbPool: {fileID: 2784113648720900643, guid: 10844ab8b267c4c468fa51a144c69077, type: 3}
   mouthPoint: {fileID: 269087986869056885}
   orbSpeed: 50
-  orbDamage: 0
   animSwing: TailSwing
   animSpit: SpitStart
   animDie: Die
@@ -5285,7 +5284,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth:
-    baseValue: 5000
+    baseValue: 100000
   attack:
     baseValue: 20
   defense:
@@ -5311,7 +5310,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idQuai: 14
-  expNhanDuoc: 20
+  expNhanDuoc: 100
   destroyDelay: 2
   dieTriggerName: Die
 --- !u!210 &4579015960804993022

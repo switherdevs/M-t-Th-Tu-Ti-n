@@ -14,11 +14,19 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
     [SerializeField] private LayerMask obstacleLayer;
     [SerializeField] private float avoidRadius = 0.8f;
     [SerializeField] private float wallCheckDistance = 1.5f;
+    [SerializeField, Tooltip("Tùy chỉnh offset X và Y cho tâm quét né tường")]
+    private Vector2 wallCheckOffset = Vector2.zero;
 
     [Header("--- SÁT THƯƠNG & HITBOX ĐÁNH THƯỜNG ---")]
     [SerializeField] private float normalDamage = 15f;
     [SerializeField, Tooltip("GameObject Effect/Hitbox chỉ hiện lên khi tung đòn đánh")]
     private GameObject attackHitbox;
+
+    [Header("--- TÙY CHỌN ẨN / HIỆN GAMEOBJECT ---")]
+    [SerializeField, Tooltip("GameObject sẽ ẩn/hiện (Nếu để trống sẽ mặc định dùng GameObject của Boss)")]
+    private GameObject targetVisualObject;
+    [SerializeField] private float stealthShowDuration = 2.5f; // Thời gian hiện lên khi tấn công
+    [SerializeField] private float stealthHideDuration = 1.5f; // Thời gian ẩn đi
 
     [Header("--- ĐIỀU KIỆN KÍCH HOẠT SKILL ĐẶC BIỆT ---")]
     [SerializeField] private int attacksToSpecial = 5;
@@ -39,6 +47,13 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
     [SerializeField] private float slowWalkSpeed = 2f;
     [SerializeField] private float slowWalkDuration = 3f;
 
+    [Header("--- ÂM THANH (AUDIO) ---")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip sfxNormalAttack;   // Âm thanh đánh thường
+    [SerializeField] private AudioClip sfxSpecialPrepare; // Âm thanh chuẩn bị lao vào bắt người chơi
+    [SerializeField] private AudioClip sfxSpecialCast;    // Âm thanh khi bắt trúng người chơi
+    [SerializeField] private AudioClip sfxKidnappingLoop; // Âm thanh phát liên tục/định kỳ trong lúc đang bắt người chơi
+
     [Header("--- ANIMATION STRINGS ---")]
     [SerializeField] private string animCharge = "isCharging";
     [SerializeField] private string animSpearThrust = "SpearThrust";
@@ -48,7 +63,7 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
 
     private Transform playerTransform;
     private CharacterStats playerStats;
-    private CharacterStats bossStats; // Tham chiếu CharacterStats của chính Boss[cite: 3]
+    private CharacterStats bossStats;
     private Animator animator;
     private SpriteRenderer bossSprite;
 
@@ -64,7 +79,13 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
     {
         animator = GetComponentInChildren<Animator>();
         bossSprite = GetComponentInChildren<SpriteRenderer>();
-        bossStats = GetComponent<CharacterStats>(); // Đọc CharacterStats của Boss[cite: 3]
+        bossStats = GetComponent<CharacterStats>();
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
+
+        if (targetVisualObject == null)
+        {
+            targetVisualObject = this.gameObject;
+        }
     }
 
     private void Start()
@@ -82,7 +103,7 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
     {
         if (bossStats != null)
         {
-            bossStats.OnDeath += HandleBossDeath; // Đăng ký sự kiện khi chết từ CharacterStats[cite: 3]
+            bossStats.OnDeath += HandleBossDeath;
         }
     }
 
@@ -90,13 +111,12 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
     {
         if (bossStats != null)
         {
-            bossStats.OnDeath -= HandleBossDeath; // Hủy đăng ký sự kiện khi Disable[cite: 3]
+            bossStats.OnDeath -= HandleBossDeath;
         }
     }
 
     private void Update()
     {
-        // Nếu đã chết hoặc đang bận làm hành động khác thì không thực hiện Update logic
         if (isDead || isBusy || isKidnapping) return;
 
         FindPlayer();
@@ -114,24 +134,23 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
         ExecuteChargePhase();
     }
 
-    /// <summary>
-    /// Xử lý logic khi Boss tử trận (lắng nghe từ CharacterStats)[cite: 3]
-    /// </summary>
     private void HandleBossDeath()
     {
         if (isDead) return;
         isDead = true;
 
-        // 1. Dừng mọi Coroutine hành động đang chạy
         StopAllCoroutines();
 
-        // 2. Tắt toàn bộ Hitbox tấn công
         if (attackHitbox != null)
         {
             attackHitbox.SetActive(false);
         }
 
-        // 3. Nếu đang giữ Player thì lập tức nhả Player ra để không bị dính vào Boss đã chết
+        if (targetVisualObject != null)
+        {
+            targetVisualObject.SetActive(true);
+        }
+
         if (isKidnapping && playerTransform != null)
         {
             playerTransform.SetParent(null);
@@ -147,14 +166,12 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
 
         if (bossSprite != null) bossSprite.enabled = true;
 
-        // 4. Vô hiệu hóa TOÀN BỘ Collider trên Boss để Player / đạn đi xuyên qua
         Collider2D[] allColliders = GetComponentsInChildren<Collider2D>();
         foreach (Collider2D col in allColliders)
         {
             col.enabled = false;
         }
 
-        // 5. Chạy Animation chết
         if (animator != null)
         {
             animator.SetBool(animCharge, false);
@@ -185,17 +202,17 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
         if (hit != null)
         {
             playerTransform = hit.transform;
-            playerStats = playerTransform.GetComponent<CharacterStats>(); // Lấy CharacterStats của Player[cite: 3]
+            playerStats = playerTransform.GetComponent<CharacterStats>();
         }
     }
 
     private void MoveSmoothly(Vector3 targetPosition, float speed)
     {
-        Vector2 currentPos = transform.position;
-        Vector2 dirToTarget = ((Vector2)targetPosition - currentPos).normalized;
+        Vector2 checkOrigin = GetWallCheckCenter();
+        Vector2 dirToTarget = ((Vector2)targetPosition - checkOrigin).normalized;
         Vector2 moveDir = dirToTarget;
 
-        RaycastHit2D hit = Physics2D.CircleCast(currentPos, avoidRadius, dirToTarget, 1f, obstacleLayer);
+        RaycastHit2D hit = Physics2D.CircleCast(checkOrigin, avoidRadius, dirToTarget, 1f, obstacleLayer);
         if (hit.collider != null && !hit.collider.isTrigger)
         {
             Vector2 slideDir = Vector2.Perpendicular(hit.normal).normalized;
@@ -223,8 +240,13 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
     private IEnumerator Routine_SpearThrust()
     {
         isBusy = true;
+
+        // Bật hiển thị Visual GameObject trong khoảng thời gian stealthShowDuration
+        if (targetVisualObject != null) targetVisualObject.SetActive(true);
+
         animator.SetBool(animCharge, false);
         animator.SetTrigger(animSpearThrust);
+        PlaySFX(sfxNormalAttack); // Âm thanh đánh thường
 
         if (attackHitbox != null) attackHitbox.SetActive(true);
 
@@ -237,14 +259,21 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
             {
                 if (playerStats != null)
                 {
-                    playerStats.TakeDamage(normalDamage); // Trừ máu Player qua CharacterStats[cite: 3]
+                    playerStats.TakeDamage(normalDamage);
                 }
             }
         }
 
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(stealthShowDuration);
 
         if (attackHitbox != null) attackHitbox.SetActive(false);
+
+        // Nút ẩn Visual GameObject sau khi hết thời gian tấn công
+        if (targetVisualObject != null && targetVisualObject != this.gameObject)
+        {
+            targetVisualObject.SetActive(false);
+            yield return new WaitForSeconds(stealthHideDuration);
+        }
 
         basicAttackCount++;
         isBusy = false;
@@ -254,7 +283,11 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
     {
         isBusy = true;
         isKidnapping = true;
+
+        if (targetVisualObject != null) targetVisualObject.SetActive(true);
+
         animator.SetBool(animCharge, true);
+        PlaySFX(sfxSpecialPrepare); // Âm thanh chuẩn bị lao vào bắt
 
         if (attackHitbox != null) attackHitbox.SetActive(false);
 
@@ -266,6 +299,8 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
             FlipTowards(playerTransform.position);
             yield return null;
         }
+
+        PlaySFX(sfxSpecialCast); // Âm thanh khi đã tiếp cận bắt trúng
 
         animator.SetBool(animGrabBool, true);
         animator.SetBool(animCharge, true);
@@ -297,9 +332,11 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
             if (damageTimer >= kidnapDamageInterval)
             {
                 damageTimer = 0f;
+                PlaySFX(sfxKidnappingLoop); // Âm thanh định kỳ/vô hiệu hóa trong lúc bắt người chơi
+
                 if (playerStats != null)
                 {
-                    playerStats.TakeDamage(kidnapDamage); // Trừ máu định kỳ[cite: 3]
+                    playerStats.TakeDamage(kidnapDamage);
                     if (playerStats.IsDead)
                     {
                         break;
@@ -396,7 +433,7 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
 
     private void MoveStraightAndTurnOnWall()
     {
-        Vector2 currentPos = transform.position;
+        Vector2 currentPos = GetWallCheckCenter();
 
         RaycastHit2D hit = Physics2D.CircleCast(currentPos, avoidRadius, currentStraightDir, wallCheckDistance, obstacleLayer);
 
@@ -419,6 +456,14 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
         transform.position += (Vector3)(currentStraightDir * (kidnapMoveSpeed * Time.deltaTime));
     }
 
+    private void PlaySFX(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
+    }
+
     private void FlipTowards(Vector3 target)
     {
         Vector3 scale = transform.localScale;
@@ -432,6 +477,12 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
         return transform.position + new Vector3(attackOffset.x * direction, attackOffset.y, 0f);
     }
 
+    public Vector3 GetWallCheckCenter()
+    {
+        float direction = transform.localScale.x >= 0 ? 1f : -1f;
+        return transform.position + new Vector3(wallCheckOffset.x * direction, wallCheckOffset.y, 0f);
+    }
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
@@ -441,6 +492,6 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
         Gizmos.DrawWireSphere(GetAttackCenter(), attackRange);
 
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, avoidRadius);
+        Gizmos.DrawWireSphere(GetWallCheckCenter(), avoidRadius);
     }
 }

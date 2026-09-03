@@ -251,7 +251,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth:
-    baseValue: 500
+    baseValue: 20000
   attack:
     baseValue: 20
   defense:
@@ -277,7 +277,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idQuai: 11
-  expNhanDuoc: 10
+  expNhanDuoc: 30
   destroyDelay: 2
   dieTriggerName: Die
 --- !u!114 &3146312814972919522
@@ -292,10 +292,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7cc8c63ddb696b479a9a012e4332f79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  detectionRange: 120
+  detectionRange: 150
   attackRange: 10
   attackOffset: {x: 2.67, y: 8.48}
-  moveSpeed: 2.5
+  moveSpeed: 15
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -308,10 +308,23 @@ MonoBehaviour:
   slowMultiplier: 0.4
   mouthPoint: {fileID: 1719236858349253045}
   stoneProjectilePool: {fileID: 360988948970210778, guid: cc7f4aca8cadadd41af41d95b5789a96, type: 3}
-  projectileSpeed: 8
+  projectileSpeed: 75
+  shootsBeforeRoar: 3
+  roarWindupTime: 5
+  sfxRoar: {fileID: 0}
+  roarCameraShakeIntensity: 50
+  roarCameraShakeDuration: 5
+  playerSlowMultiplier: 0.75
+  playerSlowDuration: 2.5
+  roarAffectRadius: 130
+  audioSource: {fileID: 0}
+  sfxPrepareAttack: {fileID: 0}
+  sfxAttack: {fileID: 0}
+  sfxDeath: {fileID: 0}
   animWalk: isWalking
   animClaw1: Claw1
   animClaw2: Claw2
+  animAttack: Attack
   animRoar: Roar
 --- !u!1 &5068184227826517881
 GameObject:

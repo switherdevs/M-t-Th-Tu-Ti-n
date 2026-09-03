@@ -20,7 +20,7 @@ public class Boss_UMinhThiDe : MonoBehaviour
     [Header("--- SKILL 1: U MINH LONG CHƯỞNG ---")]
     [SerializeField] private float blastCooldown = 2.5f;
     [SerializeField] private SimpleObjectPool blastPool;
-    [SerializeField] private Transform handPoint;               // Vị trí bắn chưởng
+    [SerializeField] private Transform handPoint;
     [SerializeField] private float blastSpeed = 12f;
 
     [Header("--- SKILL 2: TRIỆU HỒI LINH HỒN (MA ĐẠO) ---")]
@@ -28,13 +28,19 @@ public class Boss_UMinhThiDe : MonoBehaviour
     [SerializeField] private float windupTime = 2f;
     [SerializeField] private float slowMultiplier = 0.3f;
     [SerializeField] private SimpleObjectPool soulPool;
-    [SerializeField] private Transform soulSummonPoint;         // MỐC TÂM TRIỆU HỒI (Gán tay/trán Boss để đạn đẩy ra ngoài hẳn Boss)
-    [SerializeField] private float summonDistance = 5f;          // Bán kính đẩy đạn ra ngoài
+    [SerializeField] private Transform soulSummonPoint;
+    [SerializeField] private float summonDistance = 5f;
     [SerializeField] private float soulSpeed = 8f;
 
+    [Header("--- ÂM THANH (AUDIO) ---")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip sfxNormalAttack;   // Âm thanh bắn U Minh Long Chưởng
+    [SerializeField] private AudioClip sfxSpecialPrepare; // Âm thanh gồng Triệu Hồi Linh Hồn
+    [SerializeField] private AudioClip sfxSpecialCast;    // Âm thanh bung linh hồn ra 4 hướng
+
     [Header("--- ANIMATION STRINGS ---")]
-    [SerializeField] private string animCastBlast = "Slash";     // Animation bắn chưởng[cite: 4]
-    [SerializeField] private string animSummon = "SummonCast";   // Animation triệu hồi[cite: 4]
+    [SerializeField] private string animCastBlast = "Slash";
+    [SerializeField] private string animSummon = "SummonCast";
     [SerializeField] private string animDie = "Die";
 
     private Transform playerTransform;
@@ -52,6 +58,7 @@ public class Boss_UMinhThiDe : MonoBehaviour
     {
         animator = GetComponentInChildren<Animator>();
         bossStats = GetComponent<CharacterStats>();
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
     }
 
     private void Start()
@@ -83,27 +90,22 @@ public class Boss_UMinhThiDe : MonoBehaviour
         FindPlayer();
         if (playerTransform == null) return;
 
-        // Cập nhật bộ đếm Cooldown
         if (skillTimer > 0) skillTimer -= Time.deltaTime;
         if (blastTimer > 0) blastTimer -= Time.deltaTime;
 
-        // Luôn xoay mặt về phía Player khi đang phát hiện
         FlipTowards(playerTransform.position);
 
         Vector3 attackCenter = GetAttackCenter();
         float distance = Vector2.Distance(attackCenter, playerTransform.position);
 
-        // Trường hợp 1: Đang vận công Skill 2 (Triệu hồi) -> Di chuyển chậm theo thiết lập windup
         if (isWindingUp)
         {
             MoveSmoothly(playerTransform.position, moveSpeed * slowMultiplier);
             return;
         }
 
-        // Trường hợp 2: Người chơi đã VÀO TẦM ĐÁNH (distance <= attackRange)
         if (distance <= attackRange)
         {
-            // DỪNG LẠI TẠI CHỖ và kiểm tra thi triển chiêu thức
             if (skillTimer <= 0)
             {
                 StartCoroutine(Routine_SummonSouls());
@@ -112,12 +114,9 @@ public class Boss_UMinhThiDe : MonoBehaviour
             {
                 StartCoroutine(Routine_SoulBlast());
             }
-            // Nếu cả 2 skill đều đang hồi chiêu (Cooldown), Boss giữ nguyên vị trí đứng yên chờ đạn hồi
         }
-        // Trường hợp 3: Người chơi ngoài tầm đánh -> Rượt đuổi cho đến khi vào lại tầm đánh
         else
         {
-            // Ngoại lệ: Nếu Skill Triệu Hồi Linh Hồn đã hồi xong kể cả khi ở xa, Boss vẫn tung chiêu triệu hồi từ xa
             if (skillTimer <= 0)
             {
                 StartCoroutine(Routine_SummonSouls());
@@ -171,6 +170,7 @@ public class Boss_UMinhThiDe : MonoBehaviour
         isBusy = true;
         blastTimer = blastCooldown;
         animator.SetTrigger(animCastBlast);
+        PlaySFX(sfxNormalAttack); // Âm thanh bắn chưởng
 
         yield return new WaitForSeconds(0.3f);
 
@@ -200,6 +200,8 @@ public class Boss_UMinhThiDe : MonoBehaviour
         isWindingUp = true;
         skillTimer = skillCooldown;
 
+        PlaySFX(sfxSpecialPrepare); // Âm thanh gồng chiêu triệu hồi
+
         float originalAnimSpeed = animator.speed;
         animator.speed *= slowMultiplier;
 
@@ -210,6 +212,7 @@ public class Boss_UMinhThiDe : MonoBehaviour
         animator.speed = originalAnimSpeed;
 
         animator.SetTrigger(animSummon);
+        PlaySFX(sfxSpecialCast); // Âm thanh bung chiêu triệu hồi
 
         yield return new WaitForSeconds(0.5f);
 
@@ -267,6 +270,14 @@ public class Boss_UMinhThiDe : MonoBehaviour
         }
 
         Debug.Log("<color=purple>[U Minh Thí Đế]</color> Boss đã bị tiêu diệt!");
+    }
+
+    private void PlaySFX(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
     }
 
     private void FlipTowards(Vector3 target)

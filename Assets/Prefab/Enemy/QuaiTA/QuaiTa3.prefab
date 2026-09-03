@@ -206,7 +206,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth:
-    baseValue: 100
+    baseValue: 20000
   attack:
     baseValue: 20
   defense:
@@ -232,7 +232,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idQuai: 12
-  expNhanDuoc: 1
+  expNhanDuoc: 30
   destroyDelay: 2
   dieTriggerName: Die
 --- !u!210 &7883779628206725357
@@ -259,7 +259,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2fa7615a52885a4397752c7000100a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  detectionRange: 120
+  detectionRange: 150
   attackRange: 55
   attackOffset: {x: 0, y: 10}
   moveSpeed: 10
@@ -279,6 +279,10 @@ MonoBehaviour:
   orbitRadius: 12
   orbitRotationSpeed: 360
   specialShootSpeed: 50
+  audioSource: {fileID: 0}
+  sfxPrepareAttack: {fileID: 0}
+  sfxAttack: {fileID: 0}
+  sfxDeath: {fileID: 0}
   animCastBasic: CastBasic
   animCastArray: CastArray
 --- !u!114 &6844386197709005241

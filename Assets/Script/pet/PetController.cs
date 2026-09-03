@@ -18,6 +18,10 @@ public class PetController : MonoBehaviour
     [Tooltip("Bán kính tối đa để Pet quét tìm Player trong Scene")]
     [SerializeField] private float bánKínhQuétPlayer = 50f;
     [SerializeField] private float tốcĐộTheoChân = 4f;
+    [Tooltip("Khoảng cách từ Player khiến Pet nhận biết là 'đang ở quá xa'")]
+    [SerializeField] private float khoảngCáchQuáXaPlayer = 8f;
+    [Tooltip("Tốc độ di chuyển của Pet khi phát hiện Player ở quá xa (Tăng tốc rượt theo)")]
+    [SerializeField] private float tốcĐộTăngTốcRượtPlayer = 8f;
     [SerializeField] private float tốcĐộRượtQuái = 5f;
     [SerializeField] private float khoảngCáchDừngTheoPlayer = 1.5f;
     [SerializeField] private float khoảngCáchDừngĐánhQuái = 1.2f;
@@ -35,6 +39,12 @@ public class PetController : MonoBehaviour
     [Header("--- THỜI GIAN & HIỆU ỨNG NGỦ ---")]
     [Tooltip("Thời gian Player đứng yên để Pet đi ngủ (giây)")]
     [SerializeField] private float thờiGianNgủ = 20f;
+
+    [Tooltip("GameObject hình ảnh/visual lúc Pet hoạt động bình thường (Khi ngủ sẽ BỊ ẨN)")]
+    [SerializeField] private GameObject visualBinhThuongObject;
+
+    [Tooltip("GameObject hình ảnh/animation riêng khi Pet đi ngủ (Khi ngủ sẽ HIỆN)")]
+    [SerializeField] private GameObject visualNguObject;
 
     [Tooltip("GameObject hiển thị mặt ngủ (Mắt nhắm / Mặt ngủ)")]
     [SerializeField] private GameObject matNguObject;
@@ -209,7 +219,10 @@ public class PetController : MonoBehaviour
 
         if (khoảngCáchĐếnPlayer > khoảngCáchDừngTheoPlayer)
         {
-            transform.position = Vector2.MoveTowards(transform.position, playerTransform.position, tốcĐộTheoChân * Time.deltaTime);
+            // TỰ ĐỘNG CHỌN TỐC ĐỘ: Nếu khoảng cách > khoảngCáchQuáXaPlayer thì dùng tốcĐộTăngTốcRượtPlayer, ngược lại dùng tốcĐộTheoChân
+            float tốcĐộHiệnTại = (khoảngCáchĐếnPlayer >= khoảngCáchQuáXaPlayer) ? tốcĐộTăngTốcRượtPlayer : tốcĐộTheoChân;
+
+            transform.position = Vector2.MoveTowards(transform.position, playerTransform.position, tốcĐộHiệnTại * Time.deltaTime);
 
             SetAnimBool(animIsMoving, true);
             SetAnimBool(animIsSleepIdle, false);
@@ -295,6 +308,18 @@ public class PetController : MonoBehaviour
             SetAnimBool(animIsSleepIdle, false);
         }
 
+        // Ẩn/Hiện Visual mặc định và Visual khi ngủ
+        if (visualBinhThuongObject != null)
+        {
+            visualBinhThuongObject.SetActive(!kichHoat);
+        }
+
+        if (visualNguObject != null)
+        {
+            visualNguObject.SetActive(kichHoat);
+        }
+
+        // Hiệu ứng và mặt ngủ tùy chọn
         if (matNguObject != null)
         {
             matNguObject.SetActive(kichHoat);
@@ -353,5 +378,9 @@ public class PetController : MonoBehaviour
 
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, bánKínhQuétPlayer);
+
+        // Hiển thị vòng tròn khoảng cách "Quá xa" màu vàng trên Scene
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, khoảngCáchQuáXaPlayer);
     }
 }

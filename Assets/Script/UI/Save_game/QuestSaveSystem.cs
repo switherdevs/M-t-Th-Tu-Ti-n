@@ -16,7 +16,7 @@ public class ProgressQuest
 {
     public int idQuest;
     public TrangThaiQuest trangThai;
-    public int soBoXuongDaDiet;
+    public int soBoXuongDaDiet; // Dùng làm biến đếm chung cho cả diệt quái lẫn số người đã cứu
 }
 
 [Serializable]
@@ -44,7 +44,6 @@ public class PlayerStatsSaveData
     public float armor = 0.1f;
     public float maxEnergy = 100f;
 
-    // Danh sách lưu lại các ID Cảnh Giới đã đột phá (Lưu file Save)
     public List<string> danhSachCanhGioiDaDotPha = new List<string>();
 }
 
@@ -236,7 +235,7 @@ public class QuestSaveSystem : MonoBehaviour
             if (questProgress.trangThai != TrangThaiQuest.DangLam) continue;
 
             QuestData questData = LayQuestDataTheoID(questProgress.idQuest);
-            if (questData == null || questData.idQuaiCanDiet != idQuai) continue;
+            if (questData == null || questData.loaiQuest != LoaiQuest.DietQuai || questData.idQuaiCanDiet != idQuai) continue;
 
             questProgress.soBoXuongDaDiet += soLuong;
 
@@ -257,7 +256,60 @@ public class QuestSaveSystem : MonoBehaviour
         }
     }
 
-    // 🎯 HÀM KIỂM TRA PLAYER ĐÃ ĐẠT CẢNH GIỚI THEO ID CHƯA
+    public void GhiNhanGiaiCuu(int idDoiTuong, int soLuong = 1)
+    {
+        if (soLuong <= 0) return;
+        bool coThayDoi = false;
+
+        foreach (ProgressQuest questProgress in duLieuSaveHienTai.danhSachProgress)
+        {
+            if (questProgress.trangThai != TrangThaiQuest.DangLam) continue;
+
+            QuestData questData = LayQuestDataTheoID(questProgress.idQuest);
+            if (questData == null || questData.loaiQuest != LoaiQuest.GiaiCuu || questData.idDoiTuongCanGiaiCuu != idDoiTuong) continue;
+
+            questProgress.soBoXuongDaDiet += soLuong;
+
+            if (questProgress.soBoXuongDaDiet >= questData.soLuongCanGiaiCuu)
+            {
+                questProgress.soBoXuongDaDiet = questData.soLuongCanGiaiCuu;
+                questProgress.trangThai = TrangThaiQuest.DaXongChuaTra;
+            }
+
+            coThayDoi = true;
+        }
+
+        if (coThayDoi)
+        {
+            SaveDuLieuQuestToTxt();
+            if (QuestUIManager.Instance != null) QuestUIManager.Instance.KhoiTaoDanhSachQuestUI();
+            QuestHUDTracker.ThongBaoCapNhatHUD();
+        }
+    }
+
+    // NÂNG CẤP MỚI: Kiểm tra xem NPC Giải cứu có được phép Active trong Map hay không
+    public bool KiemTraNPCGiaiCuuCoDuocPhepXuatHien(int idDoiTuong)
+    {
+        if (danhSachQuestData == null || danhSachQuestData.Count == 0) return false;
+
+        // Tìm Quest tương ứng có chứa ID NPC này
+        QuestData questData = danhSachQuestData.Find(q =>
+            q != null &&
+            q.loaiQuest == LoaiQuest.GiaiCuu &&
+            q.idDoiTuongCanGiaiCuu == idDoiTuong
+        );
+
+        // Nếu ID không tương thích hoặc không nằm trong QuestData -> ẨN
+        if (questData == null) return false;
+
+        // Kiểm tra tiến trình lưu của Quest này
+        ProgressQuest progress = LayTienTrinhQuest(questData.idQuest);
+
+        // Chỉ Active True khi nhiệm vụ đang ở trạng thái DangLam
+        // Các trạng thái ChuaNhan, DaXongChuaTra, HoanThanh -> ẨN
+        return progress != null && progress.trangThai == TrangThaiQuest.DangLam;
+    }
+
     public bool KiemTraDaDatCanhGioi(string idCanhGioi)
     {
         if (duLieuSaveHienTai == null || duLieuSaveHienTai.playerStats == null) return false;

@@ -1,72 +1,72 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Cấu trúc chứa 1 loại phần thưởng (Data + Số lượng)
+// Định nghĩa các loại nhiệm vụ trong game Tu Tiên
+public enum LoaiQuest
+{
+    DietQuai = 0,    // Đánh quái tích điểm
+    GiaiCuu = 1     // Tương tác/Giải cứu NPC, con nhân nén
+}
+
 [Serializable]
 public class ItemRewardData
 {
-    [Tooltip("ScriptableObject / Able dữ liệu của Item phần thưởng")]
+    [Tooltip("Kéo ScriptableObject ItemData vào đây")]
     public ScriptableObject itemData;
 
-    [Tooltip("Sprite Icon hiển thị hình ảnh vật phẩm trên UI")]
+    [Tooltip("Icon hiển thị trên UI")]
     public Sprite iconItem;
 
-    [Tooltip("Số lượng của loại vật phẩm này")]
+    [Tooltip("Số lượng vật phẩm nhận được")]
     public int soLuong = 1;
 }
 
-[CreateAssetMenu(fileName = "QuestData_New", menuName = "Scriptable Objects/QuestData")]
+[CreateAssetMenu(fileName = "NewQuestData", menuName = "Quest System/Quest Data")]
 public class QuestData : ScriptableObject
 {
     [Header("--- THÔNG TIN CHUNG ---")]
-    [Tooltip("ID duy nhất của Quest (Dùng để lưu vào File TXT, không được trùng lặp)")]
     public int idQuest;
-
-    [Tooltip("Tên nhiệm vụ hiển thị trên bảng UI")]
     public string tenNhiemVu;
 
-    [TextArea(3, 5)]
-    [Tooltip("Lời thoại NPC nói khi người chơi chưa nhận quest")]
+    [Tooltip("Chọn loại nhiệm vụ muốn tạo")]
+    public LoaiQuest loaiQuest = LoaiQuest.DietQuai;
+
+    [Header("--- MỤC TIÊU DIỆT QUÁI (Dùng cho loại DietQuai) ---")]
+    public int idQuaiCanDiet;
+    public int soLuongBoXuongCanDiet;
+
+    [Header("--- MỤC TIÊU GIẢI CỨU (Dùng cho loại GiaiCuu) ---")]
+    [Tooltip("ID của NPC hoặc Dân Lành cần tương tác giải cứu")]
+    public int idDoiTuongCanGiaiCuu;
+    [Tooltip("Số lượng người/NPC cần giải cứu")]
+    public int soLuongCanGiaiCuu = 1;
+
+    [Header("--- LỜI THOẠI NPC ---")]
+    [TextArea(2, 5)]
     public string loiThoaiNhanQuest;
-
-    [TextArea(3, 5)]
-    [Tooltip("Lời thoại NPC nói khi người chơi đang làm quest")]
+    [TextArea(2, 5)]
     public string loiThoaiDangLam;
-
-    [TextArea(3, 5)]
-    [Tooltip("Lời thoại NPC nói khi người chơi trả quest nhận thưởng")]
+    [TextArea(2, 5)]
     public string loiThoaiHoanThanh;
 
-    [Header("--- MỤC TIÊU NHIỆM VỤ ---")]
-    [Tooltip("Mã ID của loại quái cần diệt (VD: 1 = Bộ Xương, 2 = Quái Cây)")]
-    public int idQuaiCanDiet = 1;
-
-    [Tooltip("Số lượng quái mục tiêu cần tiêu diệt để hoàn thành quest")]
-    public int soLuongBoXuongCanDiet = 10;
-
-    [Header("--- DANH SÁCH PHẦN THƯỞNG (NHIỀU ITEM) ---")]
-    [Tooltip("Danh sách các Item phần thưởng nhận được khi hoàn thành Quest")]
+    [Header("--- PHẦN THƯỞNG ---")]
     public List<ItemRewardData> danhSachPhanThuong = new List<ItemRewardData>();
 
-    /// <summary>
-    /// Hàm tự động duyệt qua toàn bộ mảng phần thưởng để lưu vào Save Game / Inventory
-    /// </summary>
     public void LuuPhanThuongVaoSaveGame()
     {
-        if (danhSachPhanThuong == null || danhSachPhanThuong.Count == 0)
-        {
-            Debug.LogWarning($"<color=yellow>[QUEST]</color> Quest {tenNhiemVu} (ID: {idQuest}) không có phần thưởng!");
-            return;
-        }
+        if (danhSachPhanThuong == null || QuestSaveSystem.Instance == null) return;
 
-        foreach (var reward in danhSachPhanThuong)
+        foreach (ItemRewardData reward in danhSachPhanThuong)
         {
             if (reward != null && reward.itemData != null)
             {
-                // Tự động đẩy từng Item trong mảng vào hệ thống lưu trữ/Túi đồ
-                // Ví dụ: InventoryManager.Instance.AddItem(reward.itemData, reward.soLuong);
-                Debug.Log($"<color=green>[QUEST REWARD]</color> Đã lưu {reward.soLuong}x {reward.itemData.name} vào Save Game!");
+                ItemData actualItemData = reward.itemData as ItemData;
+                if (actualItemData != null)
+                {
+                    QuestSaveSystem.Instance.LuuItemVaoSaveGame(actualItemData.idItem, reward.soLuong);
+                }
             }
         }
     }

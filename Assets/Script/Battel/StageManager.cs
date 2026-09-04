@@ -21,6 +21,10 @@ public class StageManager : MonoBehaviour
         [Tooltip("Kéo GameObject có gắn script StageRewardManager vào đây")]
         public StageRewardManager rewardManager;
 
+        [Header("NPC Giải Cứu (Nếu có trong ải này)")]
+        [Tooltip("Kéo GameObject/Script NPCGiaiCuu trong map này vào đây (Nếu không có NPC thì để trống)")]
+        public NPCGiaiCuu npcGiaiCuuMap;
+
         [Header("Phần Thưởng / Lối Đi (Mở khi thắng)")]
         [Tooltip("Tế đàn / Cổng dịch chuyển sang ải tiếp (Hiện khi KHÔNG tick isFinalStage)")]
         public GameObject nextTeleportPortal;
@@ -46,14 +50,12 @@ public class StageManager : MonoBehaviour
 
     void Start()
     {
-        // 1. Ẩn cổng dịch chuyển và UI Win Game ở tất cả các ải
         for (int i = 0; i < stages.Count; i++)
         {
-            if (stages[i].nextTeleportPortal != null) stages[i].nextTeleportPortal.SetActive(false); // Hide portal
-            if (stages[i].winUIObject != null) stages[i].winUIObject.SetActive(false); // Hide Win UI
+            if (stages[i].nextTeleportPortal != null) stages[i].nextTeleportPortal.SetActive(false);
+            if (stages[i].winUIObject != null) stages[i].winUIObject.SetActive(false);
         }
 
-        // 2. Ẩn Button khi bắt đầu game (chỉ hiện sau trận cuối)
         if (buttonChuyenMap != null)
         {
             buttonChuyenMap.SetActive(false);
@@ -71,12 +73,20 @@ public class StageManager : MonoBehaviour
         CheckCurrentStage(currentStage);
     }
 
+    public void KiemTraHoanThanhTran()
+    {
+        if (currentStageIndex < stages.Count)
+        {
+            CheckCurrentStage(stages[currentStageIndex]);
+        }
+    }
+
     private void CheckCurrentStage(StageInfo stage)
     {
         if (stage.mapZone == null) return;
 
-        // Đếm số lượng quái sống trong vùng map
         int aliveCount = stage.mapZone.GetRemainingEnemiesCount();
+        bool coNPCGiaiCuuChuaXong = stage.npcGiaiCuuMap != null && stage.npcGiaiCuuMap.gameObject.activeInHierarchy;
 
         if (statusText != null)
         {
@@ -85,48 +95,53 @@ public class StageManager : MonoBehaviour
                 statusText.gameObject.SetActive(true);
                 statusText.text = $"{stage.stageName} - Quái còn lại: {aliveCount}";
             }
+            else if (coNPCGiaiCuuChuaXong)
+            {
+                statusText.gameObject.SetActive(true);
+                statusText.text = $"{stage.stageName} - Hãy trò chuyện giải cứu NPC!";
+            }
             else
             {
                 statusText.text = $"{stage.stageName} đã dọn sạch!";
             }
         }
 
-        // KHI DIỆT SẠCH QUÁI (WIN TRẬN)
+        // KHI DIỆT SẠCH QUÁI
         if (aliveCount == 0)
         {
+            // Nếu NPC vẫn active (chưa tương tác xong thoại câu cuối) -> Chưa xong ải!
+            if (coNPCGiaiCuuChuaXong)
+            {
+                return;
+            }
+
             stage.isCompleted = true;
             Debug.Log($"<color=green>Đã vượt qua {stage.stageName}!</color>");
 
-            // 🎯 CHỈ CHO PHÉP TRAO THƯỞNG, BẬT UI VÀ HIỆN BUTTON KHI TRẬN NÀY LÀ TRẬN CUỐI (isFinalStage)
             if (stage.isFinalStage)
             {
-                // 1. Trao thưởng Item (Chỉ cho trận Final)
                 if (!stage.rewardClaimed)
                 {
                     stage.rewardClaimed = true;
 
                     if (stage.rewardManager != null)
                     {
-                        stage.rewardManager.TraoPhanThuongThangTran(); // Gọi script thưởng
+                        stage.rewardManager.TraoPhanThuongThangTran();
                     }
                 }
 
-                // 2. Hiện UI Win Game
                 if (stage.winUIObject != null)
                 {
                     stage.winUIObject.SetActive(true);
                 }
 
-                // 3. HIỆN BUTTON CHUYỂN MAP / VỀ THÀNH KHI XONG TRẬN CUỐI
                 if (buttonChuyenMap != null)
                 {
                     buttonChuyenMap.SetActive(true);
-                    Debug.Log("<color=cyan>[StageManager]</color> Đã dọn sạch trận cuối! Nút chuyển map đã hiện.");
                 }
             }
             else
             {
-                // Nếu KHÔNG PHẢI ẢI CUỐI -> Chỉ hiện Tế Đàn dịch chuyển
                 if (stage.nextTeleportPortal != null)
                 {
                     stage.nextTeleportPortal.SetActive(true);
@@ -134,7 +149,6 @@ public class StageManager : MonoBehaviour
             }
 
             currentStageIndex++;
-            Debug.Log($"[StageManager] Đã tự động tăng chỉ số sang ải index: {currentStageIndex}");
         }
     }
 

@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Script quản lý ẩn các GameObject UI khi bấm nút Resume / Đóng
+/// Script quản lý ẩn các GameObject UI khi bấm nút Resume / Đóng (Đã tối ưu lỗi Click Button)
 /// </summary>
 public class UIResumeController : MonoBehaviour
 {
@@ -15,17 +15,31 @@ public class UIResumeController : MonoBehaviour
     /// </summary>
     public void ResumeGameAndHideUI()
     {
-        // Duyệt qua tất cả GameObject trong danh sách và tắt chúng (SetActive = false)
+        // 1. Luôn trả Time.timeScale về 1 TRƯỚC TIÊN để khôi phục luồng game
+        Time.timeScale = 1f;
+
+        if (objectsToHide == null || objectsToHide.Count == 0)
+        {
+            Debug.LogWarning("<color=yellow>[UI Resume]</color> Danh sách UI ẩn bị rỗng!");
+            return;
+        }
+
+        // 2. Tách UI chứa script này (Self/Parent Panel) ra để ẩn sau cùng, tránh gãy sự kiện Button mid-frame
+        GameObject selfParent = this.gameObject;
+
         foreach (GameObject obj in objectsToHide)
         {
-            if (obj != null)
+            if (obj != null && obj != selfParent)
             {
                 obj.SetActive(false);
             }
         }
 
-        // Đảm bảo Time.timeScale trở lại 1 nếu trước đó game có Paused
-        Time.timeScale = 1f;
+        // 3. Cuối cùng mới ẩn chính GameObject chứa Script/Panel chứa Button này
+        if (objectsToHide.Contains(selfParent))
+        {
+            selfParent.SetActive(false);
+        }
 
         Debug.Log("<color=cyan>[UI Resume]</color> Đã ẩn các UI được gán và tiếp tục Game.");
     }

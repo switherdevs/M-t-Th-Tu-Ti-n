@@ -14,21 +14,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idQuest: 444
   tenNhiemVu: "M\u1ED9c Tinh Bi\u1EBFn D\u1EA1ng"
-  loiThoaiNhanQuest: "Ma kh\xED lan r\u1ED9ng \u0111\xE3 c\u1EAFn nu\u1ED1t c\u1EA3
-    linh kh\xED c\u1EE7a nh\u1EEFng c\xE2y tr\xFAc c\u1ED5 th\u1EE5, bi\u1EBFn ch\xFAng
-    th\xE0nh qu\xE1i c\xE2y \u0103n th\u1ECBt ng\u01B0\u1EDDi. Ch\xFAng qu\u1EA5n
-    r\u1EC5 kh\u1EAFp l\u1ED1i \u0111i ch\xEDnh. H\xE3y gi\xFAp ch\xFAng t\xF4i \u0111\u1ED1n
-    g\u1EE5c b\u1EA7y m\u1ED9c tinh qu\u1EF7 qu\xE1i n\xE0y!"
-  loiThoaiDangLam: "L\u0169 qu\xE1i c\xE2y n\xE0y \u1EA9n n\u1EA5p r\u1EA5t k\u1EF9
-    trong r\u1EEBng m\u1ED9c. Ng\xE0i h\xE3y c\u1EA9n th\u1EADn l\u1EDBp gi\xE1p
-    th\xE2n c\xE2y c\u1EE7a ch\xFAng v\xE0 ti\xEAu di\u1EC7t \u0111\u1EE7 12 c\xE2y
-    tinh nh\xE9!"
-  loiThoaiHoanThanh: "C\xE2y c\u1ED1i \u0111\xE3 tr\u1EDF l\u1EA1i tr\u1EA1ng th\xE1i
-    b\xECnh th\u01B0\u1EDDng, ma kh\xED t\xE0n d\u01B0 tr\xEAn c\xE1c g\u1ED1c c\u1ED5
-    th\u1EE5 c\u0169ng d\u1EA7n tan bi\u1EBFn. B\xE1 t\xE1nh ghi \u01A1n ng\xE0i
-    v\xF4 c\xF9ng!"
+  loaiQuest: 0
   idQuaiCanDiet: 4
   soLuongBoXuongCanDiet: 500
+  idDoiTuongCanGiaiCuu: 0
+  soLuongCanGiaiCuu: 1
+  loiThoaiNhanQuest: "Nh\u1EEFng c\xE2y c\u1ED5 th\u1EE5 v\xF9ng Luy\u1EC7n Ng\u1EE5c
+    b\u1ECB ma kh\xED thi\xEAu r\u1EE5i r\u1ED3i h\xF3a th\xE0nh M\u1ED9c Tinh Qu\u1EF7
+    H\u1ECFa! Ch\xFAng d\xF9ng r\u1EC5 qu\u1EF7 b\u1ECDc l\u1EEDa ma qu\u1EA5n ch\u1EB7t
+    v\xE0 thi\xEAu s\u1ED1ng n\u1EA1n nh\xE2n th\xE0nh tro b\u1EE5i. Ph\u1EA3i ch\u1EB7t
+    \u0111\u1EE9t to\xE0n b\u1ED9 g\u1ED1c r\u1EC5 t\xE0 \xE1c n\xE0y"
+  loiThoaiDangLam: "L\u1EDBp v\u1ECF m\u1ED9c tinh mang theo ma h\u1ECFa c\u1EF1c
+    k\u1EF3 hung h\xE3n. \u0110\u1EA1o h\u1EEFu h\xE3y b\u1ED9c ph\xE1t to\xE0n b\u1ED9
+    linh l\u1EF1c, d\u1EADp t\u1EAFt l\u1EEDa ma v\xE0 \u0111\u1EADp tan l\u0169
+    qu\xE1i c\xE2y bi\u1EBFn d\u1EA1ng"
+  loiThoaiHoanThanh: "R\u1EEBng m\u1ED9c tinh qu\u1EF7 h\u1ECFa \u0111\xE3 bi\u1EBFn
+    th\xE0nh tro t\xE0n! Linh l\u1EF1c phi th\u01B0\u1EDDng c\u1EE7a \u0111\u1EA1o
+    h\u1EEFu \u0111\xE3 tr\u1EA5n \xE1p \u0111\u01B0\u1EE3c s\u1EF1 cu\u1ED3ng b\u1EA1o
+    c\u1EE7a v\xF9ng \u0111\u1EA5t ch\u1EBFt n\xE0y"
   danhSachPhanThuong:
   - itemData: {fileID: 11400000, guid: 9d7827e2c47c86745b9d17a80a5560a1, type: 2}
     iconItem: {fileID: -5636343253877202797, guid: aefe25d351898004d9bd8d89735db828, type: 3}

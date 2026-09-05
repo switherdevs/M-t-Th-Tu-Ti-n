@@ -14,21 +14,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idQuest: 999
   tenNhiemVu: "Th\u1EA3o Ph\u1EA1t S\u01A1n Kh\u1EA5u"
-  loiThoaiNhanQuest: "T\xEAn Th\u1EE7 L\u0129nh S\u01A1n T\u1EB7c \xE1p gi\u1EA3i
-    ma kh\xED \u0111\xE3 bi\u1EBFn Doanh Tr\u1EA1i th\xE0nh m\u1ED9t hang \u1ED5
-    t\u1ED9i \xE1c, x\xFAi gi\u1EE5c b\u1ECDn tay ch\xE2n t\xE0n s\xE1t d\xE2n l\xE0nh.
-    Mu\u1ED1n mang l\u1EA1i b\xECnh y\xEAn v\u0129nh vi\u1EC5n cho Thanh Tr\xFAc
-    L\xE2m, ch\u1EC9 c\xF3 c\xE1ch x\xF4ng v\xE0o \u0111\u1EA1i b\u1EA3n doanh ti\xEAu
-    di\u1EC7t t\xEAn Tr\u1EA1i Ch\u1EE7 n\xE0y!"
-  loiThoaiDangLam: "Th\u1EE7 L\u0129nh S\u01A1n T\u1EB7c s\u1EDF h\u1EEFu v\xF5 ngh\u1EC7
-    cao c\u01B0\u1EDDng l\u1EA1i c\xF3 ma kh\xED h\u1ED9 th\xE2n. \u0110\u1EA1i hi\u1EC7p
-    h\xE3y t\u1EADp trung to\xE0n b\u1ED9 s\u1EE9c m\u1EA1nh \u0111\u1EC3 ti\xEAu
-    di\u1EC7t h\u1EAFn!"
-  loiThoaiHoanThanh: "Th\u1EE7 l\u0129nh g\u1EE5c \u0111\u1ED5, Doanh Tr\u1EA1i S\u01A1n
-    T\u1EB7c ch\xEDnh th\u1EE9c tan r\xE3! Ng\xE0i ch\xEDnh l\xE0 \u0111\u1EA1i c\u1EE9u
-    tinh c\u1EE7a to\xE0n b\u1ED9 b\xE1 t\xE1nh v\xF9ng Thanh Tr\xFAc L\xE2m!"
+  loaiQuest: 0
   idQuaiCanDiet: 7
   soLuongBoXuongCanDiet: 50
+  idDoiTuongCanGiaiCuu: 0
+  soLuongCanGiaiCuu: 1
+  loiThoaiNhanQuest: "T\xEAn T\u01B0\u1EDBng T\xE0 Ma Th\u01B0\u1EE3ng C\u1ED5 \u0111ang
+    tr\u1EA5n gi\u1EEF s\u01A1n kh\u1EA9u Luy\u1EC7n Ng\u1EE5c! H\u1EAFn l\xE0 k\u1EBB
+    th\xF9 nguy hi\u1EC3m nh\u1EA5t tr\u01B0\u1EDBc c\u1EEDa phong \u1EA5n, s\u1EDF
+    h\u1EEFu gi\xE1p ma kh\xED b\u1EA5t x\xE2m v\xE0 s\u1EE9c m\u1EA1nh san ph\u1EB3ng
+    n\xFAi r\u1EEBng. H\xE3y tr\u1EA3m \u0111\u1EA7u t\xEAn \u0110\u1EA7u S\u1ECF
+    n\xE0y \u0111\u1EC3 m\u1EDF \u0111\u01B0\u1EDDng m\xE1u"
+  loiThoaiDangLam: "T\xEAn T\u01B0\u1EDBng T\xE0 Ma \u0111ang cu\u1ED3ng h\u1ED1ng,
+    s\u1EE9c m\u1EA1nh ma \u0111\u1EA1o c\u1EE7a h\u1EAFn c\xF3 th\u1EC3 rung chuy\u1EC3n
+    c\u1EA3 thi\xEAn \u0111\u1ECBa! \u0110\u1EA1o h\u1EEFu h\xE3y d\u1ED3n to\xE0n
+    b\u1ED9 tuy\u1EC7t k\u1EF9 \u0111\u1EC3 k\u1EBFt li\u1EC5u h\u1EAFn"
+  loiThoaiHoanThanh: "T\xEAn T\u01B0\u1EDBng T\xE0 Ma ng\xE3 xu\u1ED1ng, c\xE1nh
+    c\u1EEDa ti\u1EBFn v\xE0o v\xF9ng \u0111\u1EA5t cu\u1ED1i c\xF9ng \u0111\xE3
+    r\u1ED9ng m\u1EDF! \u0110\u1EA1o h\u1EEFu ch\xEDnh l\xE0 ni\u1EC1m hy v\u1ECDng
+    duy nh\u1EA5t c\u1EE7a to\xE0n b\u1ED9 giang h\u1ED3"
   danhSachPhanThuong:
   - itemData: {fileID: 11400000, guid: 9d7827e2c47c86745b9d17a80a5560a1, type: 2}
     iconItem: {fileID: -5636343253877202797, guid: aefe25d351898004d9bd8d89735db828, type: 3}

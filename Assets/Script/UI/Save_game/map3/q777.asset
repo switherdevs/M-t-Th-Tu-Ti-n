@@ -14,21 +14,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idQuest: 888
   tenNhiemVu: "X\u01B0\u01A1ng Kh\xF4 Khung N\u1ECF"
-  loiThoaiNhanQuest: "Trong v\xF9ng ma kh\xED h\u1EBBo l\xE1nh g\u1EA7n s\xE0o huy\u1EC7t
-    s\u01A1n t\u1EB7c, \u0111\xE1m o\xE1n h\u1ED3n binh s\u0129 t\u1EED tr\u1EADn
-    \u0111\xE3 bi\u1EBFn th\xE0nh qu\xE1i x\u01B0\u01A1ng c\u1EA7m n\u1ECF. B\u1ECD
-    ch\xFAng d\xF9ng t\xEAn \u0111\u1ED9c ma kh\xED v\xF4 c\xF9ng nguy hi\u1EC3m.
-    \u0110\u1EA1i hi\u1EC7p h\xE3y gi\u1EA3i tho\xE1t cho nh\u1EEFng t\xE0n linh
-    n\xE0y!"
-  loiThoaiDangLam: "N\u1ECF ma kh\xED c\xF3 s\u1EE9c s\xE1t th\u01B0\u01A1ng r\u1EA5t
-    l\u1EDBn. \u0110\u1EA1o h\u1EEFu h\xE3y di chuy\u1EC3n linh ho\u1EA1t \u0111\u1EC3
-    ti\xEAu di\u1EC7t \u0111\u1EE7 15 qu\xE1i x\u01B0\u01A1ng c\u1EA7m n\u1ECF!"
-  loiThoaiHoanThanh: "Nh\u1EEFng m\u0169i t\xEAn o\xE1n \u0111\u1ED9c \u0111\xE3
-    ng\u1EEBng bay. C\u1EA3m \u01A1n \u0111\u1EA1i hi\u1EC7p \u0111\xE3 gi\xFAp r\u1EEDa
-    s\u1EA1ch ma kh\xED v\xE0 \u0111em l\u1EA1i s\u1EF1 thanh th\u1EA3n cho v\xF9ng
-    \u0111\u1EA5t n\xE0y."
+  loaiQuest: 0
   idQuaiCanDiet: 8
   soLuongBoXuongCanDiet: 650
+  idDoiTuongCanGiaiCuu: 0
+  soLuongCanGiaiCuu: 1
+  loiThoaiNhanQuest: "C\u1EA3nh b\xE1o nguy c\u1EA5p! Ngay tr\u01B0\u1EDBc s\xE0o
+    huy\u1EC7t D\u1EA1 S\xE1t Ma Qu\xE2n, h\xE0ng ngh\xECn B\u1ED9c Bi\u1EC7t C\u1ED1t
+    Binh (x\u01B0\u01A1ng c\u1EA3m t\u1EED) \u0111ang nh\xFAc nh\xEDch. Ch\xFAng
+    mang theo h\u1ECFa n\u1ECF ma kh\xED t\u1EF1 s\xE1t, ch\u1EC9 c\u1EA7n \xE1p
+    s\xE1t l\xE0 n\u1ED5 tung san b\u1EB1ng t\u1EA5t c\u1EA3! Mau di\u1EC7t s\u1EA1ch
+    ch\xFAng t\u1EEB xa"
+  loiThoaiDangLam: "Ti\u1EBFng n\u1ED5 ma h\u1ECFa vang l\xEAn li\xEAn ti\u1EBFp!
+    \u0110\u1EA1o h\u1EEFu tuy\u1EC7t \u0111\u1ED1i kh\xF4ng \u0111\u01B0\u1EE3c
+    \u0111\u1EC3 l\u0169 x\u01B0\u01A1ng c\u1EA3m t\u1EED \xE1p s\xE1t, h\xE3y ti\xEAu
+    di\u1EC7t \u0111\u1EE7 s\u1ED1 l\u01B0\u1EE3ng tr\u01B0\u1EDBc khi ch\xFAng ph\xE1t
+    n\u1ED5!"
+  loiThoaiHoanThanh: "B\xE3o n\u1ED5 ma h\u1ECFa \u0111\xE3 d\u1EE9t! \u0110\u1EA1o
+    h\u1EEFu \u0111\xE3 d\u1ECDn s\u1EA1ch ch\u01B0\u1EDBng ng\u1EA1i v\u1EADt cu\u1ED1i
+    c\xF9ng. Ph\xEDa tr\u01B0\u1EDBc ch\xEDnh l\xE0 n\u01A1i phong \u1EA5n D\u1EA1
+    S\xE1t Ma Qu\xE2n... H\xE3y nh\u1EADn l\u1EA5y ph\u1EA7n th\u01B0\u1EDFng cu\u1ED1i
+    c\xF9ng v\xE0 chu\u1EA9n b\u1ECB cho tr\u1EADn quy\u1EBFt chi\u1EBFn"
   danhSachPhanThuong:
   - itemData: {fileID: 11400000, guid: 9d7827e2c47c86745b9d17a80a5560a1, type: 2}
     iconItem: {fileID: -5636343253877202797, guid: aefe25d351898004d9bd8d89735db828, type: 3}

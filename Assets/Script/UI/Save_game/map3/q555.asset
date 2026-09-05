@@ -14,22 +14,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idQuest: 666
   tenNhiemVu: "Ph\u1EE5c K\xEDch S\u01A1n T\u1EB7c Ph\u1ED1"
-  loiThoaiNhanQuest: "B\u1ECDn s\u01A1n t\u1EB7c t\u1EEB Doanh Tr\u1EA1i g\u1EA7n
-    \u0111\xE2y d\u1EF1ng c\xE1c th\xE1p canh d\u1ECDc b\xECa r\u1EEBng. \u0110\xE1m
-    s\u01A1n t\u1EB7c c\u1EA7m cung th\u01B0\u1EDDng n\u1EA5p tr\xEAn cao b\u1EAFn
-    l\xE9n c\xE1c \u0111o\xE0n l\u01B0\u01A1ng th\u1EF1c c\u1EE7a d\xE2n l\xE0ng.
-    Xin \u0111\u1EA1o h\u1EEFu h\xE3y d\u1ECDn d\u1EB9p l\u1EF1c l\u01B0\u1EE3ng
-    t\u1EA7m xa n\xE0y tr\u01B0\u1EDBc!"
-  loiThoaiDangLam: "T\xEAn bay m\u0169i \u0111\u1EA1n c\u1EE7a \u0111\xE1m ti\u1EC5n
-    th\u1EE7 s\u01A1n t\u1EB7c v\u1EABn l\xE0 m\u1ED1i \u0111e d\u1ECDa l\u1EDBn.
-    H\xE3y h\u1EA1 g\u1EE5c \u0111\u1EE7 12 t\xEAn s\u01A1n t\u1EB7c c\u1EA7m cung
-    \u0111\u1EC3 l\xE0m suy y\u1EBFu th\xE1p canh c\u1EE7a ch\xFAng!"
-  loiThoaiHoanThanh: "B\xE1o ti\u1EC5n c\u1EE7a b\u1ECDn s\u01A1n t\u1EB7c \u0111\xE3
-    b\u1ECB b\u1EBB g\xE3y! Chuy\u1EBFn l\u01B0\u01A1ng th\u1EF1c ti\u1EBFp theo
-    c\u1EE7a d\xE2n l\xE0ng cu\u1ED1i c\xF9ng c\u0169ng c\xF3 th\u1EC3 l\u01B0u th\xF4ng
-    an to\xE0n."
+  loaiQuest: 0
   idQuaiCanDiet: 5
   soLuongBoXuongCanDiet: 550
+  idDoiTuongCanGiaiCuu: 0
+  soLuongCanGiaiCuu: 1
+  loiThoaiNhanQuest: "\u0110\xE1m t\xE0 tu c\u01B0\u1EDBp b\xF3c t\u1EA1i Luy\u1EC7n
+    Ng\u1EE5c \u0111\xE3 ho\xE0n to\xE0n hi\u1EBFn t\u1EBF linh h\u1ED3n cho Ma Qu\xE2n!
+    Ch\xFAng l\u1EADp c\xE1c th\xE1p canh qu\u1EF7, d\xF9ng n\u1ECF ma h\u1ECFa ph\u1EE5c
+    k\xEDch t\xE0n s\xE1t nh\u1EEFng ai mu\u1ED1n ti\u1EBFp c\u1EADn phong \u1EA5n.
+    H\xE3y san b\u1EB1ng c\xE1c \u0111i\u1EC3m ph\u1EE5c k\xEDch c\u1EE7a ch\xFAng"
+  loiThoaiDangLam: "M\u0169i t\xEAn ma h\u1ECFa c\u1EE7a \u0111\xE1m t\xE0 tu ph\u1EE5c
+    k\xEDch b\u1EAFn ra nh\u01B0 m\u01B0a! \u0110\u1EA1o h\u1EEFu h\xE3y di chuy\u1EC3n
+    linh ho\u1EA1t, h\u1EA1 g\u1EE5c \u0111\u1EE7 \u0111\xE1m cung th\u1EE7 t\xE0
+    \u0111\u1EA1o tr\u01B0\u1EDBc khi b\u1ECB bao v\xE2y"
+  loiThoaiHoanThanh: "C\xE1c tuy\u1EBFn th\xE1p canh qu\u1EF7 \u0111\xE3 b\u1ECB
+    \u0111\xE1nh s\u1EADp! S\u1EF1 t\xE0n b\u1EA1o c\u1EE7a \u0111\xE1m t\xE0 tu
+    tay ch\xE2n \u0111\xE3 ph\u1EA3i tr\u1EA3 gi\xE1 \u0111\u1EAFt d\u01B0\u1EDBi
+    tay \u0111\u1EA1o h\u1EEFu."
   danhSachPhanThuong:
   - itemData: {fileID: 11400000, guid: 9d7827e2c47c86745b9d17a80a5560a1, type: 2}
     iconItem: {fileID: -5636343253877202797, guid: aefe25d351898004d9bd8d89735db828, type: 3}

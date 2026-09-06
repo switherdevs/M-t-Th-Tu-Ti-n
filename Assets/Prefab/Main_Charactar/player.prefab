@@ -441,6 +441,8 @@ MonoBehaviour:
   vfxMuzzlePrefab: {fileID: 3753481043015327854, guid: dffa58a59048dc844b308f1242dbba7d, type: 3}
   bulletSpeed: 70
   fireRate: 0.2
+  attackSound: {fileID: 8300000, guid: 172ee2c4a2ec3ce42ab2a8fb17cf9cfd, type: 3}
+  attackSoundVolume: 0.7
   shootAnimName: Attack
   skillManager: {fileID: 8254536555419453987}
 --- !u!114 &7203826478942902169
@@ -504,6 +506,10 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: e0b1c0e9-4d6d-4d0f-8178-759e74941ae0
     m_ActionName: 'playerMove/Run[/Keyboard/leftShift]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 790510f2-41aa-45e9-b19b-20697e1351d8
+    m_ActionName: 'playerMove/Mouse-skibidi[/Mouse/delta]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: 
@@ -592,7 +598,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 172ee2c4a2ec3ce42ab2a8fb17cf9cfd, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.25
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -636,7 +642,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0
       inSlope: 0
       outSlope: 0
       tangentMode: 0

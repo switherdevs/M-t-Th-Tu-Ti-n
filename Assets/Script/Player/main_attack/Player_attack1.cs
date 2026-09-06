@@ -6,11 +6,15 @@ public class TanCong : MonoBehaviour
     [Header("Gắn Các Prefab Vào Đây")]
     [SerializeField] private Transform shootPoint;       // Điểm sinh ra đạn trên người Tiêu Phong
     [SerializeField] private GameObject bulletPrefab;     // Prefab viên đạn (Kiếm)
-    [SerializeField] private GameObject vfxMuzzlePrefab;  // Prefab hiệu ứng khói/tóe lửa khi vừa bấm bắn (Tùy chọn)
+    [SerializeField] private GameObject vfxMuzzlePrefab;  // Prefab hiệu ứng khói/tóe lửa khi vừa bấm bắn
 
     [Header("Thông Số Vũ Khí")]
     [SerializeField] private float bulletSpeed = 10f;     // Tốc độ bay của kiếm
-    [SerializeField] private float fireRate = 0.2f;       // Khoảng cách giây giữa 2 lần bắn (Tốc độ sấy đạn)
+    [SerializeField] private float fireRate = 0.2f;       // Khoảng cách giây giữa 2 lần bắn
+
+    [Header("Cấu Hình Âm Thanh Tấn Công")]
+    [SerializeField] private AudioClip attackSound;      // Âm thanh phát ra khi bắn
+    [SerializeField][Range(0f, 1f)] private float attackSoundVolume = 0.7f;
 
     [Header("Cấu Hình Animation Bắn")]
     [SerializeField] private string shootAnimName = "Attack"; // Tên Trigger Animation bắn
@@ -23,6 +27,7 @@ public class TanCong : MonoBehaviour
     private Camera mainCam;         // Biến lưu trữ Camera để tối ưu hiệu năng
     private CharacterStats myStats;
     private Animator anim;
+    private AudioSource audioSource; // AudioSource tối ưu cho tốc độ bắn nhanh
     private int shootAnimHash;
 
     void Awake()
@@ -33,6 +38,14 @@ public class TanCong : MonoBehaviour
 
         // Tự động tìm Animator trên chính nó hoặc trên GameObject con
         anim = GetComponentInChildren<Animator>();
+
+        // Tự động tìm hoặc thêm mới AudioSource trên Player
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+        }
 
         // Khởi tạo Mã Hash cho Animation bắn
         if (!string.IsNullOrEmpty(shootAnimName))
@@ -58,28 +71,34 @@ public class TanCong : MonoBehaviour
         if (mainCam != null)
         {
             Vector3 screenMousePos = Input.mousePosition;
-            screenMousePos.z = -mainCam.transform.position.z; // Gán khoảng cách Z từ Camera đến Plane 2D
+            screenMousePos.z = -mainCam.transform.position.z;
             Vector3 mouseWorldPos = mainCam.ScreenToWorldPoint(screenMousePos);
             mousePosition = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
         }
 
-        // 2. KIỂM TRA CLICK VÀ ĐÈ CHUỘT KIỂU LEGACY
+        // 2. KIỂM TRA CLICK VÀ ĐÈ CHUỘT LEGACY (TỐI ƯU SPEED VỚI NEXTFIRETIME)
         if (Input.GetMouseButton(0) && Time.time >= nextFireTime)
         {
             Shoot();
-            nextFireTime = Time.time + fireRate; // Cập nhật thời gian cho phát bắn kế tiếp
+            nextFireTime = Time.time + fireRate; // Cập nhật thời điểm bắn tiếp theo
         }
     }
 
     private void Shoot()
     {
-        // KÍCH HOẠT ANIMATION BẮN (Không đụng vào anim.speed nữa để tránh làm nhanh chân chạy)
+        // KÍCH HOẠT ANIMATION BẮN
         if (HasParameter(shootAnimHash))
         {
             anim.SetTrigger(shootAnimHash);
         }
 
-        // ĐIỀU KIỆN BẮT BUỘC: Nếu không có điểm bắn hoặc đạn thì dừng ngay để tránh lỗi crash game
+        // TỐI ƯU ÂM THANH BẮN: Phát âm thanh bằng PlayOneShot để hỗ trợ sấy tốc độ cao không bị lặp rác memory
+        if (audioSource != null && attackSound != null)
+        {
+            audioSource.PlayOneShot(attackSound, attackSoundVolume);
+        }
+
+        // ĐIỀU KIỆN BẮT BUỘC
         if (shootPoint == null || bulletPrefab == null) return;
 
         // Tính toán hướng bay từ Điểm bắn đến Vị trí chuột
@@ -88,7 +107,7 @@ public class TanCong : MonoBehaviour
         // Sinh ra viên Đạn (Kiếm) tại đúng vị trí shootPoint
         GameObject kiem = Instantiate(bulletPrefab, shootPoint.position, Quaternion.identity);
 
-        // Điều khiển hướng xoay của mũi kiếm và vận tốc bay thông qua Script phụ bổ trợ
+        // Điều khiển hướng xoay của mũi kiếm và vận tốc bay
         PhiKiem scriptKiem = kiem.GetComponent<PhiKiem>();
         if (scriptKiem != null)
         {
@@ -101,15 +120,7 @@ public class TanCong : MonoBehaviour
             rbKiem.linearVelocity = direction * bulletSpeed;
         }
 
-        // Tắt gọi hàm ngẫu nhiên cũ để tránh lỗi CS1061 vì Skill hiện tại đã kích hoạt bằng phím R, T, F riêng biệt
-        /*
-        if (skillManager != null)
-        {
-            skillManager.TriggerAllSkills(shootPoint, direction);
-        }
-        */
-
-        // Tự động hủy viên đạn sau 3 giây để tránh tràn bộ nhớ
+        // Tự động hủy viên đạn sau 3 giây
         Destroy(kiem, 3f);
 
         // HIỆU ỨNG VFX

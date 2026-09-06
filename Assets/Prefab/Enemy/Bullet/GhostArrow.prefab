@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 1543792851215009731}
   - component: {fileID: -5598180197005086254}
   - component: {fileID: -3577129105872621394}
+  - component: {fileID: 115719185432306719}
   m_Layer: 0
   m_Name: GhostArrow
   m_TagString: Untagged
@@ -295,6 +296,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseDamage: 20
   targetTag: Player
+  isTargetPlayer: 1
+  isTargetEnemy: 0
+  damagePopupPrefab: {fileID: 1225914145827128997, guid: c292fa7c657ece24daefe51c56d747b4, type: 3}
 --- !u!114 &-3577129105872621394
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307,5 +311,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17aa1ab8892b273478482249e725b070, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  time: 3
+  time: 10
   ignoreWallTime: 0.5
+--- !u!114 &115719185432306719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3460524606235574010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 060530a35c2e5d045813d5652cf23819, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseDamage: 30
+  targetTag: Enemy
+  isTargetPlayer: 0
+  isTargetEnemy: 1
+  damagePopupPrefab: {fileID: 0}

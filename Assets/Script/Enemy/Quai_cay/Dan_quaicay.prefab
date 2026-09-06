@@ -173,7 +173,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseDamage: 10
-  targetTag: Enemy
+  targetTag: Player
+  isTargetPlayer: 1
+  isTargetEnemy: 0
+  damagePopupPrefab: {fileID: 1225914145827128997, guid: c292fa7c657ece24daefe51c56d747b4, type: 3}
 --- !u!114 &6707657991390534597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187,6 +190,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   time: 2
+  ignoreWallTime: 0.2
 --- !u!114 &-6538422330340555376
 MonoBehaviour:
   m_ObjectHideFlags: 0

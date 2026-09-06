@@ -8,7 +8,7 @@ namespace GameCore.Settings
 {
     /// <summary>
     /// Manager singleton quản lý Load/Save cài đặt (Audio, Mouse Sensitivity, Rebind Key)
-    /// Tự động tồn tại qua các Scene (DontDestroyOnLoad).
+    /// ĐÃ LOẠI BỎ DontDestroyOnLoad để quản lý theo LifeCycle thông thường của Scene.
     /// </summary>
     public class SettingsManager : MonoBehaviour
     {
@@ -24,7 +24,7 @@ namespace GameCore.Settings
                     {
                         GameObject container = new GameObject("[SettingsManager]");
                         _instance = container.AddComponent<SettingsManager>();
-                        DontDestroyOnLoad(container);
+                        // ĐÃ BỎ: DontDestroyOnLoad(container);
                     }
                 }
                 return _instance;
@@ -57,7 +57,7 @@ namespace GameCore.Settings
             }
 
             _instance = this;
-            DontDestroyOnLoad(gameObject);
+            // ĐÃ BỎ: DontDestroyOnLoad(gameObject);
 
             LoadSettings();
         }
@@ -132,11 +132,11 @@ namespace GameCore.Settings
         }
 
         // --- AUDIO HELPERS ---
-        // Yêu cầu âm thanh âm lượng lớn: Dùng Log10 chuẩn + boost hệ số từ -80dB lên tới +6dB khi Slider = 1.0
+        // Chuẩn hóa công thức Log10 tiêu chuẩn tránh hiện tượng méo âm thanh thanh do vượt ngưỡng 0dB
         private float LinearToDecibel(float linear)
         {
             linear = Mathf.Clamp(linear, 0.0001f, 1f);
-            return Mathf.Log10(linear) * 20f + (linear * 6f); 
+            return Mathf.Log10(linear) * 20f;
         }
 
         public void SetMasterVolume(float value)

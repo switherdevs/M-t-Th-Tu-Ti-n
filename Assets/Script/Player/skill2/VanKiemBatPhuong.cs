@@ -8,6 +8,11 @@ public class VanKiemBatPhuong : MonoBehaviour
     [SerializeField] private float shakeIntensity = 3.5f;
     [SerializeField] private float shakeDuration = 0.2f;
 
+    [Header("Cấu Hình Âm Thanh Skill")]
+    [SerializeField] private AudioClip spawnSound;       // Âm thanh khi kiếm vừa sinh ra
+    [SerializeField] private AudioClip launchSound;      // Âm thanh khi kiếm bắt đầu lao đi
+    [SerializeField][Range(0f, 1f)] private float soundVolume = 0.8f;
+
     [Header("Cấu Hình Di Chuyển Kiếm")]
     [SerializeField] private float initialSpeed = 10f;    // Tốc độ bay tỏa ra ban đầu
     [SerializeField] private float scatterDuration = 0.4f;// Thời gian bay tỏa ra trước khi dừng lại tụ
@@ -35,6 +40,12 @@ public class VanKiemBatPhuong : MonoBehaviour
 
         // Xoay hướng của kiếm theo hướng bay tỏa tròn
         UpdateRotation(direction);
+
+        // Phát âm thanh khi vừa tạo kiếm 1 lần duy nhất
+        if (spawnSound != null)
+        {
+            AudioSource.PlayClipAtPoint(spawnSound, transform.position, soundVolume);
+        }
 
         // KÍCH HOẠT RUNG CAMERA KHI BẮN KIẾM
         if (CameraShake.Instance != null)
@@ -69,11 +80,17 @@ public class VanKiemBatPhuong : MonoBehaviour
 
         yield return new WaitForSeconds(0.2f); // Thời gian khựng lại nhẹ tạo hiệu ứng tụ kiếm
 
-        // === GIAI ĐOẠN 3: Xác định hướng lao đi (Ưu tiên tìm quái gần nhất, nếu không có lấy theo vị trí chuột) ===
+        // === GIAI ĐOẠN 3: Xác định hướng lao đi ===
         Vector2 targetDir = GetTargetDirection();
 
         // Xoay đầu kiếm về hướng mục tiêu mới
         UpdateRotation(targetDir);
+
+        // Phát âm thanh khi kiếm bắt đầu lao đi 1 lần
+        if (launchSound != null)
+        {
+            AudioSource.PlayClipAtPoint(launchSound, transform.position, soundVolume);
+        }
 
         // Lao đi với tốc độ cao
         if (rb != null)
@@ -82,10 +99,8 @@ public class VanKiemBatPhuong : MonoBehaviour
         }
     }
 
-    // Hàm tìm hướng mục tiêu (Quái gần nhất hoặc vị trí chuột)
     private Vector2 GetTargetDirection()
     {
-        // 1. Thử tìm con quái nằm gần thanh kiếm nhất trong bán kính 10 đơn vị
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 10f);
         float minDistance = Mathf.Infinity;
         Transform closestEnemy = null;
@@ -103,13 +118,11 @@ public class VanKiemBatPhuong : MonoBehaviour
             }
         }
 
-        // Nếu tìm thấy quái, lao thẳng vào quái
         if (closestEnemy != null)
         {
             return (closestEnemy.position - transform.position).normalized;
         }
 
-        // 2. Nếu không có quái xung quanh, lao về phía vị trí con chuột trên màn hình
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseWorldPos.z = 0f;
         Vector2 dirToMouse = (mouseWorldPos - transform.position).normalized;
@@ -119,7 +132,6 @@ public class VanKiemBatPhuong : MonoBehaviour
             return dirToMouse;
         }
 
-        // 3. Fallback dự phòng: Nếu không lấy được chuột, bay thẳng theo hướng cũ
         return moveDirection;
     }
 
@@ -133,18 +145,12 @@ public class VanKiemBatPhuong : MonoBehaviour
     {
         if (collision.CompareTag("Enemy"))
         {
-            // 1. Gây sát thương nếu quái có Component nhận sát thương
-            // EnemyHealth enemyHealth = collision.GetComponent<EnemyHealth>();
-            // if (enemyHealth != null) { enemyHealth.TakeDamage(damage, characterStats); }
-
-            // 2. KÍCH HOẠT STUN THÔNG QUA INTERFACE
             IStunable stunableEnemy = collision.GetComponentInParent<IStunable>();
             if (stunableEnemy != null)
             {
                 stunableEnemy.ApplyStun(stunDuration);
             }
 
-            // Tự hủy kiếm sau khi trúng mục tiêu
             Destroy(gameObject);
         }
     }

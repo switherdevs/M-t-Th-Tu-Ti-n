@@ -191,6 +191,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseDamage: 5
   targetTag: Player
+  isTargetPlayer: 1
+  isTargetEnemy: 0
+  damagePopupPrefab: {fileID: 1225914145827128997, guid: c292fa7c657ece24daefe51c56d747b4, type: 3}
 --- !u!114 &-7752195956646779649
 MonoBehaviour:
   m_ObjectHideFlags: 0

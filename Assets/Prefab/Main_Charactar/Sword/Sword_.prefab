@@ -181,7 +181,7 @@ AudioSource:
   m_GameObject: {fileID: 8106306527046521838}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 6604748582655308872, guid: 6d577e5bdeafe804da576e07cca632ed, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 7776f55bc360ea442ba21038d8e742f1, type: 3}
   m_PlayOnAwake: 0
@@ -229,7 +229,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -283,3 +283,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseDamage: 45
   targetTag: Enemy
+  isTargetPlayer: 0
+  isTargetEnemy: 1
+  damagePopupPrefab: {fileID: 1225914145827128997, guid: c292fa7c657ece24daefe51c56d747b4, type: 3}

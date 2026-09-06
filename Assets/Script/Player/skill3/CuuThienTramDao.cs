@@ -15,8 +15,13 @@ public class CuuThienTramDao : MonoBehaviour
     [SerializeField] private float shakeIntensity = 6f;
     [SerializeField] private float shakeTime = 0.35f;
 
-    [Header("Âm thanh & Hiệu ứng khi Trúng/Chạm đất")]
-    [SerializeField] private AudioClip impactSound;          // Âm thanh nổ cự kiếm
+    [Header("Âm Thanh & Hiệu Ứng")]
+    [Tooltip("Âm thanh khi vừa gọi cự kiếm xuất hiện trên trời")]
+    [SerializeField] private AudioClip spawnSound;
+
+    [Tooltip("Âm thanh nổ cự kiếm cắm đất")]
+    [SerializeField] private AudioClip impactSound;
+
     [SerializeField] private GameObject impactEffectPrefab;  // Prefab hiệu ứng nổ AoE
     [SerializeField][Range(0f, 1f)] private float soundVolume = 1f;
 
@@ -41,6 +46,12 @@ public class CuuThienTramDao : MonoBehaviour
 
         // Xoay lưỡi kiếm hướng xuống đất
         transform.rotation = Quaternion.Euler(0, 0, -90f);
+
+        // Phát âm thanh khi vừa triệu hồi cự kiếm
+        if (spawnSound != null)
+        {
+            AudioSource.PlayClipAtPoint(spawnSound, transform.position, soundVolume);
+        }
 
         isFalling = true;
         Debug.Log("<color=cyan>[CỬU THIÊN TRẢM]</color> Đã spawn kiếm trên trời, bắt đầu rơi xuống!");
@@ -105,7 +116,7 @@ public class CuuThienTramDao : MonoBehaviour
             AudioSource.PlayClipAtPoint(impactSound, transform.position, soundVolume);
         }
 
-        // 4. Hủy cự kiếm ngay lập tức sau khi hoàn thành hiệu ứng
+        // 4. Hủy cự kiếm ngay lập tức
         Destroy(gameObject);
     }
 

@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 5970982287671284268}
   - component: {fileID: 3511073316373721294}
   - component: {fileID: -8122212283926580780}
+  - component: {fileID: -2076522563500692064}
   m_Layer: 0
   m_Name: Soul_Prefab
   m_TagString: Untagged
@@ -294,7 +295,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17aa1ab8892b273478482249e725b070, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  time: 3
+  time: 10
   ignoreWallTime: 0.5
 --- !u!114 &3511073316373721294
 MonoBehaviour:
@@ -310,6 +311,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseDamage: 10
   targetTag: Player
+  isTargetPlayer: 1
+  isTargetEnemy: 0
+  damagePopupPrefab: {fileID: 1225914145827128997, guid: c292fa7c657ece24daefe51c56d747b4, type: 3}
 --- !u!114 &-8122212283926580780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -324,3 +328,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   time: 3
   ignoreWallTime: 0.2
+--- !u!114 &-2076522563500692064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 32177611679327567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 060530a35c2e5d045813d5652cf23819, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseDamage: 30
+  targetTag: Enemy
+  isTargetPlayer: 0
+  isTargetEnemy: 1
+  damagePopupPrefab: {fileID: 0}

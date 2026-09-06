@@ -172,8 +172,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 060530a35c2e5d045813d5652cf23819, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseDamage: 30
-  targetTag: Enemy
+  baseDamage: 20
+  targetTag: Player
+  isTargetPlayer: 1
+  isTargetEnemy: 0
+  damagePopupPrefab: {fileID: 1225914145827128997, guid: c292fa7c657ece24daefe51c56d747b4, type: 3}
 --- !u!114 &6707657991390534597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187,6 +190,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   time: 2
+  ignoreWallTime: 0.2
 --- !u!114 &-6538422330340555376
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -205,7 +209,7 @@ MonoBehaviour:
   - Player
   - Wall
   - Ground
-  isPoisonous: 0
+  isPoisonous: 1
   poisonDuration: 5
   poisonDamagePerSecond: 2
 --- !u!50 &545737666461193291

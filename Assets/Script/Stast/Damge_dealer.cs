@@ -1,5 +1,5 @@
 using UnityEngine;
-using StatsSystem.Components; // BẮT BUỘC: Gọi namespace chứa CharacterStats
+using StatsSystem.Components; // BẮT BULOG: Gọi namespace chứa CharacterStats
 
 public class DamageDealer : MonoBehaviour
 {
@@ -9,6 +9,17 @@ public class DamageDealer : MonoBehaviour
 
     [Tooltip("Tag của đối tượng mà đạn/vũ khí này được phép gây sát thương (Vd: Enemy, Player)")]
     [SerializeField] private string targetTag = "Enemy";
+
+    [Header("=== LOẠI MỤC TIÊU CẦN TÍCH (QUYẾT ĐỊNH MÀU TEXT) ===")]
+    [Tooltip("Tích chọn nếu vũ khí này gây sát thương lên Player -> Text hiển thị màu ĐỎ")]
+    [SerializeField] private bool isTargetPlayer = false;
+
+    [Tooltip("Tích chọn nếu vũ khí này gây sát thương lên Enemy -> Text hiển thị màu TRẮNG")]
+    [SerializeField] private bool isTargetEnemy = true;
+
+    [Header("=== POPUP SÁT THƯƠNG ===")]
+    [Tooltip("Prefab TextMeshPro Popup sát thương")]
+    [SerializeField] private GameObject damagePopupPrefab;
 
     // Biến lưu lượng sát thương cộng thêm từ độ khó
     private float bonusDamage = 0f;
@@ -28,7 +39,6 @@ public class DamageDealer : MonoBehaviour
         if (!collision.CompareTag(targetTag)) return;
 
         // 2. Tìm script CharacterStats trên đối tượng bị đánh trúng
-        // Dùng GetComponentInParent phòng trường hợp Hitbox nằm ở Object con, còn Script Máu nằm ở Object cha
         CharacterStats targetStats = collision.GetComponentInParent<CharacterStats>();
 
         // 3. Nếu tìm thấy script (Nghĩa là cục này có máu, có thể nhận sát thương)
@@ -38,8 +48,45 @@ public class DamageDealer : MonoBehaviour
             float finalDamage = baseDamage + bonusDamage;
             targetStats.TakeDamage(finalDamage);
 
+            // Tính điểm va chạm thực tế trên bề mặt Collider
+            Vector3 hitPoint = collision.ClosestPoint(transform.position);
+
+            // XÁC ĐỊNH MÀU SẮC DỰA VÀO CHECKBOX BOOL TRÊN INSPECTOR:
+            // Sát thương lên Player = MÀU ĐỎ | Sát thương lên Enemy = MÀU TRẮNG
+            Color popupColor = Color.white; // Màu mặc định
+
+            if (isTargetPlayer)
+            {
+                popupColor = Color.red;    // Đánh Player -> Màu Đỏ
+            }
+            else if (isTargetEnemy)
+            {
+                popupColor = Color.white;  // Đánh Enemy -> Màu Trắng
+            }
+
+            // Hiển thị Popup ngay tại vị trí tiếp xúc
+            SpawnDamagePopup(finalDamage, hitPoint, popupColor);
+
             // Xóa đạn sau khi gây sát thương (Nếu đây là đạn bắn ra)
             // Destroy(gameObject); 
+        }
+    }
+
+    /// <summary>
+    /// Hàm sinh ra Popup sát thương và truyền màu đã chọn sang DamagePopup
+    /// </summary>
+    private void SpawnDamagePopup(float damageAmount, Vector3 spawnPosition, Color textColor)
+    {
+        if (damagePopupPrefab == null) return;
+
+        // Sinh ra Prefab Popup ngay tại vị trí va chạm tiếp xúc
+        GameObject popupObj = Instantiate(damagePopupPrefab, spawnPosition, Quaternion.identity);
+
+        // Lấy script DamagePopup và truyền thông số
+        DamagePopup popupScript = popupObj.GetComponent<DamagePopup>();
+        if (popupScript != null)
+        {
+            popupScript.Setup(damageAmount, textColor);
         }
     }
 }

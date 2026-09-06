@@ -3,12 +3,18 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class SkillProjectile : MonoBehaviour
 {
+    [Header("=== ÂM THANH ĐẠN KỸ NĂNG ===")]
+    [Tooltip("Âm thanh phát ra 1 lần khi đạn vừa bắn ra")]
+    [SerializeField] private AudioClip launchSound;
+
+    [Tooltip("Âm thanh khi va chạm vào quái/tường")]
+    [SerializeField] private AudioClip hitSound;
+
+    [SerializeField][Range(0f, 1f)] private float soundVolume = 0.8f;
+
     [Header("=== HIỆU ỨNG KHI VA CHẠM (IMPACT) ===")]
     [Tooltip("Hiệu ứng nổ/tóe lửa khi trúng tường hoặc kẻ địch")]
     [SerializeField] private GameObject hitEffectPrefab;
-
-    [Tooltip("Âm thanh khi va chạm (Tùy chọn)")]
-    [SerializeField] private AudioClip hitSound;
 
     private Vector2 moveDirection;
     private float moveSpeed;
@@ -25,6 +31,12 @@ public class SkillProjectile : MonoBehaviour
         // Xoay mặt Prefab theo đúng hướng di chuyển
         float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angle);
+
+        // Phát âm thanh phát ra khi vừa sinh đạn (Chỉ phát 1 lần)
+        if (launchSound != null)
+        {
+            AudioSource.PlayClipAtPoint(launchSound, transform.position, soundVolume);
+        }
 
         // Hẹn giờ tự hủy
         Destroy(gameObject, lifeTime);
@@ -54,13 +66,13 @@ public class SkillProjectile : MonoBehaviour
                 Instantiate(hitEffectPrefab, transform.position, transform.rotation);
             }
 
-            // Phát âm thanh va chạm tại vị trí
+            // Phát âm thanh va chạm tại vị trí 1 lần duy nhất
             if (hitSound != null)
             {
-                AudioSource.PlayClipAtPoint(hitSound, transform.position, 0.8f);
+                AudioSource.PlayClipAtPoint(hitSound, transform.position, soundVolume);
             }
 
-            // KHÔNG GÂY DAMAGE -> Tự hủy ngay lập tức
+            // Hủy đạn ngay lập tức
             Destroy(gameObject);
         }
     }

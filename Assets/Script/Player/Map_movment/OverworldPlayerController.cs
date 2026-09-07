@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems; // 🎯 BẮT BỘC: Thêm thư viện EventSystems để kiểm tra click UI
+using UnityEngine.EventSystems; // BẮT BỘC: Thêm thư viện EventSystems để kiểm tra click UI
 using TMPro;
 
 [RequireComponent(typeof(LineRenderer))]
@@ -13,6 +13,9 @@ public class OverworldPlayerController : MonoBehaviour
 
     [Tooltip("GameObject dùng để hiển thị đánh dấu vị trí đích")]
     public GameObject targetHighlight;
+
+    [Tooltip("Vị trí cố định để dịch chuyển về khi nhấn phím R")]
+    public Transform checkpointPoint;
 
     [Header("=== Cài đặt TextMeshPro hiển thị Thời gian ===")]
     public TMP_Text dateText;
@@ -26,9 +29,6 @@ public class OverworldPlayerController : MonoBehaviour
 
     [Tooltip("Số ô cách xa Wall khi phát hiện Wall ở đích đến (Mặc định 2 ô)")]
     public int wallSafetyOffset = 2;
-
-    [Tooltip("Số lần đi lặp lại cùng 1 ô trước khi xác định bị kẹt và tự lùi 2 ô")]
-    public int stuckThreshold = 3;
 
     [Header("=== Cài đặt Animation ===")]
     public string isMovingAnimBool = "IsMoving";
@@ -52,10 +52,6 @@ public class OverworldPlayerController : MonoBehaviour
     private bool isMoving = false;
     private bool isCollidedWithWall = false;
 
-    // Quản lý phát hiện kẹt vị trí và lịch sử lùi 2 ô
-    private List<Vector2Int> positionHistory = new List<Vector2Int>();
-    private Dictionary<Vector2Int, int> visitCounts = new Dictionary<Vector2Int, int>();
-
     private void Start()
     {
         lineRenderer = GetComponent<LineRenderer>();
@@ -74,16 +70,20 @@ public class OverworldPlayerController : MonoBehaviour
 
         currentGridPos = mapGrid.WorldToGrid(transform.position);
         transform.position = mapGrid.GridToWorld(currentGridPos);
-
-        RecordPositionHistory(currentGridPos);
     }
 
     private void Update()
     {
+        // 🎯 BẤM R ĐỂ DỊCH CHUYỂN VỀ VỊ TRÍ CỐ ĐỊNH (CHECKPOINT)
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            TeleportToCheckpoint();
+            return;
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
-            // 🎯 CHẶN DI CHUYỂN KHI CLICK TRÊN UI:
-            // Nếu con trỏ chuột đang đè lên bất kỳ UI nào có Raycast Target -> Bỏ qua không xử lý click map
+            // CHẶN DI CHUYỂN KHI CLICK TRÊN UI:
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             {
                 return;
@@ -107,6 +107,42 @@ public class OverworldPlayerController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Xử lý dịch chuyển tức thời Player về vị trí Checkpoint khi nhấn R
+    /// </summary>
+    private void TeleportToCheckpoint()
+    {
+        if (checkpointPoint == null)
+        {
+            Debug.LogWarning("<color=yellow>[Player]</color> Chưa gán Checkpoint Point vào Inspector!");
+            return;
+        }
+
+        // Hủy quá trình di chuyển đang diễn ra nếu có
+        if (movementCoroutine != null)
+        {
+            StopCoroutine(movementCoroutine);
+            movementCoroutine = null;
+        }
+
+        // Đặt lại các trạng thái
+        isMoving = false;
+        isCollidedWithWall = false;
+        SetAnimBool(isMovingAnimBool, false);
+
+        if (lineRenderer != null) lineRenderer.positionCount = 0;
+        if (targetHighlight != null) targetHighlight.SetActive(false);
+
+        // Dịch chuyển đến Checkpoint và căn chỉnh tọa độ Grid chuẩn
+        Vector2Int checkpointGridPos = mapGrid.WorldToGrid(checkpointPoint.position);
+        Vector3 targetWorldPos = mapGrid.GridToWorld(checkpointGridPos);
+
+        transform.position = targetWorldPos;
+        currentGridPos = checkpointGridPos;
+
+        Debug.Log("<color=green>[Player]</color> Đã dịch chuyển về vị trí cố định (R)!");
+    }
+
     private void HandleMouseClick()
     {
         if (isMoving) return;
@@ -121,7 +157,7 @@ public class OverworldPlayerController : MonoBehaviour
 
         if (newPath == null || newPath.Count == 0) return;
 
-        // 🎯 KIỂM TRA NẾU ĐÍCH ĐẾN HOẶC ĐƯỜNG ĐÍ CÓ WALL -> GIỮ KHỎANG CÁCH 2 Ô
+        // KIỂM TRA NẾU ĐÍCH ĐẾN HOẶC ĐƯỜNG ĐÍ CÓ WALL -> GIỮ KHỎANG CÁCH 2 Ô
         newPath = AdjustPathForWallSafety(newPath);
 
         if (newPath.Count > 0)
@@ -148,7 +184,6 @@ public class OverworldPlayerController : MonoBehaviour
             }
         }
 
-        // Nếu tìm thấy Wall trên đường đi hoặc ở điểm đích
         if (wallIndex != -1)
         {
             int safeIndex = Mathf.Max(0, wallIndex - wallSafetyOffset);
@@ -205,7 +240,7 @@ public class OverworldPlayerController : MonoBehaviour
                 yield return null;
             }
 
-            // Nếu đụng Wall bất ngờ trong quá trình đi
+            // Nếu đụng Wall bất ngờ trong quá trình đi -> Dừng ngay tại vị trí hiện tại
             if (isCollidedWithWall)
             {
                 break;
@@ -216,15 +251,6 @@ public class OverworldPlayerController : MonoBehaviour
             currentGridPos = nextTile;
 
             RemoveFirstPointFromPathVisuals();
-
-            // 🎯 GHI NHẬN VỊ TRÍ VÀ KIỂM TRA BỊ KẸT LẶP ĐI LẶP LẠI
-            RecordPositionHistory(currentGridPos);
-            if (CheckIfStuck(currentGridPos))
-            {
-                Debug.LogWarning("<color=orange>[Player]</color> Phát hiện bị kẹt do lặp vị trí! Đang tự động lùi 2 ô.");
-                yield return StartCoroutine(Routine_StepBackTwoTiles());
-                break;
-            }
 
             accumulatedTiles++;
             if (accumulatedTiles >= tilesPerDay)
@@ -245,53 +271,6 @@ public class OverworldPlayerController : MonoBehaviour
         movementCoroutine = null;
         isMoving = false;
         isCollidedWithWall = false;
-    }
-
-    /// <summary>
-    /// Ghi nhớ lịch sử các ô đã đi qua để tính số lần đi lặp lại
-    /// </summary>
-    private void RecordPositionHistory(Vector2Int pos)
-    {
-        positionHistory.Add(pos);
-
-        if (visitCounts.ContainsKey(pos))
-            visitCounts[pos]++;
-        else
-            visitCounts[pos] = 1;
-    }
-
-    /// <summary>
-    /// Thuật toán kiểm tra nếu ô hiện tại bị lặp đi lặp lại quá số lần quy định
-    /// </summary>
-    private bool CheckIfStuck(Vector2Int currentPos)
-    {
-        return visitCounts.ContainsKey(currentPos) && visitCounts[currentPos] >= stuckThreshold;
-    }
-
-    /// <summary>
-    /// Coroutine lùi lại 2 ô trong lịch sử khi phát hiện bị kẹt
-    /// </summary>
-    private IEnumerator Routine_StepBackTwoTiles()
-    {
-        int targetHistoryIndex = Mathf.Max(0, positionHistory.Count - 3);
-        Vector2Int stepBackGridPos = positionHistory[targetHistoryIndex];
-        Vector3 stepBackWorldPos = mapGrid.GridToWorld(stepBackGridPos);
-
-        UpdateFacingRotation(stepBackWorldPos.x);
-
-        while (Vector3.Distance(transform.position, stepBackWorldPos) > 0.01f)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, stepBackWorldPos, moveSpeed * Time.deltaTime);
-            yield return null;
-        }
-
-        transform.position = stepBackWorldPos;
-        currentGridPos = stepBackGridPos;
-
-        // Reset lại dữ liệu kẹt sau khi đã lùi an toàn
-        positionHistory.Clear();
-        visitCounts.Clear();
-        RecordPositionHistory(currentGridPos);
     }
 
     private void AdvanceOneDay()

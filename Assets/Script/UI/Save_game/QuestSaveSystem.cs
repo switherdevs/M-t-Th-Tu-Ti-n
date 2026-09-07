@@ -50,6 +50,9 @@ public class PlayerStatsSaveData
 [Serializable]
 public class DanhSachSaveQuest
 {
+    // 🎯 THÊM DỮ LIỆU LƯU TÊN MAP TRƯỚC ĐÓ VÀO FILE SAVE
+    public string tenMapTruocDo = "ThanhTrucLam";
+
     public List<ProgressQuest> danhSachProgress = new List<ProgressQuest>();
     public List<SaveItemData> danhSachItemSave = new List<SaveItemData>();
     public PlayerStatsSaveData playerStats = new PlayerStatsSaveData();
@@ -143,6 +146,26 @@ public class QuestSaveSystem : MonoBehaviour
     {
         duLieuSaveHienTai = new DanhSachSaveQuest();
         SaveDuLieuQuestToTxt();
+    }
+
+    // 🎯 HÀM LƯU TÊN MAP TRƯỚC ĐÓ VÀO FILE SAVE JSON
+    public void LuuMapTruocDo(string tenMap)
+    {
+        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
+
+        duLieuSaveHienTai.tenMapTruocDo = tenMap;
+        SaveDuLieuQuestToTxt();
+        Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Map trước đó vào Save: " + tenMap);
+    }
+
+    // 🎯 HÀM ĐỌC TÊN MAP TRƯỚC ĐÓ TỪ FILE SAVE
+    public string LayMapTruocDo()
+    {
+        if (duLieuSaveHienTai == null || string.IsNullOrEmpty(duLieuSaveHienTai.tenMapTruocDo))
+        {
+            return "ThanhTrucLam"; // Tên Map mặc định dự phòng
+        }
+        return duLieuSaveHienTai.tenMapTruocDo;
     }
 
     public void LuuItemVaoSaveGame(string idItem, int soLuong = 1)
@@ -287,26 +310,19 @@ public class QuestSaveSystem : MonoBehaviour
         }
     }
 
-    // NÂNG CẤP MỚI: Kiểm tra xem NPC Giải cứu có được phép Active trong Map hay không
     public bool KiemTraNPCGiaiCuuCoDuocPhepXuatHien(int idDoiTuong)
     {
         if (danhSachQuestData == null || danhSachQuestData.Count == 0) return false;
 
-        // Tìm Quest tương ứng có chứa ID NPC này
         QuestData questData = danhSachQuestData.Find(q =>
             q != null &&
             q.loaiQuest == LoaiQuest.GiaiCuu &&
             q.idDoiTuongCanGiaiCuu == idDoiTuong
         );
 
-        // Nếu ID không tương thích hoặc không nằm trong QuestData -> ẨN
         if (questData == null) return false;
 
-        // Kiểm tra tiến trình lưu của Quest này
         ProgressQuest progress = LayTienTrinhQuest(questData.idQuest);
-
-        // Chỉ Active True khi nhiệm vụ đang ở trạng thái DangLam
-        // Các trạng thái ChuaNhan, DaXongChuaTra, HoanThanh -> ẨN
         return progress != null && progress.trangThai == TrangThaiQuest.DangLam;
     }
 

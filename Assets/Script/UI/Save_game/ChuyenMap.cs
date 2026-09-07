@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,15 +10,12 @@ public class ChuyenMapManager : MonoBehaviour
     [Tooltip("Nút bấm dùng để chuyển sang Map mới")]
     public Button nutQuaMap;
 
-    [Tooltip("GameObject của nút bấm (hoặc Panel/UI chứa nút) sẽ bị ẩn biến mất hoàn toàn")]
-    [SerializeField] private GameObject objectNutCanAn;
-
-    [Tooltip("Tên Scene map mới cần load khi bấm nút (có thể để trống nếu chỉ muốn ẩn nút)")]
+    [Header("--- CẤU HÌNH SCENE ---")]
+    [Tooltip("Tên Scene map mới cần load khi ĐỦ điều kiện qua map")]
     public string tenSceneMapMoi = "Map2";
 
-    [Header("--- TÙY CHỌN ẨN NÚT KHI HOÀN THÀNH ---")]
-    [Tooltip("Nếu tích chọn, khi hoàn thành điều kiện GameObject nút sẽ biến mất hoàn toàn")]
-    public bool anNutKhiXong = false;
+    [Tooltip("Tên Scene chuyển sang khi CHƯA ĐỦ điều kiện qua map (Phá đá thất bại)")]
+    public string tenScenePhaDaThatBai = "PhaDaThatBaiScene";
 
     [Header("--- ĐIỀU KIỆN QUA MAP (NHIỆM VỤ & CẢNH GIỚI) ---")]
     [Tooltip("Danh sách các Quest BẮT BUỘC phải hoàn thành riêng cho cổng/map này")]
@@ -26,44 +24,20 @@ public class ChuyenMapManager : MonoBehaviour
     [Tooltip("Danh sách ID các Cảnh Giới BẮT BUỘC người chơi phải đột phá để mở chuyển map")]
     public List<string> danhSachCanhGioiYeuCau = new List<string>();
 
-    [Header("--- TÙY CHỌN MÀU SẮC KHI MỜ (TÙY CHỌN) ---")]
-    [Tooltip("Độ trong suốt khi nút bị khóa (mờ)")]
-    [Range(0.1f, 1f)]
-    public float doMoKhiKhoa = 0.4f;
-
-    private CanvasGroup canvasGroupNut;
-
     private void Start()
     {
-        if (objectNutCanAn == null && nutQuaMap != null)
-        {
-            objectNutCanAn = nutQuaMap.gameObject;
-        }
-
         if (nutQuaMap != null)
         {
-            canvasGroupNut = nutQuaMap.GetComponent<CanvasGroup>();
-            if (canvasGroupNut == null)
-            {
-                canvasGroupNut = nutQuaMap.gameObject.AddComponent<CanvasGroup>();
-            }
-
             nutQuaMap.onClick.RemoveAllListeners();
             nutQuaMap.onClick.AddListener(OnClickQuaMap);
+            nutQuaMap.interactable = true;
         }
     }
 
-    private void Update()
-    {
-        CapNhatTrangThaiNutQuaMap();
-    }
-
-    // 🎯 HÀM KIỂM TRA ĐIỀU KIỆN QUA MAP (QUEST & CẢNH GIỚI)
     public bool KiemTraKichHoatQuaMap()
     {
         if (QuestSaveSystem.Instance == null) return false;
 
-        // 1. Kiểm tra toàn bộ Quest yêu cầu
         if (danhSachQuestYeuCau != null && danhSachQuestYeuCau.Count > 0)
         {
             foreach (QuestData quest in danhSachQuestYeuCau)
@@ -79,7 +53,6 @@ public class ChuyenMapManager : MonoBehaviour
             }
         }
 
-        // 2. Kiểm tra toàn bộ Cảnh Giới ID yêu cầu
         if (danhSachCanhGioiYeuCau != null && danhSachCanhGioiYeuCau.Count > 0)
         {
             foreach (string idCanhGioi in danhSachCanhGioiYeuCau)
@@ -98,65 +71,32 @@ public class ChuyenMapManager : MonoBehaviour
         return true;
     }
 
-    // 🎯 HÀM CẬP NHẬT TRẠNG THÁI NÚT
-    private void CapNhatTrangThaiNutQuaMap()
-    {
-        bool duDieuKienQuaMap = KiemTraKichHoatQuaMap();
-
-        if (anNutKhiXong && duDieuKienQuaMap)
-        {
-            if (objectNutCanAn != null && objectNutCanAn.activeSelf)
-            {
-                objectNutCanAn.SetActive(false);
-                Debug.Log("<color=yellow>[Map Manager]</color> Đã đủ điều kiện, GameObject nút đã biến mất!");
-            }
-            return;
-        }
-
-        if (objectNutCanAn != null && !objectNutCanAn.activeSelf)
-        {
-            objectNutCanAn.SetActive(true);
-        }
-
-        if (nutQuaMap != null)
-        {
-            nutQuaMap.interactable = duDieuKienQuaMap;
-
-            if (canvasGroupNut != null)
-            {
-                canvasGroupNut.alpha = duDieuKienQuaMap ? 1f : doMoKhiKhoa;
-            }
-        }
-    }
-
-    // 🎯 HÀM BẤM NÚT CHUYỂN SCENE
     public void OnClickQuaMap()
     {
+        // 🎯 LƯU LẠI TÊN SCENE MAP HIỆN TẠI VÀO SAVE SYSTEM TRƯỚC KHI CHUYỂN
+        if (QuestSaveSystem.Instance != null)
+        {
+            string mapHienTai = SceneManager.GetActiveScene().name;
+            QuestSaveSystem.Instance.LuuMapTruocDo(mapHienTai);
+        }
+
+        // TRƯỜNG HỢP 1: ĐỦ ĐIỀU KIỆN -> CHUYỂN QUA MAP MỚI
         if (KiemTraKichHoatQuaMap())
         {
-            if (anNutKhiXong)
-            {
-                if (objectNutCanAn != null)
-                {
-                    objectNutCanAn.SetActive(false);
-                }
-                Debug.Log("<color=yellow>[Map Manager]</color> Đã nhấn nút! GameObject đã biến mất hoàn toàn.");
-                return;
-            }
-
             if (!string.IsNullOrEmpty(tenSceneMapMoi))
             {
-                Debug.Log("<color=green>[Map Manager]</color> Đã đủ điều kiện cảnh giới & quest! Đang chuyển sang Scene: " + tenSceneMapMoi);
+                Debug.Log("<color=green>[Map Manager]</color> Đã đủ điều kiện! Đang chuyển sang Scene Map mới: " + tenSceneMapMoi);
                 SceneManager.LoadScene(tenSceneMapMoi);
             }
-            else
-            {
-                Debug.LogWarning("[Map Manager] Chưa thiết lập tên Scene cần chuyển!");
-            }
         }
+        // TRƯỜNG HỢP 2: CHƯA ĐỦ ĐIỀU KIỆN -> CHUYỂN QUA SCENE PHÁ ĐÁ THẤT BẠI
         else
         {
-            Debug.LogWarning("[Map Manager] Chưa đạt đủ Cảnh Giới hoặc chưa hoàn thành Quest yêu cầu!");
+            if (!string.IsNullOrEmpty(tenScenePhaDaThatBai))
+            {
+                Debug.Log("<color=red>[Map Manager]</color> Chưa đủ điều kiện! Đang chuyển sang Scene Phá Đá Thất Bại: " + tenScenePhaDaThatBai);
+                SceneManager.LoadScene(tenScenePhaDaThatBai);
+            }
         }
     }
 }

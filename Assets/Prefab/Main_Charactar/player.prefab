@@ -275,6 +275,7 @@ GameObject:
   - component: {fileID: 8712972713771717828}
   - component: {fileID: -5719478494179254987}
   - component: {fileID: 5908089489488820278}
+  - component: {fileID: 5797894560003307546}
   m_Layer: 7
   m_Name: player
   m_TagString: Player
@@ -711,6 +712,23 @@ MonoBehaviour:
   walkAnimName: IsWalking
   sprintAnimName: IsSprinting
   attackAnimName: 
+--- !u!114 &5797894560003307546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2345805083975770352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f491674fb5021949a73048ef152e8a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  executeRange: 1.5
+  executionAnimName: Execute
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 512
 --- !u!1 &2390863112206969679
 GameObject:
   m_ObjectHideFlags: 0

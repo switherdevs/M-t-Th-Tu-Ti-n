@@ -1014,6 +1014,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 682423337}
     - target: {fileID: 8380708065986821440, guid: b4d0299ccafc1a04f8536410ed3b1c7d, type: 3}
+      propertyPath: checkpointPoint
+      value: 
+      objectReference: {fileID: 773697334}
+    - target: {fileID: 8380708065986821440, guid: b4d0299ccafc1a04f8536410ed3b1c7d, type: 3}
       propertyPath: obstacleLayer.m_Bits
       value: 1
       objectReference: {fileID: 0}
@@ -3266,6 +3270,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 934898731762944301, guid: 765699c945f484f4f938c0cbd96988e0, type: 3}
   m_PrefabInstance: {fileID: 770824689}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &773697333
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 773697334}
+  m_Layer: 0
+  m_Name: Checkpotin
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &773697334
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 773697333}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &798964280
 GameObject:
   m_ObjectHideFlags: 0
@@ -5046,6 +5081,10 @@ PrefabInstance:
     - target: {fileID: 7330655762628494426, guid: 5aa83c6ed491e534fb388931ff46de88, type: 3}
       propertyPath: tenScenePhaDaThatBai
       value: map1_phikiem
+      objectReference: {fileID: 0}
+    - target: {fileID: 7330655762628494426, guid: 5aa83c6ed491e534fb388931ff46de88, type: 3}
+      propertyPath: tenScenePhaDaThanhCong
+      value: Map1_complete
       objectReference: {fileID: 0}
     - target: {fileID: 7330655762628494426, guid: 5aa83c6ed491e534fb388931ff46de88, type: 3}
       propertyPath: danhSachQuestYeuCau.Array.size
@@ -8235,3 +8274,4 @@ SceneRoots:
   - {fileID: 1244217428}
   - {fileID: 1663948526}
   - {fileID: 77077790}
+  - {fileID: 773697334}

@@ -2860,7 +2860,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.919899, y: -2.520752}
+  m_Offset: {x: 34.41989, y: -2.520752}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -2870,7 +2870,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 209.35136, y: 171.35254}
+  m_Size: {x: 276.35138, y: 171.35254}
   m_EdgeRadius: 0
 --- !u!4 &580908180
 Transform:
@@ -6688,7 +6688,7 @@ Transform:
   m_GameObject: {fileID: 1465028437}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 182, y: -5.4171, z: 0}
+  m_LocalPosition: {x: 189, y: -5.4171, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -7973,7 +7973,7 @@ PlayableDirector:
   m_Enabled: 1
   serializedVersion: 3
   m_PlayableAsset: {fileID: 11400000, guid: 26c980efaa752b0469bd3629c1237ada, type: 2}
-  m_InitialState: 0
+  m_InitialState: 1
   m_WrapMode: 2
   m_DirectorUpdateMode: 1
   m_InitialTime: 0
@@ -8006,6 +8006,8 @@ PlayableDirector:
     value: {fileID: 271532800}
   - key: {fileID: 748095694118488767, guid: 26c980efaa752b0469bd3629c1237ada, type: 2}
     value: {fileID: 4159316123742449281}
+  - key: {fileID: 5804807961493739120, guid: 26c980efaa752b0469bd3629c1237ada, type: 2}
+    value: {fileID: 0}
   m_ExposedReferences:
     m_References:
     - b0eb1672de8071e4282bacf6f44cfcb9: {fileID: 0}
@@ -8039,7 +8041,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timelineDirector: {fileID: 1812853590}
-  mocThoiGianChuyenScene: 6
+  mocThoiGianChuyenScene: 8
+  isCutsceneThanhCong: 1
 --- !u!1 &1813517429
 GameObject:
   m_ObjectHideFlags: 0
@@ -9345,8 +9348,8 @@ SceneRoots:
   m_Roots:
   - {fileID: 875294495}
   - {fileID: 975155757}
-  - {fileID: 888015656}
   - {fileID: 1797829086}
+  - {fileID: 888015656}
   - {fileID: 606978590}
   - {fileID: 41479154}
   - {fileID: 532994697}

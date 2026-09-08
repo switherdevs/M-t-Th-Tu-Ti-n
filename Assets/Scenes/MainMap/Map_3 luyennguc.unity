@@ -5476,6 +5476,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 682423337}
     - target: {fileID: 8380708065986821440, guid: b4d0299ccafc1a04f8536410ed3b1c7d, type: 3}
+      propertyPath: checkpointPoint
+      value: 
+      objectReference: {fileID: 1853617396}
+    - target: {fileID: 8380708065986821440, guid: b4d0299ccafc1a04f8536410ed3b1c7d, type: 3}
       propertyPath: obstacleLayer.m_Bits
       value: 1
       objectReference: {fileID: 0}
@@ -9580,6 +9584,10 @@ PrefabInstance:
       value: map1_phikiem
       objectReference: {fileID: 0}
     - target: {fileID: 7330655762628494426, guid: 5aa83c6ed491e534fb388931ff46de88, type: 3}
+      propertyPath: tenScenePhaDaThanhCong
+      value: Map1_complete
+      objectReference: {fileID: 0}
+    - target: {fileID: 7330655762628494426, guid: 5aa83c6ed491e534fb388931ff46de88, type: 3}
       propertyPath: danhSachQuestYeuCau.Array.size
       value: 0
       objectReference: {fileID: 0}
@@ -11705,6 +11713,37 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &1853617395
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1853617396}
+  m_Layer: 0
+  m_Name: Checkpotin
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1853617396
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853617395}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1869943197
 GameObject:
   m_ObjectHideFlags: 0
@@ -13686,3 +13725,4 @@ SceneRoots:
   - {fileID: 1843213316}
   - {fileID: 859369786}
   - {fileID: 1361941628}
+  - {fileID: 1853617396}

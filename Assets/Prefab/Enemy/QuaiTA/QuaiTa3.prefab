@@ -89,6 +89,37 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &1288319447897922432
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2168164391859662949}
+  m_Layer: 9
+  m_Name: Ex-point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2168164391859662949
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1288319447897922432}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -6.5, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 719320514216926547}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4326762685985966498
 GameObject:
   m_ObjectHideFlags: 0
@@ -105,6 +136,7 @@ GameObject:
   - component: {fileID: 7883779628206725357}
   - component: {fileID: 1594103734093323049}
   - component: {fileID: 6844386197709005241}
+  - component: {fileID: 6494799980553397301}
   m_Layer: 9
   m_Name: QuaiTa3
   m_TagString: Enemy
@@ -127,6 +159,7 @@ Transform:
   m_Children:
   - {fileID: 3175585894070689707}
   - {fileID: 8534512844240980741}
+  - {fileID: 2168164391859662949}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!70 &3466283562524721136
@@ -303,6 +336,26 @@ MonoBehaviour:
   isPlayer: 0
   weaponTag: Kiem
   hideOnDeath: 1
+--- !u!114 &6494799980553397301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4326762685985966498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 285c70042694cce45a3e79074581e0e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  executionHealthThreshold: 1
+  stunDuration: 10
+  executionPoint: {fileID: 2168164391859662949}
+  isStunnedParam: IsStunned
+  isBeingExecutedParam: IsBeingExecuted
+  isDie2Param: IsDie2
+  executionVFXPrefab: {fileID: 3486426238667156243, guid: 6e576f3e155399c4e8bae0d95be2851f, type: 3}
+  executePromptUI: {fileID: 0}
 --- !u!1 &7058168760640868324
 GameObject:
   m_ObjectHideFlags: 0
@@ -654,6 +707,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: b642599ef03fd614a877ea4f9732b69e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5783048276416561313, guid: b642599ef03fd614a877ea4f9732b69e, type: 3}
+      propertyPath: m_SortingOrder
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6169719737772470875, guid: b642599ef03fd614a877ea4f9732b69e, type: 3}

@@ -536,7 +536,7 @@ MonoBehaviour:
   stunDuration: 2
   blockShieldPrefab: {fileID: 7968136829979069134, guid: e8b1f02a5f3442440b54b1fb430a4a0e, type: 3}
   shieldSpawnPoint: {fileID: 6848913822714482179}
-  playerSwordTag: PlayerSword
+  playerSwordTag: Kiem
   audioSource: {fileID: 0}
   sfxPrepareAttack: {fileID: 0}
   sfxAttack: {fileID: 0}
@@ -661,6 +661,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseDamage: 30
   targetTag: Player
+  isTargetPlayer: 0
+  isTargetEnemy: 1
+  damagePopupPrefab: {fileID: 0}
 --- !u!1 &8943062167390730250
 GameObject:
   m_ObjectHideFlags: 0

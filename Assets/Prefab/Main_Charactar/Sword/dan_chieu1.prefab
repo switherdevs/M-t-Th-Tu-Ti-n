@@ -293,8 +293,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eff12fe4838c1954aaf3a459aa51d145, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitEffectPrefab: {fileID: 6866004461401601130, guid: 3ed39e6f36a74ce4f994a6e2170ce801, type: 3}
+  launchSound: {fileID: 0}
   hitSound: {fileID: 8300000, guid: 7776f55bc360ea442ba21038d8e742f1, type: 3}
+  soundVolume: 0.8
+  hitEffectPrefab: {fileID: 6866004461401601130, guid: 3ed39e6f36a74ce4f994a6e2170ce801, type: 3}
 --- !u!1 &5635728191066486403
 GameObject:
   m_ObjectHideFlags: 0

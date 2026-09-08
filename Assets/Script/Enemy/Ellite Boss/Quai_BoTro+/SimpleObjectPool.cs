@@ -22,7 +22,8 @@ public class SimpleObjectPool : MonoBehaviour
 
         for (int i = 0; i < poolSize; i++)
         {
-            GameObject obj = Instantiate(prefab, transform);
+            // Khởi tạo đạn tự do ngoài Scene, không set Parent
+            GameObject obj = Instantiate(prefab);
             obj.SetActive(false);
             poolQueue.Enqueue(obj);
         }
@@ -42,7 +43,7 @@ public class SimpleObjectPool : MonoBehaviour
         // Nếu Queue hết đạn hợp lệ, tạo mới 1 đạn Prefab
         if (obj == null)
         {
-            obj = Instantiate(prefab, transform);
+            obj = Instantiate(prefab);
         }
 
         obj.transform.position = position;
@@ -55,8 +56,8 @@ public class SimpleObjectPool : MonoBehaviour
     {
         if (obj == null) return;
 
+        // Tắt đạn và cất lại vào Queue mà không gọi SetParent
         obj.SetActive(false);
-        obj.transform.SetParent(transform);
         poolQueue.Enqueue(obj);
     }
 }

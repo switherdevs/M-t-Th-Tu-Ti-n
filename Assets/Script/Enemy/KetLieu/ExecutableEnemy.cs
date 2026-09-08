@@ -12,13 +12,16 @@ public class ExecutableEnemy : MonoBehaviour
     [Tooltip("Điểm đứng chuẩn của Player khi thực hiện kết liễu")]
     [SerializeField] private Transform executionPoint;
 
-    [Header("=== ANIMATION & VFX ===")]
-    [SerializeField] private string stunAnimName = "Stunned";       // Anim đứng chịu đòn
-    [SerializeField] private string beingExecutedAnimName = "BeingExecuted"; // Anim đang bị chém
-    [SerializeField] private string die2AnimName = "die 2";        // Anim chết sau khi kết liễu
-    [SerializeField] private GameObject executionVFXPrefab;        // Effect bùng nổ/máu khi bị chém
+    [Header("=== ANIMATOR BOOL PARAMETER NAMES ===")]
+    [Tooltip("Tên tham số Bool trong Animator cho trạng thái Choáng")]
+    [SerializeField] private string isStunnedParam = "IsStunned";
+    [Tooltip("Tên tham số Bool trong Animator cho trạng thái Đang Bị Kết Liễu")]
+    [SerializeField] private string isBeingExecutedParam = "IsBeingExecuted";
+    [Tooltip("Tên tham số Bool/Trigger trong Animator cho trạng thái Chết Sau Kết Liễu")]
+    [SerializeField] private string isDie2Param = "IsDie2";
 
-    [Header("=== UI GỢI Ý ===")]
+    [Header("=== VFX & UI GỢI Ý ===")]
+    [SerializeField] private GameObject executionVFXPrefab;        // Effect bùng nổ/máu khi bị chém
     [SerializeField] private GameObject executePromptUI;           // Canvas/Icon "Press E" hiện trên đầu Boss
 
     private CharacterStats stats;
@@ -26,6 +29,11 @@ public class ExecutableEnemy : MonoBehaviour
     private bool isCanBeExecuted = false; // Đã chạm ngưỡng < 30% máu hay chưa
     private bool isBeingExecuted = false; // Đang trong quá trình diễn Animation kết liễu
     private Coroutine stunCoroutine;
+
+    // Mã hóa tên Parameter sang ID Hash để tối ưu hiệu năng CPU
+    private int isStunnedHash;
+    private int isBeingExecutedHash;
+    private int isDie2Hash;
 
     public bool IsCanBeExecuted => isCanBeExecuted;
     public bool IsBeingExecuted => isBeingExecuted;
@@ -36,6 +44,11 @@ public class ExecutableEnemy : MonoBehaviour
         stats = GetComponent<CharacterStats>();
         anim = GetComponentInChildren<Animator>();
 
+        // Chuyển đổi String sang Hash ID (Giúp Animator xử lý nhanh hơn)
+        if (!string.IsNullOrEmpty(isStunnedParam)) isStunnedHash = Animator.StringToHash(isStunnedParam);
+        if (!string.IsNullOrEmpty(isBeingExecutedParam)) isBeingExecutedHash = Animator.StringToHash(isBeingExecutedParam);
+        if (!string.IsNullOrEmpty(isDie2Param)) isDie2Hash = Animator.StringToHash(isDie2Param);
+
         if (executePromptUI != null) executePromptUI.SetActive(false);
     }
 
@@ -43,7 +56,7 @@ public class ExecutableEnemy : MonoBehaviour
     {
         if (isBeingExecuted || stats == null) return;
 
-        // KIỂM TRA ĐIỀU KIỆN MÁU DƯỚI 30% (ĐÃ SỬA LỖI TRUY CẬP STAT VALUE)
+        // KIỂM TRA ĐIỀU KIỆN MÁU DƯỚI 30%
         float maxHp = stats.MaxHealth != null ? stats.MaxHealth.Value : 1f; // Tránh lỗi chia cho 0 hoặc null
         float currentHealthPercent = (float)stats.CurrentHealth / maxHp;
 
@@ -59,9 +72,10 @@ public class ExecutableEnemy : MonoBehaviour
         isCanBeExecuted = true;
         if (executePromptUI != null) executePromptUI.SetActive(true);
 
-        if (anim != null && !string.IsNullOrEmpty(stunAnimName))
+        // Chuyển Animator Parameter 'IsStunned' sang true
+        if (anim != null && isStunnedHash != 0)
         {
-            anim.Play(stunAnimName);
+            anim.SetBool(isStunnedHash, true);
         }
 
         // Tự động đếm ngược hết thời gian choáng nếu Player không bấm E
@@ -73,7 +87,7 @@ public class ExecutableEnemy : MonoBehaviour
     {
         yield return new WaitForSeconds(stunDuration);
 
-        // Hết thời gian choáng mà không bị kết liễu -> Hồi lại 1 ít máu hoặc trở lại bình thường
+        // Hết thời gian choáng mà không bị kết liễu -> Trở lại bình thường
         ExitExecutionStun();
     }
 
@@ -81,6 +95,12 @@ public class ExecutableEnemy : MonoBehaviour
     {
         isCanBeExecuted = false;
         if (executePromptUI != null) executePromptUI.SetActive(false);
+
+        // Tắt Bool Choáng
+        if (anim != null && isStunnedHash != 0)
+        {
+            anim.SetBool(isStunnedHash, false);
+        }
     }
 
     // 2. KÍCH HOẠT QUÁ TRÌNH BỊ KẾT LIỄU (ĐƯỢC GỌI TỪ PLAYER)
@@ -93,10 +113,11 @@ public class ExecutableEnemy : MonoBehaviour
 
         if (executePromptUI != null) executePromptUI.SetActive(false);
 
-        // Phát Animation đang bị kết liễu
-        if (anim != null && !string.IsNullOrEmpty(beingExecutedAnimName))
+        // Tắt trạng thái Choáng và Bật trạng thái Bị Kết Liễu
+        if (anim != null)
         {
-            anim.Play(beingExecutedAnimName);
+            if (isStunnedHash != 0) anim.SetBool(isStunnedHash, false);
+            if (isBeingExecutedHash != 0) anim.SetBool(isBeingExecutedHash, true);
         }
 
         StartCoroutine(ExecutionProcessRoutine(onExecutionComplete));
@@ -110,13 +131,14 @@ public class ExecutableEnemy : MonoBehaviour
             Instantiate(executionVFXPrefab, transform.position, Quaternion.identity);
         }
 
-        // Chờ thời gian thực hiện animation kết liễu (Ví dụ: 2 giây)
+        // Chờ thời gian thực hiện animation kết liễu (2 giây)
         yield return new WaitForSeconds(2.0f);
 
-        // Chuyển sang Animation die 2
-        if (anim != null && !string.IsNullOrEmpty(die2AnimName))
+        // Chuyển Animator Parameter 'IsBeingExecuted' sang false và 'IsDie2' sang true
+        if (anim != null)
         {
-            anim.Play(die2AnimName);
+            if (isBeingExecutedHash != 0) anim.SetBool(isBeingExecutedHash, false);
+            if (isDie2Hash != 0) anim.SetBool(isDie2Hash, true);
         }
 
         // Báo cho Player biết đã xong để mở khóa di chuyển

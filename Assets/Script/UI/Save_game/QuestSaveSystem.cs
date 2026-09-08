@@ -16,7 +16,7 @@ public class ProgressQuest
 {
     public int idQuest;
     public TrangThaiQuest trangThai;
-    public int soBoXuongDaDiet; // Dùng làm biến đếm chung cho cả diệt quái lẫn số người đã cứu
+    public int soBoXuongDaDiet; // Biến đếm chung
 }
 
 [Serializable]
@@ -29,6 +29,20 @@ public class SaveItemData
     {
         idItem = id;
         soLuong = count;
+    }
+}
+
+// 🎯 DỮ LIỆU LƯU CẤP ĐỘ SKILL
+[Serializable]
+public class SaveSkillData
+{
+    public string skillName;
+    public int skillLevel;
+
+    public SaveSkillData(string name, int level)
+    {
+        skillName = name;
+        skillLevel = level;
     }
 }
 
@@ -50,11 +64,13 @@ public class PlayerStatsSaveData
 [Serializable]
 public class DanhSachSaveQuest
 {
-    // 🎯 THÊM DỮ LIỆU LƯU TÊN MAP TRƯỚC ĐÓ VÀO FILE SAVE
+    // 🎯 LƯU CẢ TÊN MAP CŨ VÀ TÊN MAP MỚI
     public string tenMapTruocDo = "ThanhTrucLam";
+    public string tenMapMoiTiepTheo = "UMinhLam";
 
     public List<ProgressQuest> danhSachProgress = new List<ProgressQuest>();
     public List<SaveItemData> danhSachItemSave = new List<SaveItemData>();
+    public List<SaveSkillData> danhSachSkillSave = new List<SaveSkillData>(); // 🎯 LƯU DANH SÁCH SKILL
     public PlayerStatsSaveData playerStats = new PlayerStatsSaveData();
 }
 
@@ -122,6 +138,9 @@ public class QuestSaveSystem : MonoBehaviour
                 if (duLieuSaveHienTai.danhSachItemSave == null)
                     duLieuSaveHienTai.danhSachItemSave = new List<SaveItemData>();
 
+                if (duLieuSaveHienTai.danhSachSkillSave == null)
+                    duLieuSaveHienTai.danhSachSkillSave = new List<SaveSkillData>();
+
                 if (duLieuSaveHienTai.playerStats == null)
                     duLieuSaveHienTai.playerStats = new PlayerStatsSaveData();
 
@@ -148,24 +167,68 @@ public class QuestSaveSystem : MonoBehaviour
         SaveDuLieuQuestToTxt();
     }
 
-    // 🎯 HÀM LƯU TÊN MAP TRƯỚC ĐÓ VÀO FILE SAVE JSON
+    // 🎯 HÀM LƯU CẤP ĐỘ SKILL VÀO FILE SAVE
+    public void LuuCapDoSkill(string nameSkill, int levelSkill)
+    {
+        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
+        if (duLieuSaveHienTai.danhSachSkillSave == null) duLieuSaveHienTai.danhSachSkillSave = new List<SaveSkillData>();
+
+        SaveSkillData skillSave = duLieuSaveHienTai.danhSachSkillSave.Find(s => s.skillName == nameSkill);
+        if (skillSave != null)
+        {
+            skillSave.skillLevel = levelSkill;
+        }
+        else
+        {
+            duLieuSaveHienTai.danhSachSkillSave.Add(new SaveSkillData(nameSkill, levelSkill));
+        }
+
+        SaveDuLieuQuestToTxt();
+    }
+
+    // 🎯 HÀM ĐỌC CẤP ĐỘ SKILL TỪ FILE SAVE
+    public int LayCapDoSkill(string nameSkill)
+    {
+        if (duLieuSaveHienTai == null || duLieuSaveHienTai.danhSachSkillSave == null) return 1;
+
+        SaveSkillData skillSave = duLieuSaveHienTai.danhSachSkillSave.Find(s => s.skillName == nameSkill);
+        return skillSave != null ? skillSave.skillLevel : 1;
+    }
+
     public void LuuMapTruocDo(string tenMap)
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
 
         duLieuSaveHienTai.tenMapTruocDo = tenMap;
         SaveDuLieuQuestToTxt();
-        Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Map trước đó vào Save: " + tenMap);
+        Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Map trước đó: " + tenMap);
     }
 
-    // 🎯 HÀM ĐỌC TÊN MAP TRƯỚC ĐÓ TỪ FILE SAVE
+    public void LuuMapMoiTiepTheo(string tenMapMoi)
+    {
+        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
+
+        duLieuSaveHienTai.tenMapMoiTiepTheo = tenMapMoi;
+        SaveDuLieuQuestToTxt();
+        Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Map mới tiếp theo: " + tenMapMoi);
+    }
+
     public string LayMapTruocDo()
     {
         if (duLieuSaveHienTai == null || string.IsNullOrEmpty(duLieuSaveHienTai.tenMapTruocDo))
         {
-            return "ThanhTrucLam"; // Tên Map mặc định dự phòng
+            return "ThanhTrucLam";
         }
         return duLieuSaveHienTai.tenMapTruocDo;
+    }
+
+    public string LayMapMoiTiepTheo()
+    {
+        if (duLieuSaveHienTai == null || string.IsNullOrEmpty(duLieuSaveHienTai.tenMapMoiTiepTheo))
+        {
+            return "UMinhLam";
+        }
+        return duLieuSaveHienTai.tenMapMoiTiepTheo;
     }
 
     public void LuuItemVaoSaveGame(string idItem, int soLuong = 1)

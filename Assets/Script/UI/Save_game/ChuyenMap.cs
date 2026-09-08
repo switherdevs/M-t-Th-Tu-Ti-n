@@ -11,7 +11,10 @@ public class ChuyenMapManager : MonoBehaviour
     public Button nutQuaMap;
 
     [Header("--- CẤU HÌNH SCENE ---")]
-    [Tooltip("Tên Scene map mới cần load khi ĐỦ điều kiện qua map")]
+    [Tooltip("Tên Scene Cutscene Thành Công (hoặc Scene Map mới cần load khi ĐỦ điều kiện)")]
+    public string tenScenePhaDaThanhCong = "PhaDaThanhCongScene";
+
+    [Tooltip("Tên Scene Map Mới sẽ chuyển đến sau khi xem xong Cutscene Thành Công")]
     public string tenSceneMapMoi = "Map2";
 
     [Tooltip("Tên Scene chuyển sang khi CHƯA ĐỦ điều kiện qua map (Phá đá thất bại)")]
@@ -73,28 +76,34 @@ public class ChuyenMapManager : MonoBehaviour
 
     public void OnClickQuaMap()
     {
-        // 🎯 LƯU LẠI TÊN SCENE MAP HIỆN TẠI VÀO SAVE SYSTEM TRƯỚC KHI CHUYỂN
+        // 🎯 1. BẤM CHUYỂN MAP THÌ LUÔN LƯU TÊN MAP HIỆN TẠI VÀO 'tenMapTruocDo'
         if (QuestSaveSystem.Instance != null)
         {
             string mapHienTai = SceneManager.GetActiveScene().name;
             QuestSaveSystem.Instance.LuuMapTruocDo(mapHienTai);
         }
 
-        // TRƯỜNG HỢP 1: ĐỦ ĐIỀU KIỆN -> CHUYỂN QUA MAP MỚI
+        // TRƯỜNG HỢP 1: ĐỦ ĐIỀU KIỆN -> LƯU MAP MỚI VÀ CHUYỂN SANG CUTSCENE THÀNH CÔNG
         if (KiemTraKichHoatQuaMap())
         {
-            if (!string.IsNullOrEmpty(tenSceneMapMoi))
+            if (QuestSaveSystem.Instance != null && !string.IsNullOrEmpty(tenSceneMapMoi))
             {
-                Debug.Log("<color=green>[Map Manager]</color> Đã đủ điều kiện! Đang chuyển sang Scene Map mới: " + tenSceneMapMoi);
-                SceneManager.LoadScene(tenSceneMapMoi);
+                // Lưu sẵn tên Map mới vào file save để Timeline Cutscene đọc sau
+                QuestSaveSystem.Instance.LuuMapMoiTiepTheo(tenSceneMapMoi);
+            }
+
+            if (!string.IsNullOrEmpty(tenScenePhaDaThanhCong))
+            {
+                Debug.Log("<color=green>[Map Manager]</color> Đã đủ điều kiện! Đang chuyển sang Cutscene Thành Công: " + tenScenePhaDaThanhCong);
+                SceneManager.LoadScene(tenScenePhaDaThanhCong);
             }
         }
-        // TRƯỜNG HỢP 2: CHƯA ĐỦ ĐIỀU KIỆN -> CHUYỂN QUA SCENE PHÁ ĐÁ THẤT BẠI
+        // TRƯỜNG HỢP 2: CHƯA ĐỦ ĐIỀU KIỆN -> CHUYỂN QUA CUTSCENE THẤT BẠI
         else
         {
             if (!string.IsNullOrEmpty(tenScenePhaDaThatBai))
             {
-                Debug.Log("<color=red>[Map Manager]</color> Chưa đủ điều kiện! Đang chuyển sang Scene Phá Đá Thất Bại: " + tenScenePhaDaThatBai);
+                Debug.Log("<color=red>[Map Manager]</color> Chưa đủ điều kiện! Đang chuyển sang Cutscene Thất Bại: " + tenScenePhaDaThatBai);
                 SceneManager.LoadScene(tenScenePhaDaThatBai);
             }
         }

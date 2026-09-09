@@ -34,9 +34,9 @@ public class Boss_UMinhThiDe : MonoBehaviour
 
     [Header("--- ÂM THANH (AUDIO) ---")]
     [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip sfxNormalAttack;   // Âm thanh bắn U Minh Long Chưởng
-    [SerializeField] private AudioClip sfxSpecialPrepare; // Âm thanh gồng Triệu Hồi Linh Hồn
-    [SerializeField] private AudioClip sfxSpecialCast;    // Âm thanh bung linh hồn ra 4 hướng
+    [SerializeField] private AudioClip sfxNormalAttack;
+    [SerializeField] private AudioClip sfxSpecialPrepare;
+    [SerializeField] private AudioClip sfxSpecialCast;
 
     [Header("--- ANIMATION STRINGS ---")]
     [SerializeField] private string animCastBlast = "Slash";
@@ -47,6 +47,7 @@ public class Boss_UMinhThiDe : MonoBehaviour
     private CharacterStats playerStats;
     private CharacterStats bossStats;
     private Animator animator;
+    private ExecutableEnemy executableEnemy;
 
     private float skillTimer;
     private float blastTimer;
@@ -58,6 +59,7 @@ public class Boss_UMinhThiDe : MonoBehaviour
     {
         animator = GetComponentInChildren<Animator>();
         bossStats = GetComponent<CharacterStats>();
+        executableEnemy = GetComponent<ExecutableEnemy>();
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
     }
 
@@ -85,7 +87,19 @@ public class Boss_UMinhThiDe : MonoBehaviour
 
     private void Update()
     {
-        if (isDead || isBusy) return;
+        // KHÓA DI CHUYỂN & SKILL NẾU BOSS BỊ KẾT LIỄU/STUN HOẶC ĐÃ CHẾT
+        if (isDead || (executableEnemy != null && executableEnemy.IsStunned))
+        {
+            if (isBusy || isWindingUp)
+            {
+                StopAllCoroutines();
+                isBusy = false;
+                isWindingUp = false;
+            }
+            return;
+        }
+
+        if (isBusy) return;
 
         FindPlayer();
         if (playerTransform == null) return;
@@ -170,7 +184,7 @@ public class Boss_UMinhThiDe : MonoBehaviour
         isBusy = true;
         blastTimer = blastCooldown;
         animator.SetTrigger(animCastBlast);
-        PlaySFX(sfxNormalAttack); // Âm thanh bắn chưởng
+        PlaySFX(sfxNormalAttack);
 
         yield return new WaitForSeconds(0.3f);
 
@@ -200,7 +214,7 @@ public class Boss_UMinhThiDe : MonoBehaviour
         isWindingUp = true;
         skillTimer = skillCooldown;
 
-        PlaySFX(sfxSpecialPrepare); // Âm thanh gồng chiêu triệu hồi
+        PlaySFX(sfxSpecialPrepare);
 
         float originalAnimSpeed = animator.speed;
         animator.speed *= slowMultiplier;
@@ -212,7 +226,7 @@ public class Boss_UMinhThiDe : MonoBehaviour
         animator.speed = originalAnimSpeed;
 
         animator.SetTrigger(animSummon);
-        PlaySFX(sfxSpecialCast); // Âm thanh bung chiêu triệu hồi
+        PlaySFX(sfxSpecialCast);
 
         yield return new WaitForSeconds(0.5f);
 
@@ -268,8 +282,6 @@ public class Boss_UMinhThiDe : MonoBehaviour
         {
             animator.SetTrigger(animDie);
         }
-
-        Debug.Log("<color=purple>[U Minh Thí Đế]</color> Boss đã bị tiêu diệt!");
     }
 
     private void PlaySFX(AudioClip clip)

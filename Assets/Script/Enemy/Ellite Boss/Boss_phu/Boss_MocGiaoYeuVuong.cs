@@ -34,9 +34,9 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
 
     [Header("--- ÂM THANH (AUDIO) ---")]
     [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip sfxNormalAttack;   // Âm thanh đánh thường (quật đuôi)
-    [SerializeField] private AudioClip sfxSpecialPrepare; // Âm thanh gồng chiêu đặc biệt (Triple Wood Orb)
-    [SerializeField] private AudioClip sfxSpecialCast;    // Âm thanh khi nhả đạn đạn đặc biệt
+    [SerializeField] private AudioClip sfxNormalAttack;
+    [SerializeField] private AudioClip sfxSpecialPrepare;
+    [SerializeField] private AudioClip sfxSpecialCast;
 
     [Header("--- ANIMATION STRINGS ---")]
     [SerializeField] private string animSwing = "TailSwing";
@@ -47,6 +47,7 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
     private CharacterStats playerStats;
     private CharacterStats bossStats;
     private Animator animator;
+    private ExecutableEnemy executableEnemy;
 
     private float skillTimer;
     private bool isBusy = false;
@@ -57,6 +58,7 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
     {
         animator = GetComponentInChildren<Animator>();
         bossStats = GetComponent<CharacterStats>();
+        executableEnemy = GetComponent<ExecutableEnemy>();
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
     }
 
@@ -88,7 +90,20 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
 
     private void Update()
     {
-        if (isDead || isBusy) return;
+        // KHÓA DI CHUYỂN & SKILL NẾU BOSS BỊ KẾT LIỄU/STUN HOẶC ĐÃ CHẾT
+        if (isDead || (executableEnemy != null && executableEnemy.IsStunned))
+        {
+            if (isBusy || isWindingUp)
+            {
+                StopAllCoroutines();
+                isBusy = false;
+                isWindingUp = false;
+                if (tailAttackHitbox != null) tailAttackHitbox.SetActive(false);
+            }
+            return;
+        }
+
+        if (isBusy) return;
 
         FindPlayer();
         if (playerTransform == null) return;
@@ -165,7 +180,7 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
     {
         isBusy = true;
         animator.SetTrigger(animSwing);
-        PlaySFX(sfxNormalAttack); // Âm thanh tấn công thường
+        PlaySFX(sfxNormalAttack);
 
         if (tailAttackHitbox != null) tailAttackHitbox.SetActive(true);
 
@@ -192,7 +207,7 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
         isWindingUp = true;
         skillTimer = skillCooldown;
 
-        PlaySFX(sfxSpecialPrepare); // Âm thanh chuẩn bị ra chiêu đặc biệt
+        PlaySFX(sfxSpecialPrepare);
 
         float originalAnimSpeed = animator.speed;
         animator.speed *= slowMultiplier;
@@ -204,7 +219,7 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
         animator.speed = originalAnimSpeed;
 
         animator.SetTrigger(animSpit);
-        PlaySFX(sfxSpecialCast); // Âm thanh tung chiêu đặc biệt
+        PlaySFX(sfxSpecialCast);
 
         yield return new WaitForSeconds(0.3f);
 
@@ -248,8 +263,6 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
         {
             animator.SetTrigger(animDie);
         }
-
-        Debug.Log("<color=green>[Mộc Giao Yêu Vương]</color> Boss đã bị tiêu diệt!");
     }
 
     private void PlaySFX(AudioClip clip)

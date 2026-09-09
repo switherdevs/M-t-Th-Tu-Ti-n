@@ -17,16 +17,23 @@ public class CinemachineMouseTarget : MonoBehaviour
     private float smoothSpeed = 8f;
 
     private Camera mainCam;
+    private bool isExecutingMode = false; // Cờ khóa follow khi kết liễu
 
     private void Awake()
     {
         mainCam = Camera.main;
     }
 
+    public void SetExecutingState(bool executing)
+    {
+        isExecutingMode = executing;
+    }
+
     private void Update()
     {
-        // Kiểm tra an toàn: Tránh lỗi NullReference khi chưa có Player hoặc Camera
-        if (playerTarget == null) return;
+        // Khi đang kết liễu hoặc thiếu target thì tạm dừng cập nhật vị trí điểm ngắm
+        if (isExecutingMode || playerTarget == null) return;
+
         if (mainCam == null)
         {
             mainCam = Camera.main;
@@ -37,14 +44,12 @@ public class CinemachineMouseTarget : MonoBehaviour
         Vector3 mouseScreenPos = Input.mousePosition;
         mouseScreenPos.z = Mathf.Abs(mainCam.transform.position.z);
 
-        // Chuyển tọa độ chuột từ Screen Space sang World Space 2D
         Vector3 mouseWorldPos = mainCam.ScreenToWorldPoint(mouseScreenPos);
 
         // 2. TÍNH HƯỚNG VÀ KHOẢNG CÁCH TỪ PLAYER ĐẾN CHUỘT
         Vector3 dirToMouse = mouseWorldPos - playerTarget.position;
 
         // 3. THUẬT TOÁN GIỚI HẠN ĐỘ XA RIÊNG BỆNH CHO TRỤC X VÀ TRỤC Y (CLAMP)
-        // Dùng Mathf.Clamp để khóa chính xác khoảng cách cho từng trục
         float clampedX = Mathf.Clamp(dirToMouse.x, -maxXOffset, maxXOffset);
         float clampedY = Mathf.Clamp(dirToMouse.y, -maxYOffset, maxYOffset);
 
@@ -52,7 +57,7 @@ public class CinemachineMouseTarget : MonoBehaviour
 
         // 4. TÍNH VỊ TRÍ ĐÍCH CHO ĐIỂM NGẮM
         Vector3 targetPosition = playerTarget.position + clampedOffset;
-        targetPosition.z = 0f; // Khóa trục Z trên mặt phẳng 2D
+        targetPosition.z = 0f;
 
         // 5. NỘI SUY DI CHUYỂN ĐIỂM NGẮM MƯỢT MÀ
         transform.position = Vector3.Lerp(transform.position, targetPosition, smoothSpeed * Time.deltaTime);

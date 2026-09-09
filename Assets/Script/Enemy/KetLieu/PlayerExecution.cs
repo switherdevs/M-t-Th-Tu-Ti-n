@@ -1,35 +1,76 @@
+using System;
 using System.Collections;
+using Unity.Cinemachine;
 using UnityEngine;
+
+[Serializable]
+public struct CameraShakeTiming
+{
+    [Tooltip("Thời điểm bắt đầu rung tính từ lúc bắt đầu Execution (giây)")]
+    public float delayTime;
+    [Tooltip("Cường độ rung (Amplitude Gain)")]
+    public float impulseForce;
+    [Tooltip("Thời gian duy trì đợt rung này (giây)")]
+    public float duration;
+}
 
 public class PlayerExecution : MonoBehaviour
 {
     [Header("=== CẤU HÌNH KẾT LIỄU ===")]
     [Tooltip("Khoảng cách tối đa để bấm phím E kết liễu")]
     [SerializeField] private float executeRange = 2.5f;
+    [Tooltip("Tốc độ Player lướt/tiến đến vị trí kết liễu")]
+    [SerializeField] private float moveToTargetSpeed = 15f;
+
+    [Header("=== ANIMATION PARAMETERS ===")]
+    [Tooltip("Tên tham số Bool điều khiển Animation chạy/di chuyển")]
+    [SerializeField] private string moveBoolName = "IsMoving";
     [Tooltip("Tên Trigger Animation kết liễu của Player")]
     [SerializeField] private string executionAnimName = "Execute";
 
     [Header("=== LAYER MỤC TIÊU ===")]
     [SerializeField] private LayerMask enemyLayer;
 
+    [Header("=== CẤU HÌNH CAMERA TARGET & ZOOM ===")]
+    [SerializeField] private CinemachineCamera virtualCamera;
+    [SerializeField] private Transform defaultCamTarget;
+    [SerializeField] private CinemachineMouseTarget mouseTargetScript;
+
+    [Space(5)]
+    [SerializeField] private float defaultLensSize = 5f;
+    [SerializeField] private float executionLensSize = 3f;
+    [SerializeField] private float zoomSpeed = 5f;
+
+    [Header("=== CẤU HÌNH RUNG CAM (PERLIN NOISE) ===")]
+    [SerializeField] private CameraShakeTiming[] shakeTimings;
+
     private Animator anim;
-    private MonoBehaviour playerMovementScript; // Script di chuyển của Player (ví dụ: TanCong/PlayerController)
+    private PlayerController playerMovementScript;
+    private Luot playerDashScript;
+    private TanCong playerAttackScript;
+    private CinemachineBasicMultiChannelPerlin perlinNoise;
     private bool isExecuting = false;
+    private Coroutine zoomCoroutine;
 
     public bool IsExecuting => isExecuting;
 
     private void Awake()
     {
         anim = GetComponentInChildren<Animator>();
-        // Tự lấy script di chuyển chính trên Player để bật/tắt khi kết liễu
-        playerMovementScript = GetComponent<MonoBehaviour>(); 
+        playerMovementScript = GetComponent<PlayerController>();
+        playerDashScript = GetComponent<Luot>();
+        playerAttackScript = GetComponent<TanCong>();
+
+        if (virtualCamera != null)
+        {
+            perlinNoise = virtualCamera.GetComponent<CinemachineBasicMultiChannelPerlin>();
+        }
     }
 
     private void Update()
     {
         if (isExecuting) return;
 
-        // BẤM PHÍM 'E' ĐỂ KẾT LIỄU
         if (Input.GetKeyDown(KeyCode.E))
         {
             TryExecuteEnemy();
@@ -38,56 +79,159 @@ public class PlayerExecution : MonoBehaviour
 
     private void TryExecuteEnemy()
     {
-        // Quét tìm Boss/Quái xung quanh trong phạm vi executeRange
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, executeRange, enemyLayer);
 
         foreach (var hit in hits)
         {
+            // 1. Kiểm tra nếu là Quái Thường / Boss Tỳ Hưu dùng ExecutableEnemy
             ExecutableEnemy executable = hit.GetComponentInParent<ExecutableEnemy>();
             if (executable != null && executable.IsCanBeExecuted)
             {
-                StartExecutionProcess(executable);
+                StartCoroutine(ProcessExecutionSequence(executable, null));
+                break;
+            }
+
+            // 2. Kiểm tra nếu là Boss Tổng Quản dùng BossExecution_TongQuan
+            BossExecution_TongQuan bossExecutable = hit.GetComponentInParent<BossExecution_TongQuan>();
+            if (bossExecutable != null && bossExecutable.IsCanBeExecuted)
+            {
+                StartCoroutine(ProcessExecutionSequence(null, bossExecutable));
                 break;
             }
         }
     }
 
-    private void StartExecutionProcess(ExecutableEnemy targetEnemy)
+    private IEnumerator ProcessExecutionSequence(ExecutableEnemy targetEnemy, BossExecution_TongQuan targetBoss)
     {
         isExecuting = true;
 
-        // 1. Khóa di chuyển của Player
-        if (playerMovementScript != null) playerMovementScript.enabled = false;
+        // Tắt điều khiển Player
+        if (playerMovementScript != null)
+        {
+            playerMovementScript.StopMovementAndAnimation();
+            playerMovementScript.enabled = false;
+        }
+        if (playerDashScript != null) playerDashScript.enabled = false;
+        if (playerAttackScript != null) playerAttackScript.enabled = false;
 
-        // 2. Hút nhẹ Player về điểm đứng chuẩn trước mặt Boss (Snap Position)
-        transform.position = targetEnemy.ExecutionPoint.position;
+        // Lấy vị trí ExecutionPoint và Transform của mục tiêu
+        Transform executionPoint = targetEnemy != null ? targetEnemy.ExecutionPoint : targetBoss.ExecutionPoint;
+        Transform targetTransform = targetEnemy != null ? targetEnemy.transform : targetBoss.transform;
 
-        // Xoay mặt Player về phía Boss
-        if (targetEnemy.transform.position.x < transform.position.x)
-            transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-        else
-            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+        // Bật Anim di chuyển
+        if (anim != null && !string.IsNullOrEmpty(moveBoolName))
+        {
+            anim.SetBool(moveBoolName, true);
+        }
 
-        // 3. Phát Animation kết liễu của Player
-        if (anim != null)
+        // Di chuyển mượt tới vị trí đứng kết liễu
+        Vector3 targetPos = executionPoint.position;
+        while (Vector3.Distance(transform.position, targetPos) > 0.05f)
+        {
+            targetPos = executionPoint.position;
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveToTargetSpeed * Time.deltaTime);
+            yield return null;
+        }
+        transform.position = targetPos;
+
+        // Tắt Anim di chuyển và quay mặt về hướng quái
+        if (anim != null && !string.IsNullOrEmpty(moveBoolName))
+        {
+            anim.SetBool(moveBoolName, false);
+        }
+
+        bool faceRight = targetTransform.position.x >= transform.position.x;
+        transform.eulerAngles = faceRight ? new Vector3(0f, 0f, 0f) : new Vector3(0f, 180f, 0f);
+
+        // Zoom Camera
+        SwitchCameraTarget(executionPoint);
+        StartZoomCamera(executionLensSize);
+
+        // Chạy Animation kết liễu Player
+        if (anim != null && !string.IsNullOrEmpty(executionAnimName))
         {
             anim.SetTrigger(executionAnimName);
         }
 
-        // 4. Kích hoạt chuỗi kết liễu trên Boss
-        targetEnemy.Execute(transform, OnExecutionFinished);
+        StartCoroutine(ProcessCameraShakeSequence());
+
+        // Gọi hàm Thực thi kết liễu tương ứng
+        if (targetEnemy != null)
+        {
+            targetEnemy.Execute(transform, OnExecutionFinished);
+        }
+        else if (targetBoss != null)
+        {
+            targetBoss.ExecuteBoss(transform, OnExecutionFinished);
+        }
     }
 
-    // Mở khóa Player khi hoàn thành xong kết liễu
+    private IEnumerator ProcessCameraShakeSequence()
+    {
+        if (shakeTimings == null || shakeTimings.Length == 0 || perlinNoise == null) yield break;
+
+        float elapsedTime = 0f;
+        for (int i = 0; i < shakeTimings.Length; i++)
+        {
+            float waitTime = shakeTimings[i].delayTime - elapsedTime;
+            if (waitTime > 0)
+            {
+                yield return new WaitForSeconds(waitTime);
+                elapsedTime += waitTime;
+            }
+
+            perlinNoise.AmplitudeGain = shakeTimings[i].impulseForce;
+            yield return new WaitForSeconds(shakeTimings[i].duration);
+            elapsedTime += shakeTimings[i].duration;
+            perlinNoise.AmplitudeGain = 0f;
+        }
+    }
+
+    private void StartZoomCamera(float targetSize)
+    {
+        if (virtualCamera == null) return;
+        if (zoomCoroutine != null) StopCoroutine(zoomCoroutine);
+        zoomCoroutine = StartCoroutine(ZoomCameraRoutine(targetSize));
+    }
+
+    private IEnumerator ZoomCameraRoutine(float targetSize)
+    {
+        while (Mathf.Abs(virtualCamera.Lens.OrthographicSize - targetSize) > 0.01f)
+        {
+            virtualCamera.Lens.OrthographicSize = Mathf.Lerp(virtualCamera.Lens.OrthographicSize, targetSize, zoomSpeed * Time.deltaTime);
+            yield return null;
+        }
+        virtualCamera.Lens.OrthographicSize = targetSize;
+    }
+
+    private void SwitchCameraTarget(Transform newTarget)
+    {
+        if (mouseTargetScript != null) mouseTargetScript.SetExecutingState(true);
+        if (virtualCamera != null && newTarget != null) virtualCamera.Follow = newTarget;
+    }
+
     private void OnExecutionFinished()
     {
         isExecuting = false;
-        if (playerMovementScript != null) playerMovementScript.enabled = true;
+
+        if (playerMovementScript != null)
+        {
+            playerMovementScript.enabled = true;
+            playerMovementScript.ForceRefreshRotation();
+        }
+
+        if (playerDashScript != null) playerDashScript.enabled = true;
+        if (playerAttackScript != null) playerAttackScript.enabled = true;
+        if (mouseTargetScript != null) mouseTargetScript.SetExecutingState(false);
+
+        if (virtualCamera != null && defaultCamTarget != null) virtualCamera.Follow = defaultCamTarget;
+
+        StartZoomCamera(defaultLensSize);
+        if (perlinNoise != null) perlinNoise.AmplitudeGain = 0f;
     }
 
     private void OnDrawGizmosSelected()
     {
-        // Vẽ vòng tròn tầm bấm E kết liễu
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, executeRange);
     }

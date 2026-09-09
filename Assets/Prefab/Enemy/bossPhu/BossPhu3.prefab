@@ -166,6 +166,7 @@ GameObject:
   - component: {fileID: 8134448750774147071}
   - component: {fileID: 5224662746085160461}
   - component: {fileID: 7018414143974270214}
+  - component: {fileID: -4103249252624250795}
   m_Layer: 9
   m_Name: BossPhu3
   m_TagString: Enemy
@@ -225,6 +226,10 @@ MonoBehaviour:
   soulSummonPoint: {fileID: 6697599525351215742}
   summonDistance: 10
   soulSpeed: 20
+  audioSource: {fileID: 0}
+  sfxNormalAttack: {fileID: 0}
+  sfxSpecialPrepare: {fileID: 0}
+  sfxSpecialCast: {fileID: 0}
   animCastBlast: Slash
   animSummon: SummonCast
   animDie: Die
@@ -364,6 +369,28 @@ MonoBehaviour:
   isPlayer: 0
   weaponTag: Kiem
   hideOnDeath: 1
+--- !u!114 &-4103249252624250795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3070545458200368431}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 285c70042694cce45a3e79074581e0e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  executionHealthThreshold: 0.3
+  stunDuration: 10
+  executionPoint: {fileID: 0}
+  stunStateName: Stun
+  executionStateName: BeingExecuted
+  die2StateName: Die2
+  executionVFXPrefab: {fileID: 3486426238667156243, guid: 6e576f3e155399c4e8bae0d95be2851f, type: 3}
+  vfxSpawnPoint: {fileID: 0}
+  executePromptUI: {fileID: 0}
+  stunVFXObject: {fileID: 0}
 --- !u!1 &3763031893487770551
 GameObject:
   m_ObjectHideFlags: 0

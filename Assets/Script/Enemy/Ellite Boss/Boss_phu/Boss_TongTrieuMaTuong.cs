@@ -25,8 +25,8 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
     [Header("--- TÙY CHỌN ẨN / HIỆN GAMEOBJECT ---")]
     [SerializeField, Tooltip("GameObject sẽ ẩn/hiện (Nếu để trống sẽ mặc định dùng GameObject của Boss)")]
     private GameObject targetVisualObject;
-    [SerializeField] private float stealthShowDuration = 2.5f; // Thời gian hiện lên khi tấn công
-    [SerializeField] private float stealthHideDuration = 1.5f; // Thời gian ẩn đi
+    [SerializeField] private float stealthShowDuration = 2.5f;
+    [SerializeField] private float stealthHideDuration = 1.5f;
 
     [Header("--- ĐIỀU KIỆN KÍCH HOẠT SKILL ĐẶC BIỆT ---")]
     [SerializeField] private int attacksToSpecial = 5;
@@ -49,10 +49,10 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
 
     [Header("--- ÂM THANH (AUDIO) ---")]
     [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip sfxNormalAttack;   // Âm thanh đánh thường
-    [SerializeField] private AudioClip sfxSpecialPrepare; // Âm thanh chuẩn bị lao vào bắt người chơi
-    [SerializeField] private AudioClip sfxSpecialCast;    // Âm thanh khi bắt trúng người chơi
-    [SerializeField] private AudioClip sfxKidnappingLoop; // Âm thanh phát liên tục/định kỳ trong lúc đang bắt người chơi
+    [SerializeField] private AudioClip sfxNormalAttack;
+    [SerializeField] private AudioClip sfxSpecialPrepare;
+    [SerializeField] private AudioClip sfxSpecialCast;
+    [SerializeField] private AudioClip sfxKidnappingLoop;
 
     [Header("--- ANIMATION STRINGS ---")]
     [SerializeField] private string animCharge = "isCharging";
@@ -66,6 +66,7 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
     private CharacterStats bossStats;
     private Animator animator;
     private SpriteRenderer bossSprite;
+    private ExecutableEnemy executableEnemy;
 
     private int basicAttackCount = 0;
     private float specialSkillTimer = 0f;
@@ -80,6 +81,7 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         bossSprite = GetComponentInChildren<SpriteRenderer>();
         bossStats = GetComponent<CharacterStats>();
+        executableEnemy = GetComponent<ExecutableEnemy>();
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
 
         if (targetVisualObject == null)
@@ -117,7 +119,21 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
 
     private void Update()
     {
-        if (isDead || isBusy || isKidnapping) return;
+        // KHÓA DI CHUYỂN & SKILL NẾU BOSS BỊ KẾT LIỄU/STUN HOẶC ĐÃ CHẾT
+        if (isDead || (executableEnemy != null && executableEnemy.IsStunned))
+        {
+            if (isBusy || isKidnapping)
+            {
+                StopAllCoroutines();
+                isBusy = false;
+                isKidnapping = false;
+                if (attackHitbox != null) attackHitbox.SetActive(false);
+                if (targetVisualObject != null) targetVisualObject.SetActive(true);
+            }
+            return;
+        }
+
+        if (isBusy || isKidnapping) return;
 
         FindPlayer();
         if (playerTransform == null) return;
@@ -181,8 +197,6 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
                 animator.SetTrigger(animDie);
             }
         }
-
-        Debug.Log("<color=red>[Boss Manager]</color> Boss đã bị tiêu diệt! Đã tắt toàn bộ Collider và dừng di chuyển.");
     }
 
     private void FindPlayer()
@@ -241,12 +255,11 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
     {
         isBusy = true;
 
-        // Bật hiển thị Visual GameObject trong khoảng thời gian stealthShowDuration
         if (targetVisualObject != null) targetVisualObject.SetActive(true);
 
         animator.SetBool(animCharge, false);
         animator.SetTrigger(animSpearThrust);
-        PlaySFX(sfxNormalAttack); // Âm thanh đánh thường
+        PlaySFX(sfxNormalAttack);
 
         if (attackHitbox != null) attackHitbox.SetActive(true);
 
@@ -268,7 +281,6 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
 
         if (attackHitbox != null) attackHitbox.SetActive(false);
 
-        // Nút ẩn Visual GameObject sau khi hết thời gian tấn công
         if (targetVisualObject != null && targetVisualObject != this.gameObject)
         {
             targetVisualObject.SetActive(false);
@@ -287,7 +299,7 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
         if (targetVisualObject != null) targetVisualObject.SetActive(true);
 
         animator.SetBool(animCharge, true);
-        PlaySFX(sfxSpecialPrepare); // Âm thanh chuẩn bị lao vào bắt
+        PlaySFX(sfxSpecialPrepare);
 
         if (attackHitbox != null) attackHitbox.SetActive(false);
 
@@ -300,7 +312,7 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
             yield return null;
         }
 
-        PlaySFX(sfxSpecialCast); // Âm thanh khi đã tiếp cận bắt trúng
+        PlaySFX(sfxSpecialCast);
 
         animator.SetBool(animGrabBool, true);
         animator.SetBool(animCharge, true);
@@ -332,7 +344,7 @@ public class Boss_TongTrieuMaTuong : MonoBehaviour
             if (damageTimer >= kidnapDamageInterval)
             {
                 damageTimer = 0f;
-                PlaySFX(sfxKidnappingLoop); // Âm thanh định kỳ/vô hiệu hóa trong lúc bắt người chơi
+                PlaySFX(sfxKidnappingLoop);
 
                 if (playerStats != null)
                 {

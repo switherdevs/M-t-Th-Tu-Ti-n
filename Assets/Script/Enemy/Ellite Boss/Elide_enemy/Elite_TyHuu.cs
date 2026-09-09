@@ -24,27 +24,29 @@ public class Elite_TyHuu : MonoBehaviour
     [SerializeField] private int shootsBeforeRoar = 3;
 
     [Header("--- KỸ NĂNG 2: ROAR SKILL (GẦM) ---")]
-    [SerializeField] private float roarWindupTime = 1f;              // Thời gian gồng trước khi gầm
-    [SerializeField] private float roarDuration = 2f;                // Thời gian giữ tư thế gầm (Bool = true)
-    [SerializeField] private AudioClip sfxRoar;                       // Âm thanh tiếng gầm riêng biệt
-    [SerializeField] private float roarCameraShakeIntensity = 2.5f;  // Độ rung màn hình
-    [SerializeField] private float roarCameraShakeDuration = 0.8f;   // Thời gian rung màn hình
-    [SerializeField] private float playerSlowMultiplier = 0.3f;     // Tốc độ di chuyển người chơi bị giảm còn 30%
-    [SerializeField] private float playerSlowDuration = 2.5f;        // Thời gian người chơi bị làm chậm
-    [SerializeField] private float roarAffectRadius = 10f;           // Tầm ảnh hưởng của tiếng gầm
+    [SerializeField] private float roarWindupTime = 1f;
+    [SerializeField] private float roarDuration = 2f;
+    [SerializeField] private AudioClip sfxRoar;
+    [SerializeField] private float roarCameraShakeIntensity = 2.5f;
+    [SerializeField] private float roarCameraShakeDuration = 0.8f;
+    [SerializeField] private float playerSlowMultiplier = 0.3f;
+    [SerializeField] private float playerSlowDuration = 2.5f;
+    [SerializeField] private float roarAffectRadius = 10f;
 
     [Header("--- ÂM THANH (AUDIO) ---")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip sfxPrepareAttack;
     [SerializeField] private AudioClip sfxAttack;
+    [SerializeField] private AudioClip sfxStun;
     [SerializeField] private AudioClip sfxDeath;
 
     [Header("--- ANIMATION STRINGS ---")]
     [SerializeField] private string animWalk = "isWalking";
     [SerializeField] private string animClaw1 = "Claw1";
     [SerializeField] private string animClaw2 = "Claw2";
-    [SerializeField] private string animAttack = "Attack";     // Trigger bắn đá
-    [SerializeField] private string animIsRoaring = "isRoaring"; // Bool gầm (mới)
+    [SerializeField] private string animAttack = "Attack";
+    [SerializeField] private string animIsRoaring = "isRoaring";
+    [SerializeField] private string animIsStunned = "IsStunned";
 
     private Transform playerTransform;
     private Animator animator;
@@ -55,7 +57,11 @@ public class Elite_TyHuu : MonoBehaviour
     private int shootCount = 0;
     private bool isBusy = false;
     private bool isWindingUp = false;
+    private bool isStunned = false;
+    private bool isBeingExecuted = false;
     private bool isDeadHandled = false;
+
+    private Coroutine currentBehaviorCoroutine;
 
     private void Awake()
     {
@@ -74,7 +80,9 @@ public class Elite_TyHuu : MonoBehaviour
     private void Update()
     {
         if (CheckAndHandleDeath()) return;
-        if (isBusy) return;
+
+        // KHÓA TUYỆT ĐỐI: Nếu Choáng, Bị kết liễu hoặc Bận -> Dừng toàn bộ AI
+        if (isStunned || isBeingExecuted || isBusy) return;
 
         FindPlayer();
         if (playerTransform == null) return;
@@ -95,20 +103,20 @@ public class Elite_TyHuu : MonoBehaviour
         {
             if (shootCount < shootsBeforeRoar)
             {
-                StartCoroutine(Routine_StoneBreath());
+                currentBehaviorCoroutine = StartCoroutine(Routine_StoneBreath());
             }
             else
             {
-                StartCoroutine(Routine_RoarSkill());
+                currentBehaviorCoroutine = StartCoroutine(Routine_RoarSkill());
             }
         }
         else if (distance <= attackRange)
         {
-            StartCoroutine(Routine_DoubleClaw());
+            currentBehaviorCoroutine = StartCoroutine(Routine_DoubleClaw());
         }
         else
         {
-            animator.SetBool(animWalk, true);
+            if (animator != null) animator.SetBool(animWalk, true);
             MoveSmoothly(playerTransform.position, moveSpeed);
         }
     }
@@ -120,18 +128,77 @@ public class Elite_TyHuu : MonoBehaviour
             if (!isDeadHandled)
             {
                 isDeadHandled = true;
-                isBusy = true;
+                InterruptAllActions();
                 if (mainCollider != null) mainCollider.enabled = false;
-                if (animator != null)
-                {
-                    animator.SetBool(animWalk, false);
-                    animator.SetBool(animIsRoaring, false);
-                }
                 PlaySFX(sfxDeath);
             }
             return true;
         }
         return false;
+    }
+
+    public void InterruptAllActions()
+    {
+        StopAllCoroutines();
+        currentBehaviorCoroutine = null;
+
+        isBusy = true;
+        isWindingUp = false;
+
+        if (animator != null)
+        {
+            animator.SetBool(animWalk, false);
+            animator.SetBool(animIsRoaring, false);
+        }
+    }
+
+    public void ApplyStun(float duration)
+    {
+        if (isDeadHandled || isBeingExecuted) return;
+
+        InterruptAllActions();
+        currentBehaviorCoroutine = StartCoroutine(Routine_GetStunned(duration));
+    }
+
+    public void EndStun()
+    {
+        if (isBeingExecuted || isDeadHandled) return;
+
+        SetAnimatorBoolSafe(animIsStunned, false);
+        isStunned = false;
+        isBusy = false;
+        isWindingUp = false;
+    }
+
+    private IEnumerator Routine_GetStunned(float duration)
+    {
+        isStunned = true;
+        isBusy = true;
+        isWindingUp = false;
+
+        if (animator != null)
+        {
+            animator.SetBool(animWalk, false);
+            animator.SetBool(animIsRoaring, false);
+            SetAnimatorBoolSafe(animIsStunned, true);
+        }
+
+        PlaySFX(sfxStun);
+
+        yield return new WaitForSeconds(duration);
+
+        EndStun();
+    }
+
+    public void OnStartExecution()
+    {
+        InterruptAllActions();
+        isBeingExecuted = true;
+        isStunned = false;
+        isBusy = true;
+        isWindingUp = false;
+
+        SetAnimatorBoolSafe(animIsStunned, false);
     }
 
     private void FindPlayer()
@@ -141,7 +208,7 @@ public class Elite_TyHuu : MonoBehaviour
             if (Vector2.Distance(transform.position, playerTransform.position) > detectionRange * 1.5f)
             {
                 playerTransform = null;
-                animator.SetBool(animWalk, false);
+                if (animator != null) animator.SetBool(animWalk, false);
             }
             return;
         }
@@ -152,6 +219,9 @@ public class Elite_TyHuu : MonoBehaviour
 
     private void MoveSmoothly(Vector3 targetPosition, float speed)
     {
+        // Khóa tuyệt đối di chuyển khi Stun hoặc Bị kết liễu
+        if (isStunned || isBeingExecuted) return;
+
         Vector2 currentPos = transform.position;
         Vector2 dirToTarget = ((Vector2)targetPosition - currentPos).normalized;
         Vector2 moveDir = dirToTarget;
@@ -170,16 +240,20 @@ public class Elite_TyHuu : MonoBehaviour
     private IEnumerator Routine_DoubleClaw()
     {
         isBusy = true;
-        animator.SetBool(animWalk, false);
+        if (animator != null) animator.SetBool(animWalk, false);
 
         PlaySFX(sfxPrepareAttack);
         yield return new WaitForSeconds(0.2f);
 
-        animator.SetTrigger(animClaw1);
+        if (isStunned || isBeingExecuted || isDeadHandled) yield break;
+
+        if (animator != null) animator.SetTrigger(animClaw1);
         PlaySFX(sfxAttack);
         yield return new WaitForSeconds(0.4f);
 
-        animator.SetTrigger(animClaw2);
+        if (isStunned || isBeingExecuted || isDeadHandled) yield break;
+
+        if (animator != null) animator.SetTrigger(animClaw2);
         PlaySFX(sfxAttack);
         yield return new WaitForSeconds(0.6f);
 
@@ -194,22 +268,35 @@ public class Elite_TyHuu : MonoBehaviour
         PlaySFX(sfxPrepareAttack);
 
         float originalSpeed = moveSpeed;
-        float originalAnimSpeed = animator.speed;
+        float originalAnimSpeed = animator != null ? animator.speed : 1f;
         moveSpeed *= slowMultiplier;
-        animator.speed *= slowMultiplier;
+        if (animator != null) animator.speed *= slowMultiplier;
 
         yield return new WaitForSeconds(windupTime);
+
+        if (isStunned || isBeingExecuted || isDeadHandled)
+        {
+            moveSpeed = originalSpeed;
+            if (animator != null) animator.speed = originalAnimSpeed;
+            isWindingUp = false;
+            yield break;
+        }
 
         isWindingUp = false;
         isBusy = true;
         moveSpeed = originalSpeed;
-        animator.speed = originalAnimSpeed;
+        if (animator != null) animator.speed = originalAnimSpeed;
 
-        animator.SetBool(animWalk, false);
-        animator.SetTrigger(animAttack);
+        if (animator != null)
+        {
+            animator.SetBool(animWalk, false);
+            animator.SetTrigger(animAttack);
+        }
         PlaySFX(sfxAttack);
 
         yield return new WaitForSeconds(0.3f);
+
+        if (isStunned || isBeingExecuted || isDeadHandled) yield break;
 
         float[] angles = { -15f, 0f, 15f };
         Vector3 spawnPos = mouthPoint != null ? mouthPoint.position : GetAttackCenter();
@@ -223,7 +310,7 @@ public class Elite_TyHuu : MonoBehaviour
             if (stoneProjectilePool != null)
             {
                 GameObject stone = stoneProjectilePool.GetFromPool(spawnPos, Quaternion.identity);
-                if (stone.TryGetComponent<Rigidbody2D>(out Rigidbody2D rb))
+                if (stone != null && stone.TryGetComponent<Rigidbody2D>(out Rigidbody2D rb))
                 {
                     rb.linearVelocity = finalDir * projectileSpeed;
                 }
@@ -236,7 +323,6 @@ public class Elite_TyHuu : MonoBehaviour
         isBusy = false;
     }
 
-    // SKILL 2: TIẾNG GẦM (ROAR SKILL - DÙNG ANIMATION BOOL)
     private IEnumerator Routine_RoarSkill()
     {
         isWindingUp = true;
@@ -245,32 +331,37 @@ public class Elite_TyHuu : MonoBehaviour
         PlaySFX(sfxPrepareAttack);
 
         float originalSpeed = moveSpeed;
-        float originalAnimSpeed = animator.speed;
+        float originalAnimSpeed = animator != null ? animator.speed : 1f;
         moveSpeed *= slowMultiplier;
-        animator.speed *= slowMultiplier;
+        if (animator != null) animator.speed *= slowMultiplier;
 
-        // Thời gian gồng chiêu
         yield return new WaitForSeconds(roarWindupTime);
+
+        if (isStunned || isBeingExecuted || isDeadHandled)
+        {
+            moveSpeed = originalSpeed;
+            if (animator != null) animator.speed = originalAnimSpeed;
+            isWindingUp = false;
+            yield break;
+        }
 
         isWindingUp = false;
         isBusy = true;
         moveSpeed = originalSpeed;
-        animator.speed = originalAnimSpeed;
+        if (animator != null) animator.speed = originalAnimSpeed;
 
-        // Dừng đi bộ và Bật Bool Gầm thành true
-        animator.SetBool(animWalk, false);
-        animator.SetBool(animIsRoaring, true);
+        if (animator != null)
+        {
+            animator.SetBool(animWalk, false);
+            animator.SetBool(animIsRoaring, true);
+        }
 
-        // Kích hoạt âm thanh, rung màn hình và làm chậm người chơi
         ExecuteRoarEffects();
 
-        // Giữ trạng thái Gầm trong khoảng thời gian roarDuration (Tỳ Hưu đứng yên tại chỗ)
         yield return new WaitForSeconds(roarDuration);
 
-        // Hết thời gian Gầm -> Tắt Bool Gầm thành false
-        animator.SetBool(animIsRoaring, false);
+        if (animator != null) animator.SetBool(animIsRoaring, false);
 
-        // Reset biến đếm để quay lại chu kỳ bắn đá 3 lần
         shootCount = 0;
         isBusy = false;
     }
@@ -297,6 +388,14 @@ public class Elite_TyHuu : MonoBehaviour
         }
     }
 
+    private void SetAnimatorBoolSafe(string paramName, bool value)
+    {
+        if (animator != null && !string.IsNullOrEmpty(paramName))
+        {
+            animator.SetBool(paramName, value);
+        }
+    }
+
     private void PlaySFX(AudioClip clip)
     {
         if (audioSource != null && clip != null)
@@ -307,6 +406,7 @@ public class Elite_TyHuu : MonoBehaviour
 
     private void FlipTowards(Vector3 target)
     {
+        if (isStunned || isBeingExecuted) return;
         Vector3 scale = transform.localScale;
         scale.x = target.x > transform.position.x ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
         transform.localScale = scale;

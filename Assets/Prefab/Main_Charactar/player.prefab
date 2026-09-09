@@ -724,11 +724,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f491674fb5021949a73048ef152e8a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  executeRange: 1.5
+  executeRange: 20
+  moveToTargetSpeed: 35
+  moveBoolName: IsMoving
   executionAnimName: Execute
   enemyLayer:
     serializedVersion: 2
     m_Bits: 512
+  virtualCamera: {fileID: 0}
+  defaultCamTarget: {fileID: 878367778509321457}
+  mouseTargetScript: {fileID: 0}
+  defaultLensSize: 30
+  executionLensSize: 25
+  zoomSpeed: 4
+  shakeTimings:
+  - delayTime: 0.5
+    impulseForce: 50
+    duration: 0.25
+  - delayTime: 1
+    impulseForce: 60
+    duration: 0.25
+  - delayTime: 1.5
+    impulseForce: 75
+    duration: 0.25
+  - delayTime: 2
+    impulseForce: 80
+    duration: 0.25
 --- !u!1 &2390863112206969679
 GameObject:
   m_ObjectHideFlags: 0

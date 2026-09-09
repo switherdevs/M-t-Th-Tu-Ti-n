@@ -33,10 +33,12 @@ public class Elite_HuyetPhu : MonoBehaviour
     [SerializeField] private AudioClip sfxPrepareAttack;
     [SerializeField] private AudioClip sfxAttack;
     [SerializeField] private AudioClip sfxDeath;
+    [SerializeField] private AudioClip sfxStun;
 
     [Header("--- ANIMATION STRINGS ---")]
     [SerializeField] private string animCastBasic = "CastBasic";
     [SerializeField] private string animCastArray = "CastArray";
+    [SerializeField] private string animIsStunned = "isStunned";
 
     private Transform playerTransform;
     private Animator animator;
@@ -46,11 +48,16 @@ public class Elite_HuyetPhu : MonoBehaviour
     private int basicAttackCount = 0;
     private bool isBusy = false;
     private bool isWindingUp = false;
+    private bool isStunned = false;
+    private bool isBeingExecuted = false;
     private bool isDeadHandled = false;
 
     private WaitForSeconds waitBasicShootDelay = new WaitForSeconds(0.3f);
     private WaitForSeconds waitBasicShootEnd = new WaitForSeconds(1.2f);
     private WaitForSeconds waitTalismanLaunchDelay = new WaitForSeconds(0.2f);
+
+    private Coroutine currentBehaviorCoroutine;
+    private List<GameObject> activeTalismans = new List<GameObject>();
 
     private void Awake()
     {
@@ -68,7 +75,9 @@ public class Elite_HuyetPhu : MonoBehaviour
     private void Update()
     {
         if (CheckAndHandleDeath()) return;
-        if (isBusy) return;
+
+        // KIỂM TRA ĐẦU TIÊN: Khóa hoàn toàn nếu Choáng, Bận hoặc đang bị Kết liễu
+        if (isStunned || isBeingExecuted || isBusy) return;
 
         FindPlayer();
         if (playerTransform == null) return;
@@ -88,11 +97,11 @@ public class Elite_HuyetPhu : MonoBehaviour
         {
             if (basicAttackCount >= attacksToSpecial)
             {
-                StartCoroutine(Routine_SixTalismansArray());
+                currentBehaviorCoroutine = StartCoroutine(Routine_SixTalismansArray());
             }
             else
             {
-                StartCoroutine(Routine_NormalShoot());
+                currentBehaviorCoroutine = StartCoroutine(Routine_NormalShoot());
             }
         }
         else
@@ -108,13 +117,67 @@ public class Elite_HuyetPhu : MonoBehaviour
             if (!isDeadHandled)
             {
                 isDeadHandled = true;
-                isBusy = true;
+                InterruptAllActions();
                 if (mainCollider != null) mainCollider.enabled = false;
                 PlaySFX(sfxDeath);
             }
             return true;
         }
         return false;
+    }
+
+    // NÂNG CẤP: Dừng triệt để mọi hành động & Reset Animation Speed
+    private void InterruptAllActions()
+    {
+        StopAllCoroutines();
+        currentBehaviorCoroutine = null;
+
+        // Reset lại tốc độ Animator nếu đang bị slow do gồng chiêu
+        if (animator != null)
+        {
+            animator.speed = 1f;
+        }
+
+        isBusy = true;
+        isWindingUp = false;
+
+        ClearActiveTalismans();
+    }
+
+    public void ApplyStun(float duration)
+    {
+        if (isDeadHandled || isBeingExecuted) return;
+        InterruptAllActions();
+        currentBehaviorCoroutine = StartCoroutine(Routine_GetStunned(duration));
+    }
+
+    private IEnumerator Routine_GetStunned(float duration)
+    {
+        isStunned = true;
+        isBusy = true;
+
+        if (animator != null && !string.IsNullOrEmpty(animIsStunned))
+        {
+            animator.SetBool(animIsStunned, true);
+        }
+        PlaySFX(sfxStun);
+
+        yield return new WaitForSeconds(duration);
+
+        if (animator != null && !string.IsNullOrEmpty(animIsStunned))
+        {
+            animator.SetBool(animIsStunned, false);
+        }
+        isStunned = false;
+        isBusy = false;
+    }
+
+    public void OnStartExecution()
+    {
+        InterruptAllActions();
+        isBeingExecuted = true;
+        isStunned = false;
+        isBusy = true;
     }
 
     private void FindPlayer()
@@ -153,9 +216,11 @@ public class Elite_HuyetPhu : MonoBehaviour
     {
         isBusy = true;
         PlaySFX(sfxPrepareAttack);
-        animator.SetTrigger(animCastBasic);
+        if (animator != null) animator.SetTrigger(animCastBasic);
 
         yield return waitBasicShootDelay;
+
+        if (isStunned || isBeingExecuted || isDeadHandled) yield break;
 
         PlaySFX(sfxAttack);
         if (basicTalismanPool != null && playerTransform != null)
@@ -163,7 +228,7 @@ public class Elite_HuyetPhu : MonoBehaviour
             Vector3 spawnPos = GetAttackCenter();
             GameObject t = basicTalismanPool.GetFromPool(spawnPos, Quaternion.identity);
 
-            if (t.TryGetComponent<Rigidbody2D>(out Rigidbody2D rb))
+            if (t != null && t.TryGetComponent<Rigidbody2D>(out Rigidbody2D rb))
             {
                 Vector2 dir = (playerTransform.position - spawnPos).normalized;
                 rb.linearVelocity = dir * normalShootSpeed;
@@ -181,20 +246,26 @@ public class Elite_HuyetPhu : MonoBehaviour
         PlaySFX(sfxPrepareAttack);
 
         float originalSpeed = moveSpeed;
-        float originalAnimSpeed = animator.speed;
+        float originalAnimSpeed = animator != null ? animator.speed : 1f;
         moveSpeed *= slowMultiplier;
-        animator.speed *= slowMultiplier;
+        if (animator != null) animator.speed *= slowMultiplier;
 
         yield return new WaitForSeconds(windupTime);
+
+        if (isStunned || isBeingExecuted || isDeadHandled)
+        {
+            moveSpeed = originalSpeed;
+            if (animator != null) animator.speed = originalAnimSpeed;
+            yield break;
+        }
 
         isWindingUp = false;
         isBusy = true;
         moveSpeed = originalSpeed;
-        animator.speed = originalAnimSpeed;
+        if (animator != null) animator.speed = originalAnimSpeed;
 
-        animator.SetTrigger(animCastArray);
-
-        List<GameObject> spawnedTalismans = new List<GameObject>();
+        if (animator != null) animator.SetTrigger(animCastArray);
+        ClearActiveTalismans();
 
         for (int i = 0; i < 6; i++)
         {
@@ -204,25 +275,37 @@ public class Elite_HuyetPhu : MonoBehaviour
             if (specialTalismanPool != null)
             {
                 GameObject talisman = specialTalismanPool.GetFromPool(spawnPos, Quaternion.identity);
-                spawnedTalismans.Add(talisman);
+                if (talisman != null) activeTalismans.Add(talisman);
             }
         }
 
         float elapsed = 0f;
         while (elapsed < 1.5f)
         {
-            elapsed += Time.deltaTime;
-            for (int i = 0; i < spawnedTalismans.Count; i++)
+            if (isStunned || isBeingExecuted || isDeadHandled)
             {
-                if (spawnedTalismans[i] == null) continue;
+                ClearActiveTalismans();
+                yield break;
+            }
+
+            elapsed += Time.deltaTime;
+            for (int i = 0; i < activeTalismans.Count; i++)
+            {
+                if (activeTalismans[i] == null) continue;
                 float angle = (i * 60f + elapsed * orbitRotationSpeed) * Mathf.Deg2Rad;
-                spawnedTalismans[i].transform.position = transform.position + new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * orbitRadius;
+                activeTalismans[i].transform.position = transform.position + new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * orbitRadius;
             }
             yield return null;
         }
 
-        foreach (var talisman in spawnedTalismans)
+        foreach (var talisman in activeTalismans)
         {
+            if (isStunned || isBeingExecuted || isDeadHandled)
+            {
+                ClearActiveTalismans();
+                yield break;
+            }
+
             if (talisman != null && playerTransform != null)
             {
                 PlaySFX(sfxAttack);
@@ -235,8 +318,21 @@ public class Elite_HuyetPhu : MonoBehaviour
             yield return waitTalismanLaunchDelay;
         }
 
+        activeTalismans.Clear();
         basicAttackCount = 0;
         isBusy = false;
+    }
+
+    private void ClearActiveTalismans()
+    {
+        foreach (var talisman in activeTalismans)
+        {
+            if (talisman != null)
+            {
+                talisman.SetActive(false);
+            }
+        }
+        activeTalismans.Clear();
     }
 
     private void PlaySFX(AudioClip clip)
@@ -249,6 +345,7 @@ public class Elite_HuyetPhu : MonoBehaviour
 
     private void FlipTowards(Vector3 target)
     {
+        if (isStunned || isBeingExecuted) return;
         Vector3 scale = transform.localScale;
         scale.x = target.x > transform.position.x ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
         transform.localScale = scale;

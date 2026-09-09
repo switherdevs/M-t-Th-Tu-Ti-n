@@ -27,8 +27,8 @@ public class Elite_TongQuan : MonoBehaviour
     [Header("--- KỸ NĂNG ĐỠ ĐÒN & CHOÁNG ---")]
     [SerializeField] private float blockDuration = 2.5f;
     [SerializeField] private float stunDuration = 2f;
-    [SerializeField] private GameObject blockShieldPrefab; // Prefab lá chắn
-    [SerializeField] private Transform shieldSpawnPoint;    // Vị trí cố định để sinh ra lá chắn
+    [SerializeField] private GameObject blockShieldPrefab;
+    [SerializeField] private Transform shieldSpawnPoint;
     [SerializeField] private string playerSwordTag = "PlayerSword";
 
     [Header("--- ÂM THANH (AUDIO) ---")]
@@ -39,14 +39,14 @@ public class Elite_TongQuan : MonoBehaviour
     [SerializeField] private AudioClip sfxStun;
     [SerializeField] private AudioClip sfxDeath;
 
-    [Header("--- ANIMATION PARAMETERS ---")]
-    [SerializeField] private string animWalk = "isWalking";
-    [SerializeField] private string animAttack = "Attack";
-    [SerializeField] private string animPrepareJump = "PrepareJump";
-    [SerializeField] private string animJumpAir = "JumpAir";
-    [SerializeField] private string animLand = "Land";
-    [SerializeField] private string animIsBlocking = "isBlocking";
-    [SerializeField] private string animIsStunned = "isStunned";
+    [Header("--- ANIMATION PARAMETERS (THÊM BOOL / TRIGGER) ---")]
+    [SerializeField] private string boolIsWalking = "boolIsWalking";
+    [SerializeField] private string triggerAttack = "triggerAttack";
+    [SerializeField] private string triggerPrepareJump = "triggerPrepareJump";
+    [SerializeField] private string triggerJumpAir = "triggerJumpAir";
+    [SerializeField] private string triggerLand = "triggerLand";
+    [SerializeField] private string boolIsBlocking = "boolIsBlocking";
+    [SerializeField] private string boolIsStunned = "boolIsStunned";
 
     private Transform playerTransform;
     private Animator animator;
@@ -58,9 +58,11 @@ public class Elite_TongQuan : MonoBehaviour
     private bool isWindingUp = false;
     private bool isBlocking = false;
     private bool isStunned = false;
+    private bool isExecutionStunned = false;
+    private bool isBeingExecuted = false;
     private bool isDeadHandled = false;
 
-    private GameObject currentSpawnedShield; // Lưu lá chắn được sinh ra trong World
+    private GameObject currentSpawnedShield;
     private Coroutine currentBehaviorCoroutine;
 
     private void Awake()
@@ -87,15 +89,15 @@ public class Elite_TongQuan : MonoBehaviour
         {
             stats.OnDamaged -= HandleDamaged;
         }
-
-        // Dọn dẹp lá chắn nếu object bị xóa giữa chừng
         DestroyCurrentShield();
     }
 
     private void Update()
     {
         if (CheckAndHandleDeath()) return;
-        if (isBusy || isStunned) return;
+
+        // BẮT BUỘC KHÓA HOÀN TOÀN KHI DÍNH CÁC TRẠNG THÁI KHỐNG CHẾ
+        if (isExecutionStunned || isBeingExecuted || isStunned || isBusy) return;
 
         FindPlayer();
         if (playerTransform == null) return;
@@ -122,7 +124,7 @@ public class Elite_TongQuan : MonoBehaviour
         }
         else
         {
-            animator.SetBool(animWalk, true);
+            if (animator != null) animator.SetBool(boolIsWalking, true);
             MoveSmoothly(playerTransform.position, moveSpeed);
         }
     }
@@ -134,17 +136,8 @@ public class Elite_TongQuan : MonoBehaviour
             if (!isDeadHandled)
             {
                 isDeadHandled = true;
-                isBusy = true;
-                isBlocking = false;
-                isStunned = false;
-
+                InterruptAllActions();
                 if (mainCollider != null) mainCollider.enabled = false;
-                DestroyCurrentShield();
-
-                animator.SetBool(animWalk, false);
-                animator.SetBool(animIsBlocking, false);
-                animator.SetBool(animIsStunned, false);
-
                 PlaySFX(sfxDeath);
             }
             return true;
@@ -152,13 +145,100 @@ public class Elite_TongQuan : MonoBehaviour
         return false;
     }
 
+    private void InterruptAllActions()
+    {
+        if (currentBehaviorCoroutine != null)
+        {
+            StopCoroutine(currentBehaviorCoroutine);
+            currentBehaviorCoroutine = null;
+        }
+
+        isBusy = true;
+        isWindingUp = false;
+        isBlocking = false;
+
+        DestroyCurrentShield();
+
+        if (animator != null)
+        {
+            // 1. Tắt các biến Bool
+            animator.SetBool(boolIsWalking, false);
+            animator.SetBool(boolIsBlocking, false);
+
+            // 2. GIẢI QUYẾT THỦ PHẠM CHÍNH: XÓA SẠCH TRIGGER TỒN ĐỌNG TRONG BỘ NHỚ ĐỆM
+            animator.ResetTrigger(triggerAttack);
+            animator.ResetTrigger(triggerPrepareJump);
+            animator.ResetTrigger(triggerJumpAir);
+            animator.ResetTrigger(triggerLand);
+        }
+    }
+
     private void HandleDamaged(float damageTaken)
     {
+        if (isExecutionStunned || isBeingExecuted) return;
+
         if (isBlocking && !isStunned && !stats.IsDead)
         {
-            if (currentBehaviorCoroutine != null) StopCoroutine(currentBehaviorCoroutine);
-            StartCoroutine(Routine_GetStunned());
+            ApplyStun(stunDuration);
         }
+    }
+
+    public void ApplyStun(float duration)
+    {
+        if (isDeadHandled || isBeingExecuted || isExecutionStunned) return;
+
+        InterruptAllActions();
+        currentBehaviorCoroutine = StartCoroutine(Routine_GetStunned(duration));
+    }
+
+    public void ApplyExecutionStun()
+    {
+        if (isDeadHandled || isBeingExecuted) return;
+
+        InterruptAllActions();
+
+        isExecutionStunned = true;
+        isStunned = true;
+        isBusy = true;
+
+        if (animator != null) animator.SetBool(boolIsStunned, true);
+        PlaySFX(sfxStun);
+    }
+
+    public void EndStun()
+    {
+        if (isBeingExecuted || isDeadHandled) return;
+
+        if (animator != null) animator.SetBool(boolIsStunned, false);
+
+        isExecutionStunned = false;
+        isStunned = false;
+        isBusy = false;
+    }
+
+    private IEnumerator Routine_GetStunned(float duration)
+    {
+        isStunned = true;
+        isBusy = true;
+
+        if (animator != null) animator.SetBool(boolIsStunned, true);
+        PlaySFX(sfxStun);
+
+        yield return new WaitForSeconds(duration);
+
+        EndStun();
+    }
+
+    public void OnStartExecution()
+    {
+        InterruptAllActions();
+
+        isBeingExecuted = true;
+        isExecutionStunned = false;
+        isStunned = false;
+        isBusy = true;
+
+        if (animator != null) animator.SetBool(boolIsStunned, false);
     }
 
     private void FindPlayer()
@@ -168,7 +248,7 @@ public class Elite_TongQuan : MonoBehaviour
             if (Vector2.Distance(transform.position, playerTransform.position) > detectionRange * 1.5f)
             {
                 playerTransform = null;
-                animator.SetBool(animWalk, false);
+                if (animator != null) animator.SetBool(boolIsWalking, false);
             }
             return;
         }
@@ -197,12 +277,14 @@ public class Elite_TongQuan : MonoBehaviour
     private IEnumerator Routine_NormalAttack()
     {
         isBusy = true;
-        animator.SetBool(animWalk, false);
+        if (animator != null) animator.SetBool(boolIsWalking, false);
 
         PlaySFX(sfxPrepareAttack);
         yield return new WaitForSeconds(0.2f);
 
-        animator.SetTrigger(animAttack);
+        if (isStunned || isExecutionStunned || isBeingExecuted || isDeadHandled) yield break;
+
+        if (animator != null) animator.SetTrigger(triggerAttack);
         PlaySFX(sfxAttack);
 
         yield return new WaitForSeconds(0.8f);
@@ -215,38 +297,48 @@ public class Elite_TongQuan : MonoBehaviour
         isBlocking = true;
         skillTimer = skillCooldown;
 
-        animator.SetBool(animWalk, false);
-        animator.SetBool(animIsBlocking, true);
+        if (animator != null)
+        {
+            animator.SetBool(boolIsWalking, false);
+            animator.SetBool(boolIsBlocking, true);
+        }
 
-        // Tạo Prefab lá chắn ngoài World (Không đặt parent để hoàn toàn độc lập vị trí và Collider)
         SpawnShield();
         PlaySFX(sfxBlock);
 
         yield return new WaitForSeconds(blockDuration);
 
-        // Hết thời gian đỡ đòn mà không dính đòn -> Hủy khiên và nhảy bổ
         DestroyCurrentShield();
-        animator.SetBool(animIsBlocking, false);
+        if (animator != null) animator.SetBool(boolIsBlocking, false);
         isBlocking = false;
+
+        if (isStunned || isExecutionStunned || isBeingExecuted || isDeadHandled) yield break;
 
         isWindingUp = true;
         PlaySFX(sfxPrepareAttack);
 
         float originalSpeed = moveSpeed;
-        float originalAnimSpeed = animator.speed;
+        float originalAnimSpeed = animator != null ? animator.speed : 1f;
         moveSpeed *= slowMultiplier;
-        animator.speed *= slowMultiplier;
+        if (animator != null) animator.speed *= slowMultiplier;
 
         yield return new WaitForSeconds(windupTime);
 
+        if (isStunned || isExecutionStunned || isBeingExecuted || isDeadHandled)
+        {
+            moveSpeed = originalSpeed;
+            if (animator != null) animator.speed = originalAnimSpeed;
+            yield break;
+        }
+
         isWindingUp = false;
         moveSpeed = originalSpeed;
-        animator.speed = originalAnimSpeed;
+        if (animator != null) animator.speed = originalAnimSpeed;
 
-        animator.SetTrigger(animPrepareJump);
+        if (animator != null) animator.SetTrigger(triggerPrepareJump);
         yield return new WaitForSeconds(0.3f);
 
-        animator.SetTrigger(animJumpAir);
+        if (animator != null) animator.SetTrigger(triggerJumpAir);
         PlaySFX(sfxAttack);
 
         Vector3 startPos = transform.position;
@@ -255,6 +347,7 @@ public class Elite_TongQuan : MonoBehaviour
 
         while (elapsed < jumpDuration)
         {
+            if (isStunned || isExecutionStunned || isBeingExecuted || isDeadHandled) yield break;
             elapsed += Time.deltaTime;
             float percent = elapsed / jumpDuration;
             Vector3 currentPos = Vector3.Lerp(startPos, targetPos, percent);
@@ -270,27 +363,8 @@ public class Elite_TongQuan : MonoBehaviour
             target.SendMessage("TakeDamage", damage * 1.5f, SendMessageOptions.DontRequireReceiver);
         }
 
-        animator.SetTrigger(animLand);
+        if (animator != null) animator.SetTrigger(triggerLand);
         yield return new WaitForSeconds(0.5f);
-        isBusy = false;
-    }
-
-    private IEnumerator Routine_GetStunned()
-    {
-        isBlocking = false;
-        isWindingUp = false;
-        isStunned = true;
-        isBusy = true;
-
-        DestroyCurrentShield();
-        animator.SetBool(animIsBlocking, false);
-        animator.SetBool(animIsStunned, true);
-        PlaySFX(sfxStun);
-
-        yield return new WaitForSeconds(stunDuration);
-
-        animator.SetBool(animIsStunned, false);
-        isStunned = false;
         isBusy = false;
     }
 
@@ -303,10 +377,8 @@ public class Elite_TongQuan : MonoBehaviour
             Vector3 spawnPos = shieldSpawnPoint != null ? shieldSpawnPoint.position : GetAttackCenter();
             Quaternion spawnRot = shieldSpawnPoint != null ? shieldSpawnPoint.rotation : Quaternion.identity;
 
-            // Instantiate trực tiếp ra World (không truyền 'transform' làm parent)
             currentSpawnedShield = Instantiate(blockShieldPrefab, spawnPos, spawnRot);
 
-            // Gắn component xử lý va chạm với kiếm người chơi lên Prefab vừa tạo
             ShieldBlocker shieldScript = currentSpawnedShield.GetComponent<ShieldBlocker>();
             if (shieldScript == null)
             {
@@ -335,6 +407,7 @@ public class Elite_TongQuan : MonoBehaviour
 
     private void FlipTowards(Vector3 target)
     {
+        if (isStunned || isExecutionStunned || isBeingExecuted) return;
         Vector3 scale = transform.localScale;
         scale.x = target.x > transform.position.x ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
         transform.localScale = scale;
@@ -354,24 +427,5 @@ public class Elite_TongQuan : MonoBehaviour
         Gizmos.DrawWireSphere(GetAttackCenter(), attackRange);
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, avoidRadius);
-    }
-}
-
-// Script phụ tự động được đính kèm vào Prefab Lá Chắn khi tạo ra
-public class ShieldBlocker : MonoBehaviour
-{
-    private string targetSwordTag;
-
-    public void Init(string swordTag)
-    {
-        targetSwordTag = swordTag;
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (!string.IsNullOrEmpty(targetSwordTag) && collision.CompareTag(targetSwordTag))
-        {
-            Destroy(collision.gameObject);
-        }
     }
 }

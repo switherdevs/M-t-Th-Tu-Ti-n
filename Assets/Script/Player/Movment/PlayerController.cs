@@ -15,24 +15,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private string sprintAnimName = "IsSprinting";
     [SerializeField] private string attackAnimName = "Attack";
 
-    // Component References
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
     private Animator anim;
     private Camera mainCam;
     private CharacterStats stats;
 
-    // Movement & Facing Variables
     private Vector2 moveInput;
     private Vector2 lookDirection = Vector2.right;
     private bool isSprinting = false;
     private bool isFacingRight = true;
 
-    // Slow Debuff Variables
     private float currentSlowMultiplier = 1f;
     private Coroutine slowCoroutine;
 
-    // Animation Hashes
     private int walkAnimHash;
     private int sprintAnimHash;
     private int attackAnimHash;
@@ -104,14 +100,10 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Áp dụng hệ số làm chậm currentSlowMultiplier vào tốc độ
         float targetSpeed = (isSprinting ? sprintSpeed : moveSpeed) * currentSlowMultiplier;
         rb.linearVelocity = moveInput * targetSpeed;
     }
 
-    // ==========================================
-    // DEBUFF SLOW LOGIC
-    // ==========================================
     public void ApplySlow(float slowMultiplier, float duration)
     {
         if (slowCoroutine != null) StopCoroutine(slowCoroutine);
@@ -154,6 +146,22 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void ForceRefreshRotation()
+    {
+        // Khôi phục scale chuẩn dương
+        transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), Mathf.Abs(transform.localScale.y), Mathf.Abs(transform.localScale.z));
+
+        if (mainCam == null) mainCam = Camera.main;
+        if (mainCam == null) return;
+
+        Vector3 mouseScreenPos = Mouse.current.position.ReadValue();
+        mouseScreenPos.z = Mathf.Abs(mainCam.transform.position.z);
+        Vector3 mouseWorldPos = mainCam.ScreenToWorldPoint(mouseScreenPos);
+
+        bool mouseOnRight = mouseWorldPos.x >= transform.position.x;
+        FlipCharacter(mouseOnRight);
+    }
+
     private void FlipCharacter(bool faceRight)
     {
         isFacingRight = faceRight;
@@ -177,6 +185,18 @@ public class PlayerController : MonoBehaviour
         if (anim != null && attackAnimHash != 0)
         {
             anim.SetTrigger(attackAnimHash);
+        }
+    }
+
+    public void StopMovementAndAnimation()
+    {
+        moveInput = Vector2.zero;
+        if (rb != null) rb.linearVelocity = Vector2.zero;
+
+        if (anim != null)
+        {
+            if (walkAnimHash != 0) anim.SetBool(walkAnimHash, false);
+            if (sprintAnimHash != 0) anim.SetBool(sprintAnimHash, false);
         }
     }
 }

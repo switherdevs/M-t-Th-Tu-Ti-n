@@ -12,52 +12,51 @@ public class ExecutableEnemy : MonoBehaviour
     [Tooltip("Điểm đứng chuẩn của Player khi thực hiện kết liễu")]
     [SerializeField] private Transform executionPoint;
 
-    [Header("=== ANIMATOR BOOL PARAMETER NAMES ===")]
-    [Tooltip("Tên tham số Bool trong Animator cho trạng thái Choáng")]
-    [SerializeField] private string isStunnedParam = "IsStunned";
-    [Tooltip("Tên tham số Bool trong Animator cho trạng thái Đang Bị Kết Liễu")]
-    [SerializeField] private string isBeingExecutedParam = "IsBeingExecuted";
-    [Tooltip("Tên tham số Bool/Trigger trong Animator cho trạng thái Chết Sau Kết Liễu")]
-    [SerializeField] private string isDie2Param = "IsDie2";
+    [Header("=== TÊN STATE ANIMATION (GÕ ĐÚNG TÊN STATE TRONG ANIMATOR) ===")]
+    [Tooltip("Tên State Choáng trong Animator")]
+    [SerializeField] private string stunStateName = "Stun";
+    [Tooltip("Tên State Bị Kết Liễu trong Animator")]
+    [SerializeField] private string executionStateName = "BeingExecuted";
+    [Tooltip("Tên State Chết 2 trong Animator")]
+    [SerializeField] private string die2StateName = "Die2";
 
     [Header("=== VFX & UI GỢI Ý ===")]
-    [SerializeField] private GameObject executionVFXPrefab;        // Effect bùng nổ/máu khi bị chém
-    [SerializeField] private GameObject executePromptUI;           // Canvas/Icon "Press E" hiện trên đầu Boss
+    [SerializeField] private GameObject executionVFXPrefab;
+    [Tooltip("Kéo điểm Spawn VFX (VD: ngực/tim quái) vào đây. Nếu để trống sẽ sinh ra ở ExecutionPoint")]
+    [SerializeField] private Transform vfxSpawnPoint;
+    [SerializeField] private GameObject executePromptUI;
+    [SerializeField] private GameObject stunVFXObject;
 
     private CharacterStats stats;
     private Animator anim;
-    private bool isCanBeExecuted = false; // Đã chạm ngưỡng < 30% máu hay chưa
-    private bool isBeingExecuted = false; // Đang trong quá trình diễn Animation kết liễu
-    private Coroutine stunCoroutine;
+    private Elite_TyHuu aiTyHuu;
+    private Elite_TongQuan aiTongQuan;
 
-    // Mã hóa tên Parameter sang ID Hash để tối ưu hiệu năng CPU
-    private int isStunnedHash;
-    private int isBeingExecutedHash;
-    private int isDie2Hash;
+    private bool isCanBeExecuted = false;
+    private bool isBeingExecuted = false;
+    private Coroutine stunCoroutine;
 
     public bool IsCanBeExecuted => isCanBeExecuted;
     public bool IsBeingExecuted => isBeingExecuted;
+    public bool IsStunned => isCanBeExecuted || isBeingExecuted;
     public Transform ExecutionPoint => executionPoint != null ? executionPoint : transform;
 
     private void Awake()
     {
         stats = GetComponent<CharacterStats>();
         anim = GetComponentInChildren<Animator>();
-
-        // Chuyển đổi String sang Hash ID (Giúp Animator xử lý nhanh hơn)
-        if (!string.IsNullOrEmpty(isStunnedParam)) isStunnedHash = Animator.StringToHash(isStunnedParam);
-        if (!string.IsNullOrEmpty(isBeingExecutedParam)) isBeingExecutedHash = Animator.StringToHash(isBeingExecutedParam);
-        if (!string.IsNullOrEmpty(isDie2Param)) isDie2Hash = Animator.StringToHash(isDie2Param);
+        aiTyHuu = GetComponent<Elite_TyHuu>();
+        aiTongQuan = GetComponent<Elite_TongQuan>();
 
         if (executePromptUI != null) executePromptUI.SetActive(false);
+        if (stunVFXObject != null) stunVFXObject.SetActive(false);
     }
 
     private void Update()
     {
-        if (isBeingExecuted || stats == null) return;
+        if (isBeingExecuted || isCanBeExecuted || stats == null) return;
 
-        // KIỂM TRA ĐIỀU KIỆN MÁU DƯỚI 30%
-        float maxHp = stats.MaxHealth != null ? stats.MaxHealth.Value : 1f; // Tránh lỗi chia cho 0 hoặc null
+        float maxHp = stats.MaxHealth != null ? stats.MaxHealth.Value : 1f;
         float currentHealthPercent = (float)stats.CurrentHealth / maxHp;
 
         if (!isCanBeExecuted && currentHealthPercent <= executionHealthThreshold && currentHealthPercent > 0)
@@ -66,19 +65,19 @@ public class ExecutableEnemy : MonoBehaviour
         }
     }
 
-    // 1. CHUYỂN SANG TRẠNG THÁI CHOÁNG KẾT LIỄU
     private void EnterExecutionStun()
     {
         isCanBeExecuted = true;
+
         if (executePromptUI != null) executePromptUI.SetActive(true);
+        if (stunVFXObject != null) stunVFXObject.SetActive(true);
 
-        // Chuyển Animator Parameter 'IsStunned' sang true
-        if (anim != null && isStunnedHash != 0)
-        {
-            anim.SetBool(isStunnedHash, true);
-        }
+        // KẾ HOẠCH B: Ép chạy trực tiếp State Choáng
+        PlayAnimationDirectly(stunStateName);
 
-        // Tự động đếm ngược hết thời gian choáng nếu Player không bấm E
+        if (aiTyHuu != null) aiTyHuu.ApplyStun(stunDuration);
+        if (aiTongQuan != null) aiTongQuan.ApplyExecutionStun();
+
         if (stunCoroutine != null) StopCoroutine(stunCoroutine);
         stunCoroutine = StartCoroutine(StunTimerRoutine());
     }
@@ -86,24 +85,20 @@ public class ExecutableEnemy : MonoBehaviour
     private IEnumerator StunTimerRoutine()
     {
         yield return new WaitForSeconds(stunDuration);
-
-        // Hết thời gian choáng mà không bị kết liễu -> Trở lại bình thường
         ExitExecutionStun();
     }
 
     private void ExitExecutionStun()
     {
         isCanBeExecuted = false;
-        if (executePromptUI != null) executePromptUI.SetActive(false);
 
-        // Tắt Bool Choáng
-        if (anim != null && isStunnedHash != 0)
-        {
-            anim.SetBool(isStunnedHash, false);
-        }
+        if (executePromptUI != null) executePromptUI.SetActive(false);
+        if (stunVFXObject != null) stunVFXObject.SetActive(false);
+
+        if (aiTyHuu != null) aiTyHuu.EndStun();
+        if (aiTongQuan != null) aiTongQuan.EndStun();
     }
 
-    // 2. KÍCH HOẠT QUÁ TRÌNH BỊ KẾT LIỄU (ĐƯỢC GỌI TỪ PLAYER)
     public void Execute(Transform playerTransform, System.Action onExecutionComplete)
     {
         if (stunCoroutine != null) StopCoroutine(stunCoroutine);
@@ -113,42 +108,57 @@ public class ExecutableEnemy : MonoBehaviour
 
         if (executePromptUI != null) executePromptUI.SetActive(false);
 
-        // Tắt trạng thái Choáng và Bật trạng thái Bị Kết Liễu
-        if (anim != null)
-        {
-            if (isStunnedHash != 0) anim.SetBool(isStunnedHash, false);
-            if (isBeingExecutedHash != 0) anim.SetBool(isBeingExecutedHash, true);
-        }
+        if (aiTyHuu != null) aiTyHuu.OnStartExecution();
+        if (aiTongQuan != null) aiTongQuan.OnStartExecution();
+
+        // KẾ HOẠCH B: Ép phát trực tiếp State Kết Liễu
+        PlayAnimationDirectly(executionStateName);
 
         StartCoroutine(ExecutionProcessRoutine(onExecutionComplete));
     }
 
     private IEnumerator ExecutionProcessRoutine(System.Action onExecutionComplete)
     {
-        // Sinh ra hiệu ứng VFX tại vị trí quái
+        // SINH VFX KẾT LIỄU CHUẨN VỊ TRÍ & HƯỚNG QUAY
         if (executionVFXPrefab != null)
         {
-            Instantiate(executionVFXPrefab, transform.position, Quaternion.identity);
+            Transform targetPoint = vfxSpawnPoint != null ? vfxSpawnPoint : (executionPoint != null ? executionPoint : transform);
+            GameObject vfx = Instantiate(executionVFXPrefab, targetPoint.position, targetPoint.rotation);
+
+            // Đồng bộ Scale X để VFX lật theo hướng quay mặt của Quái
+            Vector3 vfxScale = vfx.transform.localScale;
+            vfxScale.x *= Mathf.Sign(transform.localScale.x != 0 ? transform.localScale.x : 1f);
+            vfx.transform.localScale = vfxScale;
         }
 
-        // Chờ thời gian thực hiện animation kết liễu (2 giây)
+        // Chờ 2.0 giây cho Animation đâm chém kết liễu diễn ra
         yield return new WaitForSeconds(2.0f);
 
-        // Chuyển Animator Parameter 'IsBeingExecuted' sang false và 'IsDie2' sang true
-        if (anim != null)
+        if (stunVFXObject != null) stunVFXObject.SetActive(false);
+
+        // KẾ HOẠCH B: Ép phát trực tiếp State Die2 TRƯỚC khi trừ máu
+        PlayAnimationDirectly(die2StateName);
+
+        // Sau đó mới rút máu về 0
+        if (stats != null && !stats.IsDead)
         {
-            if (isBeingExecutedHash != 0) anim.SetBool(isBeingExecutedHash, false);
-            if (isDie2Hash != 0) anim.SetBool(isDie2Hash, true);
+            stats.TakeDamage(stats.CurrentHealth + 9999f);
         }
 
-        // Báo cho Player biết đã xong để mở khóa di chuyển
         onExecutionComplete?.Invoke();
 
-        // Hủy bớt Collider để không cản đường
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
 
-        // Xử lý chết chính thức (Destroy sau 3s)
         Destroy(gameObject, 3.0f);
+    }
+
+    // Hàm bổ trợ gọi ép phát Animation theo tên State
+    private void PlayAnimationDirectly(string stateName)
+    {
+        if (anim != null && !string.IsNullOrEmpty(stateName))
+        {
+            anim.Play(stateName, 0, 0f);
+        }
     }
 }

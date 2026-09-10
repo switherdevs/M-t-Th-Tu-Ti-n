@@ -1,5 +1,5 @@
 using UnityEngine;
-using StatsSystem.Components; // BẮT BULOG: Gọi namespace chứa CharacterStats
+using StatsSystem.Components; // BẮT BUỘC: Gọi namespace chứa CharacterStats
 
 public class DamageDealer : MonoBehaviour
 {
@@ -23,6 +23,9 @@ public class DamageDealer : MonoBehaviour
 
     // Biến lưu lượng sát thương cộng thêm từ độ khó
     private float bonusDamage = 0f;
+
+    // Getter công khai để các script khác đọc baseDamage chuẩn xác
+    public float BaseDamage => baseDamage;
 
     /// <summary>
     /// Hàm nhận lượng sát thương được cộng thêm từ EnemyDifficultyManager
@@ -52,7 +55,6 @@ public class DamageDealer : MonoBehaviour
             Vector3 hitPoint = collision.ClosestPoint(transform.position);
 
             // XÁC ĐỊNH MÀU SẮC DỰA VÀO CHECKBOX BOOL TRÊN INSPECTOR:
-            // Sát thương lên Player = MÀU ĐỎ | Sát thương lên Enemy = MÀU TRẮNG
             Color popupColor = Color.white; // Màu mặc định
 
             if (isTargetPlayer)
@@ -66,9 +68,6 @@ public class DamageDealer : MonoBehaviour
 
             // Hiển thị Popup ngay tại vị trí tiếp xúc
             SpawnDamagePopup(finalDamage, hitPoint, popupColor);
-
-            // Xóa đạn sau khi gây sát thương (Nếu đây là đạn bắn ra)
-            // Destroy(gameObject); 
         }
     }
 
@@ -88,5 +87,19 @@ public class DamageDealer : MonoBehaviour
         {
             popupScript.Setup(damageAmount, textColor);
         }
+    }
+
+    // ========================================================================
+    // BỔ SUNG MỚI: HÀM TẠO POPUP DÀNH RIÊNG CHO SỰ KIỆN GỌI KIẾM BAY VỀ
+    // ========================================================================
+    /// <summary>
+    /// GHI CHÚ QUAN TRỌNG: Hàm công khai để PhiKiemGoiVe.cs kích hoạt Popup với sát thương đã x2
+    /// </summary>
+    /// <param name="satThuongGoiVe">Sát thương thực tế đã nhân hệ số</param>
+    /// <param name="viTriVaCham">Điểm tiếp xúc trên thân quái</param>
+    public void HienThiPopupGoiVe(float satThuongGoiVe, Vector3 viTriVaCham)
+    {
+        Color mauPopup = isTargetPlayer ? Color.red : Color.white;
+        SpawnDamagePopup(satThuongGoiVe, viTriVaCham, mauPopup);
     }
 }

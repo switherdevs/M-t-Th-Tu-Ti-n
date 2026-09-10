@@ -626,8 +626,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b4421c5b539f437449c82e5256c2d6be, type: 2}
   - {fileID: 11400000, guid: 22d535b9f69593f4caee11f39d1ca295, type: 2}
   - {fileID: 11400000, guid: 39fa1812807c0b14ea779fc38a069346, type: 2}
-  satThuongCongThem: 10
-  thoiGianHoiGiam: 0.25
+  danhSachCauHinhNangCap:
+  - satThuongCongThem: 50
+    thoiGianHoiGiam: 0.075
+  - satThuongCongThem: 150
+    thoiGianHoiGiam: 0.1
+  - satThuongCongThem: 200
+    thoiGianHoiGiam: 0.15
   nutChonSkill:
   - {fileID: 154200116711197919}
   - {fileID: 6831838392522634768}
@@ -651,7 +656,7 @@ MonoBehaviour:
   amThanhNangCapThatBai: {fileID: 0}
   hieuUngNangCapPrefab: {fileID: 0}
   viTriXuatHienHieuUng: {fileID: 0}
-  "mauB\xECnhThuong": {r: 1, g: 1, b: 1, a: 1}
+  mauBinhThuong: {r: 1, g: 1, b: 1, a: 1}
   mauDaChon: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   mauToiKhiChuaDuLevel: {r: 0.4, g: 0.4, b: 0.4, a: 1}
 --- !u!1 &1497369263144335589

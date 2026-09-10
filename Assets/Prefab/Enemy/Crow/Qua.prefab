@@ -322,6 +322,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseDamage: 5
   targetTag: Player
+  isTargetPlayer: 1
+  isTargetEnemy: 0
+  damagePopupPrefab: {fileID: 1225914145827128997, guid: c292fa7c657ece24daefe51c56d747b4, type: 3}
 --- !u!1 &5606057995863456564
 GameObject:
   m_ObjectHideFlags: 0
@@ -374,6 +377,7 @@ GameObject:
   - component: {fileID: 937246680124269762}
   - component: {fileID: 5335035832702109422}
   - component: {fileID: -3545199874394982610}
+  - component: {fileID: 4570048764639779958}
   m_Layer: 9
   m_Name: Qua
   m_TagString: Enemy
@@ -560,6 +564,25 @@ SortingGroup:
   m_SortingLayer: 0
   m_SortingOrder: 70
   m_SortAtRoot: 0
+--- !u!114 &4570048764639779958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8345906295029485602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc5621c62038f354d974f198b7f7efef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scriptAIGoc: {fileID: 6266408148438607519}
+  animator: {fileID: 9033894778631271766}
+  tenParamAnimation: 
+  khoangCachAnToan: 10
+  tocDoLui: 10
+  lucBatRa: 50
+  thoiGianChoang: 0.3
 --- !u!1 &8592778023107917577
 GameObject:
   m_ObjectHideFlags: 0

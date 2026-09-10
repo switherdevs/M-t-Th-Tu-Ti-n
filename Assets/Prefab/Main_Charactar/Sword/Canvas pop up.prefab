@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7135874929749875058}
   - component: {fileID: 3769594476375797930}
   - component: {fileID: 7006909523316891274}
+  - component: {fileID: -3325551222834743978}
   m_Layer: 5
   m_Name: Canvas pop up
   m_TagString: Untagged
@@ -119,6 +120,20 @@ MonoBehaviour:
   moveSpeed: 1.5
   disappearSpeed: 3
   lifeTime: 0.8
+--- !u!114 &-3325551222834743978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1225914145827128997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17aa1ab8892b273478482249e725b070, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  time: 3
+  ignoreWallTime: 0.2
 --- !u!1 &6930265254472130824
 GameObject:
   m_ObjectHideFlags: 0

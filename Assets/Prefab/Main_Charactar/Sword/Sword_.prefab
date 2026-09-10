@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 5751762314568364526}
   - component: {fileID: 3758004488731028418}
   - component: {fileID: 3137031585999233194}
-  - component: {fileID: 3046501438908305485}
   - component: {fileID: 9107201550900443084}
   - component: {fileID: 638841979906405177}
+  - component: {fileID: 4892151241238439716}
   m_Layer: 0
   m_Name: Sword_
   m_TagString: Kiem
@@ -60,7 +60,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 421b196a72681834e901b6741b750821, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -80,7 +80,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 60
+  m_SortingOrder: 5
   m_Sprite: {fileID: 712035800519618848, guid: bb4491adcd787a64a955d381e5b2199b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -156,22 +156,6 @@ CapsuleCollider2D:
   m_Offset: {x: 0.3469763, y: 0.008307655}
   m_Size: {x: 12.027196, y: 0.8628763}
   m_Direction: 1
---- !u!114 &3046501438908305485
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8106306527046521838}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c13b01a1afe6fe40bf459be50266358, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lifeTime: 3
-  hitSound: {fileID: 8300000, guid: 7776f55bc360ea442ba21038d8e742f1, type: 3}
-  hitEffectPrefab: {fileID: 6866004461401601130, guid: 3ed39e6f36a74ce4f994a6e2170ce801, type: 3}
-  soundVolume: 1
 --- !u!114 &9107201550900443084
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -286,3 +270,24 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &4892151241238439716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8106306527046521838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d8dbd9a6af79643a2e94a6fe79e9b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  thoiGianTonTai: 30
+  tocDoBayVe: 70
+  gocBuSprite: 0
+  doDamSau: 3
+  heSoNhanSatThuong: 15
+  prefabKiemCamGia: {fileID: 6164602238733226916, guid: b6708d92779eb284a8646c73cf8c95a3, type: 3}
+  amThanhTrung: {fileID: 0}
+  hieuUngTrungPrefab: {fileID: 6866004461401601130, guid: 3ed39e6f36a74ce4f994a6e2170ce801, type: 3}
+  amLuongAmThanh: 1

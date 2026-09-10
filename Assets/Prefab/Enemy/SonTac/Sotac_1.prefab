@@ -84,6 +84,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseDamage: 30
   targetTag: Player
+  isTargetPlayer: 1
+  isTargetEnemy: 0
+  damagePopupPrefab: {fileID: 1225914145827128997, guid: c292fa7c657ece24daefe51c56d747b4, type: 3}
 --- !u!1 &2185511017117528146
 GameObject:
   m_ObjectHideFlags: 0
@@ -168,6 +171,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseDamage: 30
   targetTag: Player
+  isTargetPlayer: 1
+  isTargetEnemy: 0
+  damagePopupPrefab: {fileID: 1225914145827128997, guid: c292fa7c657ece24daefe51c56d747b4, type: 3}
 --- !u!1 &3126819432183455760
 GameObject:
   m_ObjectHideFlags: 0
@@ -463,6 +469,7 @@ GameObject:
   - component: {fileID: 8093026112490818010}
   - component: {fileID: 3793848440792153896}
   - component: {fileID: 1447561005886306641}
+  - component: {fileID: -404610151224258775}
   m_Layer: 9
   m_Name: Sotac_1
   m_TagString: Enemy
@@ -656,6 +663,25 @@ MonoBehaviour:
   isPlayer: 0
   weaponTag: Kiem
   hideOnDeath: 1
+--- !u!114 &-404610151224258775
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7054318151610211365}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc5621c62038f354d974f198b7f7efef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scriptAIGoc: {fileID: 6370999993013492129}
+  animator: {fileID: 1602469149410585374, guid: 92ddf7e9e8ecbfd44ba5ca7aa074b93e, type: 3}
+  tenParamAnimation: IsRunning
+  khoangCachAnToan: 10
+  tocDoLui: 10
+  lucBatRa: 50
+  thoiGianChoang: 0.3
 --- !u!1 &8632206659321844308
 GameObject:
   m_ObjectHideFlags: 0

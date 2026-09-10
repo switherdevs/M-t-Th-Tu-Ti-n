@@ -4,14 +4,27 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+/// <summary>
+/// STRUCT CHỨA 2 SETTING CHỈ SỐ NÂNG CẤP DÀNH RIÊNG CHO TỪNG SKILL
+/// </summary>
+[System.Serializable]
+public struct CauHinhNangCapSkill
+{
+    [Tooltip("Lượng sát thương cộng thêm riêng cho Skill này khi nâng cấp")]
+    public float satThuongCongThem;
+
+    [Tooltip("Thời gian hồi giảm riêng cho Skill này khi nâng cấp")]
+    public float thoiGianHoiGiam;
+}
+
 public class SkillUpgradeUI : MonoBehaviour
 {
     [Header("--- CẤU HÌNH DỮ LIỆU SKILL ---")]
     public List<SkillData> danhSachSkill = new List<SkillData>();
 
-    [Header("--- CẤU HÌNH TĂNG CHỈ SỐ KHI NÂNG CẤP ---")]
-    public float satThuongCongThem = 10f;
-    public float thoiGianHoiGiam = 0.5f;
+    [Header("--- CẤU HÌNH CHỈ SỐ NÂNG CẤP TỪNG SKILL ---")]
+    [Tooltip("Danh sách cấu hình chỉ số nâng cấp theo đúng thứ tự Index tương ứng với danhSachSkill")]
+    public List<CauHinhNangCapSkill> danhSachCauHinhNangCap = new List<CauHinhNangCapSkill>();
 
     [Header("--- CẤU HÌNH UI NÚT SELECT SKILL ---")]
     public Button[] nutChonSkill;
@@ -38,7 +51,7 @@ public class SkillUpgradeUI : MonoBehaviour
     public Transform viTriXuatHienHieuUng;
 
     [Header("--- CẤU HÌNH MÀU SẮC VISUAL ---")]
-    public Color mauBìnhThuong = Color.white;
+    public Color mauBinhThuong = Color.white;
     public Color mauDaChon = Color.yellow;
     public Color mauToiKhiChuaDuLevel = new Color(0.4f, 0.4f, 0.4f, 1f);
 
@@ -58,7 +71,7 @@ public class SkillUpgradeUI : MonoBehaviour
     }
 
     /// <summary>
-    /// Đồng bộ cấp độ lưu từ Save System vào ScriptableObject Skill
+    /// Đọc dữ liệu từ Save System và GHI ĐÈ chỉ số (Level, Damage, Cooldown) vào ScriptableObject SkillData
     /// </summary>
     private void LoadSkillDataFromSave()
     {
@@ -68,8 +81,21 @@ public class SkillUpgradeUI : MonoBehaviour
         {
             if (skill != null)
             {
-                int levelSaved = QuestSaveSystem.Instance.LayCapDoSkill(skill.skillName);
-                skill.currentLevel = levelSaved;
+                SaveSkillData savedData = QuestSaveSystem.Instance.LayDuLieuSkill(skill.skillName);
+                if (savedData != null && savedData.skillLevel > 0)
+                {
+                    skill.currentLevel = savedData.skillLevel;
+
+                    // Ghi đè chỉ số đã được nâng cấp từ save vào ScriptableObject
+                    if (savedData.currentDamage > 0)
+                    {
+                        skill.baseDamage = savedData.currentDamage;
+                    }
+                    if (savedData.currentCooldown > 0)
+                    {
+                        skill.cooldownTime = savedData.currentCooldown;
+                    }
+                }
             }
         }
     }
@@ -168,17 +194,17 @@ public class SkillUpgradeUI : MonoBehaviour
             }
             else
             {
-                anhHighlightNut[i].color = (pointKhaDung > 0) ? mauBìnhThuong : mauToiKhiChuaDuLevel;
+                anhHighlightNut[i].color = (pointKhaDung > 0) ? mauBinhThuong : mauToiKhiChuaDuLevel;
             }
         }
 
-        // 3. HIỂN THỊ CHI TIẾT TỪNG LEVEL SKILL LÊN UI
+        // 3. HIỂN THỊ CHI TIẾT TỪNG LEVEL VÀ SÁT THƯƠNG ĐÃ NÂNG CẤP LÊN UI
         for (int i = 0; i < textThongTinSkill.Length; i++)
         {
             if (textThongTinSkill[i] != null && i < danhSachSkill.Count && danhSachSkill[i] != null)
             {
                 SkillData data = danhSachSkill[i];
-                textThongTinSkill[i].text = $"<b>{data.skillName}</b>\n<color=#FFD700>Cấp: {data.currentLevel}</color>\nST: {data.baseDamage} | Hồi: {data.cooldownTime}s";
+                textThongTinSkill[i].text = $"<b>{data.skillName}</b>\n<color=#FFD700>Cấp: {data.currentLevel}</color>\nST: {data.baseDamage} | Hồi: {data.cooldownTime:F1}s";
             }
         }
     }
@@ -201,16 +227,30 @@ public class SkillUpgradeUI : MonoBehaviour
             return;
         }
 
+        if (indexSkillDangChon >= danhSachCauHinhNangCap.Count)
+        {
+            Debug.LogError($"[LỖI UI SKILL] Chưa cấu hình chỉ số nâng cấp cho Skill tại Index {indexSkillDangChon} trong danhSachCauHinhNangCap!");
+            return;
+        }
+
         SkillData skillDuocChon = danhSachSkill[indexSkillDangChon];
         if (skillDuocChon != null)
         {
-            // 1. Nâng chỉ số Kỹ năng
-            skillDuocChon.UpgradeSkill(satThuongCongThem, thoiGianHoiGiam);
+            // LẤY ĐÚNG STRUCT CẤU HÌNH CÙNG INDEX VỚI SKILL ĐƯỢC CHỌN
+            CauHinhNangCapSkill cauHinh = danhSachCauHinhNangCap[indexSkillDangChon];
 
-            // 2. LƯU CẤP ĐỘ SKILL MỚI VÀO FILE TXT SAVE GAME
+            // 1. Nâng chỉ số Kỹ năng bằng thông số riêng của Skill đó
+            skillDuocChon.UpgradeSkill(cauHinh.satThuongCongThem, cauHinh.thoiGianHoiGiam);
+
+            // 2. LƯU CẤP ĐỘ + SÁT THƯƠNG + COOLDOWN MỚI VÀO FILE TXT SAVE GAME
             if (QuestSaveSystem.Instance != null)
             {
-                QuestSaveSystem.Instance.LuuCapDoSkill(skillDuocChon.skillName, skillDuocChon.currentLevel);
+                QuestSaveSystem.Instance.LuuSkillFullData(
+                    skillDuocChon.skillName,
+                    skillDuocChon.currentLevel,
+                    skillDuocChon.baseDamage,
+                    skillDuocChon.cooldownTime
+                );
             }
 
             // 3. Hiệu ứng FX & Âm thanh

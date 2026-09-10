@@ -177,7 +177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e5911bec756a3d46a1f74eb60c95ed5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
+  speed: 20
   damage: 10
   destroyTags:
   - Player
@@ -197,8 +197,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17aa1ab8892b273478482249e725b070, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  time: 2
-  ignoreWallTime: 0.2
+  time: 5
+  ignoreWallTime: 1
 --- !u!114 &-3276958291871803359
 MonoBehaviour:
   m_ObjectHideFlags: 0

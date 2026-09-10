@@ -14,8 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: skill1
   skillPrefab: {fileID: 4282846749162037270, guid: ad9b731512c5b0b4eac910a421a37d14, type: 3}
+  baseDamage: 50
   cooldownTime: 1
+  minCooldownTime: 1
   manaCost: 20
+  currentLevel: 2
   spreadAngle: 15
   projectileSpeed: 80
   projectileLifeTime: 3

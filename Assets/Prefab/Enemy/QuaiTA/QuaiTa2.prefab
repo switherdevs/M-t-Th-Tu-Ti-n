@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &829285708104342580
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7877542390242093592}
+  m_Layer: 9
+  m_Name: SP
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7877542390242093592
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829285708104342580}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1, y: 1.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5583281594989114432}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1664860741236483759
 GameObject:
   m_ObjectHideFlags: 0
@@ -116,6 +147,7 @@ Transform:
   - {fileID: 3175031429273096017}
   - {fileID: 1719236858349253045}
   - {fileID: 3436671022907952203}
+  - {fileID: 7877542390242093592}
   - {fileID: 6397164027545916525}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -351,7 +383,7 @@ MonoBehaviour:
   executionStateName: BeingExecuted
   die2StateName: Die2
   executionVFXPrefab: {fileID: 3486426238667156243, guid: 6e576f3e155399c4e8bae0d95be2851f, type: 3}
-  vfxSpawnPoint: {fileID: 0}
+  vfxSpawnPoint: {fileID: 7877542390242093592}
   executePromptUI: {fileID: 0}
   stunVFXObject: {fileID: 5901866960104184876}
 --- !u!1 &4106838825126986513
@@ -501,7 +533,7 @@ MonoBehaviour:
   targetTag: Player
   isTargetPlayer: 0
   isTargetEnemy: 1
-  damagePopupPrefab: {fileID: 0}
+  damagePopupPrefab: {fileID: 1225914145827128997, guid: c292fa7c657ece24daefe51c56d747b4, type: 3}
 --- !u!1 &5901866960104184876
 GameObject:
   m_ObjectHideFlags: 0
@@ -986,7 +1018,7 @@ MonoBehaviour:
   targetTag: Player
   isTargetPlayer: 0
   isTargetEnemy: 1
-  damagePopupPrefab: {fileID: 0}
+  damagePopupPrefab: {fileID: 1225914145827128997, guid: c292fa7c657ece24daefe51c56d747b4, type: 3}
 --- !u!1001 &4425420279067518402
 PrefabInstance:
   m_ObjectHideFlags: 0

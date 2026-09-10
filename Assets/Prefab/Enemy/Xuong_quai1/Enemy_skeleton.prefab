@@ -467,6 +467,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseDamage: 30
   targetTag: Player
+  isTargetPlayer: 0
+  isTargetEnemy: 1
+  damagePopupPrefab: {fileID: 0}
 --- !u!1 &7182354119422908273
 GameObject:
   m_ObjectHideFlags: 0
@@ -559,6 +562,7 @@ GameObject:
   - component: {fileID: 2300347228243727094}
   - component: {fileID: 548920370642440125}
   - component: {fileID: 6960215050283073285}
+  - component: {fileID: 1144046236869656229}
   m_Layer: 9
   m_Name: Enemy_skeleton
   m_TagString: Enemy
@@ -815,6 +819,25 @@ MonoBehaviour:
   isPlayer: 0
   weaponTag: Kiem
   hideOnDeath: 1
+--- !u!114 &1144046236869656229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7573028713283715629}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc5621c62038f354d974f198b7f7efef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scriptAIGoc: {fileID: 2399408769851875274}
+  animator: {fileID: 7767641472182091394}
+  tenParamAnimation: isWalking
+  khoangCachAnToan: 10
+  tocDoLui: 10
+  lucBatRa: 50
+  thoiGianChoang: 0.3
 --- !u!1001 &3463184978168438955
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -173,6 +173,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseDamage: 50
   targetTag: Player
+  isTargetPlayer: 1
+  isTargetEnemy: 0
+  damagePopupPrefab: {fileID: 1225914145827128997, guid: c292fa7c657ece24daefe51c56d747b4, type: 3}
 --- !u!1 &6761123959817474966
 GameObject:
   m_ObjectHideFlags: 0
@@ -490,6 +493,7 @@ GameObject:
   - component: {fileID: 1921641991296392193}
   - component: {fileID: 7248667184518668084}
   - component: {fileID: 8571555337402974433}
+  - component: {fileID: -2747315919969584303}
   m_Layer: 9
   m_Name: Sotac_3
   m_TagString: Enemy
@@ -682,6 +686,25 @@ MonoBehaviour:
   isPlayer: 0
   weaponTag: Kiem
   hideOnDeath: 1
+--- !u!114 &-2747315919969584303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8752754569850093893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc5621c62038f354d974f198b7f7efef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scriptAIGoc: {fileID: 2448529240789175436}
+  animator: {fileID: 8691904540208778905}
+  tenParamAnimation: IsRunning
+  khoangCachAnToan: 10
+  tocDoLui: 10
+  lucBatRa: 50
+  thoiGianChoang: 0.3
 --- !u!1001 &1802382444566064141
 PrefabInstance:
   m_ObjectHideFlags: 0

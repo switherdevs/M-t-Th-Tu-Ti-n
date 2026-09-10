@@ -272,6 +272,7 @@ GameObject:
   - component: {fileID: 2620246754418995832}
   - component: {fileID: 5603544189246880903}
   - component: {fileID: -1466102906525951628}
+  - component: {fileID: 6555984463428957001}
   m_Layer: 9
   m_Name: XuongNo_pre
   m_TagString: Enemy
@@ -453,6 +454,25 @@ MonoBehaviour:
   expNhanDuoc: 1.2
   destroyDelay: 2
   dieTriggerName: Die
+--- !u!114 &6555984463428957001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4855588014476093833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc5621c62038f354d974f198b7f7efef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scriptAIGoc: {fileID: 8740431232170655095}
+  animator: {fileID: 7974134096140287063}
+  tenParamAnimation: isWalking
+  khoangCachAnToan: 10
+  tocDoLui: 10
+  lucBatRa: 50
+  thoiGianChoang: 0.3
 --- !u!1 &6134058343419382049
 GameObject:
   m_ObjectHideFlags: 0

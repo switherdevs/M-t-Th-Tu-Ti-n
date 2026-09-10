@@ -33,11 +33,30 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
 
         originalScale = transform.localScale;
         targetScale = originalScale * targetScaleMultiplier;
+
+        // 🎯 ẨN TOÀN BỘ GAMEOBJECT TRONG MẢNG NGAY TỪ LẦN NẠP ĐẦU (AWAKE)
+        AnTatCaUIGameObject();
     }
 
     private void Start()
     {
         TimVaCapNhatUI();
+    }
+
+    /// <summary>
+    /// Hàm xử lý duyêt từng phần tử trong mảng để tắt ngay khi khởi chạy
+    /// </summary>
+    private void AnTatCaUIGameObject()
+    {
+        if (danhSachUIGameObject == null) return;
+
+        foreach (GameObject uiItem in danhSachUIGameObject)
+        {
+            if (uiItem != null)
+            {
+                uiItem.SetActive(false);
+            }
+        }
     }
 
     // 🎯 TƯƠNG TÁC CLICK CHUỘT VÀO CÔNG TRÌNH
@@ -125,11 +144,18 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
             if (QuestUIManager.Instance != null)
             {
                 danhSachUIGameObject.Add(QuestUIManager.Instance.gameObject);
+
+                // Nếu tìm lại và tự gán thêm UI vào thì cũng ẩn luôn
+                AnTatCaUIGameObject();
             }
             else
             {
                 GameObject uiQuest = GameObject.Find("UI_quest");
-                if (uiQuest != null) danhSachUIGameObject.Add(uiQuest);
+                if (uiQuest != null)
+                {
+                    danhSachUIGameObject.Add(uiQuest);
+                    AnTatCaUIGameObject();
+                }
             }
         }
     }

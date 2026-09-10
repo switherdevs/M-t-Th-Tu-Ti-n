@@ -32,17 +32,21 @@ public class SaveItemData
     }
 }
 
-// 🎯 DỮ LIỆU LƯU CẤP ĐỘ SKILL
+// 🎯 DỮ LIỆU LƯU CẤP ĐỘ & CHỈ SỐ SKILL
 [Serializable]
 public class SaveSkillData
 {
     public string skillName;
     public int skillLevel;
+    public float currentDamage;   // Sát thương hiện tại đã nâng cấp
+    public float currentCooldown; // Thời gian hồi hiện tại đã nâng cấp
 
-    public SaveSkillData(string name, int level)
+    public SaveSkillData(string name, int level, float damage, float cooldown)
     {
         skillName = name;
         skillLevel = level;
+        currentDamage = damage;
+        currentCooldown = cooldown;
     }
 }
 
@@ -167,7 +171,28 @@ public class QuestSaveSystem : MonoBehaviour
         SaveDuLieuQuestToTxt();
     }
 
-    // 🎯 HÀM LƯU CẤP ĐỘ SKILL VÀO FILE SAVE
+    // 🎯 HÀM LƯU TOÀN BỘ THÔNG TIN SKILL VÀO FILE SAVE
+    public void LuuSkillFullData(string nameSkill, int levelSkill, float damage, float cooldown)
+    {
+        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
+        if (duLieuSaveHienTai.danhSachSkillSave == null) duLieuSaveHienTai.danhSachSkillSave = new List<SaveSkillData>();
+
+        SaveSkillData skillSave = duLieuSaveHienTai.danhSachSkillSave.Find(s => s.skillName == nameSkill);
+        if (skillSave != null)
+        {
+            skillSave.skillLevel = levelSkill;
+            skillSave.currentDamage = damage;
+            skillSave.currentCooldown = cooldown;
+        }
+        else
+        {
+            duLieuSaveHienTai.danhSachSkillSave.Add(new SaveSkillData(nameSkill, levelSkill, damage, cooldown));
+        }
+
+        SaveDuLieuQuestToTxt();
+    }
+
+    // 🎯 HÀM LƯU CẤP ĐỘ SKILL (TƯƠNG THÍCH MỞ RỘNG)
     public void LuuCapDoSkill(string nameSkill, int levelSkill)
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
@@ -180,7 +205,7 @@ public class QuestSaveSystem : MonoBehaviour
         }
         else
         {
-            duLieuSaveHienTai.danhSachSkillSave.Add(new SaveSkillData(nameSkill, levelSkill));
+            duLieuSaveHienTai.danhSachSkillSave.Add(new SaveSkillData(nameSkill, levelSkill, 0f, 0f));
         }
 
         SaveDuLieuQuestToTxt();
@@ -193,6 +218,13 @@ public class QuestSaveSystem : MonoBehaviour
 
         SaveSkillData skillSave = duLieuSaveHienTai.danhSachSkillSave.Find(s => s.skillName == nameSkill);
         return skillSave != null ? skillSave.skillLevel : 1;
+    }
+
+    // 🎯 HÀM LẤY TOÀN BỘ DATA DÃ LƯU CỦA 1 SKILL
+    public SaveSkillData LayDuLieuSkill(string nameSkill)
+    {
+        if (duLieuSaveHienTai == null || duLieuSaveHienTai.danhSachSkillSave == null) return null;
+        return duLieuSaveHienTai.danhSachSkillSave.Find(s => s.skillName == nameSkill);
     }
 
     public void LuuMapTruocDo(string tenMap)

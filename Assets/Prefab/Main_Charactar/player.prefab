@@ -276,6 +276,8 @@ GameObject:
   - component: {fileID: -5719478494179254987}
   - component: {fileID: 5908089489488820278}
   - component: {fileID: 5797894560003307546}
+  - component: {fileID: 7444521958323705293}
+  - component: {fileID: 5713966164919481564}
   m_Layer: 7
   m_Name: player
   m_TagString: Player
@@ -511,6 +513,22 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 790510f2-41aa-45e9-b19b-20697e1351d8
     m_ActionName: 'playerMove/Mouse-skibidi[/Mouse/delta]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7444521958323705293}
+        m_TargetAssemblyTypeName: NguoiChoiGoiKiem, Assembly-CSharp
+        m_MethodName: KiemTraInputGoiKiem
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 147473aa-45dc-4b12-853a-e848ae9607df
+    m_ActionName: 'playerMove/Q[/Keyboard/q]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: 
@@ -750,6 +768,31 @@ MonoBehaviour:
   - delayTime: 2
     impulseForce: 80
     duration: 0.25
+--- !u!114 &7444521958323705293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2345805083975770352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c5b30be6c9cad44d98962feddbdb3e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5713966164919481564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2345805083975770352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6691d0b2fbd683c48887a8ff512772cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  "\u0111angExecution": 0
 --- !u!1 &2390863112206969679
 GameObject:
   m_ObjectHideFlags: 0

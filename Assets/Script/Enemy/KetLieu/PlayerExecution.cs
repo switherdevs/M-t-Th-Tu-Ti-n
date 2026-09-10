@@ -83,7 +83,6 @@ public class PlayerExecution : MonoBehaviour
 
         foreach (var hit in hits)
         {
-            // 1. Kiểm tra nếu là Quái Thường / Boss Tỳ Hưu dùng ExecutableEnemy
             ExecutableEnemy executable = hit.GetComponentInParent<ExecutableEnemy>();
             if (executable != null && executable.IsCanBeExecuted)
             {
@@ -91,7 +90,6 @@ public class PlayerExecution : MonoBehaviour
                 break;
             }
 
-            // 2. Kiểm tra nếu là Boss Tổng Quản dùng BossExecution_TongQuan
             BossExecution_TongQuan bossExecutable = hit.GetComponentInParent<BossExecution_TongQuan>();
             if (bossExecutable != null && bossExecutable.IsCanBeExecuted)
             {
@@ -105,6 +103,12 @@ public class PlayerExecution : MonoBehaviour
     {
         isExecuting = true;
 
+        // PHÁT TÍN HIỆU TOÀN MAP CHO QUÁI VÀO TRẠNG THÁI SỢ HÃI
+        if (PlayerExecutionManager.Instance != null)
+        {
+            PlayerExecutionManager.Instance.BatDauExecution();
+        }
+
         // Tắt điều khiển Player
         if (playerMovementScript != null)
         {
@@ -114,17 +118,14 @@ public class PlayerExecution : MonoBehaviour
         if (playerDashScript != null) playerDashScript.enabled = false;
         if (playerAttackScript != null) playerAttackScript.enabled = false;
 
-        // Lấy vị trí ExecutionPoint và Transform của mục tiêu
         Transform executionPoint = targetEnemy != null ? targetEnemy.ExecutionPoint : targetBoss.ExecutionPoint;
         Transform targetTransform = targetEnemy != null ? targetEnemy.transform : targetBoss.transform;
 
-        // Bật Anim di chuyển
         if (anim != null && !string.IsNullOrEmpty(moveBoolName))
         {
             anim.SetBool(moveBoolName, true);
         }
 
-        // Di chuyển mượt tới vị trí đứng kết liễu
         Vector3 targetPos = executionPoint.position;
         while (Vector3.Distance(transform.position, targetPos) > 0.05f)
         {
@@ -134,7 +135,6 @@ public class PlayerExecution : MonoBehaviour
         }
         transform.position = targetPos;
 
-        // Tắt Anim di chuyển và quay mặt về hướng quái
         if (anim != null && !string.IsNullOrEmpty(moveBoolName))
         {
             anim.SetBool(moveBoolName, false);
@@ -143,11 +143,9 @@ public class PlayerExecution : MonoBehaviour
         bool faceRight = targetTransform.position.x >= transform.position.x;
         transform.eulerAngles = faceRight ? new Vector3(0f, 0f, 0f) : new Vector3(0f, 180f, 0f);
 
-        // Zoom Camera
         SwitchCameraTarget(executionPoint);
         StartZoomCamera(executionLensSize);
 
-        // Chạy Animation kết liễu Player
         if (anim != null && !string.IsNullOrEmpty(executionAnimName))
         {
             anim.SetTrigger(executionAnimName);
@@ -155,7 +153,6 @@ public class PlayerExecution : MonoBehaviour
 
         StartCoroutine(ProcessCameraShakeSequence());
 
-        // Gọi hàm Thực thi kết liễu tương ứng
         if (targetEnemy != null)
         {
             targetEnemy.Execute(transform, OnExecutionFinished);
@@ -213,6 +210,12 @@ public class PlayerExecution : MonoBehaviour
     private void OnExecutionFinished()
     {
         isExecuting = false;
+
+        // PHÁT TÍN HIỆU KẾT THÚC EXECUTION DỰNG QUÁI DẬY KÈM KNOCKBACK
+        if (PlayerExecutionManager.Instance != null)
+        {
+            PlayerExecutionManager.Instance.KetThucExecution();
+        }
 
         if (playerMovementScript != null)
         {

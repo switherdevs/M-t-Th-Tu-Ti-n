@@ -1,7 +1,25 @@
 using StatsSystem.Components;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
+[System.Serializable]
+public struct MinionSpawnData
+{
+    [Tooltip("Tên nhận diện quái (VD: Quái Xương, Sói Ma...)")]
+    public string minionName;
+
+    [Tooltip("Prefab của loại quái này")]
+    public GameObject minionPrefab;
+
+    [Tooltip("Số lượng muốn spawn cho loại quái này trong 1 đợt chọn")]
+    public int spawnCount;
+
+    [Tooltip("Tỉ lệ xuất hiện của quái (Ví dụ: 70 = 70%, 30 = 30%)")]
+    [Range(0f, 100f)]
+    public float spawnChance;
+}
 
 public class BossDaSatMaQuan : MonoBehaviour
 {
@@ -10,49 +28,30 @@ public class BossDaSatMaQuan : MonoBehaviour
     // =========================================================
 
     [Header("===== PHÁT HIỆN PLAYER =====")]
-
-    [Tooltip("Layer của Player để tìm kiếm")]
     [SerializeField] private LayerMask playerLayer;
-
-    [Tooltip("Bán kính phát hiện Player bằng OverlapCircle")]
     [SerializeField] private float detectRange = 12f;
-
-    [Tooltip("Khoảng cách Boss bắt đầu tấn công")]
     [SerializeField] private float attackRange = 2f;
 
 
     // =========================================================
-    // NÉ TƯỜNG MƯỢT MÀ (SMOOTH OBSTACLE AVOIDANCE)
+    // NÉ TƯỜNG MƯỢT MÀ
     // =========================================================
 
     [Header("===== NÉ TƯỜNG MƯỢT MÀ =====")]
-
-    [Tooltip("Layer chứa các vật cản/tường")]
     [SerializeField] private LayerMask wallLayer;
-
-    [Tooltip("Khoảng cách tia Raycast phát hiện tường để né")]
     [SerializeField] private float wallDetectDistance = 1.8f;
-
-    [Tooltip("Khoảng cách đệm duy trì với tường để không bị dính vào tường")]
     [SerializeField] private float wallBufferDistance = 0.8f;
-
-    [Tooltip("Độ mượt khi bẻ lái né tường (Giá trị nhỏ = mượt hơn)")]
     [SerializeField] private float avoidanceSmoothing = 6f;
 
 
     // =========================================================
-    // HIỆU ỨNG & ĐƯỜNG BÁO CHIÊU (TELEGRAPH)
+    // HIỆU ỨNG & ĐƯỜNG BÁO CHIÊU
     // =========================================================
 
-    [Header("===== HIỆU ỨNG & CẢNH BÁO CHIÊU =====")]
-
-    [Tooltip("GameObject Hiệu ứng chung (sẽ tự tắt và chỉ bật khi đánh/dùng skill)")]
+    [Header("===== HIỆU ỨNG GAMEOBJECT & CẢNH BÁO CHIÊU =====")]
     [SerializeField] private GameObject attackEffect;
-
-    [Tooltip("GameObject đường báo hiệu hướng húc của Skill 1 (Mặc định sẽ ẩn)")]
+    [SerializeField] private GameObject skill1Effect;
     [SerializeField] private GameObject skill1LineWarning;
-
-    [Tooltip("GameObject vùng báo hiệu phạm vi của Skill 2 (Mặc định sẽ ẩn)")]
     [SerializeField] private GameObject skill2AreaWarning;
 
 
@@ -61,110 +60,83 @@ public class BossDaSatMaQuan : MonoBehaviour
     // =========================================================
 
     [Header("===== ATTACK RAGE POSITION =====")]
-
-    [Tooltip("Transform của điểm/khu vực AttackRage")]
     [SerializeField] private Transform attackRage;
-
-    [Tooltip("Tọa độ Offset X của AttackRage so meo Boss")]
     [SerializeField] private float attackRageOffsetX = 0f;
-
-    [Tooltip("Tọa độ Offset Y của AttackRage so với Boss")]
     [SerializeField] private float attackRageOffsetY = 0f;
 
 
     // =========================================================
-    // DI CHUYỂN
+    // DI CHUYỂN & ANIMATION DI CHUYỂN
     // =========================================================
 
     [Header("===== DI CHUYỂN =====")]
-
     [SerializeField] private float moveSpeed = 2.5f;
-
-    [Tooltip("Tốc độ di chuyển khi Boss đang chuẩn bị ra Skill (Thường chỉnh nhỏ lại để đi chậm)")]
     [SerializeField] private float slowMoveSpeed = 0.8f;
-
-    [Tooltip("Thời gian Boss khựng/đi chậm trước khi tung Skill (Giây)")]
     [SerializeField] private float skillPrepTime = 0.6f;
+
+    [Tooltip("Tên Parameter (BOOL) Animation Walk/Run ở Movement Layer")]
+    [SerializeField] private string walkAnimation = "Walk";
 
 
     // =========================================================
-    // THỂ LỰC
+    // THỂ LỰC & ANIMATION MỆT
     // =========================================================
 
     [Header("===== THỂ LỰC =====")]
-
     [SerializeField] private int maxStamina = 10;
-
     [SerializeField] private int currentStamina = 0;
-
-    [Tooltip("Thời gian Boss bị mệt")]
     [SerializeField] private float tiredTime = 5f;
-
-    [Tooltip("Slider hiển thị thể lực của Boss")]
     [SerializeField] private Slider staminaSlider;
+    [SerializeField] private string tiredAnimation = "Tired";
 
 
     // =========================================================
-    // ĐÁNH THƯỜNG
+    // ĐÁNH THƯỜNG - ATTACK 1 & 2
     // =========================================================
 
     [Header("===== ĐÁNH THƯỜNG =====")]
-
-    [SerializeField] private Transform attackPoint1;
-
-    [SerializeField] private Transform attackPoint2;
-
-    [SerializeField] private int normalAttackDamage = 15;
-
+    [Tooltip("Tick để cho phép Boss dùng Đánh thường")]
+    [SerializeField] private bool useNormalAttack = true;
     [SerializeField] private int normalAttackStamina = 1;
-
-    [Tooltip("Thời gian chờ trước khi bật Collider")]
     [SerializeField] private float normalAttackDelay = 0.2f;
-
-    [Tooltip("Thời gian Collider tồn tại")]
     [SerializeField] private float attackColliderTime = 0.2f;
-
     [SerializeField] private float attackCooldown = 0.8f;
+    [SerializeField] private float normalAttackStandTime = 0.3f;
+    [SerializeField] private string attack1Animation = "Attack1";
+    [SerializeField] private string attack2Animation = "Attack2";
 
 
     // =========================================================
-    // SKILL 1 - TRÂU HÚC
+    // SKILL 1 - TRÂU HÚC 1 LẦN
     // =========================================================
 
     [Header("===== SKILL 1 - TRÂU HÚC =====")]
-
+    [Tooltip("Tick để cho phép Boss dùng Skill 1")]
+    [SerializeField] private bool useSkill1 = true;
     [SerializeField] private Transform chargePoint;
-
-    [SerializeField] private int chargeDamage = 20;
-
     [SerializeField] private int chargeStamina = 3;
-
     [SerializeField] private float chargeSpeed = 8f;
-
     [SerializeField] private float chargeTime = 0.8f;
-
     [SerializeField] private float chargeDelay = 0.3f;
-
-    [SerializeField] private float chargeCooldown = 1f;
-
-    [Tooltip("Kích thước vùng quét kiểm tra tường khi đang húc")]
+    [SerializeField] private float chargeCooldown = 5f;
+    [SerializeField] private float chargeStandTime = 0.5f;
     [SerializeField] private Vector2 chargeCheckSize = new Vector2(1f, 1f);
+    [SerializeField] private string skill1Animation = "Skill1";
 
 
     // =========================================================
-    // SKILL 2 - BÙNG NĂNG LƯỢNG (DÙNG PREFAB TẠI TRANSFORMS BOSS)
+    // SKILL 2 - BÙNG NĂNG LƯỢNG (ÁP SÁT RỒI NỔ)
     // =========================================================
 
     [Header("===== SKILL 2 - BÙNG NĂNG LƯỢNG =====")]
-
-    [Tooltip("Prefab của Skill 2 (Tự sinh ra tại vị trí Boss)")]
+    [Tooltip("Tick để cho phép Boss dùng Skill 2")]
+    [SerializeField] private bool useSkill2 = true;
     [SerializeField] private GameObject skill2Prefab;
-
     [SerializeField] private int skill2Stamina = 5;
-
     [SerializeField] private float skill2Delay = 0.3f;
-
-    [SerializeField] private float skill2Cooldown = 1f;
+    [SerializeField] private float skill2Cooldown = 8f;
+    [SerializeField] private float skill2StandTime = 0.6f;
+    [SerializeField] private string skill2Animation = "Skill2";
 
 
     // =========================================================
@@ -172,48 +144,83 @@ public class BossDaSatMaQuan : MonoBehaviour
     // =========================================================
 
     [Header("===== SKILL 3 - TRIỆU HỒI =====")]
-
-    [SerializeField] private Transform summonPoint;
-
-    [SerializeField] private GameObject minionPrefab;
-
-    [SerializeField] private int summonCount = 3;
-
+    [Tooltip("Tick để cho phép Boss dùng Skill 3")]
+    [SerializeField] private bool useSkill3 = true;
+    [SerializeField] private Transform[] spawnPoints;
+    [SerializeField] private MinionSpawnData[] minionTypes;
     [SerializeField] private int summonStamina = 2;
-
     [SerializeField] private float summonDelay = 0.5f;
-
-    [SerializeField] private float summonCooldown = 1f;
-
-
-    // =========================================================
-    // ANIMATOR
-    // =========================================================
-
-    [Header("===== ANIMATOR =====")]
-
-    [SerializeField] private Animator animator;
-
-    [Tooltip("Tên Parameter (Bool) Animation Walk")]
-    [SerializeField] private string walkAnimation = "Walk";
-
-    [Tooltip("Tên Parameter (Trigger) Animation Attack 1")]
-    [SerializeField] private string attack1Animation = "Attack1";
-
-    [Tooltip("Tên Parameter (Trigger) Animation Attack 2")]
-    [SerializeField] private string attack2Animation = "Attack2";
-
-    [Tooltip("Tên Parameter (Trigger) Animation Skill 1")]
-    [SerializeField] private string skill1Animation = "Skill1";
-
-    [Tooltip("Tên Parameter (Trigger) Animation Skill 2")]
-    [SerializeField] private string skill2Animation = "Skill2";
-
-    [Tooltip("Tên Parameter (Trigger) Animation Skill 3")]
+    [SerializeField] private float summonCooldown = 12f;
+    [SerializeField] private float summonStandTime = 0.5f;
     [SerializeField] private string skill3Animation = "Skill3";
 
-    [Tooltip("Tên Parameter (Bool) Animation Tired")]
-    [SerializeField] private string tiredAnimation = "Tired";
+
+    // =========================================================
+    // SKILL MỚI 1 - MA SÁT TUYỆT DIỆU (HÚC 3 LẦN)
+    // =========================================================
+
+    [Header("===== SKILL MỚI 1 - MA SÁT TUYỆT DIỆU (HÚC 3 LẦN) =====")]
+    [Tooltip("Tick để cho phép Boss dùng Skill Húc 3 Lần")]
+    [SerializeField] private bool useSkillTripleCharge = true;
+    [SerializeField] private int tripleChargeStamina = 2;
+    [SerializeField] private float tripleChargeSpeed = 6f;
+    [SerializeField] private float tripleChargeDuration = 0.6f;
+    [SerializeField] private float tripleChargeCooldown = 10f;
+    [SerializeField] private float tripleChargeStandTime = 0.8f;
+
+    [Tooltip("Tên Parameter (BOOL) Animation cho Skill Húc 3 Lần")]
+    [SerializeField] private string tripleChargeAnimName = "TripleCharge";
+
+
+    // =========================================================
+    // SKILL MỚI 2 - MA KHÍ TRẦM TÍCH (DARK TRAP)
+    // =========================================================
+
+    [Header("===== SKILL MỚI 2 - MA KHÍ TRẦM TÍCH (DARK TRAP) =====")]
+    [Tooltip("Tick để cho phép Boss dùng Skill Dark Trap")]
+    [SerializeField] private bool useSkillDarkTrap = true;
+    [SerializeField] private GameObject darkTrapPrefab;
+    [SerializeField] private int darkTrapStamina = 2;
+    [SerializeField] private float darkTrapDelay = 1.2f;
+    [SerializeField] private float darkTrapDuration = 1.0f;
+    [SerializeField] private float darkTrapCooldown = 7f;
+    [SerializeField] private float darkTrapStandTime = 0.5f;
+
+    [Tooltip("Tên Parameter (BOOL) Animation cho Skill Dark Trap")]
+    [SerializeField] private string darkTrapAnimName = "DarkTrap";
+
+
+    // =========================================================
+    // SKILL MỚI 3 - MƯA THIÊN THẠCH (METEOR SHOWER)
+    // =========================================================
+
+    [Header("===== SKILL MỚI 3 - MƯA THIÊN THẠCH (METEOR SHOWER) =====")]
+    [Tooltip("Tick để cho phép Boss dùng Skill Mưa Thiên Thạch")]
+    [SerializeField] private bool useSkillMeteorShower = true;
+    [SerializeField] private GameObject meteorPrefab;
+    [SerializeField] private int meteorCount = 12;
+    [SerializeField] private int meteorStamina = 6;
+    [SerializeField] private float meteorPrepDelay = 1.5f;
+    [SerializeField] private float meteorCooldown = 15f;
+    [SerializeField] private float meteorStandTime = 1.0f;
+
+    [Tooltip("Tên Parameter (BOOL) Animation cho Skill Mưa Thiên Thạch")]
+    [SerializeField] private string meteorAnimName = "MeteorShower";
+
+    [Header("===== VÙNG SPAWN MƯA THIÊN THẠCH =====")]
+    [Tooltip("Vị trí tương đối của vùng spawn so với Boss")]
+    [SerializeField] private Vector2 meteorSpawnAreaOffset = new Vector2(0f, 6f);
+
+    [Tooltip("Kích thước hình vuông vùng spawn trên đầu Boss")]
+    [SerializeField] private Vector2 meteorSpawnAreaSize = new Vector2(10f, 3f);
+
+
+    // =========================================================
+    // ANIMATOR COMPONENTS
+    // =========================================================
+
+    [Header("===== ANIMATOR COMPONENT =====")]
+    [SerializeField] private Animator animator;
 
 
     // =========================================================
@@ -221,10 +228,7 @@ public class BossDaSatMaQuan : MonoBehaviour
     // =========================================================
 
     [Header("===== DEBUG & TEST SKILL =====")]
-
     [SerializeField] private bool showDebug = true;
-
-    [Tooltip("Bật chế độ bấm phím 1, 2, 3, 4 để test Skill thủ công")]
     [SerializeField] private bool enableHotkeyTesting = true;
 
 
@@ -233,70 +237,67 @@ public class BossDaSatMaQuan : MonoBehaviour
     // =========================================================
 
     private Transform playerTransform;
-
     private Rigidbody2D rb;
-
+    private BossPhaseSystem phaseSystem;
     private bool playerDetected = false;
-
     private bool isAttacking = false;
-
     private bool isUsingSkill = false;
-
     private bool isTired = false;
 
-    // PUBLIC PROPERTY ĐỂ CÁC SCRIPT KHÁC (NHƯ CHARACTERSTATS) CÓ THỂ ĐỌC ĐƯỢC TRẠNG THÁI MỆT
     public bool IsTired => isTired;
 
     private float attackTimer = 0f;
-
     private int comboIndex = 0;
-
     private Vector2 currentVelocityVector = Vector2.zero;
 
+    // Biến đếm thời gian Cooldown độc lập của từng skill
+    private float normalAttackTimer = 0f;
+    private float skill1Timer = 0f;
+    private float skill2Timer = 0f;
+    private float skill3Timer = 0f;
+    private float tripleChargeTimer = 0f;
+    private float darkTrapTimer = 0f;
+    private float meteorTimer = 0f;
 
-    // =========================================================
-    // START
-    // =========================================================
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-
-        if (rb == null)
-        {
-            Debug.LogError("❌ Boss chưa có Rigidbody2D!");
-        }
+        phaseSystem = GetComponent<BossPhaseSystem>();
 
         if (animator == null)
         {
             animator = GetComponent<Animator>();
+            if (animator == null)
+            {
+                animator = GetComponentInChildren<Animator>();
+            }
         }
 
-        if (attackEffect != null)
-        {
-            attackEffect.SetActive(false);
-        }
+        if (attackEffect != null) attackEffect.SetActive(false);
+        if (skill1Effect != null) skill1Effect.SetActive(false);
 
-        // Tắt mặc định các đường/vùng cảnh báo Skill
         SetWarningSkill1Active(false);
         SetWarningSkill2Active(false);
-
-        DisableAllAttackColliders();
         UpdateStaminaUI();
-
-        if (showDebug)
-        {
-            Debug.Log("👹 DẠ SÁT MA QUÂN ĐÃ KHỞI ĐỘNG!");
-        }
     }
 
-
-    // =========================================================
-    // UPDATE
-    // =========================================================
+    public void SetMoveSpeed(float newSpeed)
+    {
+        moveSpeed = newSpeed;
+    }
 
     private void Update()
     {
+        if (phaseSystem != null && phaseSystem.IsPhaseChanging)
+        {
+            StopMoving();
+            return;
+        }
+
+        // Cập nhật đếm ngược Cooldown thời gian thực
+        UpdateCooldownTimers();
+
         UpdateAttackRagePosition();
 
         if (enableHotkeyTesting)
@@ -339,9 +340,20 @@ public class BossDaSatMaQuan : MonoBehaviour
         ChasePlayerSmoothly();
     }
 
+    private void UpdateCooldownTimers()
+    {
+        if (normalAttackTimer > 0f) normalAttackTimer -= Time.deltaTime;
+        if (skill1Timer > 0f) skill1Timer -= Time.deltaTime;
+        if (skill2Timer > 0f) skill2Timer -= Time.deltaTime;
+        if (skill3Timer > 0f) skill3Timer -= Time.deltaTime;
+        if (tripleChargeTimer > 0f) tripleChargeTimer -= Time.deltaTime;
+        if (darkTrapTimer > 0f) darkTrapTimer -= Time.deltaTime;
+        if (meteorTimer > 0f) meteorTimer -= Time.deltaTime;
+    }
+
 
     // =========================================================
-    // DI CHUYỂN ĐUỔI PLAYER VÀ NÉ TƯỜNG CỰC MƯỢT
+    // DI CHUYỂN & NÉ TƯỜNG
     // =========================================================
 
     private void ChasePlayerSmoothly()
@@ -352,7 +364,6 @@ public class BossDaSatMaQuan : MonoBehaviour
         Vector2 smoothDir = CalculateSmoothAvoidanceDirection(targetDir);
 
         currentVelocityVector = Vector2.Lerp(currentVelocityVector, smoothDir, Time.deltaTime * avoidanceSmoothing);
-
         rb.linearVelocity = currentVelocityVector * moveSpeed;
 
         SetBoolAnimation(walkAnimation, true);
@@ -374,12 +385,9 @@ public class BossDaSatMaQuan : MonoBehaviour
             Vector2 checkDir = Quaternion.Euler(0, 0, angle) * targetDir;
             RaycastHit2D hit = Physics2D.Raycast(transform.position, checkDir, wallDetectDistance, wallLayer);
 
-            Debug.DrawRay(transform.position, checkDir * wallDetectDistance, Color.cyan);
-
             if (hit.collider != null && hit.collider.CompareTag("Wall"))
             {
                 wallDetected = true;
-
                 if (hit.distance < wallBufferDistance)
                 {
                     Vector2 pushAway = (Vector2)transform.position - hit.point;
@@ -396,12 +404,7 @@ public class BossDaSatMaQuan : MonoBehaviour
         return bestDir.normalized;
     }
 
-
-    // =========================================================
-    // DỪNG & QUAY MẶT
-    // =========================================================
-
-    private void StopMoving()
+    public void StopMoving()
     {
         if (rb == null) return;
 
@@ -421,37 +424,56 @@ public class BossDaSatMaQuan : MonoBehaviour
 
 
     // =========================================================
-    // QUẢN LÝ THỨ TỰ SKILL (COMBO SEQUENCE)
+    // COMBO SEQUENCE
     // =========================================================
 
     private void ExecuteComboSequence()
     {
-        switch (comboIndex)
+        if (!useNormalAttack && !useSkill1 && !useSkill2 && !useSkill3 &&
+            !useSkillTripleCharge && !useSkillDarkTrap && !useSkillMeteorShower)
         {
-            case 0:
-            case 1:
-            case 2:
-                StartCoroutine(NormalAttack());
-                break;
-            case 3:
-                StartCoroutine(Skill1Charge());
-                break;
-            case 4:
-                StartCoroutine(Skill2Burst());
-                break;
-            case 5:
-                StartCoroutine(Skill3Summon());
-                break;
+            return;
         }
 
-        comboIndex = (comboIndex + 1) % 6;
-        attackTimer = 1f;
+        int attempts = 0;
+        bool skillExecuted = false;
+
+        while (!skillExecuted && attempts < 7)
+        {
+            switch (comboIndex)
+            {
+                case 0:
+                    if (useNormalAttack && normalAttackTimer <= 0f) { StartCoroutine(NormalAttack()); skillExecuted = true; }
+                    break;
+                case 1:
+                    if (useSkill1 && skill1Timer <= 0f) { StartCoroutine(Skill1Charge()); skillExecuted = true; }
+                    break;
+                case 2:
+                    if (useSkill2 && skill2Timer <= 0f) { StartCoroutine(Skill2Burst()); skillExecuted = true; }
+                    break;
+                case 3:
+                    if (useSkill3 && skill3Timer <= 0f) { StartCoroutine(Skill3Summon()); skillExecuted = true; }
+                    break;
+                case 4:
+                    if (useSkillTripleCharge && tripleChargeTimer <= 0f) { StartCoroutine(SkillMaSatTuyetDiu()); skillExecuted = true; }
+                    break;
+                case 5:
+                    if (useSkillDarkTrap && darkTrapTimer <= 0f) { StartCoroutine(SkillMaKhiTramTich()); skillExecuted = true; }
+                    break;
+                case 6:
+                    if (useSkillMeteorShower && meteorTimer <= 0f) { StartCoroutine(SkillMuaThienThach()); skillExecuted = true; }
+                    break;
+            }
+
+            comboIndex = (comboIndex + 1) % 7;
+            attempts++;
+        }
+
+        if (skillExecuted)
+        {
+            attackTimer = 0.5f;
+        }
     }
-
-
-    // =========================================================
-    // HÀM BỌC: ĐI CHẬM/KHỰNG LẠI TRƯỚC KHI THI TRUYỂN SKILL
-    // =========================================================
 
     private IEnumerator SkillPreparation()
     {
@@ -466,13 +488,32 @@ public class BossDaSatMaQuan : MonoBehaviour
         }
 
         yield return new WaitForSeconds(skillPrepTime);
+        StopMoving();
+    }
+
+    /// <summary>
+    /// Đuổi theo Player với TỐC ĐỘ GỐC (moveSpeed) cho tới khi đến đủ gần targetRange mà không bị giảm tốc
+    /// </summary>
+    private IEnumerator ChasePlayerUntilClose(float targetRange)
+    {
+        while (playerTransform != null)
+        {
+            float dist = Vector2.Distance(transform.position, playerTransform.position);
+            if (dist <= targetRange)
+            {
+                break;
+            }
+
+            ChasePlayerSmoothly();
+            yield return null;
+        }
 
         StopMoving();
     }
 
 
     // =========================================================
-    // ĐÁNH THƯỜNG
+    // THỰC THI SKILL & STAND TIME
     // =========================================================
 
     private IEnumerator NormalAttack()
@@ -480,45 +521,27 @@ public class BossDaSatMaQuan : MonoBehaviour
         isAttacking = true;
         StopMoving();
 
-        bool attack1 = Random.Range(0, 2) == 0;
+        bool isAttack1 = Random.Range(0, 2) == 0;
+        SetTriggerAnimation(isAttack1 ? attack1Animation : attack2Animation);
 
-        if (attack1)
-        {
-            SetTriggerAnimation(attack1Animation);
-            yield return new WaitForSeconds(normalAttackDelay);
+        yield return new WaitForSeconds(normalAttackDelay);
 
-            SetEffectActive(true);
-            EnableAttackCollider(attackPoint1, normalAttackDamage);
-        }
-        else
-        {
-            SetTriggerAnimation(attack2Animation);
-            yield return new WaitForSeconds(normalAttackDelay);
-
-            SetEffectActive(true);
-            EnableAttackCollider(attackPoint2, normalAttackDamage);
-        }
-
+        if (attackEffect != null) attackEffect.SetActive(true);
         AddStamina(normalAttackStamina);
 
         yield return new WaitForSeconds(attackColliderTime);
 
-        DisableAllAttackColliders();
-        SetEffectActive(false);
+        if (attackEffect != null) attackEffect.SetActive(false);
 
-        yield return new WaitForSeconds(attackCooldown);
+        normalAttackTimer = attackCooldown;
+        yield return new WaitForSeconds(normalAttackStandTime);
+
         isAttacking = false;
     }
-
-
-    // =========================================================
-    // SKILL 1 - TRÂU HÚC (HIỆN ĐƯỜNG BÁO HÚC)
-    // =========================================================
 
     private IEnumerator Skill1Charge()
     {
         isUsingSkill = true;
-
         SetWarningSkill1Active(true);
 
         yield return StartCoroutine(SkillPreparation());
@@ -532,9 +555,7 @@ public class BossDaSatMaQuan : MonoBehaviour
             float directionY = Mathf.Sign(playerTransform.position.y - transform.position.y);
 
             FacePlayer(directionX);
-
-            SetEffectActive(true);
-            EnableAttackCollider(chargePoint, chargeDamage);
+            if (skill1Effect != null) skill1Effect.SetActive(true);
 
             float timer = 0f;
             bool hitWall = false;
@@ -558,13 +579,11 @@ public class BossDaSatMaQuan : MonoBehaviour
 
                 if (hitWall)
                 {
-                    Debug.LogWarning("💥 BOSS HÚC TRÚNG TƯỜNG! BỊ BÀNG HOÀNG / MỆT!");
                     StopMoving();
-                    DisableCollider(chargePoint);
-                    SetEffectActive(false);
+                    if (skill1Effect != null) skill1Effect.SetActive(false);
                     SetWarningSkill1Active(false);
+                    skill1Timer = chargeCooldown;
                     isUsingSkill = false;
-
                     StartTired();
                     yield break;
                 }
@@ -575,57 +594,43 @@ public class BossDaSatMaQuan : MonoBehaviour
         }
 
         SetWarningSkill1Active(false);
-
         StopMoving();
-        DisableCollider(chargePoint);
-        SetEffectActive(false);
+
+        if (skill1Effect != null) skill1Effect.SetActive(false);
 
         AddStamina(chargeStamina);
-        yield return new WaitForSeconds(chargeCooldown);
+
+        skill1Timer = chargeCooldown;
+        yield return new WaitForSeconds(chargeStandTime);
+
         isUsingSkill = false;
     }
-
-
-    // =========================================================
-    // SKILL 2 - BÙNG NĂNG LƯỢNG (HIỆN VÙNG BÁO & SPAWN TẠI BOSS)
-    // =========================================================
 
     private IEnumerator Skill2Burst()
     {
         isUsingSkill = true;
-
         SetWarningSkill2Active(true);
 
-        yield return StartCoroutine(SkillPreparation());
+        // BỚT GIẢM TỐC ĐỘ: Dí theo Player với tốc độ bình thường cho tới khi áp sát khoảng cách attackRange
+        yield return StartCoroutine(ChasePlayerUntilClose(attackRange));
 
+        // Khi đã áp sát gần Player, phát Animation và tạo Prefab Nổ
         SetTriggerAnimation(skill2Animation);
         yield return new WaitForSeconds(skill2Delay);
-
-        SetEffectActive(true);
 
         if (skill2Prefab != null)
         {
             Instantiate(skill2Prefab, transform.position, Quaternion.identity);
         }
-        else
-        {
-            Debug.LogError("❌ Chưa gán Skill 2 Prefab trong Inspector!");
-        }
 
         SetWarningSkill2Active(false);
-
-        yield return new WaitForSeconds(0.3f);
-
-        SetEffectActive(false);
         AddStamina(skill2Stamina);
-        yield return new WaitForSeconds(skill2Cooldown);
+
+        skill2Timer = skill2Cooldown;
+        yield return new WaitForSeconds(skill2StandTime);
+
         isUsingSkill = false;
     }
-
-
-    // =========================================================
-    // SKILL 3 - TRIỆU HỒI
-    // =========================================================
 
     private IEnumerator Skill3Summon()
     {
@@ -636,54 +641,210 @@ public class BossDaSatMaQuan : MonoBehaviour
         SetTriggerAnimation(skill3Animation);
         yield return new WaitForSeconds(summonDelay);
 
-        SetEffectActive(true);
-
-        if (minionPrefab != null)
+        if (spawnPoints != null && spawnPoints.Length > 0 && minionTypes != null && minionTypes.Length > 0)
         {
-            Vector3 spawnPosition = (summonPoint != null) ? summonPoint.position : transform.position;
-
-            for (int i = 0; i < summonCount; i++)
+            foreach (Transform spawnPoint in spawnPoints)
             {
-                Vector3 position = spawnPosition;
-                position.x += Random.Range(-1.5f, 1.5f);
-                position.y += Random.Range(-0.5f, 0.5f);
+                if (spawnPoint == null) continue;
 
-                Instantiate(minionPrefab, position, Quaternion.identity);
-                yield return new WaitForSeconds(0.1f);
+                MinionSpawnData selectedMinion = GetRandomMinionByChance();
+
+                if (selectedMinion.minionPrefab != null)
+                {
+                    for (int i = 0; i < selectedMinion.spawnCount; i++)
+                    {
+                        Vector3 position = spawnPoint.position;
+                        position.x += Random.Range(-0.8f, 0.8f);
+                        position.y += Random.Range(-0.4f, 0.4f);
+
+                        Instantiate(selectedMinion.minionPrefab, position, Quaternion.identity);
+                        yield return new WaitForSeconds(0.08f);
+                    }
+                }
             }
         }
 
-        SetEffectActive(false);
         AddStamina(summonStamina);
-        yield return new WaitForSeconds(summonCooldown);
+
+        skill3Timer = summonCooldown;
+        yield return new WaitForSeconds(summonStandTime);
+
+        isUsingSkill = false;
+    }
+
+    private MinionSpawnData GetRandomMinionByChance()
+    {
+        float totalChance = 0f;
+        foreach (MinionSpawnData minion in minionTypes) totalChance += minion.spawnChance;
+
+        float randomRoll = Random.Range(0f, totalChance);
+        float currentSum = 0f;
+
+        foreach (MinionSpawnData minion in minionTypes)
+        {
+            currentSum += minion.spawnChance;
+            if (randomRoll <= currentSum) return minion;
+        }
+
+        return minionTypes[0];
+    }
+
+    private IEnumerator SkillMaSatTuyetDiu()
+    {
+        isUsingSkill = true;
+        yield return StartCoroutine(SkillPreparation());
+
+        SetBoolAnimation(tripleChargeAnimName, true);
+
+        for (int i = 0; i < 3; i++)
+        {
+            if (playerTransform != null)
+            {
+                float directionX = Mathf.Sign(playerTransform.position.x - transform.position.x);
+                float directionY = Mathf.Sign(playerTransform.position.y - transform.position.y);
+
+                FacePlayer(directionX);
+                SetWarningSkill1Active(true);
+                yield return new WaitForSeconds(0.2f);
+                SetWarningSkill1Active(false);
+
+                SetBoolAnimation(walkAnimation, true);
+
+                if (skill1Effect != null) skill1Effect.SetActive(true);
+
+                float timer = 0f;
+                bool hitWall = false;
+
+                while (timer < tripleChargeDuration)
+                {
+                    if (rb != null)
+                    {
+                        rb.linearVelocity = new Vector2(directionX * tripleChargeSpeed, directionY * tripleChargeSpeed);
+                    }
+
+                    Collider2D[] hits = Physics2D.OverlapBoxAll(transform.position, chargeCheckSize, 0f, wallLayer);
+                    foreach (Collider2D col in hits)
+                    {
+                        if (col.CompareTag("Wall"))
+                        {
+                            hitWall = true;
+                            break;
+                        }
+                    }
+
+                    if (hitWall)
+                    {
+                        StopMoving();
+                        SetBoolAnimation(walkAnimation, false);
+                        SetBoolAnimation(tripleChargeAnimName, false);
+                        if (skill1Effect != null) skill1Effect.SetActive(false);
+
+                        tripleChargeTimer = tripleChargeCooldown;
+                        isUsingSkill = false;
+
+                        StartTired();
+                        yield break;
+                    }
+
+                    timer += Time.deltaTime;
+                    yield return null;
+                }
+
+                StopMoving();
+                SetBoolAnimation(walkAnimation, false);
+                if (skill1Effect != null) skill1Effect.SetActive(false);
+                yield return new WaitForSeconds(0.15f);
+            }
+        }
+
+        SetBoolAnimation(tripleChargeAnimName, false);
+
+        AddStamina(tripleChargeStamina);
+
+        tripleChargeTimer = tripleChargeCooldown;
+        yield return new WaitForSeconds(tripleChargeStandTime);
+
+        isUsingSkill = false;
+    }
+
+    private IEnumerator SkillMaKhiTramTich()
+    {
+        isUsingSkill = true;
+        yield return StartCoroutine(SkillPreparation());
+
+        SetBoolAnimation(darkTrapAnimName, true);
+
+        Vector3 targetPosition = (playerTransform != null) ? playerTransform.position : transform.position;
+
+        yield return new WaitForSeconds(darkTrapDelay);
+
+        if (darkTrapPrefab != null)
+        {
+            Instantiate(darkTrapPrefab, targetPosition, Quaternion.identity);
+        }
+
+        yield return new WaitForSeconds(darkTrapDuration);
+
+        SetBoolAnimation(darkTrapAnimName, false);
+
+        AddStamina(darkTrapStamina);
+
+        darkTrapTimer = darkTrapCooldown;
+        yield return new WaitForSeconds(darkTrapStandTime);
+
+        isUsingSkill = false;
+    }
+
+    private IEnumerator SkillMuaThienThach()
+    {
+        isUsingSkill = true;
+        yield return StartCoroutine(SkillPreparation());
+
+        SetBoolAnimation(meteorAnimName, true);
+
+        yield return new WaitForSeconds(meteorPrepDelay);
+
+        Vector3 spawnCenter = (Vector3)meteorSpawnAreaOffset + transform.position;
+
+        for (int i = 0; i < meteorCount; i++)
+        {
+            float randomX = Random.Range(spawnCenter.x - meteorSpawnAreaSize.x / 2f, spawnCenter.x + meteorSpawnAreaSize.x / 2f);
+            float randomY = Random.Range(spawnCenter.y - meteorSpawnAreaSize.y / 2f, spawnCenter.y + meteorSpawnAreaSize.y / 2f);
+
+            Vector3 spawnPos = new Vector3(randomX, randomY, 0f);
+
+            if (meteorPrefab != null)
+            {
+                Instantiate(meteorPrefab, spawnPos, Quaternion.identity);
+            }
+
+            yield return new WaitForSeconds(0.12f);
+        }
+
+        SetBoolAnimation(meteorAnimName, false);
+
+        AddStamina(meteorStamina);
+
+        meteorTimer = meteorCooldown;
+        yield return new WaitForSeconds(meteorStandTime);
+
         isUsingSkill = false;
     }
 
 
     // =========================================================
-    // HELPER ẨN/HIỆN BÁO HIỆU SKILL
+    // HELPER SUPPORT & GIZMOS
     // =========================================================
 
     private void SetWarningSkill1Active(bool active)
     {
-        if (skill1LineWarning != null)
-        {
-            skill1LineWarning.SetActive(active);
-        }
+        if (skill1LineWarning != null) skill1LineWarning.SetActive(active);
     }
 
     private void SetWarningSkill2Active(bool active)
     {
-        if (skill2AreaWarning != null)
-        {
-            skill2AreaWarning.SetActive(active);
-        }
+        if (skill2AreaWarning != null) skill2AreaWarning.SetActive(active);
     }
-
-
-    // =========================================================
-    // TÌM PLAYER / PHÁT HIỆN
-    // =========================================================
 
     private void FindPlayerWithOverlapCircle()
     {
@@ -697,9 +858,7 @@ public class BossDaSatMaQuan : MonoBehaviour
             foreach (Collider2D hit in hits)
             {
                 if (hit == null) continue;
-
                 Transform foundPlayer = GetPlayerTransform(hit);
-
                 if (foundPlayer != null)
                 {
                     playerTransform = foundPlayer;
@@ -713,30 +872,19 @@ public class BossDaSatMaQuan : MonoBehaviour
     private Transform GetPlayerTransform(Collider2D collider)
     {
         Transform current = collider.transform;
-
         while (current != null)
         {
-            if (current.CompareTag("Player"))
-            {
-                return current;
-            }
+            if (current.CompareTag("Player")) return current;
             current = current.parent;
         }
-
         return collider.transform;
     }
-
-
-    // =========================================================
-    // CẬP NHẬT RAGE POSITION & EFFECT
-    // =========================================================
 
     private void UpdateAttackRagePosition()
     {
         if (attackRage == null) return;
 
         float facingDirection = Mathf.Sign(transform.localScale.x);
-
         Vector3 targetPosition = new Vector3(
             transform.position.x + (attackRageOffsetX * facingDirection),
             transform.position.y + attackRageOffsetY,
@@ -745,59 +893,6 @@ public class BossDaSatMaQuan : MonoBehaviour
 
         attackRage.position = targetPosition;
     }
-
-    private void SetEffectActive(bool active)
-    {
-        if (attackEffect != null)
-        {
-            attackEffect.SetActive(active);
-        }
-    }
-
-
-    // =========================================================
-    // QUẢN LÝ COLLIDER GÂY SÁT THƯƠNG
-    // =========================================================
-
-    private void EnableAttackCollider(Transform attackPoint, int damage)
-    {
-        if (attackPoint == null) return;
-
-        Collider2D col = attackPoint.GetComponent<Collider2D>();
-        if (col == null) return;
-
-        BossAttackDamage damageScript = attackPoint.GetComponent<BossAttackDamage>();
-        if (damageScript == null)
-        {
-            damageScript = attackPoint.gameObject.AddComponent<BossAttackDamage>();
-        }
-
-        damageScript.SetDamage(damage);
-        col.enabled = true;
-    }
-
-    private void DisableCollider(Transform attackPoint)
-    {
-        if (attackPoint == null) return;
-
-        Collider2D col = attackPoint.GetComponent<Collider2D>();
-        if (col != null)
-        {
-            col.enabled = false;
-        }
-    }
-
-    private void DisableAllAttackColliders()
-    {
-        DisableCollider(attackPoint1);
-        DisableCollider(attackPoint2);
-        DisableCollider(chargePoint);
-    }
-
-
-    // =========================================================
-    // THỂ LỰC & CẬP NHẬT UI
-    // =========================================================
 
     private void AddStamina(int amount)
     {
@@ -828,9 +923,9 @@ public class BossDaSatMaQuan : MonoBehaviour
 
         isTired = true;
         StopMoving();
-        DisableAllAttackColliders();
-        SetEffectActive(false);
 
+        if (attackEffect != null) attackEffect.SetActive(false);
+        if (skill1Effect != null) skill1Effect.SetActive(false);
         SetWarningSkill1Active(false);
         SetWarningSkill2Active(false);
 
@@ -849,41 +944,18 @@ public class BossDaSatMaQuan : MonoBehaviour
         SetBoolAnimation(tiredAnimation, false);
     }
 
-
-    // =========================================================
-    // HOTKEYS TEST SKILL
-    // =========================================================
-
     private void HandleHotkeyTesting()
     {
         if (isAttacking || isUsingSkill || isTired) return;
 
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            Debug.Log("🧪 TEST: Bấm 1 -> Đánh Thường");
-            StartCoroutine(NormalAttack());
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            Debug.Log("🧪 TEST: Bấm 2 -> Skill 1 (Trâu Húc)");
-            StartCoroutine(Skill1Charge());
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            Debug.Log("🧪 TEST: Bấm 3 -> Skill 2 (Bùng Năng LƯợng - Spawn Prefab tại Boss)");
-            StartCoroutine(Skill2Burst());
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            Debug.Log("🧪 TEST: Bấm 4 -> Skill 3 (Triệu Hồi)");
-            StartCoroutine(Skill3Summon());
-        }
+        if (Input.GetKeyDown(KeyCode.Alpha1) && useNormalAttack && normalAttackTimer <= 0f) StartCoroutine(NormalAttack());
+        else if (Input.GetKeyDown(KeyCode.Alpha2) && useSkill1 && skill1Timer <= 0f) StartCoroutine(Skill1Charge());
+        else if (Input.GetKeyDown(KeyCode.Alpha3) && useSkill2 && skill2Timer <= 0f) StartCoroutine(Skill2Burst());
+        else if (Input.GetKeyDown(KeyCode.Alpha4) && useSkill3 && skill3Timer <= 0f) StartCoroutine(Skill3Summon());
+        else if (Input.GetKeyDown(KeyCode.Alpha5) && useSkillTripleCharge && tripleChargeTimer <= 0f) StartCoroutine(SkillMaSatTuyetDiu());
+        else if (Input.GetKeyDown(KeyCode.Alpha6) && useSkillDarkTrap && darkTrapTimer <= 0f) StartCoroutine(SkillMaKhiTramTich());
+        else if (Input.GetKeyDown(KeyCode.Alpha7) && useSkillMeteorShower && meteorTimer <= 0f) StartCoroutine(SkillMuaThienThach());
     }
-
-
-    // =========================================================
-    // ANIMATOR HELPER
-    // =========================================================
 
     private void SetTriggerAnimation(string paramName)
     {
@@ -897,11 +969,6 @@ public class BossDaSatMaQuan : MonoBehaviour
         animator.SetBool(paramName, value);
     }
 
-
-    // =========================================================
-    // GIZMOS
-    // =========================================================
-
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
@@ -913,41 +980,9 @@ public class BossDaSatMaQuan : MonoBehaviour
 
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireCube(transform.position, chargeCheckSize);
-    }
 
-
-    // =========================================================
-    // DAMAGE SCRIPT NỘI BỘ
-    // =========================================================
-
-    private class BossAttackDamage : MonoBehaviour
-    {
-        private int damage;
-        private bool hasHit = false;
-
-        public void SetDamage(int newDamage)
-        {
-            damage = newDamage;
-            hasHit = false;
-        }
-
-        private void OnEnable()
-        {
-            hasHit = false;
-        }
-
-        private void OnTriggerEnter2D(Collider2D other)
-        {
-            if (hasHit) return;
-
-            if (!other.CompareTag("Player")) return;
-
-            Component stats = other.GetComponentInParent<CharacterStats>();
-            if (stats != null)
-            {
-                stats.SendMessage("TakeDamage", damage, SendMessageOptions.DontRequireReceiver);
-                hasHit = true;
-            }
-        }
+        Gizmos.color = new Color(0.6f, 0.2f, 0.8f, 1f);
+        Vector3 spawnCenter = transform.position + (Vector3)meteorSpawnAreaOffset;
+        Gizmos.DrawWireCube(spawnCenter, meteorSpawnAreaSize);
     }
 }

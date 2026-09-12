@@ -49,6 +49,13 @@ public class DamageDealer : MonoBehaviour
         {
             // Truyền tổng sát thương (Gốc + Cộng thêm từ độ khó) vào hàm TakeDamage
             float finalDamage = baseDamage + bonusDamage;
+
+            // KIỂM TRA CHEAT: Nếu vũ khí này dành cho Player (nhắm tới Enemy) VÀ Cheat Damage đang BẬT
+            if (isTargetEnemy && CheatItemSystem.IsDamageCheatActive)
+            {
+                finalDamage *= CheatItemSystem.DamageHeSoNhan;
+            }
+
             targetStats.TakeDamage(finalDamage);
 
             // Tính điểm va chạm thực tế trên bề mặt Collider
@@ -59,11 +66,11 @@ public class DamageDealer : MonoBehaviour
 
             if (isTargetPlayer)
             {
-                popupColor = Color.red;    // Đánh Player -> Màu Đỏ
+                popupColor = Color.red;    // Đánh Player -> Màu ĐỎ
             }
             else if (isTargetEnemy)
             {
-                popupColor = Color.white;  // Đánh Enemy -> Màu Trắng
+                popupColor = Color.white;  // Đánh Enemy -> Màu TRẮNG
             }
 
             // Hiển thị Popup ngay tại vị trí tiếp xúc
@@ -100,6 +107,13 @@ public class DamageDealer : MonoBehaviour
     public void HienThiPopupGoiVe(float satThuongGoiVe, Vector3 viTriVaCham)
     {
         Color mauPopup = isTargetPlayer ? Color.red : Color.white;
+
+        // Nếu bật Cheat Damage và đạn này là của Player
+        if (isTargetEnemy && CheatItemSystem.IsDamageCheatActive)
+        {
+            satThuongGoiVe *= CheatItemSystem.DamageHeSoNhan;
+        }
+
         SpawnDamagePopup(satThuongGoiVe, viTriVaCham, mauPopup);
     }
 }

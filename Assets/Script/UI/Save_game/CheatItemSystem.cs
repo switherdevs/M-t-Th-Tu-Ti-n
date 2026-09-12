@@ -31,6 +31,10 @@ public class CheatItemSystem : MonoBehaviour
     private bool isDamageCheatActive = false;
     private bool isSpeedCheatActive = false;
 
+    // PROPERTY STATIC ĐỂ DAMAGEDEALER CÓ THỂ ĐỌC TRỰC TIẾP
+    public static bool IsDamageCheatActive { get; private set; } = false;
+    public static float DamageHeSoNhan { get; private set; } = 10f;
+
     // Lưu thông số gốc
     private float moveSpeedGoc = 5f;
     private float sprintSpeedGoc = 9f;
@@ -98,15 +102,18 @@ public class CheatItemSystem : MonoBehaviour
     public void ToggleCheatDamage()
     {
         isDamageCheatActive = !isDamageCheatActive;
+        IsDamageCheatActive = isDamageCheatActive;
+        DamageHeSoNhan = damageHeSoNhan;
+
         TimVaLuuThongSoGoc();
 
         if (playerStats != null)
         {
             if (isDamageCheatActive)
             {
-                // Bật Cheat Damage: Nhân Sát thương
+                // Bật Cheat Damage: Nhân Sát thương trên Stats
                 playerStats.Attack.Value = damageGoc * damageHeSoNhan;
-                Debug.Log("<color=red>[Cheat Damage]</color> Đã kích hoạt x10 Damage!");
+                Debug.Log("<color=red>[Cheat Damage]</color> Đã kích hoạt x10 Damage cho Player!");
             }
             else
             {

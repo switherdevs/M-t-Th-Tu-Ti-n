@@ -5,7 +5,7 @@ using StatsSystem.Components;
 namespace StatsSystem.UI
 {
     /// <summary>
-    /// Gắn script này trực tiếp lên OBJECT CHA của Quái / Player (Nơi chứa Collider2D và Rigidbody2D).
+    /// Gắn script này trực tiếp lên OBJECT CHA của Quái / Boss / Player (Nơi chứa Collider2D và Rigidbody2D).
     /// Kéo Slider con vào ô healthSlider trong Inspector.
     /// </summary>
     public class HealthBarUI : MonoBehaviour
@@ -23,6 +23,9 @@ namespace StatsSystem.UI
         [Header("=== SETTINGS ===")]
         [Tooltip("Tích vào nếu đây là Player (Slider hiện ngay từ đầu). Bỏ tích nếu là Quái (Slider ẩn đi, dính kiếm mới hiện).")]
         [SerializeField] private bool isPlayer = false;
+
+        [Tooltip("Tích vào nếu đây là Boss (Slider và Canvas hiện ngay khi vào game).")]
+        [SerializeField] private bool isBoss = false;
 
         [Tooltip("Tag của Vũ khí / Kiếm gây ra va chạm")]
         [SerializeField] private string weaponTag = "Kiem";
@@ -68,7 +71,7 @@ namespace StatsSystem.UI
         }
 
         /// <summary>
-        /// Khởi tạo Slider ban đầu và xử lý Ẩn/Hiện dựa theo biến isPlayer
+        /// Khởi tạo Slider ban đầu và xử lý Ẩn/Hiện dựa theo biến isPlayer và isBoss
         /// </summary>
         private void KhoiTaoThanhMauLucDau()
         {
@@ -80,8 +83,8 @@ namespace StatsSystem.UI
                 healthSlider.maxValue = maxHP;
                 healthSlider.value = currentHP;
 
-                // Nếu là Player -> Bật Slider ngay lập tức. Nếu là Quái -> Tắt Slider đi.
-                if (isPlayer)
+                // Nếu là Player HOẶC Boss -> Bật Slider và Canvas ngay lập tức. Ngược lại (Quái thường) -> Tắt đi.
+                if (isPlayer || isBoss)
                 {
                     healthSlider.gameObject.SetActive(true);
                     if (cavan != null) cavan.SetActive(true);
@@ -110,7 +113,7 @@ namespace StatsSystem.UI
                     healthSlider.gameObject.SetActive(false);
                 }
 
-                // 🎯 Tắt Canvas khi quái chết
+                // 🎯 Tắt Canvas khi quái/Boss chết
                 if (cavan != null)
                 {
                     cavan.SetActive(false);
@@ -123,8 +126,8 @@ namespace StatsSystem.UI
         // ==========================================
         private void OnTriggerEnter2D(Collider2D collision)
         {
-            // Nếu không phải Player, Slider đang tắt, và va chạm đúng Tag "Kiem"
-            if (!isPlayer && collision.CompareTag(weaponTag))
+            // Nếu không phải Player và cũng không phải Boss, Slider đang tắt, và va chạm đúng Tag "Kiem"
+            if (!isPlayer && !isBoss && collision.CompareTag(weaponTag))
             {
                 if (healthSlider != null && !healthSlider.gameObject.activeSelf)
                 {

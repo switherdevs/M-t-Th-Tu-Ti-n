@@ -81,6 +81,7 @@ public class CharacterStats : MonoBehaviour, IDamageable
     private float tiredDamageMultiplier = 3f;
 
     private BossDaSatMaQuan bossController;
+    private BossPhaseSystem bossPhaseSystem; // Bổ sung để kiểm tra Phase của Boss
     private Animator anim;
     private Coroutine poisonCoroutine;
 
@@ -92,6 +93,7 @@ public class CharacterStats : MonoBehaviour, IDamageable
     public float CurrentHealth => currentHealth;
     public bool IsDead => currentHealth <= 0;
     public bool IsPlayer => isPlayer;
+    public bool IsBoss => isBoss; // Bổ sung Getter kiểm tra Boss
     public bool IsPoisoned => isPoisoned;
 
     // EVENTS
@@ -109,9 +111,11 @@ public class CharacterStats : MonoBehaviour, IDamageable
             gameOverUI.SetActive(false);
         }
 
+        // Đảm bảo chỉ tìm và gán component của Boss khi tick isBoss = true
         if (isBoss)
         {
             bossController = GetComponent<BossDaSatMaQuan>();
+            bossPhaseSystem = GetComponent<BossPhaseSystem>();
         }
     }
 
@@ -156,7 +160,12 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     private void HandleMaxHealthChanged(Stat stat)
     {
-        currentHealth = Mathf.Min(currentHealth, stat.Value);
+        // Nếu là Boss, không tự động hạ currentHealth xuống khi MaxHealth thay đổi lúc chuyển Phase
+        if (!isBoss)
+        {
+            currentHealth = Mathf.Min(currentHealth, stat.Value);
+        }
+
         OnHealthChanged?.Invoke(currentHealth, stat.Value);
     }
 
@@ -164,6 +173,7 @@ public class CharacterStats : MonoBehaviour, IDamageable
     {
         if (IsDead || rawDamage <= 0) return;
 
+        // Xử lý riêng cho Boss khi nhận sát thương
         if (isBoss && bossController != null)
         {
             if (bossController.IsTired)
@@ -180,9 +190,22 @@ public class CharacterStats : MonoBehaviour, IDamageable
         OnDamaged?.Invoke(finalDamage);
         OnHealthChanged?.Invoke(currentHealth, MaxHealth.Value);
 
+        // KIỂM TRA ĐIỀU KIỆN CHẾT:
+        // Nếu là Boss -> Chỉ cho phép gọi Die() khi đang ở Phase cuối (IsCurrentPhaseLast == true)
+        // Nếu là Player/Creep bình thường -> Chết ngay khi HP <= 0
         if (IsDead)
         {
-            Die();
+            if (isBoss)
+            {
+                if (bossPhaseSystem != null && bossPhaseSystem.IsCurrentPhaseLast)
+                {
+                    Die();
+                }
+            }
+            else
+            {
+                Die();
+            }
         }
     }
 
@@ -252,6 +275,14 @@ public class CharacterStats : MonoBehaviour, IDamageable
             }
 
             StartCoroutine(Routine_PlayerDeathSequence());
+        }
+        else if (isBoss)
+        {
+            // Xử lý animation chết cho Boss nếu có
+            if (anim != null && !string.IsNullOrEmpty(dieAnimName))
+            {
+                anim.SetTrigger(dieAnimName);
+            }
         }
     }
 

@@ -167,7 +167,7 @@ public class BossPhaseSystem : MonoBehaviour
         // KIỂM TRA TICK PHASE ĐẦU
         if (phase1.isFirstPhase)
         {
-            if (stats != null) stats.Heal(phase1.maxHealth);
+            if (stats != null) stats.SetCurrentHealth(phase1.maxHealth);
             UpdateAllHealthSlidersDirectly(phase1.maxHealth, phase1.maxHealth);
             SetBossColliderActive(true);
         }
@@ -249,7 +249,7 @@ public class BossPhaseSystem : MonoBehaviour
 
         if (nextPhase.isFirstPhase)
         {
-            if (stats != null) stats.Heal(nextPhase.maxHealth);
+            if (stats != null) stats.SetCurrentHealth(nextPhase.maxHealth);
             UpdateAllHealthSlidersDirectly(nextPhase.maxHealth, nextPhase.maxHealth);
         }
         else
@@ -391,20 +391,19 @@ public class BossPhaseSystem : MonoBehaviour
         }
     }
 
+    // ========================================================================
+    // SỬA ĐỔI HOÀN CHỈNH: ĐỒNG BỘ MÁU THỰC VÀ SLIDER UI THEO TỪNG FRAME
+    // ========================================================================
     private IEnumerator Routine_FillHealthBar(float targetMaxHealth, float duration, bool forceStopBoss)
     {
         float timer = 0f;
 
-        UpdateAllHealthSlidersDirectly(0f, targetMaxHealth);
-
+        // Reset máu thực về 0 và Slider UI về 0
         if (stats != null)
         {
-            float currentHP = stats.CurrentHealth;
-            if (currentHP > 0)
-            {
-                stats.TakeDamage(currentHP);
-            }
+            stats.SetCurrentHealth(0f);
         }
+        UpdateAllHealthSlidersDirectly(0f, targetMaxHealth);
 
         while (timer < duration)
         {
@@ -412,15 +411,13 @@ public class BossPhaseSystem : MonoBehaviour
             float progress = Mathf.Clamp01(timer / duration);
             float visualHealth = Mathf.Lerp(0f, targetMaxHealth, progress);
 
+            // Cập nhật Slider UI
             UpdateAllHealthSlidersDirectly(visualHealth, targetMaxHealth);
 
+            // Cập nhật Máu Thực tế của Boss đồng bộ 100% từng frame
             if (stats != null)
             {
-                float amountToHeal = visualHealth - stats.CurrentHealth;
-                if (amountToHeal > 0)
-                {
-                    stats.Heal(amountToHeal);
-                }
+                stats.SetCurrentHealth(visualHealth);
             }
 
             if (forceStopBoss && bossController != null)
@@ -431,11 +428,11 @@ public class BossPhaseSystem : MonoBehaviour
             yield return null;
         }
 
+        // Chắc chắn máu thực và Slider UI đều đạt 100% mốc tối đa khi kết thúc
         if (stats != null)
         {
-            stats.Heal(targetMaxHealth);
+            stats.SetCurrentHealth(targetMaxHealth);
         }
-
         UpdateAllHealthSlidersDirectly(targetMaxHealth, targetMaxHealth);
     }
 }

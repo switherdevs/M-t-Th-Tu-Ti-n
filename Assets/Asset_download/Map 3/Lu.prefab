@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 4816770964084653201}
   - component: {fileID: 8046889764093719481}
   - component: {fileID: 2993680031962893172}
-  - component: {fileID: 3578532077182699457}
+  - component: {fileID: 3663360087436803135}
   m_Layer: 6
   m_Name: Lu
   m_TagString: Wall
@@ -205,7 +205,7 @@ CapsuleCollider2D:
   m_Offset: {x: -0.04042328, y: 1.0005177}
   m_Size: {x: 8.228466, y: 7.5948124}
   m_Direction: 1
---- !u!114 &3578532077182699457
+--- !u!114 &3663360087436803135
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -217,6 +217,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8c4244902d5afc40b0e10680b04f938, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fadedAlpha: 0.5
-  padding: 0.5
-  smoothness: 0.5
+  fadedAlpha: 0.3
+  padding: 0.2
+  smoothness: 0.3

@@ -34,6 +34,9 @@ public class FinishCircleEffect : MonoBehaviour
     [Tooltip("Bán kính vùng gây sát thương (Nếu bằng 0 sẽ tự lấy theo bán kính CircleCollider2D)")]
     [SerializeField] private float damageRadius = 0f;
 
+    [Tooltip("Vị trí lệch (Offset) của tâm gây sát thương so với gốc GameObject")]
+    [SerializeField] private Vector2 damageOffset = Vector2.zero;
+
     [Tooltip("Layer của mục tiêu sẽ nhận sát thương (VD: Player hoặc Enemy)")]
     [SerializeField] private LayerMask targetLayer;
 
@@ -161,7 +164,10 @@ public class FinishCircleEffect : MonoBehaviour
 
     private void DealDamageInCircle()
     {
-        Collider2D[] hitTargets = Physics2D.OverlapCircleAll(transform.position, damageRadius, targetLayer);
+        // Tính toán tọa độ tâm gây sát thương dựa theo vị trí GameObject cộng thêm khoảng lệch offset
+        Vector3 damageCenter = transform.position + (Vector3)damageOffset;
+
+        Collider2D[] hitTargets = Physics2D.OverlapCircleAll(damageCenter, damageRadius, targetLayer);
 
         foreach (Collider2D target in hitTargets)
         {
@@ -191,6 +197,8 @@ public class FinishCircleEffect : MonoBehaviour
             radiusToDraw = circleCollider.radius * Mathf.Max(transform.localScale.x, transform.localScale.y);
         }
 
-        Gizmos.DrawWireSphere(transform.position, radiusToDraw);
+        // Vẽ vòng tròn Gizmos đúng vị trí lệch damageOffset để dễ quan sát trên Scene view
+        Vector3 damageCenter = transform.position + (Vector3)damageOffset;
+        Gizmos.DrawWireSphere(damageCenter, radiusToDraw);
     }
 }

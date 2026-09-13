@@ -116,7 +116,8 @@ public class BossDaSatMaQuan : MonoBehaviour
     [SerializeField] private Transform chargePoint;
     [SerializeField] private int chargeStamina = 3;
     [SerializeField] private float chargeSpeed = 8f;
-    [SerializeField] private float chargeTime = 0.8f;
+    [Tooltip("Khoảng cách lướt tối đa của Skill 1")]
+    [SerializeField] private float chargeDistance = 6f;
     [SerializeField] private float chargeDelay = 0.3f;
     [SerializeField] private float chargeCooldown = 5f;
     [SerializeField] private float chargeStandTime = 0.5f;
@@ -164,12 +165,15 @@ public class BossDaSatMaQuan : MonoBehaviour
     [SerializeField] private bool useSkillTripleCharge = true;
     [SerializeField] private int tripleChargeStamina = 2;
     [SerializeField] private float tripleChargeSpeed = 6f;
-    [SerializeField] private float tripleChargeDuration = 0.6f;
+    [Tooltip("Khoảng cách lướt tối đa của mỗi lần húc trong Triple Charge")]
+    [SerializeField] private float tripleChargeDistance = 5f;
+    [Tooltip("Thời gian nghỉ/dừng lại giữa mỗi lần húc")]
+    [SerializeField] private float tripleChargePauseDelay = 0.3f;
     [SerializeField] private float tripleChargeCooldown = 10f;
     [SerializeField] private float tripleChargeStandTime = 0.8f;
 
-    [Tooltip("Tên Parameter (BOOL) Animation cho Skill Húc 3 Lần")]
-    [SerializeField] private string tripleChargeAnimName = "TripleCharge";
+    [Tooltip("Tên State Animation chính xác trong Animator (Ví dụ: TripleCharge)")]
+    [SerializeField] private string tripleChargeAnimStateName = "TripleCharge";
 
 
     // =========================================================
@@ -295,9 +299,7 @@ public class BossDaSatMaQuan : MonoBehaviour
             return;
         }
 
-        // Cập nhật đếm ngược Cooldown thời gian thực
         UpdateCooldownTimers();
-
         UpdateAttackRagePosition();
 
         if (enableHotkeyTesting)
@@ -491,9 +493,6 @@ public class BossDaSatMaQuan : MonoBehaviour
         StopMoving();
     }
 
-    /// <summary>
-    /// Đuổi theo Player với TỐC ĐỘ GỐC (moveSpeed) cho tới khi đến đủ gần targetRange mà không bị giảm tốc
-    /// </summary>
     private IEnumerator ChasePlayerUntilClose(float targetRange)
     {
         while (playerTransform != null)
@@ -546,38 +545,36 @@ public class BossDaSatMaQuan : MonoBehaviour
 
         yield return StartCoroutine(SkillPreparation());
 
-        SetTriggerAnimation(skill1Animation);
+        PlayDirectAnimationState(skill1Animation);
+
         yield return new WaitForSeconds(chargeDelay);
 
         if (playerTransform != null)
         {
-            float directionX = Mathf.Sign(playerTransform.position.x - transform.position.x);
-            float directionY = Mathf.Sign(playerTransform.position.y - transform.position.y);
+            Vector2 chargeDir = (playerTransform.position - transform.position).normalized;
+            FacePlayer(chargeDir.x);
 
-            FacePlayer(directionX);
             if (skill1Effect != null) skill1Effect.SetActive(true);
 
+            Vector2 startPos = transform.position;
+            float traveledDistance = 0f;
+            float maxChargeDuration = chargeDistance / chargeSpeed;
             float timer = 0f;
-            bool hitWall = false;
 
-            while (timer < chargeTime)
+            while (traveledDistance < chargeDistance && timer < maxChargeDuration)
             {
                 if (rb != null)
                 {
-                    rb.linearVelocity = new Vector2(directionX * chargeSpeed, directionY * chargeSpeed);
+                    rb.linearVelocity = chargeDir * chargeSpeed;
                 }
 
-                Collider2D[] hits = Physics2D.OverlapBoxAll(transform.position, chargeCheckSize, 0f, wallLayer);
-                foreach (Collider2D col in hits)
-                {
-                    if (col.CompareTag("Wall"))
-                    {
-                        hitWall = true;
-                        break;
-                    }
-                }
+                traveledDistance = Vector2.Distance(startPos, transform.position);
+                timer += Time.deltaTime;
 
-                if (hitWall)
+                Collider2D wallHit = Physics2D.OverlapBox(transform.position, chargeCheckSize, 0f, wallLayer);
+                Collider2D playerHit = Physics2D.OverlapBox(transform.position, chargeCheckSize, 0f, playerLayer);
+
+                if (wallHit != null && wallHit.CompareTag("Wall"))
                 {
                     StopMoving();
                     if (skill1Effect != null) skill1Effect.SetActive(false);
@@ -588,7 +585,11 @@ public class BossDaSatMaQuan : MonoBehaviour
                     yield break;
                 }
 
-                timer += Time.deltaTime;
+                if (playerHit != null)
+                {
+                    break;
+                }
+
                 yield return null;
             }
         }
@@ -611,10 +612,8 @@ public class BossDaSatMaQuan : MonoBehaviour
         isUsingSkill = true;
         SetWarningSkill2Active(true);
 
-        // BỚT GIẢM TỐC ĐỘ: Dí theo Player với tốc độ bình thường cho tới khi áp sát khoảng cách attackRange
         yield return StartCoroutine(ChasePlayerUntilClose(attackRange));
 
-        // Khi đã áp sát gần Player, phát Animation và tạo Prefab Nổ
         SetTriggerAnimation(skill2Animation);
         yield return new WaitForSeconds(skill2Delay);
 
@@ -694,49 +693,46 @@ public class BossDaSatMaQuan : MonoBehaviour
         isUsingSkill = true;
         yield return StartCoroutine(SkillPreparation());
 
-        SetBoolAnimation(tripleChargeAnimName, true);
-
         for (int i = 0; i < 3; i++)
         {
+            FindPlayerWithOverlapCircle();
+
             if (playerTransform != null)
             {
-                float directionX = Mathf.Sign(playerTransform.position.x - transform.position.x);
-                float directionY = Mathf.Sign(playerTransform.position.y - transform.position.y);
+                StopMoving();
 
-                FacePlayer(directionX);
+                Vector2 chargeDir = (playerTransform.position - transform.position).normalized;
+                FacePlayer(chargeDir.x);
+
                 SetWarningSkill1Active(true);
-                yield return new WaitForSeconds(0.2f);
+                yield return new WaitForSeconds(0.15f);
                 SetWarningSkill1Active(false);
 
-                SetBoolAnimation(walkAnimation, true);
+                PlayDirectAnimationState(tripleChargeAnimStateName);
 
                 if (skill1Effect != null) skill1Effect.SetActive(true);
 
+                Vector2 startPos = transform.position;
+                float traveledDistance = 0f;
+                float maxDuration = tripleChargeDistance / tripleChargeSpeed;
                 float timer = 0f;
-                bool hitWall = false;
 
-                while (timer < tripleChargeDuration)
+                while (traveledDistance < tripleChargeDistance && timer < maxDuration)
                 {
                     if (rb != null)
                     {
-                        rb.linearVelocity = new Vector2(directionX * tripleChargeSpeed, directionY * tripleChargeSpeed);
+                        rb.linearVelocity = chargeDir * tripleChargeSpeed;
                     }
 
-                    Collider2D[] hits = Physics2D.OverlapBoxAll(transform.position, chargeCheckSize, 0f, wallLayer);
-                    foreach (Collider2D col in hits)
-                    {
-                        if (col.CompareTag("Wall"))
-                        {
-                            hitWall = true;
-                            break;
-                        }
-                    }
+                    traveledDistance = Vector2.Distance(startPos, transform.position);
+                    timer += Time.deltaTime;
 
-                    if (hitWall)
+                    Collider2D wallHit = Physics2D.OverlapBox(transform.position, chargeCheckSize, 0f, wallLayer);
+                    Collider2D playerHit = Physics2D.OverlapBox(transform.position, chargeCheckSize, 0f, playerLayer);
+
+                    if (wallHit != null && wallHit.CompareTag("Wall"))
                     {
                         StopMoving();
-                        SetBoolAnimation(walkAnimation, false);
-                        SetBoolAnimation(tripleChargeAnimName, false);
                         if (skill1Effect != null) skill1Effect.SetActive(false);
 
                         tripleChargeTimer = tripleChargeCooldown;
@@ -746,18 +742,21 @@ public class BossDaSatMaQuan : MonoBehaviour
                         yield break;
                     }
 
-                    timer += Time.deltaTime;
+                    if (playerHit != null)
+                    {
+                        break;
+                    }
+
                     yield return null;
                 }
 
                 StopMoving();
-                SetBoolAnimation(walkAnimation, false);
                 if (skill1Effect != null) skill1Effect.SetActive(false);
-                yield return new WaitForSeconds(0.15f);
+
+                // Delay nghỉ/khựng giữa từng lần húc
+                yield return new WaitForSeconds(tripleChargePauseDelay);
             }
         }
-
-        SetBoolAnimation(tripleChargeAnimName, false);
 
         AddStamina(tripleChargeStamina);
 
@@ -774,13 +773,17 @@ public class BossDaSatMaQuan : MonoBehaviour
 
         SetBoolAnimation(darkTrapAnimName, true);
 
-        Vector3 targetPosition = (playerTransform != null) ? playerTransform.position : transform.position;
-
+        // Chờ hết thời gian gồng chiêu
         yield return new WaitForSeconds(darkTrapDelay);
+
+        // Lấy chính xác vị trí thực sự của Player bất kể khoảng cách
+        Vector3 targetPosition = GetCurrentPlayerPosition();
 
         if (darkTrapPrefab != null)
         {
-            Instantiate(darkTrapPrefab, targetPosition, Quaternion.identity);
+            // Khởi tạo Bẫy tại đúng gốc tọa độ Player
+            GameObject trapObj = Instantiate(darkTrapPrefab, targetPosition, Quaternion.identity);
+            trapObj.transform.localScale = darkTrapPrefab.transform.localScale;
         }
 
         yield return new WaitForSeconds(darkTrapDuration);
@@ -836,6 +839,38 @@ public class BossDaSatMaQuan : MonoBehaviour
     // HELPER SUPPORT & GIZMOS
     // =========================================================
 
+    private Vector3 GetCurrentPlayerPosition()
+    {
+        if (playerTransform != null)
+        {
+            return playerTransform.root.position;
+        }
+
+        GameObject playerObj = GameObject.FindWithTag("Player");
+        if (playerObj != null)
+        {
+            playerTransform = playerObj.transform;
+            return playerTransform.root.position;
+        }
+
+        return transform.position;
+    }
+
+    private void PlayDirectAnimationState(string stateName)
+    {
+        if (animator == null || string.IsNullOrEmpty(stateName)) return;
+
+        int attackLayerIndex = animator.GetLayerIndex("Attack");
+        if (attackLayerIndex != -1)
+        {
+            animator.Play(stateName, attackLayerIndex, 0f);
+        }
+        else
+        {
+            animator.Play(stateName, -1, 0f);
+        }
+    }
+
     private void SetWarningSkill1Active(bool active)
     {
         if (skill1LineWarning != null) skill1LineWarning.SetActive(active);
@@ -849,7 +884,6 @@ public class BossDaSatMaQuan : MonoBehaviour
     private void FindPlayerWithOverlapCircle()
     {
         playerDetected = false;
-        playerTransform = null;
 
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectRange, playerLayer);
 
@@ -871,6 +905,9 @@ public class BossDaSatMaQuan : MonoBehaviour
 
     private Transform GetPlayerTransform(Collider2D collider)
     {
+        Transform root = collider.transform.root;
+        if (root.CompareTag("Player")) return root;
+
         Transform current = collider.transform;
         while (current != null)
         {
@@ -948,41 +985,46 @@ public class BossDaSatMaQuan : MonoBehaviour
     {
         if (isAttacking || isUsingSkill || isTired) return;
 
-        if (Input.GetKeyDown(KeyCode.Alpha1) && useNormalAttack && normalAttackTimer <= 0f) StartCoroutine(NormalAttack());
-        else if (Input.GetKeyDown(KeyCode.Alpha2) && useSkill1 && skill1Timer <= 0f) StartCoroutine(Skill1Charge());
-        else if (Input.GetKeyDown(KeyCode.Alpha3) && useSkill2 && skill2Timer <= 0f) StartCoroutine(Skill2Burst());
-        else if (Input.GetKeyDown(KeyCode.Alpha4) && useSkill3 && skill3Timer <= 0f) StartCoroutine(Skill3Summon());
-        else if (Input.GetKeyDown(KeyCode.Alpha5) && useSkillTripleCharge && tripleChargeTimer <= 0f) StartCoroutine(SkillMaSatTuyetDiu());
-        else if (Input.GetKeyDown(KeyCode.Alpha6) && useSkillDarkTrap && darkTrapTimer <= 0f) StartCoroutine(SkillMaKhiTramTich());
-        else if (Input.GetKeyDown(KeyCode.Alpha7) && useSkillMeteorShower && meteorTimer <= 0f) StartCoroutine(SkillMuaThienThach());
-    }
-
-    private void SetTriggerAnimation(string paramName)
-    {
-        if (animator == null || string.IsNullOrEmpty(paramName)) return;
-        animator.SetTrigger(paramName);
+        if (Input.GetKeyDown(KeyCode.Alpha1) && useNormalAttack) StartCoroutine(NormalAttack());
+        if (Input.GetKeyDown(KeyCode.Alpha2) && useSkill1) StartCoroutine(Skill1Charge());
+        if (Input.GetKeyDown(KeyCode.Alpha3) && useSkill2) StartCoroutine(Skill2Burst());
+        if (Input.GetKeyDown(KeyCode.Alpha4) && useSkill3) StartCoroutine(Skill3Summon());
+        if (Input.GetKeyDown(KeyCode.Alpha5) && useSkillTripleCharge) StartCoroutine(SkillMaSatTuyetDiu());
+        if (Input.GetKeyDown(KeyCode.Alpha6) && useSkillDarkTrap) StartCoroutine(SkillMaKhiTramTich());
+        if (Input.GetKeyDown(KeyCode.Alpha7) && useSkillMeteorShower) StartCoroutine(SkillMuaThienThach());
     }
 
     private void SetBoolAnimation(string paramName, bool value)
     {
-        if (animator == null || string.IsNullOrEmpty(paramName)) return;
-        animator.SetBool(paramName, value);
+        if (animator != null && !string.IsNullOrEmpty(paramName))
+        {
+            animator.SetBool(paramName, value);
+        }
+    }
+
+    private void SetTriggerAnimation(string paramName)
+    {
+        if (animator != null && !string.IsNullOrEmpty(paramName))
+        {
+            animator.SetTrigger(paramName);
+        }
     }
 
     private void OnDrawGizmosSelected()
     {
+        if (!showDebug) return;
+
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectRange);
 
         Gizmos.color = Color.red;
-        if (attackRage != null)
-            Gizmos.DrawWireSphere(attackRage.position, attackRange);
+        Gizmos.DrawWireSphere(transform.position, attackRange);
 
         Gizmos.color = Color.cyan;
-        Gizmos.DrawWireCube(transform.position, chargeCheckSize);
+        Gizmos.DrawWireSphere(transform.position, wallDetectDistance);
 
-        Gizmos.color = new Color(0.6f, 0.2f, 0.8f, 1f);
-        Vector3 spawnCenter = transform.position + (Vector3)meteorSpawnAreaOffset;
-        Gizmos.DrawWireCube(spawnCenter, meteorSpawnAreaSize);
+        Gizmos.color = Color.magenta;
+        Vector3 meteorCenter = (Vector3)meteorSpawnAreaOffset + transform.position;
+        Gizmos.DrawWireCube(meteorCenter, meteorSpawnAreaSize);
     }
 }

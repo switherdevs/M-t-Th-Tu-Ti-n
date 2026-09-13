@@ -169,6 +169,19 @@ public class CharacterStats : MonoBehaviour, IDamageable
         OnHealthChanged?.Invoke(currentHealth, stat.Value);
     }
 
+    // ========================================================================
+    // BỔ SUNG MỚI: HÀM GÁN MÁU TRỰC TIẾP DÀNH RIÊNG CHO BOSS CHUYỂN PHASE
+    // ========================================================================
+    /// <summary>
+    /// Gán trực tiếp giá trị máu hiện tại (không bị chặn bởi điều kiện IsDead)
+    /// </summary>
+    /// <param name="health">Lượng máu mới cần gán</param>
+    public void SetCurrentHealth(float health)
+    {
+        currentHealth = Mathf.Clamp(health, 0f, MaxHealth.Value);
+        OnHealthChanged?.Invoke(currentHealth, MaxHealth.Value);
+    }
+
     public void TakeDamage(float rawDamage)
     {
         if (IsDead || rawDamage <= 0) return;

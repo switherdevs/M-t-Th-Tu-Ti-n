@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public enum HanhDongLuaChon
 {
@@ -68,6 +69,22 @@ public class NPCDialogueSystem : MonoBehaviour
     [TextArea(2, 4)]
     [SerializeField] private string loiThoaiTamBiet = "Hẹn gặp lại đại hiệp sau!";
 
+    [Header("--- CẤU HÌNH CHUYỂN MAP & FADE OUT ---")]
+    [Tooltip("Tích chọn nếu muốn chuyển map ngay khi thoại tạm biệt kết thúc")]
+    [SerializeField] private bool chuyenMapKhiTamBiet = false;
+
+    [Tooltip("Tên Scene sẽ chuyển sang sau khi kết thúc thoại tạm biệt")]
+    [SerializeField] private string tenSceneChuyenDen = "KinhThanh";
+
+    [Tooltip("Image UI phủ toàn màn hình dùng để làm hiệu ứng Fade Out (Chuyển đen)")]
+    [SerializeField] private Image imgFadeScreen;
+
+    [Tooltip("Tốc độ mờ dần màn hình (Số càng lớn fade càng nhanh)")]
+    [SerializeField] private float tocDoFadeOut = 1.0f;
+
+    [Tooltip("Thời gian chờ (giây) sau khi màn hình đã tối hoàn toàn 100% mới chuyển Scene")]
+    [SerializeField] private float thoiGianDelayChuyenScene = 0.5f;
+
     [Header("--- DANH SÁCH CÂU THOẠI NPC ---")]
     [SerializeField] private List<CauThoaiData> danhSachCauThoai = new List<CauThoaiData>();
 
@@ -78,6 +95,15 @@ public class NPCDialogueSystem : MonoBehaviour
     private void Awake()
     {
         KhoiTaoDictionaryThoai();
+
+        // TỰ ĐỘNG ẨN IMAGE FADE KHI VỪA VÀO GAME
+        if (imgFadeScreen != null)
+        {
+            Color initColor = imgFadeScreen.color;
+            initColor.a = 0f;
+            imgFadeScreen.color = initColor;
+            imgFadeScreen.gameObject.SetActive(false);
+        }
     }
 
     private void OnEnable()
@@ -337,9 +363,71 @@ public class NPCDialogueSystem : MonoBehaviour
             StopCoroutine(coroutineGoChu);
         }
 
-        if (uiThoaiRootObject != null)
+        // XỬ LÝ CHUYỂN MAP KHI TẮT HỘI THOẠI TẠM BIỆT
+        if (chuyenMapKhiTamBiet)
         {
-            uiThoaiRootObject.SetActive(false);
+            if (!string.IsNullOrEmpty(tenSceneChuyenDen))
+            {
+                if (imgFadeScreen != null)
+                {
+                    StartCoroutine(FadeOutAndChangeScene());
+                }
+                else
+                {
+                    if (uiThoaiRootObject != null) uiThoaiRootObject.SetActive(false);
+                    Debug.Log("<color=green>[NPC Dialogue]</color> Chuyển thẳng sang Scene: " + tenSceneChuyenDen);
+                    SceneManager.LoadScene(tenSceneChuyenDen);
+                }
+            }
+            else
+            {
+                Debug.LogError("[NPC Dialogue] Đã tích 'Chuyen Map Khi Tam Biet' nhưng chưa điền 'Ten Scene Chuyen Den'!");
+            }
         }
+        else
+        {
+            if (uiThoaiRootObject != null)
+            {
+                uiThoaiRootObject.SetActive(false);
+            }
+        }
+    }
+
+    // 🎯 COROUTINE XỬ LÝ FADE OUT MÀN HÌNH VÀ CHUYỂN MAP
+    private IEnumerator FadeOutAndChangeScene()
+    {
+        imgFadeScreen.gameObject.SetActive(true);
+
+        // 1. Tự tạo Sprite trắng nếu chưa gán Sprite cho Image
+        if (imgFadeScreen.sprite == null)
+        {
+            Texture2D whiteTexture = Texture2D.whiteTexture;
+            imgFadeScreen.sprite = Sprite.Create(whiteTexture, new Rect(0, 0, whiteTexture.width, whiteTexture.height), new Vector2(0.5f, 0.5f));
+        }
+
+        // 2. Thiết lập màu ban đầu là màu Đen trong suốt (Alpha = 0)
+        Color mauNen = Color.black;
+        mauNen.a = 0f;
+        imgFadeScreen.color = mauNen;
+
+        // 3. Vòng lặp tăng dần độ đậm Alpha từ 0 -> 1
+        while (mauNen.a < 1.0f)
+        {
+            mauNen.a += tocDoFadeOut * Time.deltaTime;
+            mauNen.a = Mathf.Clamp01(mauNen.a);
+            imgFadeScreen.color = mauNen;
+
+            yield return null; // Chờ frame tiếp theo
+        }
+
+        // 4. Chờ thêm thời gian delay nếu có
+        if (thoiGianDelayChuyenScene > 0f)
+        {
+            yield return new WaitForSeconds(thoiGianDelayChuyenScene);
+        }
+
+        // 5. CHUYỂN SCENE TRỰC TIẾP (Không gọi SetActive(false) ở đây để tránh tự hủy Coroutine)
+        Debug.Log("<color=cyan>[NPC Dialogue]</color> Fade Out hoàn tất 100%! Đang chuyển sang Scene: " + tenSceneChuyenDen);
+        SceneManager.LoadScene(tenSceneChuyenDen);
     }
 }

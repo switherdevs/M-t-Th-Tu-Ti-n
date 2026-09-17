@@ -14,7 +14,6 @@ public class TanCong : MonoBehaviour
 
     [Header("Cấu Hình Âm Thanh Tấn Công")]
     [SerializeField] private AudioClip attackSound;      // Âm thanh phát ra khi bắn
-    [SerializeField][Range(0f, 1f)] private float attackSoundVolume = 0.7f;
 
     [Header("Cấu Hình Animation Bắn")]
     [SerializeField] private string shootAnimName = "Attack"; // Tên Trigger Animation bắn
@@ -44,8 +43,13 @@ public class TanCong : MonoBehaviour
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
-            audioSource.playOnAwake = false;
         }
+
+        // 🎯 FIX LỖI MẤT ÂM THANH: CẤU HÌNH CHUẨN 2D VÀ TRÁNH BỊ ẢNH HƯỞNG BỞI QUÁI ÁP SÁT
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 0f;     // Ép về 2D hoàn toàn (0 = 2D, 1 = 3D)
+        audioSource.bypassEffects = true;  // Bỏ qua các hiệu ứng Sound Filter mờ đục
+        audioSource.ignoreListenerPause = true;
 
         // Khởi tạo Mã Hash cho Animation bắn
         if (!string.IsNullOrEmpty(shootAnimName))
@@ -92,10 +96,10 @@ public class TanCong : MonoBehaviour
             anim.SetTrigger(shootAnimHash);
         }
 
-        // TỐI ƯU ÂM THANH BẮN: Phát âm thanh bằng PlayOneShot để hỗ trợ sấy tốc độ cao không bị lặp rác memory
+        // TỐI ƯU ÂM THANH BẮN: Phát âm thanh bằng PlayOneShot để hỗ trợ sấy tốc độ cao
         if (audioSource != null && attackSound != null)
         {
-            audioSource.PlayOneShot(attackSound, attackSoundVolume);
+            audioSource.PlayOneShot(attackSound);
         }
 
         // ĐIỀU KIỆN BẮT BUỘC

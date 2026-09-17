@@ -26,7 +26,6 @@ public class PhiKiemGoiVe : MonoBehaviour
     [Header("=== ÂM THANH & HIỆU ỨNG ===")]
     [SerializeField] private AudioClip amThanhTrung;
     [SerializeField] private GameObject hieuUngTrungPrefab;
-    [SerializeField][Range(0f, 1f)] private float amLuongAmThanh = 1f;
 
     // Biến lưu trữ nội bộ
     private CharacterStats chiSoNguoiBan;
@@ -210,7 +209,7 @@ public class PhiKiemGoiVe : MonoBehaviour
 
         if (amThanhTrung != null)
         {
-            AudioSource.PlayClipAtPoint(amThanhTrung, transform.position, amLuongAmThanh);
+            AudioSource.PlayClipAtPoint(amThanhTrung, transform.position);
         }
     }
 }

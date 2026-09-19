@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using GameCore.Quests; // 🎯 Namespace chuẩn chứa QuestManager
 
 public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
@@ -44,7 +45,7 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
     }
 
     /// <summary>
-    /// Hàm xử lý duyêt từng phần tử trong mảng để tắt ngay khi khởi chạy
+    /// Hàm xử lý duyệt từng phần tử trong mảng để tắt ngay khi khởi chạy
     /// </summary>
     private void AnTatCaUIGameObject()
     {
@@ -81,12 +82,6 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
                 foreach (GameObject uiItem in danhSachUIGameObject)
                 {
                     if (uiItem != null) uiItem.SetActive(true);
-                }
-
-                if (QuestUIManager.Instance != null)
-                {
-                    QuestUIManager.Instance.KhoiTaoDanhSachQuestUI();
-                    QuestUIManager.Instance.DongBangThoai();
                 }
 
                 Debug.Log($"<color=green>[Building]</color> Đã MỞ {danhSachUIGameObject.Count} UI!");
@@ -141,9 +136,10 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
     {
         if (danhSachUIGameObject.Count == 0)
         {
-            if (QuestUIManager.Instance != null)
+            // 🎯 Đã sửa từ QuestUIManager.Instance sang QuestManager.Instance
+            if (QuestManager.Instance != null)
             {
-                danhSachUIGameObject.Add(QuestUIManager.Instance.gameObject);
+                danhSachUIGameObject.Add(QuestManager.Instance.gameObject);
 
                 // Nếu tìm lại và tự gán thêm UI vào thì cũng ẩn luôn
                 AnTatCaUIGameObject();

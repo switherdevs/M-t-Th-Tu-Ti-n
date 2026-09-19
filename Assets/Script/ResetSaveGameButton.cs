@@ -1,6 +1,7 @@
 using System.IO;
 using UnityEngine;
 using StatsSystem.UI;
+using GameCore.Quests;
 
 public class ResetSaveGameButton : MonoBehaviour
 {
@@ -39,18 +40,13 @@ public class ResetSaveGameButton : MonoBehaviour
         }
 
         // 4. LÀM MỚI TẤT CẢ UI TRÊN SCENE
-        // Cập nhật BangDotPhaSingleUI nếu đang mở
         BangDotPhaSingleUI[] allBangDotPha = FindObjectsByType<BangDotPhaSingleUI>(FindObjectsSortMode.None);
         foreach (var bang in allBangDotPha)
         {
             bang.CapNhatGiaoDienBang();
         }
 
-        // Cập nhật Quest UI / HUD
-        if (QuestUIManager.Instance != null)
-        {
-            QuestUIManager.Instance.KhoiTaoDanhSachQuestUI();
-        }
+        // Làm mới giao diện bảng theo dõi Quest (HUD Tracker)
         QuestHUDTracker.ThongBaoCapNhatHUD();
 
         Debug.Log("<color=green>[Reset Save Success]</color> Game đã được làm mới toàn bộ về dữ liệu ban đầu!");

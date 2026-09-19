@@ -54,6 +54,7 @@ public class NPCWaypointController : MonoBehaviour
     private int waypointIndex = 0;
     private bool movingForward = true; // true: đang đi tiến từ đầu -> cuối, false: đang đi lùi từ cuối -> đầu
     private bool isInteracting = false;
+    private bool justStartedInteraction = false; // Cờ bảo vệ tránh dập tắt UI ngay frame đầu tiên
     private SpriteRenderer spriteRenderer;
 
 
@@ -86,19 +87,35 @@ public class NPCWaypointController : MonoBehaviour
 
     private void Update()
     {
-        // Nếu NPC được tích đứng yên (isIdle) Hoặc đang tương tác thoại
-        if (isIdle || isInteracting)
+        // 1. Nếu NPC đang trong trạng thái tương tác/nói chuyện với UI
+        if (isInteracting)
         {
-            SetMoveAnimation(false); // Đảm bảo luôn giữ trạng thái Idle
+            // Bỏ qua kiểm tra ở frame đầu tiên vừa bấm click để UI kịp khởi tạo active
+            if (justStartedInteraction)
+            {
+                justStartedInteraction = false;
+                SetMoveAnimation(false);
+                return;
+            }
 
+            MonitorDialogueState(); // Liên tục theo dõi xem UI đã bị ẩn đi chưa
+
+            // Nếu sau khi kiểm tra mà UI vẫn còn mở (vẫn đang tương tác), dừng lại ở Idle
             if (isInteracting)
             {
-                MonitorDialogueState();
+                SetMoveAnimation(false);
+                return;
             }
-            return; // Dừng không chạy code di chuyển bên dưới
         }
 
-        // Nếu không đứng yên và không tương tác thì di chuyển qua các điểm
+        // 2. Nếu NPC được tích đứng yên cố định (isIdle) thì giữ trạng thái Idle
+        if (isIdle)
+        {
+            SetMoveAnimation(false);
+            return;
+        }
+
+        // 3. Nếu không đứng yên và UI đã ẩn hoàn toàn -> Tiếp tục đi bộ tuần tra
         PatrolWaypoints();
     }
 
@@ -181,28 +198,24 @@ public class NPCWaypointController : MonoBehaviour
 
     private void StartInteraction()
     {
+        // Bật toàn bộ các Game Object UI có trong mảng trước
+        SetDialogueUIActive(true);
+
+        // Đánh dấu trạng thái tương tác và cờ an toàn frame đầu tiên
         isInteracting = true;
+        justStartedInteraction = true;
 
         // Dừng Animation di chuyển, chuyển về Idle
         SetMoveAnimation(false);
-
-        // Bật toàn bộ các Game Object UI có trong mảng
-        SetDialogueUIActive(true);
     }
 
     private void MonitorDialogueState()
     {
-        // Kiểm tra xem tất cả Game Object thoại trong mảng đã bị tắt hết chưa
+        // Kiểm tra xem tất cả Game Object thoại trong mảng đã bị tắt/ẩn thực tế chưa
         if (!IsAnyDialogueActive())
         {
-            // Kết thúc nói chuyện
+            // Kết thúc nói chuyện -> Tự động quay về di chuyển tiếp ở frame tiếp theo
             isInteracting = false;
-
-            // Nếu NPC không bị khóa đứng yên (isIdle = false) thì bật lại anim di chuyển
-            if (!isIdle)
-            {
-                SetMoveAnimation(true);
-            }
         }
     }
 
@@ -225,20 +238,20 @@ public class NPCWaypointController : MonoBehaviour
         }
     }
 
-    // Kiểm tra xem có ít nhất 1 UI trong mảng còn đang bật hay không
+    // Kiểm tra xem có ít nhất 1 UI trong mảng còn đang hiển thị trong Hierarchy không
     private bool IsAnyDialogueActive()
     {
         if (dialogueUIObjects == null || dialogueUIObjects.Length == 0) return false;
 
         foreach (GameObject uiObject in dialogueUIObjects)
         {
-            if (uiObject != null && uiObject.activeSelf)
+            if (uiObject != null && uiObject.activeInHierarchy)
             {
-                return true; // Vẫn còn ít nhất 1 UI đang mở
+                return true; // Vẫn còn ít nhất 1 UI đang hiển thị
             }
         }
 
-        return false; // Tất cả UI đều đã đóng
+        return false; // Tất cả UI đều đã bị ẩn hoàn toàn
     }
 
     // Xoay hướng nhân vật bằng Rotation Y hoặc Sprite FlipX

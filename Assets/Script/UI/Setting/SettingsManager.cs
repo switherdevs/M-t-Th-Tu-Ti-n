@@ -7,8 +7,7 @@ using UnityEngine.InputSystem;
 namespace GameCore.Settings
 {
     /// <summary>
-    /// Manager singleton quản lý Load/Save cài đặt (Audio, Mouse Sensitivity, Rebind Key)
-    /// ĐÃ LOẠI BỎ DontDestroyOnLoad để quản lý theo LifeCycle thông thường của Scene.
+    /// Manager singleton quản lý Load/Save cài đặt (Audio, Mouse Sensitivity, Rebind Key, Language)
     /// </summary>
     public class SettingsManager : MonoBehaviour
     {
@@ -24,7 +23,6 @@ namespace GameCore.Settings
                     {
                         GameObject container = new GameObject("[SettingsManager]");
                         _instance = container.AddComponent<SettingsManager>();
-                        // ĐÃ BỎ: DontDestroyOnLoad(container);
                     }
                 }
                 return _instance;
@@ -57,8 +55,6 @@ namespace GameCore.Settings
             }
 
             _instance = this;
-            // ĐÃ BỎ: DontDestroyOnLoad(gameObject);
-
             LoadSettings();
         }
 
@@ -66,7 +62,6 @@ namespace GameCore.Settings
         {
             try
             {
-                // Lưu rebind overrides của Input System nếu có
                 if (inputActions != null)
                 {
                     CurrentData.inputOverridesJson = inputActions.SaveBindingOverridesAsJson();
@@ -131,8 +126,27 @@ namespace GameCore.Settings
             }
         }
 
+        // --- LANGUAGE HELPERS ---
+        /// <summary>
+        /// Kiểm tra xem người chơi có đang chọn Tiếng Anh hay không
+        /// </summary>
+        public bool IsEnglish()
+        {
+            return CurrentData != null && CurrentData.language == "EN";
+        }
+
+        /// <summary>
+        /// Đổi ngôn ngữ hệ thống ("VI" hoặc "EN")
+        /// </summary>
+        public void SetLanguage(string langCode)
+        {
+            if (CurrentData != null)
+            {
+                CurrentData.language = langCode;
+            }
+        }
+
         // --- AUDIO HELPERS ---
-        // Chuẩn hóa công thức Log10 tiêu chuẩn tránh hiện tượng méo âm thanh thanh do vượt ngưỡng 0dB
         private float LinearToDecibel(float linear)
         {
             linear = Mathf.Clamp(linear, 0.0001f, 1f);

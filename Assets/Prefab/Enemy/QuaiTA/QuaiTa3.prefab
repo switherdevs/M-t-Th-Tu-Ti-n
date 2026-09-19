@@ -244,6 +244,7 @@ GameObject:
   - component: {fileID: 1594103734093323049}
   - component: {fileID: 6844386197709005241}
   - component: {fileID: 6494799980553397301}
+  - component: {fileID: 590500767433558846}
   m_Layer: 9
   m_Name: QuaiTa3
   m_TagString: Enemy
@@ -420,9 +421,9 @@ MonoBehaviour:
   orbitRadius: 12
   orbitRotationSpeed: 360
   specialShootSpeed: 50
-  audioSource: {fileID: 0}
-  sfxPrepareAttack: {fileID: 0}
-  sfxAttack: {fileID: 0}
+  audioSource: {fileID: 590500767433558846}
+  sfxPrepareAttack: {fileID: 8300000, guid: 0c243e638b550c34a80701f94f95ecc8, type: 3}
+  sfxAttack: {fileID: 8300000, guid: 172ee2c4a2ec3ce42ab2a8fb17cf9cfd, type: 3}
   sfxDeath: {fileID: 0}
   sfxStun: {fileID: 0}
   animCastBasic: CastBasic
@@ -444,6 +445,7 @@ MonoBehaviour:
   cavan: {fileID: 8842426596310324023}
   targetStats: {fileID: 8855673611505855657}
   isPlayer: 0
+  isBoss: 0
   weaponTag: Kiem
   hideOnDeath: 1
 --- !u!114 &6494799980553397301
@@ -461,14 +463,110 @@ MonoBehaviour:
   executionHealthThreshold: 0.3
   stunDuration: 10
   executionPoint: {fileID: 2168164391859662949}
-  boolIsStunned: boolIsStunned
-  boolIsBeingExecuted: boolIsBeingExecuted
-  triggerDie2: triggerDie2
+  stunStateName: Stun
   executionStateName: BeingExecuted
+  die2StateName: Die2
   executionVFXPrefab: {fileID: 3486426238667156243, guid: 6e576f3e155399c4e8bae0d95be2851f, type: 3}
   vfxSpawnPoint: {fileID: 0}
   executePromptUI: {fileID: 0}
   stunVFXObject: {fileID: 256166917805934538}
+--- !u!82 &590500767433558846
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4326762685985966498}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 6604748582655308872, guid: 6d577e5bdeafe804da576e07cca632ed, type: 2}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 0c243e638b550c34a80701f94f95ecc8, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &7058168760640868324
 GameObject:
   m_ObjectHideFlags: 0

@@ -35,11 +35,13 @@ public class Elite_TongQuan : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip sfxPrepareAttack;
     [SerializeField] private AudioClip sfxAttack;
+    [SerializeField] private AudioClip sfxJumpLaunch; // NÂNG CẤP: Âm thanh khi bắt đầu nhảy
+    [SerializeField] private AudioClip sfxLandSlam;   // NÂNG CẤP: Âm thanh khi tiếp đất giậm nổ
     [SerializeField] private AudioClip sfxBlock;
     [SerializeField] private AudioClip sfxStun;
     [SerializeField] private AudioClip sfxDeath;
 
-    [Header("--- ANIMATION PARAMETERS (THÊM BOOL / TRIGGER) ---")]
+    [Header("--- ANIMATION PARAMETERS ---")]
     [SerializeField] private string boolIsWalking = "boolIsWalking";
     [SerializeField] private string triggerAttack = "triggerAttack";
     [SerializeField] private string triggerPrepareJump = "triggerPrepareJump";
@@ -70,7 +72,16 @@ public class Elite_TongQuan : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         stats = GetComponent<CharacterStats>();
         mainCollider = GetComponent<Collider2D>();
+
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
+
+        // CẤU HÌNH CHỐNG TẮT/MÉO TIẾNG KHI QUÁI ÁP SÁT
+        if (audioSource != null)
+        {
+            audioSource.playOnAwake = false;
+            audioSource.spatialBlend = 0f;     // Ép về âm thanh 2D chuẩn
+            audioSource.bypassEffects = true;  // Bỏ qua lọc môi trường
+        }
     }
 
     private void Start()
@@ -161,11 +172,9 @@ public class Elite_TongQuan : MonoBehaviour
 
         if (animator != null)
         {
-            // 1. Tắt các biến Bool
             animator.SetBool(boolIsWalking, false);
             animator.SetBool(boolIsBlocking, false);
 
-            // 2. GIẢI QUYẾT THỦ PHẠM CHÍNH: XÓA SẠCH TRIGGER TỒN ĐỌNG TRONG BỘ NHỚ ĐỆM
             animator.ResetTrigger(triggerAttack);
             animator.ResetTrigger(triggerPrepareJump);
             animator.ResetTrigger(triggerJumpAir);
@@ -339,7 +348,9 @@ public class Elite_TongQuan : MonoBehaviour
         yield return new WaitForSeconds(0.3f);
 
         if (animator != null) animator.SetTrigger(triggerJumpAir);
-        PlaySFX(sfxAttack);
+
+        // 🎯 NÂNG CẤP 1: ÂM THANH BẮT ĐẦU NHẢY UPGRADE
+        PlaySFX(sfxJumpLaunch);
 
         Vector3 startPos = transform.position;
         Vector3 targetPos = playerTransform != null ? playerTransform.position : transform.position;
@@ -355,6 +366,9 @@ public class Elite_TongQuan : MonoBehaviour
             transform.position = currentPos;
             yield return null;
         }
+
+        // 🎯 NÂNG CẤP 2: ÂM THANH TIẾP ĐẤT GIẬM NỔ UPGRADE
+        PlaySFX(sfxLandSlam);
 
         Vector3 hitPoint = slamHitboxPoint != null ? slamHitboxPoint.position : transform.position;
         Collider2D[] targets = Physics2D.OverlapCircleAll(hitPoint, slamRadius, playerLayer);

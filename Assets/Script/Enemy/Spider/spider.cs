@@ -49,6 +49,11 @@ public class SpiderEnemy : MonoBehaviour
     [Header("Tấn công")]
     [SerializeField] private float attackRange = 2f;
 
+    [Header("ÂM THANH (AUDIO)")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip sfxShoot;
+    [SerializeField] private AudioClip sfxDeath;
+
     [Header("Animation Chết")]
     [SerializeField] private string dieAnimTrigger = "Die";
 
@@ -59,8 +64,19 @@ public class SpiderEnemy : MonoBehaviour
 
     private float shootTimer;
     private bool isDead = false;
-    private bool isShootingBurst = false; // Cờ kiểm tra xem nhện có đang trong chu kỳ xả đạn không
-    private int strafeDirection = 1;      // Hướng dạt ngang khi bị cản: 1 (Phải/Trên), -1 (Trái/Dưới)
+    private bool isShootingBurst = false;
+    private int strafeDirection = 1;
+
+    private void Awake()
+    {
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
+
+        if (audioSource != null)
+        {
+            audioSource.playOnAwake = false;
+            audioSource.spatialBlend = 0f;
+        }
+    }
 
     private void Start()
     {
@@ -68,10 +84,8 @@ public class SpiderEnemy : MonoBehaviour
         enemyCollider = GetComponent<Collider2D>();
         shootTimer = 0f;
 
-        // Quyết định hướng dạt ngẫu nhiên ban đầu
         strafeDirection = Random.value > 0.5f ? 1 : -1;
 
-        // Lắng nghe sự kiện chết từ CharacterStats
         characterStats = GetComponent<CharacterStats>();
         if (characterStats != null)
         {
@@ -81,7 +95,6 @@ public class SpiderEnemy : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Hủy đăng ký sự kiện khi GameObject bị Destroy để tránh leak bộ nhớ
         if (characterStats != null)
         {
             characterStats.OnDeath -= HandleDeath;
@@ -90,7 +103,6 @@ public class SpiderEnemy : MonoBehaviour
 
     private void Update()
     {
-        // Khóa hoàn toàn Update nếu nhện đã chết
         if (isDead) return;
 
         if (shootTimer > 0)
@@ -98,7 +110,6 @@ public class SpiderEnemy : MonoBehaviour
             shootTimer -= Time.deltaTime;
         }
 
-        // Nếu đang trong quá trình xả đạn Burst thì dừng di chuyển và quay mặt
         if (isShootingBurst) return;
 
         Collider2D playerCollider = Physics2D.OverlapCircle(
@@ -113,27 +124,20 @@ public class SpiderEnemy : MonoBehaviour
 
             FlipTowardsPlayer();
 
-            // 1. Tính toán lực né đồng đội
             Vector2 avoidanceForce = CalculateAllyAvoidance();
-
-            // 2. Kiểm tra xem đường bắn tới Player có bị vật cản che khuất không
             bool isLineOfSightBlocked = CheckLineOfSightBlocked();
-
             float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-            // BỊ CẢN ĐƯỜNG BẮN: Di chuyển dạt ngang tìm vị trí ngắm mới
             if (isLineOfSightBlocked)
             {
                 animator.SetBool("isWalking", true);
 
-                // Tạo vector dạt ngang vuông góc với hướng tới Player
                 Vector2 dirToPlayer = (player.position - transform.position).normalized;
                 Vector2 strafeDir = new Vector2(-dirToPlayer.y, dirToPlayer.x) * strafeDirection;
 
                 Vector2 finalMoveDir = (strafeDir + avoidanceForce * avoidWeight).normalized;
                 transform.position += (Vector3)finalMoveDir * moveSpeed * Time.deltaTime;
             }
-            // ĐƯỜNG BẮN THÔNG THOÁNG VÀ ĐÃ TRONG TẦM BẮN
             else if (distanceToPlayer <= attackRange)
             {
                 animator.SetBool("isWalking", false);
@@ -156,7 +160,6 @@ public class SpiderEnemy : MonoBehaviour
                     shootTimer = shootCooldown;
                 }
             }
-            // ĐƯỜNG BẮN THÔNG THOÁNG NHƯNG CHƯA ĐẾN TẦM BẮN -> Tiến tới Player + Né đồng đội
             else
             {
                 animator.SetBool("isWalking", true);
@@ -173,9 +176,6 @@ public class SpiderEnemy : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Kiểm tra xem có Collider thuộc obstacleLayer cản từ firePoint đến Player hay không
-    /// </summary>
     private bool CheckLineOfSightBlocked()
     {
         if (player == null) return false;
@@ -184,15 +184,11 @@ public class SpiderEnemy : MonoBehaviour
         Vector2 direction = player.position - startPos;
         float distance = direction.magnitude;
 
-        // Bắn Raycast từ firePoint tới Player trên Layer vật cản
         RaycastHit2D hit = Physics2D.Raycast(startPos, direction.normalized, distance, obstacleLayer);
 
-        return hit.collider != null; // Trả về true nếu chạm phải vật cản
+        return hit.collider != null;
     }
 
-    /// <summary>
-    /// Thuật toán Separation: Tạo lực đẩy né đồng đội khi đi quá sát nhau
-    /// </summary>
     private Vector2 CalculateAllyAvoidance()
     {
         Vector2 avoidanceVector = Vector2.zero;
@@ -201,11 +197,9 @@ public class SpiderEnemy : MonoBehaviour
         int neighborCount = 0;
         foreach (Collider2D ally in allies)
         {
-            // Bỏ qua bản thân và chỉ tính các Object có Tag đồng đội
             if (ally != null && ally.gameObject != gameObject && ally.CompareTag(allyTag))
             {
                 Vector2 diff = (Vector2)(transform.position - ally.transform.position);
-                // Khoảng cách càng gần thì lực đẩy càng mạnh
                 avoidanceVector += diff.normalized / Mathf.Max(diff.magnitude, 0.1f);
                 neighborCount++;
             }
@@ -219,17 +213,12 @@ public class SpiderEnemy : MonoBehaviour
         return avoidanceVector;
     }
 
-    // ==========================================
-    // XỬ LÝ KHI NHỆN CHẾT
-    // ==========================================
     private void HandleDeath()
     {
         isDead = true;
 
-        // 1. Dừng ngay lập tức các Coroutine (ví dụ: đang bắn dở chùm đạn Burst)
         StopAllCoroutines();
 
-        // 2. Dừng toàn bộ Animation di chuyển/tấn công và kích hoạt Animation Chết
         if (animator != null)
         {
             animator.SetBool("isWalking", false);
@@ -243,11 +232,12 @@ public class SpiderEnemy : MonoBehaviour
             }
         }
 
-        // 3. Vô hiệu hóa Collider để Player không bị vướng/kẹt khi đi qua xác nhện
         if (enemyCollider != null)
         {
             enemyCollider.enabled = false;
         }
+
+        PlaySFX(sfxDeath);
     }
 
     private void FlipTowardsPlayer()
@@ -285,16 +275,14 @@ public class SpiderEnemy : MonoBehaviour
             Vector2 direction = (player.position - firePoint.position).normalized;
             bulletScript.SetDirection(direction);
         }
+
+        PlaySFX(sfxShoot);
     }
 
-    /// <summary>
-    /// Coroutine xử lý bắn chùm đạn Burst + Chuyển Animation Ngắm & Bắn
-    /// </summary>
     private IEnumerator Routine_BurstShoot()
     {
         isShootingBurst = true;
 
-        // 1. Chuyển sang Animation Ngắm
         if (animator != null && !string.IsNullOrEmpty(aimingAnimBool))
         {
             animator.SetBool(aimingAnimBool, true);
@@ -302,22 +290,18 @@ public class SpiderEnemy : MonoBehaviour
 
         for (int i = 0; i < burstBulletCount; i++)
         {
-            // Kiểm tra nếu trong lúc đang bắn dở chùm đạn mà nhện bị Player đánh chết thì dừng ngay
             if (isDead) yield break;
 
-            // 2. Kích hoạt Animation Bắn ở Layer trên (chạy 1 lần cho mỗi viên đạn)
             if (animator != null && !string.IsNullOrEmpty(shootAnimTrigger))
             {
                 animator.SetTrigger(shootAnimTrigger);
             }
 
-            // 3. Bắn viên đạn
             ShootOneBullet();
 
             yield return new WaitForSeconds(burstDelay);
         }
 
-        // 4. Hết chu kỳ bắn -> Tắt Animation Ngắm
         if (animator != null && !string.IsNullOrEmpty(aimingAnimBool))
         {
             animator.SetBool(aimingAnimBool, false);
@@ -326,21 +310,25 @@ public class SpiderEnemy : MonoBehaviour
         isShootingBurst = false;
     }
 
+    private void PlaySFX(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
+    }
+
     private void OnDrawGizmosSelected()
     {
-        // Bán kính tầm nhìn
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectRange);
 
-        // Bán kính tầm bắn
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
 
-        // Bán kính né đồng đội (Separation)
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, avoidDistance);
 
-        // Vẽ đường kiểm tra Raycast tầm bắn nếu đang chạy Play Mode
         if (Application.isPlaying && player != null)
         {
             Vector3 startPos = firePoint != null ? firePoint.position : transform.position;

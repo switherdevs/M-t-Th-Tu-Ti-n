@@ -26,7 +26,7 @@ public class Elite_TyHuu : MonoBehaviour
     [Header("--- KỸ NĂNG 2: ROAR SKILL (GẦM) ---")]
     [SerializeField] private float roarWindupTime = 1f;
     [SerializeField] private float roarDuration = 2f;
-    [SerializeField] private AudioClip sfxRoar;
+    [SerializeField] private AudioClip sfxRoar; // ÂM THANH GẦM
     [SerializeField] private float roarCameraShakeIntensity = 2.5f;
     [SerializeField] private float roarCameraShakeDuration = 0.8f;
     [SerializeField] private float playerSlowMultiplier = 0.3f;
@@ -36,7 +36,9 @@ public class Elite_TyHuu : MonoBehaviour
     [Header("--- ÂM THANH (AUDIO) ---")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip sfxPrepareAttack;
-    [SerializeField] private AudioClip sfxAttack;
+    [SerializeField] private AudioClip sfxClaw1; // Bổ sung âm thanh vuốt 1
+    [SerializeField] private AudioClip sfxClaw2; // Bổ sung âm thanh vuốt 2
+    [SerializeField] private AudioClip sfxBreath; // Âm thanh khi bắn đá
     [SerializeField] private AudioClip sfxStun;
     [SerializeField] private AudioClip sfxDeath;
 
@@ -68,7 +70,16 @@ public class Elite_TyHuu : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         stats = GetComponent<CharacterStats>();
         mainCollider = GetComponent<Collider2D>();
+
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
+
+        // Cấu hình chống mất tiếng / méo tiếng 2D
+        if (audioSource != null)
+        {
+            audioSource.playOnAwake = false;
+            audioSource.spatialBlend = 0f;     // Ép về 2D Audio chuẩn
+            audioSource.bypassEffects = true;
+        }
     }
 
     private void Start()
@@ -247,14 +258,16 @@ public class Elite_TyHuu : MonoBehaviour
 
         if (isStunned || isBeingExecuted || isDeadHandled) yield break;
 
+        // Phát Claw 1
         if (animator != null) animator.SetTrigger(animClaw1);
-        PlaySFX(sfxAttack);
+        PlaySFX(sfxClaw1);
         yield return new WaitForSeconds(0.4f);
 
         if (isStunned || isBeingExecuted || isDeadHandled) yield break;
 
+        // Phát Claw 2
         if (animator != null) animator.SetTrigger(animClaw2);
-        PlaySFX(sfxAttack);
+        PlaySFX(sfxClaw2);
         yield return new WaitForSeconds(0.6f);
 
         isBusy = false;
@@ -292,7 +305,7 @@ public class Elite_TyHuu : MonoBehaviour
             animator.SetBool(animWalk, false);
             animator.SetTrigger(animAttack);
         }
-        PlaySFX(sfxAttack);
+        PlaySFX(sfxBreath);
 
         yield return new WaitForSeconds(0.3f);
 
@@ -368,7 +381,8 @@ public class Elite_TyHuu : MonoBehaviour
 
     private void ExecuteRoarEffects()
     {
-        PlaySFX(sfxRoar != null ? sfxRoar : sfxAttack);
+        // Phát tiếng gầm Roar
+        PlaySFX(sfxRoar);
 
         if (CameraShake.Instance != null)
         {

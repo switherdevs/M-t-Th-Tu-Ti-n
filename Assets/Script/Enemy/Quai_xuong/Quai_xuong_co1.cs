@@ -6,6 +6,7 @@ using StatsSystem.Components;
 /// AI Quái cơ bản: Phát hiện người chơi -> Đi tới (có khoảng cách dừng & né tường bằng Tag Wall) -> Tấn công (Bật Hitbox sát thương).
 /// Đã bổ sung: Lắng nghe trạng thái chết từ CharacterStats để ngừng di chuyển/tấn công và play animation chết.
 /// ĐÃ NÂNG CẤP: Chuyển Hitbox sang dạng mảng GameObject[], hỗ trợ dịch chuyển tâm vùng tấn công và TỰ ĐỘNG ĐIỀU CHỈNH TỐC ĐỘ ĐÁNH (Attack Speed).
+/// SỬA LỖI: Đổi tên biến audioSource thành audioComp để tránh lỗi Type Mismatch trong Unity Inspector.
 /// </summary>
 public class BasicEnemyAI : MonoBehaviour
 {
@@ -56,6 +57,12 @@ public class BasicEnemyAI : MonoBehaviour
     [Tooltip("Thời gian hồi chiêu giữa 2 lần đánh")]
     [SerializeField] private float attackCooldown = 2f;
 
+    [Header("=== ÂM THANH (AUDIO) ===")]
+    [Tooltip("Component AudioSource dùng để phát âm thanh")]
+    [SerializeField] private AudioSource audioComp;
+    [SerializeField] private AudioClip sfxAttack;
+    [SerializeField] private AudioClip sfxDeath;
+
     [Header("=== ANIMATION PARAMETERS ===")]
     [SerializeField] private string runAnimBool = "IsRunning";
     [SerializeField] private string attackAnimTrigger = "Attack";
@@ -69,6 +76,18 @@ public class BasicEnemyAI : MonoBehaviour
     private float lastAttackTime = -999f;
     private bool isAttacking = false;
     private Vector2 moveDirection;
+
+    private void Awake()
+    {
+        // Tự động lấy AudioSource nếu chưa kéo thả vào Inspector
+        if (audioComp == null) audioComp = GetComponent<AudioSource>();
+
+        if (audioComp != null)
+        {
+            audioComp.playOnAwake = false;
+            audioComp.spatialBlend = 0f; // Chuyển về âm thanh 2D chuẩn
+        }
+    }
 
     private void Start()
     {
@@ -121,9 +140,6 @@ public class BasicEnemyAI : MonoBehaviour
     // ==========================================
     // HÀM LẤY TÂM TẤN CÔNG THEO HƯỚNG XOAY
     // ==========================================
-    /// <summary>
-    /// Tính toán vị trí tâm tấn công trong không gian thế giới, tự động đảo chiều X khi quái quay mặt.
-    /// </summary>
     public Vector2 GetAttackCenterPosition()
     {
         Vector2 offsetVector = transform.right * attackCenterOffset.x + transform.up * attackCenterOffset.y;
@@ -147,6 +163,8 @@ public class BasicEnemyAI : MonoBehaviour
 
         SetAnimBool(runAnimBool, false);
         SetAnimTrigger(deathAnimTrigger);
+
+        PlaySFX(sfxDeath);
     }
 
     // ==========================================
@@ -278,6 +296,7 @@ public class BasicEnemyAI : MonoBehaviour
         }
 
         SetAnimTrigger(attackAnimTrigger);
+        PlaySFX(sfxAttack);
 
         // 3. Tự động thu ngắn thời gian delay/duration của Hitbox theo Attack Speed
         float scaledDelay = damageActiveDelay / currentAttackSpeed;
@@ -327,6 +346,14 @@ public class BasicEnemyAI : MonoBehaviour
     {
         if (animator != null && !string.IsNullOrEmpty(name))
             animator.SetTrigger(name);
+    }
+
+    private void PlaySFX(AudioClip clip)
+    {
+        if (audioComp != null && clip != null)
+        {
+            audioComp.PlayOneShot(clip);
+        }
     }
 
     // ==========================================

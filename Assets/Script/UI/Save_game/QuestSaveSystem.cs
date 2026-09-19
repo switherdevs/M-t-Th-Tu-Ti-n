@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
+using GameCore.Quests;
 
 public enum TrangThaiQuest
 {
@@ -169,6 +170,36 @@ public class QuestSaveSystem : MonoBehaviour
     {
         duLieuSaveHienTai = new DanhSachSaveQuest();
         SaveDuLieuQuestToTxt();
+    }
+
+    // =========================================================
+    // 🎯 HÀM ĐỒNG BỘ ĐẾM VÀ GIỚI HẠN SỐ LƯỢNG QUEST
+    // =========================================================
+
+    /// <summary>
+    /// Đếm tổng số nhiệm vụ người chơi đang nhận (Đang làm + Đã xong chưa trả)
+    /// </summary>
+    public int DemSoQuestDangLam()
+    {
+        if (duLieuSaveHienTai == null || duLieuSaveHienTai.danhSachProgress == null) return 0;
+
+        int count = 0;
+        foreach (ProgressQuest q in duLieuSaveHienTai.danhSachProgress)
+        {
+            if (q.trangThai == TrangThaiQuest.DangLam || q.trangThai == TrangThaiQuest.DaXongChuaTra)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /// <summary>
+    /// Kiểm tra xem người chơi có đủ điều kiện nhận thêm Quest mới không (Mặc định tối đa 3)
+    /// </summary>
+    public bool KiemTraCoTheNhanQuestMoi(int maxQuest = 3)
+    {
+        return DemSoQuestDangLam() < maxQuest;
     }
 
     // 🎯 HÀM LƯU TOÀN BỘ THÔNG TIN SKILL VÀO FILE SAVE
@@ -369,7 +400,6 @@ public class QuestSaveSystem : MonoBehaviour
         if (coThayDoi)
         {
             SaveDuLieuQuestToTxt();
-            if (QuestUIManager.Instance != null) QuestUIManager.Instance.KhoiTaoDanhSachQuestUI();
             QuestHUDTracker.ThongBaoCapNhatHUD();
         }
     }
@@ -400,7 +430,6 @@ public class QuestSaveSystem : MonoBehaviour
         if (coThayDoi)
         {
             SaveDuLieuQuestToTxt();
-            if (QuestUIManager.Instance != null) QuestUIManager.Instance.KhoiTaoDanhSachQuestUI();
             QuestHUDTracker.ThongBaoCapNhatHUD();
         }
     }

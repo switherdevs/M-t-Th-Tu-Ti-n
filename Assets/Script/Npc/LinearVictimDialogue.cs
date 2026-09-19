@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using GameCore.Quests;
+using GameCore.Settings; // Bổ sung Namespace Settings để đọc ngôn ngữ
 
 [Serializable]
 public class CauThoaiTuyenTinhData
@@ -21,6 +23,23 @@ public class CauThoaiTuyenTinhData
     [Header("--- ĐÁNH DẤU KẾT THÚC & HOÀN THÀNH QUEST ---")]
     [Tooltip("TÍCH VÀO ĐÂY nếu đây là câu thoại cuối cùng! Bấm nút này sẽ cứu NPC và hoàn thành Quest.")]
     public bool isNutKetThucHoanThanhQuest = false;
+}
+
+// =========================================================
+// STRUCT DỮ LIỆU TIẾNG ANH (CHỈ CHỨA VĂN BẢN ĐỂ GHI ĐÈ)
+// =========================================================
+[Serializable]
+public class CauThoaiTuyenTinhTiengAnhData
+{
+    [Tooltip("Tên NPC Tiếng Anh (Để trống nếu giữ nguyên)")]
+    public string tenNPC = "Victim";
+
+    [TextArea(3, 5)]
+    [Tooltip("Nội dung lời thoại Tiếng Anh")]
+    public string noiDungThoai = "Save me!";
+
+    [Tooltip("Text hiển thị trên nút duy nhất Tiếng Anh (Để trống nếu giữ nguyên)")]
+    public string textNut = "Continue";
 }
 
 public class LinearVictimDialogue : MonoBehaviour
@@ -43,8 +62,12 @@ public class LinearVictimDialogue : MonoBehaviour
     [SerializeField] private AudioClip amThanhThoai;
     [SerializeField] private float tocDoGoChu = 0.03f;
 
-    [Header("--- DANH SÁCH CÂU THOẠI TUYẾN TÍNH ---")]
+    [Header("--- DANH SÁCH CÂU THOẠI TUYẾN TÍNH (TIẾNG VIỆT - MẶC ĐỊNH) ---")]
     [SerializeField] private List<CauThoaiTuyenTinhData> danhSachCauThoai = new List<CauThoaiTuyenTinhData>();
+
+    [Header("--- DANH SÁCH CÂU THOẠI TUYẾN TÍNH (TIẾNG ANH - OVERRIDE) ---")]
+    [Tooltip("Mảng Tiếng Anh tương ứng theo thứ tự Index. Nếu không điền phần tử tương ứng sẽ dùng mặc định Tiếng Việt.")]
+    [SerializeField] private List<CauThoaiTuyenTinhTiengAnhData> danhSachCauThoaiTiengAnh = new List<CauThoaiTuyenTinhTiengAnhData>();
 
     private int indexThoaiHienTai = 0;
     private Coroutine coroutineGoChu;
@@ -72,16 +95,34 @@ public class LinearVictimDialogue : MonoBehaviour
             return;
         }
 
-        CauThoaiTuyenTinhData data = danhSachCauThoai[indexThoaiHienTai];
+        // 1. Lấy dữ liệu Tiếng Việt mặc định
+        CauThoaiTuyenTinhData dataGoc = danhSachCauThoai[indexThoaiHienTai];
 
-        if (txtTenNPC != null) txtTenNPC.text = data.tenNPC;
+        string tenHienThi = dataGoc.tenNPC;
+        string noiDungHienThi = dataGoc.noiDungThoai;
+        string textNutHienThi = dataGoc.textNut;
 
-        StartGoChuRoutine(data.noiDungThoai);
+        // 2. Kiểm tra Cài đặt Ngôn ngữ & Ghi đè Tiếng Anh nếu có
+        bool isEN = SettingsManager.Instance != null && SettingsManager.Instance.IsEnglish();
+        if (isEN && danhSachCauThoaiTiengAnh != null && indexThoaiHienTai < danhSachCauThoaiTiengAnh.Count)
+        {
+            CauThoaiTuyenTinhTiengAnhData dataEN = danhSachCauThoaiTiengAnh[indexThoaiHienTai];
+            if (dataEN != null)
+            {
+                if (!string.IsNullOrEmpty(dataEN.tenNPC)) tenHienThi = dataEN.tenNPC;
+                if (!string.IsNullOrEmpty(dataEN.noiDungThoai)) noiDungHienThi = dataEN.noiDungThoai;
+                if (!string.IsNullOrEmpty(dataEN.textNut)) textNutHienThi = dataEN.textNut;
+            }
+        }
+
+        if (txtTenNPC != null) txtTenNPC.text = tenHienThi;
+
+        StartGoChuRoutine(noiDungHienThi);
 
         if (btnLuaChon != null)
         {
             btnLuaChon.gameObject.SetActive(true);
-            if (txtNut != null) txtNut.text = data.textNut;
+            if (txtNut != null) txtNut.text = textNutHienThi;
 
             btnLuaChon.onClick.RemoveAllListeners();
             btnLuaChon.onClick.AddListener(ChuyenCauThoaiKeTiep);
@@ -90,9 +131,9 @@ public class LinearVictimDialogue : MonoBehaviour
 
     private void ChuyenCauThoaiKeTiep()
     {
+        // Luôn sử dụng dữ liệu mảng gốc (Tiếng Việt) để kiểm tra logic Quest
         CauThoaiTuyenTinhData dataHienTai = danhSachCauThoai[indexThoaiHienTai];
 
-        // Nếu là câu thoại cuối cùng đánh dấu hoàn thành Quest
         if (dataHienTai.isNutKetThucHoanThanhQuest)
         {
             XuLyHoanThanhQuestVaLuuGame();
@@ -119,14 +160,19 @@ public class LinearVictimDialogue : MonoBehaviour
 
     private void XuLyHoanThanhQuestVaLuuGame()
     {
-        if (questGiaiCuuData != null && QuestSaveSystem.Instance != null)
+        if (questGiaiCuuData != null)
         {
-            QuestSaveSystem.Instance.CapNhatTrangThaiQuest(questGiaiCuuData.idQuest, TrangThaiQuest.DaXongChuaTra);
-            Debug.Log($"<color=green>[Nạn Nhân]</color> Thoại kết thúc! Quest ID {questGiaiCuuData.idQuest} đã chuyển sang DaXongChuaTra.");
-
-            if (QuestUIManager.Instance != null)
+            if (QuestManager.Instance != null)
             {
-                QuestUIManager.Instance.KhoiTaoDanhSachQuestUI();
+                QuestManager.Instance.CompleteOrAbandonQuest(questGiaiCuuData.idQuest);
+            }
+
+            if (QuestSaveSystem.Instance != null)
+            {
+                QuestSaveSystem.Instance.CapNhatTrangThaiQuest(questGiaiCuuData.idQuest, TrangThaiQuest.DaXongChuaTra);
+                Debug.Log($"<color=green>[Nạn Nhân]</color> Thoại kết thúc! Quest ID {questGiaiCuuData.idQuest} đã chuyển sang DaXongChuaTra.");
+
+                QuestHUDTracker.ThongBaoCapNhatHUD();
             }
         }
     }

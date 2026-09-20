@@ -7258,6 +7258,10 @@ PrefabInstance:
       propertyPath: m_text
       value: Leave Batte
       objectReference: {fileID: 0}
+    - target: {fileID: 7465624773610462039, guid: d200f49d5ea7c9f48ab45908ab920089, type: 3}
+      propertyPath: mainMapName
+      value: Map_3 luyennguc
+      objectReference: {fileID: 0}
     - target: {fileID: 8812111585108651674, guid: d200f49d5ea7c9f48ab45908ab920089, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -20658,7 +20662,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -20749,11 +20753,11 @@ Transform:
   m_GameObject: {fileID: 979110595}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 64.70133, y: 25.149817, z: -1.882744}
+  m_LocalPosition: {x: 83.70133, y: 15.1498165, z: -1.882744}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1468069390}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &983532640
 PrefabInstance:
@@ -28403,7 +28407,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1661769238}
+  - {fileID: 979110597}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1468069391
@@ -33744,12 +33748,12 @@ Transform:
   m_GameObject: {fileID: 1661769232}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: -19, y: 10, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1855344563}
-  m_Father: {fileID: 1468069390}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1678451755
 GameObject:
@@ -40758,7 +40762,7 @@ Transform:
   m_GameObject: {fileID: 1855344562}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 15.183454, y: -9.233719, z: 0}
+  m_LocalPosition: {x: 10.428431, y: -2.721158, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -42171,8 +42175,8 @@ SceneRoots:
   - {fileID: 353719693}
   - {fileID: 1715098772}
   - {fileID: 101676616}
+  - {fileID: 1661769238}
   - {fileID: 1468069390}
-  - {fileID: 979110597}
   - {fileID: 943566404}
   - {fileID: 2125789387}
   - {fileID: 885193329}

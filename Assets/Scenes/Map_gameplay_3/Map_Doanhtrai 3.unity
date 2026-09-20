@@ -4444,6 +4444,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: VeMap
       objectReference: {fileID: 0}
+    - target: {fileID: 7465624773610462039, guid: d200f49d5ea7c9f48ab45908ab920089, type: 3}
+      propertyPath: mainMapName
+      value: Map_3 luyennguc
+      objectReference: {fileID: 0}
     - target: {fileID: 8209910448149011012, guid: d200f49d5ea7c9f48ab45908ab920089, type: 3}
       propertyPath: m_Name
       value: VeMap_text
@@ -8047,7 +8051,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -14529,7 +14533,7 @@ Transform:
   m_GameObject: {fileID: 1572686750}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 24.483185, y: -0.0000019073486, z: 0}
+  m_LocalPosition: {x: 18.435555, y: -0.0000019073486, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -1978,6 +1978,10 @@ PrefabInstance:
       propertyPath: m_text
       value: Leave Batte
       objectReference: {fileID: 0}
+    - target: {fileID: 7465624773610462039, guid: d200f49d5ea7c9f48ab45908ab920089, type: 3}
+      propertyPath: mainMapName
+      value: "Map_2U Minh L\xE2m"
+      objectReference: {fileID: 0}
     - target: {fileID: 8812111585108651674, guid: d200f49d5ea7c9f48ab45908ab920089, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -14585,7 +14589,7 @@ AudioSource:
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -23375,7 +23379,7 @@ Transform:
   m_GameObject: {fileID: 1855344562}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 19.183453, y: -4.0809407, z: 0}
+  m_LocalPosition: {x: 14.428431, y: 0.00000333786, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

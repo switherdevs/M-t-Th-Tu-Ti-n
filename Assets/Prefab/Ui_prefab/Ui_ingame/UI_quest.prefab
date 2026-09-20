@@ -36,6 +36,167 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &248264668055168294
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3643169982318215047}
+  - component: {fileID: 9154472635907305166}
+  - component: {fileID: 7679482163485067205}
+  - component: {fileID: 8785110764463520988}
+  m_Layer: 5
+  m_Name: Text (TMP)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3643169982318215047
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 248264668055168294}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7365653854758829219}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -4.3979445, y: 0}
+  m_SizeDelta: {x: 200, y: 50}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &9154472635907305166
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 248264668055168294}
+  m_CullTransparentMesh: 1
+--- !u!114 &7679482163485067205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 248264668055168294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: warning
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 20
+  m_fontSizeBase: 20
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 1
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!223 &8785110764463520988
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 248264668055168294}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 1
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 90
+  m_TargetDisplay: 0
 --- !u!1 &295925496833710828
 GameObject:
   m_ObjectHideFlags: 0
@@ -185,7 +346,7 @@ GameObject:
   - component: {fileID: 2583289690551839348}
   - component: {fileID: 5019917718843625656}
   m_Layer: 5
-  m_Name: Ten_quest 1
+  m_Name: Ten_quest 4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -872,7 +1033,7 @@ GameObject:
   - component: {fileID: 2222186827553353661}
   - component: {fileID: 5597899617516068529}
   m_Layer: 5
-  m_Name: Ten_quest 1
+  m_Name: Ten_quest 7
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1729,7 +1890,7 @@ GameObject:
   - component: {fileID: 8642063887356287106}
   - component: {fileID: 3144666681549339436}
   m_Layer: 5
-  m_Name: Ten_quest 2
+  m_Name: Ten_quest 5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2794,6 +2955,7 @@ GameObject:
   - component: {fileID: 571815473523419646}
   - component: {fileID: 7241873859081881216}
   - component: {fileID: 807575267100055358}
+  - component: {fileID: 5457504942615129935}
   m_Layer: 0
   m_Name: Thoai_0
   m_TagString: Untagged
@@ -2863,7 +3025,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -2879,6 +3041,29 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!223 &5457504942615129935
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4161786207312435645}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 1
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 80
+  m_TargetDisplay: 0
 --- !u!1 &4737863452532067544
 GameObject:
   m_ObjectHideFlags: 0
@@ -2891,7 +3076,7 @@ GameObject:
   - component: {fileID: 6543817634279347449}
   - component: {fileID: 2835715075714563569}
   m_Layer: 5
-  m_Name: Ten_quest 3
+  m_Name: Ten_quest 6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3939,6 +4124,7 @@ RectTransform:
   - {fileID: 8879012377282523021}
   - {fileID: 334240890423407693}
   - {fileID: 7261999392788206321}
+  - {fileID: 3643169982318215047}
   m_Father: {fileID: 559128518154290579}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -4500,48 +4686,55 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f87f0b71ebf2484a8c3500225a31e05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  danhSachQuestUI:
-  - questData: {fileID: 11400000, guid: f940202dcc69d5e4c8449a307d1fa7ba, type: 2}
-    textTenNhiemVu: {fileID: 4575788459619011888}
-    nutMoQuest: {fileID: 2644894801052583270}
-  - questData: {fileID: 11400000, guid: 8404b171e57c22c4d81e07c69136625e, type: 2}
-    textTenNhiemVu: {fileID: 4053072254318330529}
-    nutMoQuest: {fileID: 8654654082222399631}
-  - questData: {fileID: 11400000, guid: 98e4ebb428fabb94e8e36ec078e62acf, type: 2}
-    textTenNhiemVu: {fileID: 4218007469264966169}
-    nutMoQuest: {fileID: 8453824638703580756}
-  - questData: {fileID: 11400000, guid: 2f0b951a370ed144f824b3cc11115dad, type: 2}
-    textTenNhiemVu: {fileID: 5019917718843625656}
-    nutMoQuest: {fileID: 5385019324625754773}
-  - questData: {fileID: 11400000, guid: 5649bdfe73e9f4e4591867939de7f9f2, type: 2}
-    textTenNhiemVu: {fileID: 3144666681549339436}
-    nutMoQuest: {fileID: 6651844760698087403}
-  - questData: {fileID: 11400000, guid: 3a73d703203dcfd418f0da88efd8fd93, type: 2}
-    textTenNhiemVu: {fileID: 2835715075714563569}
-    nutMoQuest: {fileID: 2694210363016917525}
-  - questData: {fileID: 11400000, guid: 4e74e1da4560b9343a8ed39eccbd5fd7, type: 2}
-    textTenNhiemVu: {fileID: 5597899617516068529}
-    nutMoQuest: {fileID: 2933189376076246308}
-  - questData: {fileID: 11400000, guid: d61eabf4f11e9ff4a918ee291d33e288, type: 2}
-    textTenNhiemVu: {fileID: 1767736075333960220}
-    nutMoQuest: {fileID: 4581660466575918571}
-  danhSachSlotThuongUI:
-  - slotGameObject: {fileID: 3294434417264228165}
-    imageIcon: {fileID: 3462690723747043501}
-    textSoLuong: {fileID: 8509999666682137106}
-  - slotGameObject: {fileID: 1887574395268010536}
-    imageIcon: {fileID: 2140865605280846965}
-    textSoLuong: {fileID: 4474222645361869017}
-  - slotGameObject: {fileID: 193044336774170612}
-    imageIcon: {fileID: 8774909892916362039}
-    textSoLuong: {fileID: 7350826269691219552}
-  textLoiThoaiNPC: {fileID: 6734428147611600789}
-  textTienTrinhQuest: {fileID: 914527497195931557}
-  nutDongY: {fileID: 2261915914043939927}
-  nutTuChoi: {fileID: 1330615906353505630}
-  nutTraNhiemVu: {fileID: 6260221804761133939}
-  nutDongBang: {fileID: 0}
-  Complete: 0
+  maxActiveQuests: 3
+  warningText: {fileID: 7679482163485067205}
+  fadeInDuration: 0.3
+  displayDuration: 1.5
+  fadeOutDuration: 0.5
+  maxQuestWarningTextVI: "B\u1EA1n ch\u1EC9 c\xF3 th\u1EC3 nh\u1EADn t\u1ED1i \u0111a
+    3 nhi\u1EC7m v\u1EE5 c\xF9ng l\xFAc!"
+  activeQuests:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  danhSachNhiemVu:
+  - btnQuestItem: {fileID: 2644894801052583270}
+    txtTenQuestItem: {fileID: 4575788459619011888}
+    questData: {fileID: 11400000, guid: f940202dcc69d5e4c8449a307d1fa7ba, type: 2}
+  - btnQuestItem: {fileID: 8654654082222399631}
+    txtTenQuestItem: {fileID: 4053072254318330529}
+    questData: {fileID: 11400000, guid: 98e4ebb428fabb94e8e36ec078e62acf, type: 2}
+  - btnQuestItem: {fileID: 8453824638703580756}
+    txtTenQuestItem: {fileID: 4218007469264966169}
+    questData: {fileID: 11400000, guid: 6a37f07fa3adc67429b5c45070e3621f, type: 2}
+  - btnQuestItem: {fileID: 5385019324625754773}
+    txtTenQuestItem: {fileID: 5019917718843625656}
+    questData: {fileID: 11400000, guid: 5649bdfe73e9f4e4591867939de7f9f2, type: 2}
+  - btnQuestItem: {fileID: 6651844760698087403}
+    txtTenQuestItem: {fileID: 3144666681549339436}
+    questData: {fileID: 11400000, guid: 3a73d703203dcfd418f0da88efd8fd93, type: 2}
+  - btnQuestItem: {fileID: 2694210363016917525}
+    txtTenQuestItem: {fileID: 2835715075714563569}
+    questData: {fileID: 11400000, guid: 4e74e1da4560b9343a8ed39eccbd5fd7, type: 2}
+  - btnQuestItem: {fileID: 2933189376076246308}
+    txtTenQuestItem: {fileID: 5597899617516068529}
+    questData: {fileID: 11400000, guid: d61eabf4f11e9ff4a918ee291d33e288, type: 2}
+  - btnQuestItem: {fileID: 4581660466575918571}
+    txtTenQuestItem: {fileID: 1767736075333960220}
+    questData: {fileID: 11400000, guid: 8404b171e57c22c4d81e07c69136625e, type: 2}
+  btnNhanQuest: {fileID: 2261915914043939927}
+  btnHuyQuest: {fileID: 1330615906353505630}
+  btnHoanThanhQuest: {fileID: 6260221804761133939}
+  txtTenQuest: {fileID: 6734428147611600789}
+  txtThoaiQuest: {fileID: 6734428147611600789}
+  imgItems:
+  - {fileID: 3462690723747043501}
+  - {fileID: 2140865605280846965}
+  - {fileID: 8774909892916362039}
+  txtSoLuongItems:
+  - {fileID: 8509999666682137106}
+  - {fileID: 4474222645361869017}
+  - {fileID: 7350826269691219552}
 --- !u!222 &8984941771510305145
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4562,7 +4755,7 @@ GameObject:
   - component: {fileID: 8455318952518797164}
   - component: {fileID: 1767736075333960220}
   m_Layer: 5
-  m_Name: Ten_quest 2
+  m_Name: Ten_quest 8
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

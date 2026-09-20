@@ -302,7 +302,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].noiDungThoai
-      value: "Ch\xE0o \u0111\u1EA1i hi\u1EC7p"
+      value: "Ch\xE0o \u0111\u1EA1i hi\u1EC7p \u0111\u1EB9p trai"
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[1].noiDungThoai
@@ -333,8 +333,29 @@ PrefabInstance:
         th\u1EADt"
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].tenNPC
+      value: civilian
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].tenNPC
+      value: civilian
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[2].tenNPC
+      value: civilian
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[3].tenNPC
+      value: civilian
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[4].tenNPC
+      value: civilian
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].luaChon1.textNut
-      value: "huy\u1EBFt ph\u1EE5 l\xE0 g\xEC ?"
+      value: "c\u1EADu c\xF3 bi\u1EBFt huy\u1EBFt ph\u1EE5 l\xE0 g\xEC kh\xF4ng 
+        ?"
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].luaChon2.textNut
@@ -350,7 +371,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[2].luaChon1.textNut
-      value: "ch\u01B0a c\xF3 ai t\u1EEBng \u0111\u1ED1i \u0111\u1EA7u v\u1EDBi h\u1ECD
+      value: "ch\u01B0a c\xF3 ai t\u1EEBng \u0111\u1ED1i \u0111\u1EA7u v\u1EDBi \u1EA3
         \xE0 ?"
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
@@ -375,6 +396,30 @@ PrefabInstance:
       value: "c\xE1o t\u1EEB "
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].textNut1
+      value: Do you know what the Blood Matron is?
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].textNut2
+      value: Farewell.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].textNut1
+      value: Has anyone encountered her?
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[2].textNut1
+      value: Has no one ever stood against her?
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[3].textNut1
+      value: 'Drew? Which sect did that master belong to? '
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[4].textNut1
+      value: My thanks.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].luaChon1.hanhDong
       value: 0
       objectReference: {fileID: 0}
@@ -385,6 +430,38 @@ PrefabInstance:
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[3].luaChon1.hanhDong
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].noiDungThoai
+      value: 'Greetings, handsome Cultivator!
+
+'
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].noiDungThoai
+      value: I've only heard rumors. There is a red-robed Taoist priestess residing
+        in an abandoned shrine up the mountain. Her hair is snow-white, and red talismans
+        are constantly hovering around her.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[2].noiDungThoai
+      value: 'Anyone who met her was drained completely dry into a withered corpse.
+        I heard she drains their blood to bolster her magical powers.
+
+'
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[3].noiDungThoai
+      value: In the past, one of the Five Great Cultivators fought her inside a cavern.
+        She unleashed glowing paper talismans that caused massive explosions. Fortunately,
+        that great cultivator drew a giant rock to seal the cave entrance.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[4].noiDungThoai
+      value: 'Ah, he cultivated the Map-Drawing Sect... Ah, wait, I mean the Huashan
+        Painting Sect! Whatever they draw can be summoned into reality!
+
+'
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[1].luaChon1.idThoaiTiepTheo

@@ -615,6 +615,14 @@ MonoBehaviour:
   loiThoaiDaNhanQuest: 
   loiThoaiCamOnHoanThanh: 
   loiThoaiTamBiet: "H\u1EB9n g\u1EB7p l\u1EA1i \u0111\u1EA1i hi\u1EC7p sau!"
+  loiThoaiDaNhanQuestEN: Please help me complete the quest quickly! i cannot wait
+  loiThoaiCamOnHoanThanhEN: Thank you! You saved me
+  loiThoaiTamBietEN: See you again later!
+  chuyenMapKhiTamBiet: 0
+  tenSceneChuyenDen: KinhThanh
+  imgFadeScreen: {fileID: 0}
+  tocDoFadeOut: 1
+  thoiGianDelayChuyenScene: 0.5
   danhSachCauThoai:
   - idThoai: 0
     tenNPC: "H\u1ECDa s\u0129 v\xF4 danh"
@@ -701,6 +709,32 @@ MonoBehaviour:
       hanhDong: 3
       idThoaiTiepTheo: 0
       questDataToAccept: {fileID: 0}
+  danhSachCauThoaiTiengAnh:
+  - idThoai: 0
+    tenNPC: 
+    noiDungThoai: 
+    textNut1: 
+    textNut2: 
+  - idThoai: 1
+    tenNPC: 
+    noiDungThoai: 
+    textNut1: 
+    textNut2: 
+  - idThoai: 2
+    tenNPC: 
+    noiDungThoai: 
+    textNut1: 
+    textNut2: 
+  - idThoai: 3
+    tenNPC: 
+    noiDungThoai: 
+    textNut1: 
+    textNut2: 
+  - idThoai: 4
+    tenNPC: 
+    noiDungThoai: 
+    textNut1: 
+    textNut2: 
 --- !u!1 &3104828125892632338
 GameObject:
   m_ObjectHideFlags: 0

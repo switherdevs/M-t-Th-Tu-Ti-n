@@ -66,13 +66,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapGrid: {fileID: 0}
   targetHighlight: {fileID: 5689187545136164943, guid: 48e5bebd66fa3b747ad12cc563adae74, type: 3}
+  checkpointPoint: {fileID: 0}
   dateText: {fileID: 8232743303605582503}
   moveSpeed: 30
   wallLayer:
     serializedVersion: 2
     m_Bits: 64
   wallSafetyOffset: 2
-  stuckThreshold: 2
   isMovingAnimBool: IsWalking
   startDay: 27
   startMonth: 5
@@ -542,7 +542,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 694.2131, y: -444.20715}
+  m_AnchoredPosition: {x: 694.2131, y: -385.30438}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6932326687900823873
@@ -838,7 +838,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 694.21295, y: -486.71667}
+  m_AnchoredPosition: {x: 694.21295, y: -427.8139}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8607345044624943385
@@ -976,7 +976,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 705.7273, y: -440.72095}
+  m_AnchoredPosition: {x: 705.7273, y: -381.81818}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &3036379827650325036
@@ -1153,6 +1153,22 @@ PrefabInstance:
     - target: {fileID: 8135626092724226133, guid: 895ec10e27d370d44af5c11272ab41ad, type: 3}
       propertyPath: m_fontSizeBase
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8448111856087003901, guid: 895ec10e27d370d44af5c11272ab41ad, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8448111856087003901, guid: 895ec10e27d370d44af5c11272ab41ad, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8448111856087003901, guid: 895ec10e27d370d44af5c11272ab41ad, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -701.5384
+      objectReference: {fileID: 0}
+    - target: {fileID: 8448111856087003901, guid: 895ec10e27d370d44af5c11272ab41ad, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -311.32867
       objectReference: {fileID: 0}
     - target: {fileID: 9152826765673236023, guid: 895ec10e27d370d44af5c11272ab41ad, type: 3}
       propertyPath: m_PresetInfoIsWorld

@@ -348,7 +348,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth:
-    baseValue: 20000
+    baseValue: 10000
   attack:
     baseValue: 20
   defense:
@@ -467,7 +467,7 @@ MonoBehaviour:
   executionStateName: BeingExecuted
   die2StateName: Die2
   executionVFXPrefab: {fileID: 3486426238667156243, guid: 6e576f3e155399c4e8bae0d95be2851f, type: 3}
-  vfxSpawnPoint: {fileID: 0}
+  vfxSpawnPoint: {fileID: 2168164391859662949}
   executePromptUI: {fileID: 0}
   stunVFXObject: {fileID: 256166917805934538}
 --- !u!82 &590500767433558846
@@ -483,7 +483,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 0c243e638b550c34a80701f94f95ecc8, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.25
   m_Pitch: 1
   Loop: 0
   Mute: 0

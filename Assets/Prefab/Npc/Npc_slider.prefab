@@ -126,8 +126,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 135337cb4b120034ba6b9375094fdb29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointA: {fileID: 0}
-  pointB: {fileID: 0}
+  isIdle: 0
+  noLoop: 0
+  useRotationFlip: 1
+  waypoints: []
   moveSpeed: 0.5
   reachThreshold: 0.1
   dialogueUIObjects:
@@ -145,6 +147,10 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.size
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
@@ -212,6 +218,34 @@ PrefabInstance:
         l\xE0 do n\xF3 l\xE0m, ta c\u0169ng ch\u1EC9 bi\u1EBFt c\xF3 nhi\xEAu \u0111\xE2y"
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].tenNPC
+      value: civilian
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].tenNPC
+      value: civilian
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[2].tenNPC
+      value: civilian
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].idThoai
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].idThoai
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[2].idThoai
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[3].idThoai
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].luaChon1.textNut
       value: "t\xF9y h\u1EEFu \u0111\xE1 l\xE0 g\xEC "
       objectReference: {fileID: 0}
@@ -245,6 +279,22 @@ PrefabInstance:
       value: "c\xE1o t\u1EEB "
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].textNut1
+      value: What is this Pixiu Stone Statue?
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].textNut2
+      value: Farewell.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].textNut1
+      value: And what became of those men?
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[2].textNut1
+      value: Farewell.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].luaChon1.hanhDong
       value: 0
       objectReference: {fileID: 0}
@@ -259,6 +309,24 @@ PrefabInstance:
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[3].luaChon1.hanhDong
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].noiDungThoai
+      value: Greetings, Cultivator.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].noiDungThoai
+      value: I only know what others have told me. There is a Pixiu stone statue
+        in a ruined temple to the north. Covered in moss, it looks no different from
+        ordinary weathered stone. Yet they say when night falls, its eyes glow crimson.
+        A band of men once ventured in searching for antiques... The next morning,
+        only one came running back.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[2].noiDungThoai
+      value: When they found them, their eyes were rolled back, blood dripping from
+        their ears. As for the sole survivor, he was driven utterly mad, babbling
+        nonsense about heaven and earth.
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[1].luaChon1.idThoaiTiepTheo

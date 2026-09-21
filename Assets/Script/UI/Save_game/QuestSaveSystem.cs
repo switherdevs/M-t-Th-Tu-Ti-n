@@ -66,6 +66,15 @@ public class PlayerStatsSaveData
     public List<string> danhSachCanhGioiDaDotPha = new List<string>();
 }
 
+// 🎯 BỔ SUNG: DỮ LIỆU ĐIỂM ĐẠO ĐỨC (MORAL POINTS DATA)
+[Serializable]
+public class MoralPointsSaveData
+{
+    public int diemThien = 0;      // Point 1: Điểm Cứu Người / Việc Thiện
+    public int diemAc = 0;         // Point 2: Điểm Tà Đạo / Bỏ Mặc / Việc Ác
+    public int diemDanhVong = 0;   // Point 3: Điểm Danh Vọng / Uy Tín Giang Hồ
+}
+
 [Serializable]
 public class DanhSachSaveQuest
 {
@@ -75,8 +84,11 @@ public class DanhSachSaveQuest
 
     public List<ProgressQuest> danhSachProgress = new List<ProgressQuest>();
     public List<SaveItemData> danhSachItemSave = new List<SaveItemData>();
-    public List<SaveSkillData> danhSachSkillSave = new List<SaveSkillData>(); // 🎯 LƯU DANH SÁCH SKILL
+    public List<SaveSkillData> danhSachSkillSave = new List<SaveSkillData>();
     public PlayerStatsSaveData playerStats = new PlayerStatsSaveData();
+
+    // 🎯 BỔ SUNG: Dữ liệu điểm đạo đức trong Struct Save Json
+    public MoralPointsSaveData moralStats = new MoralPointsSaveData();
 }
 
 public class QuestSaveSystem : MonoBehaviour
@@ -152,6 +164,9 @@ public class QuestSaveSystem : MonoBehaviour
                 if (duLieuSaveHienTai.playerStats.danhSachCanhGioiDaDotPha == null)
                     duLieuSaveHienTai.playerStats.danhSachCanhGioiDaDotPha = new List<string>();
 
+                if (duLieuSaveHienTai.moralStats == null)
+                    duLieuSaveHienTai.moralStats = new MoralPointsSaveData();
+
                 Debug.Log("<color=cyan>[Save System]</color> Đã load dữ liệu thành công.");
             }
             catch (Exception e)
@@ -173,12 +188,56 @@ public class QuestSaveSystem : MonoBehaviour
     }
 
     // =========================================================
-    // 🎯 HÀM ĐỒNG BỘ ĐẾM VÀ GIỚI HẠN SỐ LƯỢNG QUEST
+    // 🎯 QUẢN LÝ 3 ĐIỂM ĐẠO ĐỨC (MORAL POINTS SYSTEM)
     // =========================================================
 
     /// <summary>
-    /// Đếm tổng số nhiệm vụ người chơi đang nhận (Đang làm + Đã xong chưa trả)
+    /// Cộng/Trừ trực tiếp các điểm đạo đức và tự động ghi vào Save File.
     /// </summary>
+    /// <param name="congDiemThien">Số điểm Thiện thay đổi</param>
+    /// <param name="congDiemAc">Số điểm Ác thay đổi</param>
+    /// <param name="congDiemDanhVong">Số điểm Danh Vọng thay đổi</param>
+    public void ThayDoiDiemDaoDuc(int congDiemThien, int congDiemAc = 0, int congDiemDanhVong = 0)
+    {
+        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
+        if (duLieuSaveHienTai.moralStats == null) duLieuSaveHienTai.moralStats = new MoralPointsSaveData();
+
+        duLieuSaveHienTai.moralStats.diemThien = Mathf.Max(0, duLieuSaveHienTai.moralStats.diemThien + congDiemThien);
+        duLieuSaveHienTai.moralStats.diemAc = Mathf.Max(0, duLieuSaveHienTai.moralStats.diemAc + congDiemAc);
+        duLieuSaveHienTai.moralStats.diemDanhVong += congDiemDanhVong;
+
+        SaveDuLieuQuestToTxt();
+        Debug.Log($"<color=yellow>[Đạo Đức Update]</color> Thiện: {duLieuSaveHienTai.moralStats.diemThien} | Ác: {duLieuSaveHienTai.moralStats.diemAc} | Danh Vọng: {duLieuSaveHienTai.moralStats.diemDanhVong}");
+    }
+
+    /// <summary>
+    /// Lấy điểm Thiện hiện tại
+    /// </summary>
+    public int LayDiemThien()
+    {
+        return duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemThien : 0;
+    }
+
+    /// <summary>
+    /// Lấy điểm Ác hiện tại
+    /// </summary>
+    public int LayDiemAc()
+    {
+        return duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemAc : 0;
+    }
+
+    /// <summary>
+    /// Lấy điểm Danh Vọng hiện tại
+    /// </summary>
+    public int LayDiemDanhVong()
+    {
+        return duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemDanhVong : 0;
+    }
+
+    // =========================================================
+    // 🎯 HÀM ĐỒNG BỘ ĐẾM VÀ GIỚI HẠN SỐ LƯỢNG QUEST
+    // =========================================================
+
     public int DemSoQuestDangLam()
     {
         if (duLieuSaveHienTai == null || duLieuSaveHienTai.danhSachProgress == null) return 0;
@@ -194,15 +253,11 @@ public class QuestSaveSystem : MonoBehaviour
         return count;
     }
 
-    /// <summary>
-    /// Kiểm tra xem người chơi có đủ điều kiện nhận thêm Quest mới không (Mặc định tối đa 3)
-    /// </summary>
     public bool KiemTraCoTheNhanQuestMoi(int maxQuest = 3)
     {
         return DemSoQuestDangLam() < maxQuest;
     }
 
-    // 🎯 HÀM LƯU TOÀN BỘ THÔNG TIN SKILL VÀO FILE SAVE
     public void LuuSkillFullData(string nameSkill, int levelSkill, float damage, float cooldown)
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
@@ -223,7 +278,6 @@ public class QuestSaveSystem : MonoBehaviour
         SaveDuLieuQuestToTxt();
     }
 
-    // 🎯 HÀM LƯU CẤP ĐỘ SKILL (TƯƠNG THÍCH MỞ RỘNG)
     public void LuuCapDoSkill(string nameSkill, int levelSkill)
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
@@ -242,7 +296,6 @@ public class QuestSaveSystem : MonoBehaviour
         SaveDuLieuQuestToTxt();
     }
 
-    // 🎯 HÀM ĐỌC CẤP ĐỘ SKILL TỪ FILE SAVE
     public int LayCapDoSkill(string nameSkill)
     {
         if (duLieuSaveHienTai == null || duLieuSaveHienTai.danhSachSkillSave == null) return 1;
@@ -251,7 +304,6 @@ public class QuestSaveSystem : MonoBehaviour
         return skillSave != null ? skillSave.skillLevel : 1;
     }
 
-    // 🎯 HÀM LẤY TOÀN BỘ DATA DÃ LƯU CỦA 1 SKILL
     public SaveSkillData LayDuLieuSkill(string nameSkill)
     {
         if (duLieuSaveHienTai == null || duLieuSaveHienTai.danhSachSkillSave == null) return null;
@@ -422,6 +474,9 @@ public class QuestSaveSystem : MonoBehaviour
             {
                 questProgress.soBoXuongDaDiet = questData.soLuongCanGiaiCuu;
                 questProgress.trangThai = TrangThaiQuest.DaXongChuaTra;
+
+                // 🎯 CỘNG NGAY 10 ĐIỂM THIỆN & 5 ĐIỂM DANH VỌNG KHI GIẢI CỨU THÀNH CÔNG
+                ThayDoiDiemDaoDuc(10, 0, 5);
             }
 
             coThayDoi = true;

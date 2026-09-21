@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using GameCore.Quests;
-using GameCore.Settings; // Thêm Namespace Settings để kiểm tra ngôn ngữ
+using GameCore.Settings;
 
 public enum HanhDongLuaChon
 {
@@ -41,9 +41,6 @@ public class CauThoaiData
     public LuaChonUiData luaChon2 = new LuaChonUiData();
 }
 
-// =========================================================
-// STRUCT DỮ LIỆU TIẾNG ANH (CHỈ CHỨA TÊN, THOẠI & OVERRIDE NÚT)
-// =========================================================
 [Serializable]
 public class CauThoaiTiengAnhData
 {
@@ -79,8 +76,10 @@ public class NPCDialogueSystem : MonoBehaviour
     [SerializeField] private AudioClip amThanhThoai;
     [SerializeField] private float tocDoGoChu = 0.03f;
 
+    [Tooltip("Khoảng cách tối thiểu giữa 2 lần phát âm thanh (giây) để tránh bị ồn/dồn âm")]
+    [SerializeField] private float tanSuatPhatAm = 0.08f;
+
     [Header("--- THOẠI KHI ĐÃ NHẬN QUEST / HOÀN THÀNH (TIẾNG VIỆT) ---")]
-    [Tooltip("Nhiệm vụ cần kiểm tra xem người chơi đã nhận hoặc xong chưa")]
     [SerializeField] private QuestData questKiemTra;
     [TextArea(2, 4)]
     [SerializeField] private string loiThoaiDaNhanQuest = "Đại hiệp hãy giúp tôi hoàn thành nhiệm vụ nhanh nhé!";
@@ -100,20 +99,19 @@ public class NPCDialogueSystem : MonoBehaviour
     [SerializeField] private string loiThoaiTamBietEN = "See you again later!";
 
     [Header("--- CẤU HÌNH CHUYỂN MAP & FADE OUT ---")]
-    [Tooltip("Tích chọn nếu muốn chuyển map ngay khi thoại tạm biệt kết thúc")]
     [SerializeField] private bool chuyenMapKhiTamBiet = false;
-
-    [Tooltip("Tên Scene sẽ chuyển sang sau khi kết thúc thoại tạm biệt")]
     [SerializeField] private string tenSceneChuyenDen = "KinhThanh";
-
-    [Tooltip("Image UI phủ toàn màn hình dùng để làm hiệu ứng Fade Out (Chuyển đen)")]
     [SerializeField] private Image imgFadeScreen;
-
-    [Tooltip("Tốc độ mờ dần màn hình (Số càng lớn fade càng nhanh)")]
     [SerializeField] private float tocDoFadeOut = 1.0f;
-
-    [Tooltip("Thời gian chờ (giây) sau khi màn hình đã tối hoàn toàn 100% mới chuyển Scene")]
     [SerializeField] private float thoiGianDelayChuyenScene = 0.5f;
+
+    [Header("--- CẤU HÌNH THOẠI CUỐI (FINAL DIALOGUE & ENDING) ---")]
+    [Tooltip("Đánh dấu đây là cuộc hội thoại cuối game để rẽ nhánh Good / Bad Ending")]
+    [SerializeField] private bool isFinalDialogue = false;
+    [Tooltip("Danh sách các Quest phụ bắt buộc phải hoàn thành để đạt Good Ending")]
+    [SerializeField] private List<QuestData> danhSachQuestPhuYeuCau = new List<QuestData>();
+    [SerializeField] private string tenSceneGoodEnding = "GoodEndingScene";
+    [SerializeField] private string tenSceneBadEnding = "BadEndingScene";
 
     [Header("--- DANH SÁCH CÂU THOẠI NPC (TIẾNG VIỆT - MẶC ĐỊNH) ---")]
     [SerializeField] private List<CauThoaiData> danhSachCauThoai = new List<CauThoaiData>();
@@ -125,6 +123,7 @@ public class NPCDialogueSystem : MonoBehaviour
     private Dictionary<int, CauThoaiTiengAnhData> dictionaryCauThoaiTiengAnh;
     private bool dangTrongTrangThaiTamBiet = false;
     private Coroutine coroutineGoChu;
+    private float thoiGianPhatAmCuoi = 0f;
 
     private void Awake()
     {
@@ -147,9 +146,13 @@ public class NPCDialogueSystem : MonoBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        DungToanBoGoChuVaAmThanh();
+    }
+
     public void KhoiTaoDictionaryThoai()
     {
-        // 1. Khởi tạo Dictionary Tiếng Việt
         dictionaryCauThoai = new Dictionary<int, CauThoaiData>();
         if (danhSachCauThoai != null)
         {
@@ -162,7 +165,6 @@ public class NPCDialogueSystem : MonoBehaviour
             }
         }
 
-        // 2. Khởi tạo Dictionary Tiếng Anh
         dictionaryCauThoaiTiengAnh = new Dictionary<int, CauThoaiTiengAnhData>();
         if (danhSachCauThoaiTiengAnh != null)
         {
@@ -190,8 +192,6 @@ public class NPCDialogueSystem : MonoBehaviour
             uiThoaiRootObject.SetActive(true);
         }
 
-        PhatAmThoaiOneShot();
-
         if (KiemTraQuestDaHoanThanh())
         {
             HienThiThoaiCamOnHoanThanh();
@@ -207,23 +207,25 @@ public class NPCDialogueSystem : MonoBehaviour
         HienThiCauThoaiTheoID(idThoaiBatDau);
     }
 
-    private TrangThaiQuest LayTrangThaiQuestSave()
+    private TrangThaiQuest LayTrangThaiQuestSave(int idQuest)
     {
-        if (questKiemTra == null || QuestSaveSystem.Instance == null) return TrangThaiQuest.ChuaNhan;
+        if (QuestSaveSystem.Instance == null) return TrangThaiQuest.ChuaNhan;
 
-        ProgressQuest progress = QuestSaveSystem.Instance.LayTienTrinhQuest(questKiemTra.idQuest);
+        ProgressQuest progress = QuestSaveSystem.Instance.LayTienTrinhQuest(idQuest);
         return progress != null ? progress.trangThai : TrangThaiQuest.ChuaNhan;
     }
 
     private bool KiemTraQuestDaHoanThanh()
     {
-        TrangThaiQuest trangThai = LayTrangThaiQuestSave();
+        if (questKiemTra == null) return false;
+        TrangThaiQuest trangThai = LayTrangThaiQuestSave(questKiemTra.idQuest);
         return trangThai == TrangThaiQuest.DaXongChuaTra || trangThai == TrangThaiQuest.HoanThanh;
     }
 
     private bool KiemTraDaNhanQuestChua()
     {
-        TrangThaiQuest trangThai = LayTrangThaiQuestSave();
+        if (questKiemTra == null) return false;
+        TrangThaiQuest trangThai = LayTrangThaiQuestSave(questKiemTra.idQuest);
         return trangThai == TrangThaiQuest.DangLam;
     }
 
@@ -292,7 +294,6 @@ public class NPCDialogueSystem : MonoBehaviour
             return;
         }
 
-        // Lấy dữ liệu mảng Tiếng Việt gốc
         CauThoaiData dataGoc = dictionaryCauThoai[id];
 
         string tenHienThi = dataGoc.tenNPC;
@@ -300,7 +301,6 @@ public class NPCDialogueSystem : MonoBehaviour
         LuaChonUiData luaChon1HienThi = dataGoc.luaChon1;
         LuaChonUiData luaChon2HienThi = dataGoc.luaChon2;
 
-        // KIỂM TRA ĐỒNG BỘ SETTINGS: Nếu là Tiếng Anh -> Tiến hành ghi đè dữ liệu Anh
         bool isEN = SettingsManager.Instance != null && SettingsManager.Instance.IsEnglish();
         if (isEN && dictionaryCauThoaiTiengAnh != null && dictionaryCauThoaiTiengAnh.TryGetValue(id, out CauThoaiTiengAnhData dataEN))
         {
@@ -340,10 +340,7 @@ public class NPCDialogueSystem : MonoBehaviour
 
     private void StartGoChuRoutine(string chuoiVanBan)
     {
-        if (coroutineGoChu != null)
-        {
-            StopCoroutine(coroutineGoChu);
-        }
+        DungToanBoGoChuVaAmThanh();
         coroutineGoChu = StartCoroutine(GoChuCoRoutine(chuoiVanBan));
     }
 
@@ -352,18 +349,46 @@ public class NPCDialogueSystem : MonoBehaviour
         if (txtNoiDungThoai == null) yield break;
 
         txtNoiDungThoai.text = "";
+
         foreach (char c in chuoiVanBan.ToCharArray())
         {
             txtNoiDungThoai.text += c;
+
+            if (c != ' ' && Time.time - thoiGianPhatAmCuoi >= tanSuatPhatAm)
+            {
+                PhatAmThoaiCoKiemTra();
+                thoiGianPhatAmCuoi = Time.time;
+            }
+
             yield return new WaitForSeconds(tocDoGoChu);
         }
+
+        TieuDungAmThoai();
     }
 
-    private void PhatAmThoaiOneShot()
+    private void PhatAmThoaiCoKiemTra()
     {
         if (audioSource != null && amThanhThoai != null)
         {
             audioSource.PlayOneShot(amThanhThoai);
+        }
+    }
+
+    private void DungToanBoGoChuVaAmThanh()
+    {
+        if (coroutineGoChu != null)
+        {
+            StopCoroutine(coroutineGoChu);
+            coroutineGoChu = null;
+        }
+        TieuDungAmThoai();
+    }
+
+    private void TieuDungAmThoai()
+    {
+        if (audioSource != null)
+        {
+            audioSource.Stop();
         }
     }
 
@@ -456,22 +481,61 @@ public class NPCDialogueSystem : MonoBehaviour
         if (btnLuaChon2 != null) btnLuaChon2.gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// Kiểm tra xem người chơi đã hoàn tất toàn bộ danh sách Quest phụ yêu cầu hay chưa
+    /// </summary>
+    private bool KiemTraDaHoanThanhHetQuestPhu()
+    {
+        if (danhSachQuestPhuYeuCau == null || danhSachQuestPhuYeuCau.Count == 0) return true;
+
+        foreach (QuestData quest in danhSachQuestPhuYeuCau)
+        {
+            if (quest == null) continue;
+
+            TrangThaiQuest trangThai = LayTrangThaiQuestSave(quest.idQuest);
+            if (trangThai != TrangThaiQuest.HoanThanh)
+            {
+                return false; // Chỉ cần 1 quest chưa hoàn thành -> Không đủ điều kiện Good Ending
+            }
+        }
+
+        return true;
+    }
+
     public void ThucHienDongUiThoai()
     {
         dangTrongTrangThaiTamBiet = false;
 
-        if (coroutineGoChu != null)
+        DungToanBoGoChuVaAmThanh();
+
+        // 🎯 KIỂM TRA NẾU LÀ THOẠI CUỐI GAME (FINAL DIALOGUE)
+        if (isFinalDialogue)
         {
-            StopCoroutine(coroutineGoChu);
+            bool daXongHetQuestPhu = KiemTraDaHoanThanhHetQuestPhu();
+            string sceneTarget = daXongHetQuestPhu ? tenSceneGoodEnding : tenSceneBadEnding;
+
+            Debug.Log($"<color=yellow>[Ending Check]</color> Đã hoàn thành hết quest phụ: {daXongHetQuestPhu}. Chuyển sang Scene: {sceneTarget}");
+
+            if (imgFadeScreen != null)
+            {
+                StartCoroutine(FadeOutAndChangeScene(sceneTarget));
+            }
+            else
+            {
+                if (uiThoaiRootObject != null) uiThoaiRootObject.SetActive(false);
+                SceneManager.LoadScene(sceneTarget);
+            }
+            return;
         }
 
+        // 🎯 NẾU KHÔNG PHẢI FINAL THOẠI -> CHẠY LUỒNG THƯỜNG
         if (chuyenMapKhiTamBiet)
         {
             if (!string.IsNullOrEmpty(tenSceneChuyenDen))
             {
                 if (imgFadeScreen != null)
                 {
-                    StartCoroutine(FadeOutAndChangeScene());
+                    StartCoroutine(FadeOutAndChangeScene(tenSceneChuyenDen));
                 }
                 else
                 {
@@ -494,7 +558,7 @@ public class NPCDialogueSystem : MonoBehaviour
         }
     }
 
-    private IEnumerator FadeOutAndChangeScene()
+    private IEnumerator FadeOutAndChangeScene(string targetScene)
     {
         imgFadeScreen.gameObject.SetActive(true);
 
@@ -522,7 +586,7 @@ public class NPCDialogueSystem : MonoBehaviour
             yield return new WaitForSeconds(thoiGianDelayChuyenScene);
         }
 
-        Debug.Log("<color=cyan>[NPC Dialogue]</color> Fade Out hoàn tất 100%! Đang chuyển sang Scene: " + tenSceneChuyenDen);
-        SceneManager.LoadScene(tenSceneChuyenDen);
+        Debug.Log("<color=cyan>[NPC Dialogue]</color> Fade Out hoàn tất! Đang chuyển sang Scene: " + targetScene);
+        SceneManager.LoadScene(targetScene);
     }
 }

@@ -17,7 +17,7 @@ public class TimelineSceneChanger : MonoBehaviour
 
 
     // =========================================================
-    // CẤU HÌNH TIMELINE & MODE CŨ
+    // CẤU HÌNH TIMELINE & MODE CỦ
     // =========================================================
 
     [Header("--- CẤU HÌNH TIMELINE ---")]
@@ -59,7 +59,7 @@ public class TimelineSceneChanger : MonoBehaviour
 
     private void Update()
     {
-        // NẾU TÍCH CUTSCENE MỞ ĐẦU -> BỎ QUA HOÀN TOÀN TÍNH NĂNG CŨ BÊN DƯỚI
+        // NẾU TÍCH CUTSCENE MỞ ĐẦU -> BỎ QUA HOÀN TOÀN TÍNH NĂNG CỦ BÊN DƯỚI
         if (isCutsceneMoDau) return;
 
         KiemTraThoiGianTimeline();
@@ -74,7 +74,7 @@ public class TimelineSceneChanger : MonoBehaviour
         {
             daChuyenScene = true;
             Debug.Log("<color=cyan>[Timeline Changer]</color> Cutscene mở đầu kết thúc! Đang chuyển tới Scene cố định: " + tenSceneCoDinh);
-            SceneManager.LoadScene(tenSceneCoDinh);
+            ThucHienChuyenSceneAnToan(tenSceneCoDinh);
         }
         else
         {
@@ -111,7 +111,7 @@ public class TimelineSceneChanger : MonoBehaviour
             if (!string.IsNullOrEmpty(tenMapMoi))
             {
                 Debug.Log("<color=green>[Timeline Changer]</color> Thăng cấp thành công! Đang tiến vào Map Mới: " + tenMapMoi);
-                SceneManager.LoadScene(tenMapMoi);
+                ThucHienChuyenSceneAnToan(tenMapMoi);
             }
         }
         // CẢNH THẤT BẠI -> ĐỌC VÀ QUAY LẠI MAP CỦ
@@ -122,8 +122,39 @@ public class TimelineSceneChanger : MonoBehaviour
             if (!string.IsNullOrEmpty(tenMapCu))
             {
                 Debug.Log("<color=yellow>[Timeline Changer]</color> Thất bại! Đang đưa người chơi quay về Map Cũ: " + tenMapCu);
-                SceneManager.LoadScene(tenMapCu);
+                ThucHienChuyenSceneAnToan(tenMapCu);
             }
         }
+    }
+
+    // 🎯 THUẬT TOÁN MỚI: KIỂM TRA SCENE TRƯỚC KHI LOAD TRÁNH CRASH
+    private void ThucHienChuyenSceneAnToan(string tenScene)
+    {
+        if (KiemTraSceneCoTrongBuild(tenScene))
+        {
+            SceneManager.LoadScene(tenScene);
+        }
+        else
+        {
+            Debug.LogError($"[Timeline Changer] LỖI: Scene tên '{tenScene}' KHÔNG TÌM THẤY trong Build Profiles! " +
+                           $"Hãy kiểm tra lại tên file Scene hoặc gõ đúng chuỗi tên trong QuestSaveSystem.");
+        }
+    }
+
+    // Thuật toán duyệt danh sách Build Profile
+    private bool KiemTraSceneCoTrongBuild(string tenScene)
+    {
+        int soLuongScene = SceneManager.sceneCountInBuildSettings;
+        for (int i = 0; i < soLuongScene; i++)
+        {
+            string duongDanScene = SceneUtility.GetScenePathByBuildIndex(i);
+            string tenSceneTrongBuild = System.IO.Path.GetFileNameWithoutExtension(duongDanScene);
+
+            if (tenSceneTrongBuild.Equals(tenScene, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -78,9 +78,9 @@ public class MoralPointsSaveData
 [Serializable]
 public class DanhSachSaveQuest
 {
-    // 🎯 LƯU CẢ TÊN MAP CŨ VÀ TÊN MAP MỚI
-    public string tenMapTruocDo = "ThanhTrucLam";
-    public string tenMapMoiTiepTheo = "UMinhLam";
+    // 🎯 LƯU CẢ TÊN MAP CỦ VÀ TÊN MAP MỚI (Đã sửa trùng khớp 100% với tên Scene trong Build Profiles)
+    public string tenMapTruocDo = "Map_1_Thanh Trúc Lâm";
+    public string tenMapMoiTiepTheo = "Map_2_U Minh Lâm";
 
     public List<ProgressQuest> danhSachProgress = new List<ProgressQuest>();
     public List<SaveItemData> danhSachItemSave = new List<SaveItemData>();
@@ -332,7 +332,7 @@ public class QuestSaveSystem : MonoBehaviour
     {
         if (duLieuSaveHienTai == null || string.IsNullOrEmpty(duLieuSaveHienTai.tenMapTruocDo))
         {
-            return "ThanhTrucLam";
+            return "Map_1_Thanh Trúc Lâm";
         }
         return duLieuSaveHienTai.tenMapTruocDo;
     }
@@ -341,7 +341,7 @@ public class QuestSaveSystem : MonoBehaviour
     {
         if (duLieuSaveHienTai == null || string.IsNullOrEmpty(duLieuSaveHienTai.tenMapMoiTiepTheo))
         {
-            return "UMinhLam";
+            return "Map_2_U Minh Lâm";
         }
         return duLieuSaveHienTai.tenMapMoiTiepTheo;
     }

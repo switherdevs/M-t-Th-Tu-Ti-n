@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems; // BẮT BỘC: Thêm thư viện EventSystems để kiểm tra click UI
+using UnityEngine.UI;          // BẮT BỘC: Thêm thư viện UI để check GraphicRaycaster
 using TMPro;
 
 [RequireComponent(typeof(LineRenderer))]
@@ -83,14 +84,44 @@ public class OverworldPlayerController : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            // CHẶN DI CHUYỂN KHI CLICK TRÊN UI:
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            // 🎯 CHẶN DI CHUYỂN KHI CLICK TRÚNG UI (BẤT KỂ OBJECT NÀO CÓ RAYCAST TARGET HOẶC BỊ UI CHE CHẮN)
+            if (IsPointerOverUIObject())
             {
                 return;
             }
 
             HandleMouseClick();
         }
+    }
+
+    /// <summary>
+    /// Hàm thông minh kiểm tra xem vị trí chuột hiện tại có đang chạm vào bất kỳ UI Element nào có bật Raycast Target hay không
+    /// </summary>
+    private bool IsPointerOverUIObject()
+    {
+        // 1. Kiểm tra nhanh cơ bản bằng EventSystem hiện tại
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            return true;
+        }
+
+        // 2. Kiểm tra sâu hơn bằng GraphicRaycaster (Phòng trường hợp UI Image/Panel chặn nhưng EventSystem bỏ sót)
+        PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+        eventDataCurrentPosition.position = Input.mousePosition;
+        List<RaycastResult> results = new List<RaycastResult>();
+
+        // Lấy tất cả các Canvas trong Scene đang quản lý Raycast
+        GraphicRaycaster[] raycasters = FindObjectsByType<GraphicRaycaster>(FindObjectsSortMode.None);
+        foreach (var raycaster in raycasters)
+        {
+            raycaster.Raycast(eventDataCurrentPosition, results);
+            if (results.Count > 0)
+            {
+                return true; // Có UI chặn dưới chuột
+            }
+        }
+
+        return false;
     }
 
     // 🎯 CHỈ BẮT VA CHẠM KHI CHẠM VÀO LAYER WALL

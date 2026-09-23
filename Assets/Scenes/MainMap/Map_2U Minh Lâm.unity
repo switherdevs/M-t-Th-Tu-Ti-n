@@ -220,6 +220,18 @@ PrefabInstance:
       value: Npc_tuyentinh (1)
       objectReference: {fileID: 0}
     - target: {fileID: 5794983645310937656, guid: 44515993698fda947aec64593391ce3f, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5794983645310937656, guid: 44515993698fda947aec64593391ce3f, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5794983645310937656, guid: 44515993698fda947aec64593391ce3f, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5794983645310937656, guid: 44515993698fda947aec64593391ce3f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -17
       objectReference: {fileID: 0}
@@ -669,7 +681,7 @@ Transform:
   m_GameObject: {fileID: 132060224}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.62959415, y: 0.00000076293946, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2292,7 +2304,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.size
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].tenNPC
@@ -2336,8 +2348,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].noiDungThoai
-      value: "Haha, c\u1EADu c\xF2n qu\xE1 y\u1EBFu \u0111\u1EC3 v\u01B0\u1EE3t qua
-        t\u1EA3ng \u0111\xE1 n\xE0y \u0111\u1EA5y"
+      value: "Ch\xE0ng trai, c\u1EADu kh\xE1 m\u1EA1nh \u0111\u1EA5y nh\u01B0ng ch\u01B0a
+        \u0111\u1EE7 qua t\u1EA3ng \u0111\xE1 n\xE0y, h\xE3y t\xECm c\xE1ch ch\u1EE9ng
+        minh \u0111i"
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[1].noiDungThoai
@@ -2401,6 +2414,10 @@ PrefabInstance:
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].luaChon1.hanhDong
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoai.Array.data[0].luaChon2.hanhDong
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[1].luaChon2.hanhDong
@@ -6147,6 +6164,18 @@ PrefabInstance:
       value: Npc_tuyentinh
       objectReference: {fileID: 0}
     - target: {fileID: 5794983645310937656, guid: 44515993698fda947aec64593391ce3f, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5794983645310937656, guid: 44515993698fda947aec64593391ce3f, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5794983645310937656, guid: 44515993698fda947aec64593391ce3f, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5794983645310937656, guid: 44515993698fda947aec64593391ce3f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 63
       objectReference: {fileID: 0}
@@ -8357,7 +8386,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9125849334118941294, guid: 000ae2e6232321f41b189cf4820e3f1b, type: 3}
       propertyPath: Kinhthanhs
-      value: Kinhthanh 2
+      value: Kinhthanh 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

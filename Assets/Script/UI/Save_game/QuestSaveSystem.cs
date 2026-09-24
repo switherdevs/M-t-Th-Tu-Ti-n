@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement; // Thêm thư viện để tự động lấy tên Scene
 using GameCore.Quests;
 
 public enum TrangThaiQuest
@@ -78,9 +79,8 @@ public class MoralPointsSaveData
 [Serializable]
 public class DanhSachSaveQuest
 {
-    // 🎯 LƯU CẢ TÊN MAP CỦ VÀ TÊN MAP MỚI (Đã sửa trùng khớp 100% với tên Scene trong Build Profiles)
-    public string tenMapTruocDo = "Map_1_Thanh Trúc Lâm";
-    public string tenMapMoiTiepTheo = "Map_2_U Minh Lâm";
+    // Chỉ lưu duy nhất vị trí map trước đó (không dùng chuỗi gán cứng)
+    public string tenMapTruocDo = "";
 
     public List<ProgressQuest> danhSachProgress = new List<ProgressQuest>();
     public List<SaveItemData> danhSachItemSave = new List<SaveItemData>();
@@ -310,6 +310,18 @@ public class QuestSaveSystem : MonoBehaviour
         return duLieuSaveHienTai.danhSachSkillSave.Find(s => s.skillName == nameSkill);
     }
 
+    // 🎯 HÀM LƯU TỰ ĐỘNG TÊN SCENE HIỆN TẠI VÀO BIẾN tenMapTruocDo
+    public void LuuMapHienTaiLamMapTruocDo()
+    {
+        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
+
+        string tenMapHienTai = SceneManager.GetActiveScene().name;
+
+        duLieuSaveHienTai.tenMapTruocDo = tenMapHienTai;
+        SaveDuLieuQuestToTxt();
+        Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Map trước đó: " + tenMapHienTai);
+    }
+
     public void LuuMapTruocDo(string tenMap)
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
@@ -319,31 +331,29 @@ public class QuestSaveSystem : MonoBehaviour
         Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Map trước đó: " + tenMap);
     }
 
+    // 🎯 KHÔI PHỤC HÀM NÀY ĐỂ FIX LỖI CS1061 Ở SCRIPT ChuyenMap.cs
     public void LuuMapMoiTiepTheo(string tenMapMoi)
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
 
-        duLieuSaveHienTai.tenMapMoiTiepTheo = tenMapMoi;
+        duLieuSaveHienTai.tenMapTruocDo = tenMapMoi;
         SaveDuLieuQuestToTxt();
-        Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Map mới tiếp theo: " + tenMapMoi);
+        Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Map trước đó: " + tenMapMoi);
     }
 
     public string LayMapTruocDo()
     {
         if (duLieuSaveHienTai == null || string.IsNullOrEmpty(duLieuSaveHienTai.tenMapTruocDo))
         {
-            return "Map_1_Thanh Trúc Lâm";
+            return "";
         }
         return duLieuSaveHienTai.tenMapTruocDo;
     }
 
+    // 🎯 KHÔI PHỤC HÀM NÀY ĐỂ FIX LỖI CS1061 Ở SCRIPT Scene_load.cs và ChuyenMap.cs
     public string LayMapMoiTiepTheo()
     {
-        if (duLieuSaveHienTai == null || string.IsNullOrEmpty(duLieuSaveHienTai.tenMapMoiTiepTheo))
-        {
-            return "Map_2_U Minh Lâm";
-        }
-        return duLieuSaveHienTai.tenMapMoiTiepTheo;
+        return LayMapTruocDo();
     }
 
     public void LuuItemVaoSaveGame(string idItem, int soLuong = 1)

@@ -42,7 +42,7 @@ public class Scene_load : MonoBehaviour
             MainUi.SetActive(true);
 
             // Dừng toàn bộ thời gian trong game
-            Time.timeScale = 0f;
+            Time.timeScale = 1f; // Hoặc 0f tùy thuộc nhu cầu pause game của bạn
         }
     }
 
@@ -57,6 +57,37 @@ public class Scene_load : MonoBehaviour
 
         // Khôi phục lại thời gian bình thường cho game
         Time.timeScale = 1f;
+    }
+
+    // 🎯 HÀM NÚT TIẾP TỤC (CONTINUE GAME TỪ FILE SAVE)
+    public void TiepTucGame()
+    {
+        PlayClickSound();
+        Time.timeScale = 1f;
+
+        // Đảm bảo QuestSaveSystem đã đọc file Save mới nhất
+        if (QuestSaveSystem.Instance != null)
+        {
+            QuestSaveSystem.Instance.LoadDuLieuQuestFromTxt();
+
+            // Lấy tên map mới tiếp theo từ file save
+            string mapCanDen = QuestSaveSystem.Instance.LayMapMoiTiepTheo();
+
+            if (!string.IsNullOrEmpty(mapCanDen))
+            {
+                SceneManager.LoadScene(mapCanDen);
+            }
+            else
+            {
+                // Trường hợp file save chưa có dữ liệu map, load map mặc định
+                SceneManager.LoadScene(mainMapName);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[Scene_load] Không tìm thấy QuestSaveSystem Singleton! Load map mặc định.");
+            SceneManager.LoadScene(mainMapName);
+        }
     }
 
     // Hàm chuyển đến Scene MainMap

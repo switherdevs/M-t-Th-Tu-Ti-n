@@ -118,7 +118,7 @@ Transform:
   m_GameObject: {fileID: 3899973874453899844}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalPosition: {x: 0, y: 5.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -659,7 +659,7 @@ MonoBehaviour:
   executePromptUI: {fileID: 0}
   stunVFXObject: {fileID: 8371279166365275800}
   executionVFXPrefab: {fileID: 3486426238667156243, guid: 6e576f3e155399c4e8bae0d95be2851f, type: 3}
-  vfxSpawnPoint: {fileID: 1339599241392424257}
+  vfxSpawnPoint: {fileID: 4403094475806918850}
 --- !u!82 &388147168786107749
 AudioSource:
   m_ObjectHideFlags: 0
@@ -669,7 +669,7 @@ AudioSource:
   m_GameObject: {fileID: 7544053619441840120}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 6604748582655308872, guid: 6d577e5bdeafe804da576e07cca632ed, type: 2}
+  OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 891d6d1bc97cb924198575d4d24c8109, type: 3}
   m_PlayOnAwake: 0

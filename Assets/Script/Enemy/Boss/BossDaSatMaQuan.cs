@@ -91,6 +91,58 @@ public class BossDaSatMaQuan : MonoBehaviour
 
 
     // =========================================================
+    // HỆ THỐNG ÂM THANH (AUDIO SOUND SYSTEM)
+    // =========================================================
+
+    [Header("===== HỆ THỐNG ÂM THANH (AUDIO SOURCE) =====")]
+    [SerializeField] private AudioSource audioSource;
+
+    [Header("--- 1. Âm Thanh Chuẩn Bị Tấn Công (Dùng Chung / Mặc Định) ---")]
+    [SerializeField] private AudioClip sfxSkillPrepare;
+    [SerializeField, Range(0f, 1f)] private float volSkillPrepare = 1f;
+
+    [Header("--- 2. Đánh Thường (Normal Attack) ---")]
+    [SerializeField] private AudioClip sfxNormalAttackHit;
+    [SerializeField, Range(0f, 1f)] private float volNormalAttack = 1f;
+
+    [Header("--- 3. Skill 1 - Trâu Húc ---")]
+    [SerializeField] private AudioClip sfxSkill1Prepare;
+    [SerializeField, Range(0f, 1f)] private float volSkill1Prepare = 1f;
+    [SerializeField] private AudioClip sfxSkill1Charge;
+    [SerializeField, Range(0f, 1f)] private float volSkill1Charge = 1f;
+
+    [Header("--- 4. Skill 2 - Bùng Năng Lượng ---")]
+    [SerializeField] private AudioClip sfxSkill2Prepare;
+    [SerializeField, Range(0f, 1f)] private float volSkill2Prepare = 1f;
+    [SerializeField] private AudioClip sfxSkill2Burst;
+    [SerializeField, Range(0f, 1f)] private float volSkill2Burst = 1f;
+
+    [Header("--- 5. Skill 3 - Triệu Hồi ---")]
+    [SerializeField] private AudioClip sfxSkill3Prepare;
+    [SerializeField, Range(0f, 1f)] private float volSkill3Prepare = 1f;
+    [SerializeField] private AudioClip sfxSkill3Summon;
+    [SerializeField, Range(0f, 1f)] private float volSkill3Summon = 1f;
+
+    [Header("--- 6. Skill Húc 3 Lần (Triple Charge) ---")]
+    [SerializeField] private AudioClip sfxTripleChargePrepare;
+    [SerializeField, Range(0f, 1f)] private float volTripleChargePrepare = 1f;
+    [SerializeField] private AudioClip sfxTripleChargeHit;
+    [SerializeField, Range(0f, 1f)] private float volTripleChargeHit = 1f;
+
+    [Header("--- 7. Skill Bẫy Ma Khí (Dark Trap) ---")]
+    [SerializeField] private AudioClip sfxDarkTrapPrepare;
+    [SerializeField, Range(0f, 1f)] private float volDarkTrapPrepare = 1f;
+    [SerializeField] private AudioClip sfxDarkTrapSpawn;
+    [SerializeField, Range(0f, 1f)] private float volDarkTrapSpawn = 1f;
+
+    [Header("--- 8. Skill Mưa Thiên Thạch (Meteor Shower) ---")]
+    [SerializeField] private AudioClip sfxMeteorPrepare;
+    [SerializeField, Range(0f, 1f)] private float volMeteorPrepare = 1f;
+    [SerializeField] private AudioClip sfxMeteorImpact;
+    [SerializeField, Range(0f, 1f)] private float volMeteorImpact = 0.7f;
+
+
+    // =========================================================
     // ĐÁNH THƯỜNG - ATTACK 1 & 2
     // =========================================================
 
@@ -269,6 +321,11 @@ public class BossDaSatMaQuan : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         phaseSystem = GetComponent<BossPhaseSystem>();
 
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+        }
+
         if (animator == null)
         {
             animator = GetComponent<Animator>();
@@ -351,6 +408,19 @@ public class BossDaSatMaQuan : MonoBehaviour
         if (tripleChargeTimer > 0f) tripleChargeTimer -= Time.deltaTime;
         if (darkTrapTimer > 0f) darkTrapTimer -= Time.deltaTime;
         if (meteorTimer > 0f) meteorTimer -= Time.deltaTime;
+    }
+
+
+    // =========================================================
+    // HÀM HỖ TRỢ PHÁT ÂM THANH
+    // =========================================================
+
+    private void PlaySFX(AudioClip clip, float volume = 1f)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip, Mathf.Clamp01(volume));
+        }
     }
 
 
@@ -477,8 +547,12 @@ public class BossDaSatMaQuan : MonoBehaviour
         }
     }
 
-    private IEnumerator SkillPreparation()
+    private IEnumerator SkillPreparation(AudioClip specificPrepareClip = null, float prepareVol = 1f)
     {
+        AudioClip clipToPlay = specificPrepareClip != null ? specificPrepareClip : sfxSkillPrepare;
+        float volToPlay = specificPrepareClip != null ? prepareVol : volSkillPrepare;
+        PlaySFX(clipToPlay, volToPlay);
+
         if (playerTransform != null)
         {
             float dirX = playerTransform.position.x - transform.position.x;
@@ -525,6 +599,8 @@ public class BossDaSatMaQuan : MonoBehaviour
 
         yield return new WaitForSeconds(normalAttackDelay);
 
+        PlaySFX(sfxNormalAttackHit, volNormalAttack);
+
         if (attackEffect != null) attackEffect.SetActive(true);
         AddStamina(normalAttackStamina);
 
@@ -543,11 +619,13 @@ public class BossDaSatMaQuan : MonoBehaviour
         isUsingSkill = true;
         SetWarningSkill1Active(true);
 
-        yield return StartCoroutine(SkillPreparation());
+        yield return StartCoroutine(SkillPreparation(sfxSkill1Prepare, volSkill1Prepare));
 
         PlayDirectAnimationState(skill1Animation);
 
         yield return new WaitForSeconds(chargeDelay);
+
+        PlaySFX(sfxSkill1Charge, volSkill1Charge);
 
         if (playerTransform != null)
         {
@@ -612,10 +690,14 @@ public class BossDaSatMaQuan : MonoBehaviour
         isUsingSkill = true;
         SetWarningSkill2Active(true);
 
+        PlaySFX(sfxSkill2Prepare, volSkill2Prepare);
+
         yield return StartCoroutine(ChasePlayerUntilClose(attackRange));
 
         SetTriggerAnimation(skill2Animation);
         yield return new WaitForSeconds(skill2Delay);
+
+        PlaySFX(sfxSkill2Burst, volSkill2Burst);
 
         if (skill2Prefab != null)
         {
@@ -635,10 +717,12 @@ public class BossDaSatMaQuan : MonoBehaviour
     {
         isUsingSkill = true;
 
-        yield return StartCoroutine(SkillPreparation());
+        yield return StartCoroutine(SkillPreparation(sfxSkill3Prepare, volSkill3Prepare));
 
         SetTriggerAnimation(skill3Animation);
         yield return new WaitForSeconds(summonDelay);
+
+        PlaySFX(sfxSkill3Summon, volSkill3Summon);
 
         if (spawnPoints != null && spawnPoints.Length > 0 && minionTypes != null && minionTypes.Length > 0)
         {
@@ -691,7 +775,7 @@ public class BossDaSatMaQuan : MonoBehaviour
     private IEnumerator SkillMaSatTuyetDiu()
     {
         isUsingSkill = true;
-        yield return StartCoroutine(SkillPreparation());
+        yield return StartCoroutine(SkillPreparation(sfxTripleChargePrepare, volTripleChargePrepare));
 
         for (int i = 0; i < 3; i++)
         {
@@ -709,6 +793,8 @@ public class BossDaSatMaQuan : MonoBehaviour
                 SetWarningSkill1Active(false);
 
                 PlayDirectAnimationState(tripleChargeAnimStateName);
+
+                PlaySFX(sfxTripleChargeHit, volTripleChargeHit);
 
                 if (skill1Effect != null) skill1Effect.SetActive(true);
 
@@ -738,6 +824,9 @@ public class BossDaSatMaQuan : MonoBehaviour
                         tripleChargeTimer = tripleChargeCooldown;
                         isUsingSkill = false;
 
+                        // Reset Animation Walk khi đâm vào tường
+                        SetBoolAnimation(walkAnimation, false);
+
                         StartTired();
                         yield break;
                     }
@@ -753,10 +842,12 @@ public class BossDaSatMaQuan : MonoBehaviour
                 StopMoving();
                 if (skill1Effect != null) skill1Effect.SetActive(false);
 
-                // Delay nghỉ/khựng giữa từng lần húc
                 yield return new WaitForSeconds(tripleChargePauseDelay);
             }
         }
+
+        // TẮT ANIMATION HÚC & RESET TRẠNG THÁI VỀ MẶC ĐỊNH
+        SetBoolAnimation(walkAnimation, false);
 
         AddStamina(tripleChargeStamina);
 
@@ -769,19 +860,18 @@ public class BossDaSatMaQuan : MonoBehaviour
     private IEnumerator SkillMaKhiTramTich()
     {
         isUsingSkill = true;
-        yield return StartCoroutine(SkillPreparation());
+        yield return StartCoroutine(SkillPreparation(sfxDarkTrapPrepare, volDarkTrapPrepare));
 
         SetBoolAnimation(darkTrapAnimName, true);
 
-        // Chờ hết thời gian gồng chiêu
         yield return new WaitForSeconds(darkTrapDelay);
 
-        // Lấy chính xác vị trí thực sự của Player bất kể khoảng cách
         Vector3 targetPosition = GetCurrentPlayerPosition();
+
+        PlaySFX(sfxDarkTrapSpawn, volDarkTrapSpawn);
 
         if (darkTrapPrefab != null)
         {
-            // Khởi tạo Bẫy tại đúng gốc tọa độ Player
             GameObject trapObj = Instantiate(darkTrapPrefab, targetPosition, Quaternion.identity);
             trapObj.transform.localScale = darkTrapPrefab.transform.localScale;
         }
@@ -801,7 +891,7 @@ public class BossDaSatMaQuan : MonoBehaviour
     private IEnumerator SkillMuaThienThach()
     {
         isUsingSkill = true;
-        yield return StartCoroutine(SkillPreparation());
+        yield return StartCoroutine(SkillPreparation(sfxMeteorPrepare, volMeteorPrepare));
 
         SetBoolAnimation(meteorAnimName, true);
 
@@ -815,6 +905,8 @@ public class BossDaSatMaQuan : MonoBehaviour
             float randomY = Random.Range(spawnCenter.y - meteorSpawnAreaSize.y / 2f, spawnCenter.y + meteorSpawnAreaSize.y / 2f);
 
             Vector3 spawnPos = new Vector3(randomX, randomY, 0f);
+
+            PlaySFX(sfxMeteorImpact, volMeteorImpact);
 
             if (meteorPrefab != null)
             {

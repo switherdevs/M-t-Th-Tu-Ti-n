@@ -116,11 +116,14 @@ public class BossExecution_TongQuan : MonoBehaviour
         if (executionVFXPrefab != null)
         {
             Transform targetPoint = vfxSpawnPoint != null ? vfxSpawnPoint : (executionPoint != null ? executionPoint : transform);
-            GameObject vfx = Instantiate(executionVFXPrefab, targetPoint.position, targetPoint.rotation);
 
-            // Đồng bộ Scale X để VFX lật theo hướng quay mặt của Boss
-            Vector3 vfxScale = vfx.transform.localScale;
-            vfxScale.x *= Mathf.Sign(transform.localScale.x != 0 ? transform.localScale.x : 1f);
+            // Sinh VFX tại tọa độ chuẩn World Position của targetPoint
+            GameObject vfx = Instantiate(executionVFXPrefab, targetPoint.position, Quaternion.identity);
+
+            // Đồng bộ Scale X theo hướng ngoảnh mặt của Boss mà không làm lệch Pivot gốc
+            Vector3 vfxScale = executionVFXPrefab.transform.localScale;
+            float facingDirection = Mathf.Sign(transform.localScale.x != 0 ? transform.localScale.x : 1f);
+            vfxScale.x *= facingDirection;
             vfx.transform.localScale = vfxScale;
         }
 

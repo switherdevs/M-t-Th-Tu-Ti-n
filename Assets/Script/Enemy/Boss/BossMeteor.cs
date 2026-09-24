@@ -30,6 +30,18 @@ public class BossMeteor : MonoBehaviour
 
 
     // =========================================================
+    // ÂM THANH NỔ
+    // =========================================================
+
+    [Header("===== ÂM THANH NỔ =====")]
+    [Tooltip("File âm thanh khi thiên thạch phát nổ")]
+    [SerializeField] private AudioClip explosionSound;
+
+    [Tooltip("Âm lượng âm thanh nổ (0 đến 1)")]
+    [SerializeField, Range(0f, 1f)] private float explosionVolume = 1f;
+
+
+    // =========================================================
     // RUNG CAM (BASIC MULTI CHANNEL PERLIN)
     // =========================================================
 
@@ -81,6 +93,12 @@ public class BossMeteor : MonoBehaviour
     private void Explode()
     {
         isExploded = true;
+
+        // Phát âm thanh phát nổ 1 lần duy nhất tại vị trí nổ (không bị ngắt khi Destroy)
+        if (explosionSound != null)
+        {
+            AudioSource.PlayClipAtPoint(explosionSound, transform.position, explosionVolume);
+        }
 
         // Kích hoạt rung màn hình qua Basic Multi Channel Perlin
         TriggerPerlinShake();

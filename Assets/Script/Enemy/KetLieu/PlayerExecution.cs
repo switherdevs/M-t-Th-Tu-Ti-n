@@ -14,6 +14,18 @@ public struct CameraShakeTiming
     public float duration;
 }
 
+[Serializable]
+public struct ExecutionAudioTiming
+{
+    [Tooltip("Thời điểm phát âm thanh tính từ lúc bắt đầu Execution (giây)")]
+    public float delayTime;
+    [Tooltip("File âm thanh sẽ phát (VD: tiếng tuốt kiếm, tiếng chém, tiếng gầm...)")]
+    public AudioClip audioClip;
+    [Tooltip("Âm lượng (0.0 đến 1.0)")]
+    [Range(0f, 1f)]
+    public float volume;
+}
+
 public class PlayerExecution : MonoBehaviour
 {
     [Header("=== CẤU HÌNH KẾT LIỄU ===")]
@@ -44,6 +56,10 @@ public class PlayerExecution : MonoBehaviour
     [Header("=== CẤU HÌNH RUNG CAM (PERLIN NOISE) ===")]
     [SerializeField] private CameraShakeTiming[] shakeTimings;
 
+    [Header("=== CẤU HÌNH ÂM THANH KẾT LIỄU ===")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private ExecutionAudioTiming[] audioTimings;
+
     private Animator anim;
     private PlayerController playerMovementScript;
     private Luot playerDashScript;
@@ -60,6 +76,11 @@ public class PlayerExecution : MonoBehaviour
         playerMovementScript = GetComponent<PlayerController>();
         playerDashScript = GetComponent<Luot>();
         playerAttackScript = GetComponent<TanCong>();
+
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+        }
 
         if (virtualCamera != null)
         {
@@ -151,7 +172,9 @@ public class PlayerExecution : MonoBehaviour
             anim.SetTrigger(executionAnimName);
         }
 
+        // Chạy song song 2 chuỗi Rung Cam và Âm Thanh theo mốc thời gian
         StartCoroutine(ProcessCameraShakeSequence());
+        StartCoroutine(ProcessExecutionAudioSequence());
 
         if (targetEnemy != null)
         {
@@ -181,6 +204,34 @@ public class PlayerExecution : MonoBehaviour
             yield return new WaitForSeconds(shakeTimings[i].duration);
             elapsedTime += shakeTimings[i].duration;
             perlinNoise.AmplitudeGain = 0f;
+        }
+    }
+
+    private IEnumerator ProcessExecutionAudioSequence()
+    {
+        if (audioTimings == null || audioTimings.Length == 0) yield break;
+
+        float elapsedTime = 0f;
+        for (int i = 0; i < audioTimings.Length; i++)
+        {
+            float waitTime = audioTimings[i].delayTime - elapsedTime;
+            if (waitTime > 0)
+            {
+                yield return new WaitForSeconds(waitTime);
+                elapsedTime += waitTime;
+            }
+
+            if (audioTimings[i].audioClip != null)
+            {
+                if (audioSource != null)
+                {
+                    audioSource.PlayOneShot(audioTimings[i].audioClip, audioTimings[i].volume);
+                }
+                else
+                {
+                    AudioSource.PlayClipAtPoint(audioTimings[i].audioClip, transform.position, audioTimings[i].volume);
+                }
+            }
         }
     }
 

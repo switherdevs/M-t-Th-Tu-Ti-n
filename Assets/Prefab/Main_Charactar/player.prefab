@@ -612,11 +612,11 @@ AudioSource:
   m_GameObject: {fileID: 2345805083975770352}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 6604748582655308872, guid: 6d577e5bdeafe804da576e07cca632ed, type: 2}
+  OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 172ee2c4a2ec3ce42ab2a8fb17cf9cfd, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.01
+  m_Volume: 1
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -749,7 +749,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   virtualCamera: {fileID: 0}
-  defaultCamTarget: {fileID: 878367778509321457}
+  defaultCamTarget: {fileID: 5611064089201835857}
   mouseTargetScript: {fileID: 0}
   defaultLensSize: 30
   executionLensSize: 25
@@ -767,6 +767,20 @@ MonoBehaviour:
   - delayTime: 2
     impulseForce: 80
     duration: 0.25
+  audioSource: {fileID: 8712972713771717828}
+  audioTimings:
+  - delayTime: 0.5
+    audioClip: {fileID: 8300000, guid: 7776f55bc360ea442ba21038d8e742f1, type: 3}
+    volume: 1
+  - delayTime: 1
+    audioClip: {fileID: 8300000, guid: 891d6d1bc97cb924198575d4d24c8109, type: 3}
+    volume: 1
+  - delayTime: 1.5
+    audioClip: {fileID: 8300000, guid: 0519466b633460a44ab768064e737fb9, type: 3}
+    volume: 1
+  - delayTime: 2
+    audioClip: {fileID: 8300000, guid: 7776f55bc360ea442ba21038d8e742f1, type: 3}
+    volume: 0.5
 --- !u!114 &7444521958323705293
 MonoBehaviour:
   m_ObjectHideFlags: 0

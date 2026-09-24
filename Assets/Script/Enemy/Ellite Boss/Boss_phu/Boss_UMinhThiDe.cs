@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterStats))]
@@ -6,7 +7,8 @@ public class Boss_UMinhThiDe : MonoBehaviour
 {
     [Header("--- TẦM NHÌN & TỐC ĐỘ BAY ---")]
     [SerializeField] private float detectionRange = 18f;
-    [SerializeField] private float attackRange = 8f;
+    [SerializeField, Tooltip("Tầm đánh: Nếu Player ở trong tầm này, Boss sẽ ĐỨNG YÊN bắn/dùng skill")]
+    private float attackRange = 8f;
     [SerializeField] private Vector2 attackOffset = Vector2.zero;
     [SerializeField] private float moveSpeed = 2f;
     [SerializeField] private LayerMask playerLayer;
@@ -32,11 +34,33 @@ public class Boss_UMinhThiDe : MonoBehaviour
     [SerializeField] private float summonDistance = 5f;
     [SerializeField] private float soulSpeed = 8f;
 
+    [Header("--- SKILL 3: TRIỆU HỒI QUÁI CON (MINIONS) ---")]
+    [SerializeField] private float minionSummonCooldown = 20f;
+    [SerializeField, Tooltip("Danh sách các vị trí sẽ triệu hồi quái con")]
+    private Transform[] minionSummonPoints;
+    [SerializeField, Tooltip("Pool hoặc Prefab của quái con")]
+    private GameObject minionPrefab;
+    [SerializeField, Tooltip("Hiệu ứng (VFX) xuất hiện tại điểm triệu hồi trước khi quái con ra")]
+    private GameObject summonVFXPrefab;
+    [SerializeField, Tooltip("Thời gian delay giữa mỗi lần sinh 1 quái con theo thứ tự mảng")]
+    private float delayBetweenMinions = 0.3f;
+
+    [Header("--- SKILL 4: VÒNG TRÒN TỬ THẦN (DEATH CIRCLE) ---")]
+    [SerializeField] private float deathCircleCooldown = 15f;
+    [SerializeField, Tooltip("Prefab vòng tròn tử thần")]
+    private GameObject deathCirclePrefab;
+    [SerializeField, Tooltip("Khoảng thời gian dự đoán hướng di chuyển của Player (giây)")]
+    private float leadTime = 1.2f;
+
     [Header("--- ÂM THANH (AUDIO) ---")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip sfxNormalAttack;
     [SerializeField] private AudioClip sfxSpecialPrepare;
     [SerializeField] private AudioClip sfxSpecialCast;
+    [SerializeField, Tooltip("Âm thanh chuẩn bị triệu hồi quái con")]
+    private AudioClip sfxSummonMinionsPrepare;
+    [SerializeField, Tooltip("Âm thanh chuẩn bị xuất hiện Vòng Tròn Tử Thần")]
+    private AudioClip sfxDeathCirclePrepare;
 
     [Header("--- ANIMATION STRINGS ---")]
     [SerializeField] private string animCastBlast = "Slash";
@@ -48,12 +72,18 @@ public class Boss_UMinhThiDe : MonoBehaviour
     private CharacterStats bossStats;
     private Animator animator;
     private ExecutableEnemy executableEnemy;
+    private Rigidbody2D playerRb;
 
     private float skillTimer;
     private float blastTimer;
+    private float minionSummonTimer;
+    private float deathCircleTimer;
+
     private bool isBusy = false;
     private bool isWindingUp = false;
     private bool isDead = false;
+
+    private Vector3 lastPlayerPos;
 
     private void Awake()
     {
@@ -67,6 +97,8 @@ public class Boss_UMinhThiDe : MonoBehaviour
     {
         skillTimer = skillCooldown;
         blastTimer = 0f;
+        minionSummonTimer = minionSummonCooldown;
+        deathCircleTimer = deathCircleCooldown;
     }
 
     private void OnEnable()
@@ -104,41 +136,58 @@ public class Boss_UMinhThiDe : MonoBehaviour
         FindPlayer();
         if (playerTransform == null) return;
 
+        // Đếm ngược các Cooldown
         if (skillTimer > 0) skillTimer -= Time.deltaTime;
         if (blastTimer > 0) blastTimer -= Time.deltaTime;
+        if (minionSummonTimer > 0) minionSummonTimer -= Time.deltaTime;
+        if (deathCircleTimer > 0) deathCircleTimer -= Time.deltaTime;
 
+        // Luôn quay mặt về phía Player
         FlipTowards(playerTransform.position);
 
         Vector3 attackCenter = GetAttackCenter();
-        float distance = Vector2.Distance(attackCenter, playerTransform.position);
+        float distanceToPlayer = Vector2.Distance(attackCenter, playerTransform.position);
 
+        // --- NẾU ĐANG GẬN CHIÊU (WINDING UP): CHỈ DI CHUYỂN NẾU PLAYER Ở NGOÀI ATTACK RANGE ---
         if (isWindingUp)
         {
-            MoveSmoothly(playerTransform.position, moveSpeed * slowMultiplier);
+            if (distanceToPlayer > attackRange)
+            {
+                MoveSmoothly(playerTransform.position, moveSpeed * slowMultiplier);
+            }
             return;
         }
 
-        if (distance <= attackRange)
+        // --- HỆ THỐNG ƯU TIÊN SỬ DỤNG SKILL / DI CHUYỂN ---
+
+        // 1. Skill Triệu Hồi Quái Con (Tùy chọn dùng bất kể khoảng cách)
+        if (minionSummonTimer <= 0)
         {
-            if (skillTimer <= 0)
-            {
-                StartCoroutine(Routine_SummonSouls());
-            }
-            else if (blastTimer <= 0)
+            StartCoroutine(Routine_SummonMinions());
+        }
+        // 2. Skill Vòng Tròn Tử Thần
+        else if (deathCircleTimer <= 0)
+        {
+            StartCoroutine(Routine_SpawnDeathCircle());
+        }
+        // 3. Skill Triệu Hồi Linh Hồn
+        else if (skillTimer <= 0)
+        {
+            StartCoroutine(Routine_SummonSouls());
+        }
+        // 4. Player nằm trong Tầm Đánh (attackRange) -> ĐỨNG YÊN BẮN (Soul Blast)
+        else if (distanceToPlayer <= attackRange)
+        {
+            if (blastTimer <= 0)
             {
                 StartCoroutine(Routine_SoulBlast());
             }
+            // Nếu đòn bắn đang Cooldown và Player vẫn trong tầm, Boss đứng yên chờ, KHÔNG di chuyển.
         }
+        // 5. Player vượt khỏi Tầm Đánh (distanceToPlayer > attackRange) -> DI CHUYỂN ĐUỔI THEO
         else
         {
-            if (skillTimer <= 0)
-            {
-                StartCoroutine(Routine_SummonSouls());
-            }
-            else
-            {
-                MoveSmoothly(playerTransform.position, moveSpeed);
-            }
+            MoveSmoothly(playerTransform.position, moveSpeed);
         }
     }
 
@@ -150,6 +199,7 @@ public class Boss_UMinhThiDe : MonoBehaviour
             {
                 playerTransform = null;
                 playerStats = null;
+                playerRb = null;
             }
             return;
         }
@@ -159,6 +209,8 @@ public class Boss_UMinhThiDe : MonoBehaviour
         {
             playerTransform = hit.transform;
             playerStats = playerTransform.GetComponent<CharacterStats>();
+            playerRb = playerTransform.GetComponent<Rigidbody2D>();
+            lastPlayerPos = playerTransform.position;
         }
     }
 
@@ -265,6 +317,92 @@ public class Boss_UMinhThiDe : MonoBehaviour
         isBusy = false;
     }
 
+    private IEnumerator Routine_SummonMinions()
+    {
+        isBusy = true;
+        minionSummonTimer = minionSummonCooldown;
+
+        PlaySFX(sfxSummonMinionsPrepare);
+
+        if (animator != null && !string.IsNullOrEmpty(animSummon))
+        {
+            animator.SetTrigger(animSummon);
+        }
+
+        yield return new WaitForSeconds(0.6f);
+
+        if (minionSummonPoints != null && minionSummonPoints.Length > 0)
+        {
+            for (int i = 0; i < minionSummonPoints.Length; i++)
+            {
+                Transform point = minionSummonPoints[i];
+                if (point != null)
+                {
+                    if (summonVFXPrefab != null)
+                    {
+                        Instantiate(summonVFXPrefab, point.position, Quaternion.identity);
+                    }
+
+                    if (minionPrefab != null)
+                    {
+                        Instantiate(minionPrefab, point.position, Quaternion.identity);
+                    }
+                }
+
+                yield return new WaitForSeconds(delayBetweenMinions);
+            }
+        }
+
+        yield return new WaitForSeconds(0.5f);
+        isBusy = false;
+    }
+
+    private IEnumerator Routine_SpawnDeathCircle()
+    {
+        isBusy = true;
+        deathCircleTimer = deathCircleCooldown;
+
+        PlaySFX(sfxDeathCirclePrepare != null ? sfxDeathCirclePrepare : sfxSpecialPrepare);
+
+        if (animator != null && !string.IsNullOrEmpty(animSummon))
+        {
+            animator.SetTrigger(animSummon);
+        }
+
+        yield return new WaitForSeconds(0.5f);
+
+        Vector3 predictedPosition = CalculatePredictedPlayerPosition();
+
+        if (deathCirclePrefab != null)
+        {
+            Instantiate(deathCirclePrefab, predictedPosition, Quaternion.identity);
+        }
+
+        yield return new WaitForSeconds(0.5f);
+        isBusy = false;
+    }
+
+    private Vector3 CalculatePredictedPlayerPosition()
+    {
+        if (playerTransform == null) return transform.position;
+
+        Vector2 playerVelocity = Vector2.zero;
+
+        if (playerRb != null)
+        {
+            playerVelocity = playerRb.linearVelocity;
+        }
+        else
+        {
+            playerVelocity = ((Vector2)playerTransform.position - (Vector2)lastPlayerPos) / Time.deltaTime;
+            lastPlayerPos = playerTransform.position;
+        }
+
+        Vector3 predictedPos = playerTransform.position + (Vector3)(playerVelocity * leadTime);
+
+        return predictedPos;
+    }
+
     private void HandleBossDeath()
     {
         if (isDead) return;
@@ -316,14 +454,23 @@ public class Boss_UMinhThiDe : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
 
+        // Vòng tròn tầm đánh (attackRange) màu đỏ
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(GetAttackCenter(), attackRange);
 
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(GetWallCheckCenter(), avoidRadius);
 
-        Vector3 centerPos = soulSummonPoint != null ? soulSummonPoint.position : transform.position;
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawWireSphere(centerPos, summonDistance);
+        if (minionSummonPoints != null)
+        {
+            Gizmos.color = Color.green;
+            foreach (Transform point in minionSummonPoints)
+            {
+                if (point != null)
+                {
+                    Gizmos.DrawWireSphere(point.position, 0.5f);
+                }
+            }
+        }
     }
 }

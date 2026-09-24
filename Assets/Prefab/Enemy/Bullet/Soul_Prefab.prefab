@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 5970982287671284268}
   - component: {fileID: 3511073316373721294}
   - component: {fileID: -8122212283926580780}
+  - component: {fileID: -8613292045979874409}
   m_Layer: 0
   m_Name: Soul_Prefab
   m_TagString: Untagged
@@ -32,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -280,3 +281,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   time: 3
   ignoreWallTime: 0.2
+--- !u!114 &-8613292045979874409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 32177611679327567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 037c0ece0d958aa4c8b76a1c74e18ba6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 192
+  explosionPrefab: {fileID: 6866004461401601130, guid: 3ed39e6f36a74ce4f994a6e2170ce801, type: 3}

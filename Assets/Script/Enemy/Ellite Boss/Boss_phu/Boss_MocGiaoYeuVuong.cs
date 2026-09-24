@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using Unity.Cinemachine; // Nhập thư viện Cinemachine (Dành cho Unity 6 / Cinemachine v3)
 
 [RequireComponent(typeof(CharacterStats))]
 public class Boss_MocGiaoYeuVuong : MonoBehaviour
@@ -7,7 +8,10 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
     [Header("--- TẦM NHÌN & TỐC ĐỘ BAY ---")]
     [SerializeField] private float detectionRange = 150f;
     [SerializeField] private float flySpeed = 3.5f;
-    [SerializeField] private float attackRange = 6f;
+
+    [Header("--- VÙNG TẤN CÔNG CẬN CHIẾN (HÌNH CHỮ NHẬT / VUÔNG) ---")]
+    [SerializeField, Tooltip("Kích thước vùng đánh: X là Chiều dài (Ngang), Y là Chiều rộng (Dọc)")]
+    private Vector2 attackBoxSize = new Vector2(6f, 4f);
     [SerializeField] private Vector2 attackOffset = Vector2.zero;
     [SerializeField] private LayerMask playerLayer;
 
@@ -19,10 +23,18 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
     [SerializeField, Tooltip("Tùy chỉnh offset X và Y của tâm né tường/vật cản")]
     private Vector2 wallCheckOffset = Vector2.zero;
 
-    [Header("--- SÁT THƯƠNG ĐÁNH THƯỜNG ---")]
+    [Header("--- SÁT THƯƠNG & COOLDOWN ĐÁNH THƯỜNG ---")]
     [SerializeField] private float tailSwingDamage = 25f;
+    [SerializeField, Tooltip("Thời gian hồi chiêu / nghỉ giữa các đòn đánh cận chiến (giây)")]
+    private float meleeCooldown = 2.5f;
     [SerializeField, Tooltip("GameObject Hitbox đòn quật đuôi (chỉ mở khi đánh)")]
     private GameObject tailAttackHitbox;
+
+    [Header("--- HIỆU ỨNG RUNG CAM (PERLIN NOISE) ---")]
+    [SerializeField, Tooltip("Cường độ rung màn hình")]
+    private float shakeIntensity = 2f;
+    [SerializeField, Tooltip("Thời gian rung (giây)")]
+    private float shakeDuration = 0.3f;
 
     [Header("--- SKILL: TRIPLE WOOD ORB ---")]
     [SerializeField] private float skillCooldown = 7f;
@@ -50,6 +62,7 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
     private ExecutableEnemy executableEnemy;
 
     private float skillTimer;
+    private float meleeTimer; // Biến đếm thời gian hồi cận chiến
     private bool isBusy = false;
     private bool isWindingUp = false;
     private bool isDead = false;
@@ -65,6 +78,7 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
     private void Start()
     {
         skillTimer = skillCooldown;
+        meleeTimer = 0f; // Bắt đầu vào game có thể đánh được ngay
 
         if (tailAttackHitbox != null)
         {
@@ -108,11 +122,16 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
         FindPlayer();
         if (playerTransform == null) return;
 
+        // Đếm ngược thời gian hồi chiêu
         if (skillTimer > 0) skillTimer -= Time.deltaTime;
+        if (meleeTimer > 0) meleeTimer -= Time.deltaTime;
+
         FlipTowards(playerTransform.position);
 
         Vector3 attackCenter = GetAttackCenter();
-        float distance = Vector2.Distance(attackCenter, playerTransform.position);
+
+        // Kiểm tra Player có nằm trong vùng hình vuông/chữ nhật hay không
+        bool isPlayerInAttackBox = IsPlayerInAttackBox(attackCenter);
 
         if (isWindingUp)
         {
@@ -120,14 +139,17 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
             return;
         }
 
+        // Ưu tiên dùng Skill khè cầu gỗ
         if (skillTimer <= 0)
         {
             StartCoroutine(Routine_TripleWoodOrbLine());
         }
-        else if (distance <= attackRange)
+        // Đánh cận chiến nếu Player ở trong vùng và ĐÃ HẾT COOLDOWN ĐÁNH CẬN CHIẾN
+        else if (isPlayerInAttackBox && meleeTimer <= 0)
         {
             StartCoroutine(Routine_TailSwing());
         }
+        // Nếu không thỏa mãn điều kiện đánh thì áp sát Player
         else
         {
             FlyAndAvoidWalls(playerTransform.position, flySpeed);
@@ -176,9 +198,22 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Kiểm tra xem Player có nằm trong vùng đòn đánh hình chữ nhật/vuông hay không
+    /// </summary>
+    private bool IsPlayerInAttackBox(Vector3 center)
+    {
+        if (playerTransform == null) return false;
+
+        Collider2D hit = Physics2D.OverlapBox(center, attackBoxSize, 0f, playerLayer);
+        return hit != null && hit.transform == playerTransform;
+    }
+
     private IEnumerator Routine_TailSwing()
     {
         isBusy = true;
+        meleeTimer = meleeCooldown; // Kích hoạt Cooldown cho đòn cận chiến ngay lập tức
+
         animator.SetTrigger(animSwing);
         PlaySFX(sfxNormalAttack);
 
@@ -186,14 +221,17 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
 
         yield return new WaitForSeconds(0.4f);
 
-        if (playerTransform != null)
+        // --- TÍNH SÁT THƯƠNG BẰNG HÌNH CHỮ NHẬT / VUÔNG ---
+        if (playerTransform != null && IsPlayerInAttackBox(GetAttackCenter()))
         {
-            float distance = Vector2.Distance(GetAttackCenter(), playerTransform.position);
-            if (distance <= attackRange * 1.2f && playerStats != null)
+            if (playerStats != null)
             {
                 playerStats.TakeDamage(tailSwingDamage);
             }
         }
+
+        // --- KÍCH HOẠT RUNG CAM SAU KHU ĐÁNH XONG ---
+        StartCoroutine(Routine_TriggerPerlinCameraShake());
 
         yield return new WaitForSeconds(0.6f);
 
@@ -242,6 +280,26 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
 
         yield return new WaitForSeconds(0.4f);
         isBusy = false;
+    }
+
+    /// <summary>
+    /// Coroutine tự động tìm kiếm Channel Perlin trong Scene và điều chỉnh Amplitude Gain để tạo hiệu ứng rung
+    /// </summary>
+    private IEnumerator Routine_TriggerPerlinCameraShake()
+    {
+        CinemachineBasicMultiChannelPerlin perlin = FindFirstObjectByType<CinemachineBasicMultiChannelPerlin>();
+
+        if (perlin != null)
+        {
+            perlin.AmplitudeGain = shakeIntensity;
+            yield return new WaitForSeconds(shakeDuration);
+            perlin.AmplitudeGain = 0f;
+        }
+        else
+        {
+            Debug.LogWarning("<color=yellow>[Boss]</color> Không tìm thấy CinemachineBasicMultiChannelPerlin nào trong Scene!");
+            yield return null;
+        }
     }
 
     private void HandleBossDeath()
@@ -294,12 +352,15 @@ public class Boss_MocGiaoYeuVuong : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+        // Tầm phát hiện Player
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
 
+        // Vùng đánh cận chiến HÌNH CHỮ NHẬT / VUÔNG (Màu đỏ)
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(GetAttackCenter(), attackRange);
+        Gizmos.DrawWireCube(GetAttackCenter(), attackBoxSize);
 
+        // Vùng né tường (Màu xanh)
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(GetWallCheckCenter(), avoidRadius);
     }

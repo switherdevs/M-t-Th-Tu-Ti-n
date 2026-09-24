@@ -82,6 +82,13 @@ public class OverworldPlayerController : MonoBehaviour
             return;
         }
 
+        // 🎯 BẤM SPACE ĐỂ DÙNG NGAY Ở Ô HIỆN TẠI (NẾU LỆCH SẼ TỰ ĐỘNG LÙI/CĂN VỀ TÂM Ô)
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            HandleSpaceAction();
+            return;
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             // 🎯 CHẶN DI CHUYỂN KHI CLICK TRÚNG UI (BẤT KỂ OBJECT NÀO CÓ RAYCAST TARGET HOẶC BỊ UI CHE CHẮN)
@@ -92,6 +99,38 @@ public class OverworldPlayerController : MonoBehaviour
 
             HandleMouseClick();
         }
+    }
+
+    /// <summary>
+    /// Xử lý hành động khi nhấn phím Space tại ô hiện tại
+    /// </summary>
+    private void HandleSpaceAction()
+    {
+        // Cập nhật lại vị trí lưới hiện tại dựa trên tọa độ thực tế
+        Vector2Int calculatedGridPos = mapGrid.WorldToGrid(transform.position);
+        Vector3 exactCenterPos = mapGrid.GridToWorld(calculatedGridPos);
+
+        // Kiểm tra xem vị trí hiện tại có bị lệch so với tâm ô chuẩn hay không
+        if (Vector3.Distance(transform.position, exactCenterPos) > 0.001f)
+        {
+            Debug.Log("<color=yellow>[Player]</color> Vị trí bị lệch, đang lùi/căn chỉnh về tâm ô hiện tại!");
+
+            // Nếu đang di chuyển dở dang thì dừng Coroutine cũ lại
+            if (movementCoroutine != null)
+            {
+                StopCoroutine(movementCoroutine);
+                movementCoroutine = null;
+                isMoving = false;
+            }
+
+            // Đưa nhân vật về chính xác tâm ô hiện tại
+            transform.position = exactCenterPos;
+        }
+
+        currentGridPos = calculatedGridPos;
+
+        // --- VIẾT LOGIC SỬ DỤNG / TƯƠNG TÁC TẠI Ô HIỆN TẠI Ở ĐÂY ---
+        Debug.Log($"<color=green>[Player]</color> Đã dùng kỹ năng/tương tác tại ô hiện tại: {currentGridPos}");
     }
 
     /// <summary>

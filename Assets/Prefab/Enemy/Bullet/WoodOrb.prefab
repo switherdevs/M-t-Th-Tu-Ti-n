@@ -135,8 +135,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wallLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   explosionPrefab: {fileID: 2486475268809918399, guid: b2c96ed6a234a124190158a839e01500, type: 3}
+  explosionSound: {fileID: 8300000, guid: 0d67490dabaa65946b8b014abe3cc3b6, type: 3}
+  explosionVolume: 1
 --- !u!114 &131151632037739465
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -163,7 +165,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 060530a35c2e5d045813d5652cf23819, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseDamage: 0
+  baseDamage: 20
   targetTag: Player
   isTargetPlayer: 1
   isTargetEnemy: 0

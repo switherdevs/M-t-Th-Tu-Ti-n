@@ -1803,7 +1803,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 4874073514834364872, guid: 6d577e5bdeafe804da576e07cca632ed, type: 2}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 15bff2cf2a8954f4da42203f2da05dd6, type: 3}
+  m_Resource: {fileID: 8300000, guid: d000415cfe294394d9c913b2759a1477, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -3665,7 +3665,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 744.69824, y: 312.29282}
+  m_AnchoredPosition: {x: 744.69824, y: 263.51202}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &1690474418
@@ -3882,6 +3882,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2250715401738135529, guid: 586324d7b97a97e44b2b5027fccb5f86, type: 3}
+      propertyPath: isBoss
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2379504409120226620, guid: 586324d7b97a97e44b2b5027fccb5f86, type: 3}
       propertyPath: m_Name
       value: Boss_dasatmaquan
@@ -3890,6 +3894,22 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6113017257901490472, guid: 586324d7b97a97e44b2b5027fccb5f86, type: 3}
+      propertyPath: bossHealthSlider
+      value: 
+      objectReference: {fileID: 1182152026}
+    - target: {fileID: 6782992423905327624, guid: 586324d7b97a97e44b2b5027fccb5f86, type: 3}
+      propertyPath: cavan
+      value: 
+      objectReference: {fileID: 2109987552}
+    - target: {fileID: 6782992423905327624, guid: 586324d7b97a97e44b2b5027fccb5f86, type: 3}
+      propertyPath: isBoss
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6782992423905327624, guid: 586324d7b97a97e44b2b5027fccb5f86, type: 3}
+      propertyPath: healthSlider
+      value: 
+      objectReference: {fileID: 1182152026}
     - target: {fileID: 8194868828301420043, guid: 586324d7b97a97e44b2b5027fccb5f86, type: 3}
       propertyPath: m_LocalPosition.x
       value: 38.632145
@@ -3930,6 +3950,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9173799852506013524, guid: 586324d7b97a97e44b2b5027fccb5f86, type: 3}
+      propertyPath: 'spawnPoints.Array.data[0]'
+      value: 
+      objectReference: {fileID: 642563136}
+    - target: {fileID: 9173799852506013524, guid: 586324d7b97a97e44b2b5027fccb5f86, type: 3}
+      propertyPath: 'spawnPoints.Array.data[1]'
+      value: 
+      objectReference: {fileID: 1266176314}
+    - target: {fileID: 9173799852506013524, guid: 586324d7b97a97e44b2b5027fccb5f86, type: 3}
+      propertyPath: 'spawnPoints.Array.data[2]'
+      value: 
+      objectReference: {fileID: 1017673971}
+    - target: {fileID: 9173799852506013524, guid: 586324d7b97a97e44b2b5027fccb5f86, type: 3}
+      propertyPath: 'spawnPoints.Array.data[3]'
+      value: 
+      objectReference: {fileID: 1771803167}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4077,7 +4113,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2345805083975770352, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
       propertyPath: m_TagString
-      value: Untagged
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 2536939092124851327, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
       propertyPath: moveSpeed
@@ -4533,7 +4569,7 @@ MonoBehaviour:
   CameraDistance: 10
   DeadZoneDepth: 0
   Composition:
-    ScreenPosition: {x: 0, y: 0}
+    ScreenPosition: {x: 0, y: 0.0020201802}
     DeadZone:
       Enabled: 0
       Size: {x: 0.2, y: 0.2}
@@ -4601,7 +4637,7 @@ Transform:
   m_GameObject: {fileID: 1970959170}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -55, y: -24, z: -10}
+  m_LocalPosition: {x: -55, y: -23.838387, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

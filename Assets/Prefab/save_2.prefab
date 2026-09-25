@@ -53,10 +53,16 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 708ddcb4ecdf8c44a955c06ee24820b9, type: 2}
   - {fileID: 11400000, guid: e99e368cff7c3984aad38a9f83a39a71, type: 2}
   - {fileID: 11400000, guid: 2039c06519689c849b1e860ddac14308, type: 2}
+  danhSachMapChinh:
+  - "Map_1_Thanh Tr\xFAc L\xE2m"
+  - "Map_2U Minh L\xE2m"
+  - Map_3 luyennguc
   tenFileSave: QuestProgressData.txt
   duLieuSaveHienTai:
+    tenMapTruocDo: 
     danhSachProgress: []
     danhSachItemSave: []
+    danhSachSkillSave: []
     playerStats:
       tenCanhGioi: "Luy\u1EC7n Kh\xED T\u1EA7ng 1"
       level: 1
@@ -67,3 +73,7 @@ MonoBehaviour:
       armor: 0.1
       maxEnergy: 100
       danhSachCanhGioiDaDotPha: []
+    moralStats:
+      diemThien: 0
+      diemAc: 0
+      diemDanhVong: 0

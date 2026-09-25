@@ -3,15 +3,25 @@ using UnityEngine.SceneManagement;
 
 public class Scene_load : MonoBehaviour
 {
-    // Đổi từ kiểu Scene sang string để nhập tên Scene ngoài Inspector
+    [Header("--- CẤU HÌNH LOẠI SCENE ---")]
+    [Tooltip("Tick chọn nếu Scene này là Main Menu (Mở UI sẽ KHÔNG pause game)")]
+    [SerializeField] private bool isMainMenu = false;
+
+    [Header("--- CẤU HÌNH TÊN SCENE ---")]
     [SerializeField] private string mainMapName;
     [SerializeField] private string map1Name;
     [SerializeField] private string map2Name;
     [SerializeField] private string Kinhthanhs;
     [SerializeField] private string VeMenu;
+
+    [Header("--- CẤU HÌNH ÂM THANH ---")]
     [SerializeField] private AudioClip Click;
     private AudioSource Sfx;
+
+    [Header("--- CẤU HÌNH UI ---")]
     [SerializeField] private GameObject MainUi;
+    [Tooltip("Game Object UI Xoahaykhong (Bật/Tắt qua Button)")]
+    [SerializeField] private GameObject xoahaykhong;
 
     private void Start()
     {
@@ -20,20 +30,40 @@ public class Scene_load : MonoBehaviour
         // Mặc định cho game chạy bình thường khi vừa vào Scene
         Time.timeScale = 1f;
 
+        // Mặc định ẩn các UI khi bắt đầu game
         if (MainUi != null) MainUi.SetActive(false);
+        if (xoahaykhong != null) xoahaykhong.SetActive(false);
     }
 
-    // Hàm mới: Gọi hàm này để phát âm thanh mà không bị ngắt khi load Scene ngay lập tức
+    private void Update()
+    {
+        // Phím tắt ESC để bật/tắt Main UI nhanh
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (MainUi != null)
+            {
+                if (MainUi.activeSelf)
+                {
+                    Resume();
+                }
+                else
+                {
+                    Bat_MainMenu();
+                }
+            }
+        }
+    }
+
+    // Phát âm thanh Click mượt mà khi chuyển Scene
     public void PlayClickSound()
     {
         if (Click != null)
         {
-            // Sử dụng PlayClipAtPoint để âm thanh tiếp tục phát mượt mà ngay cả khi chuyển Scene
             AudioSource.PlayClipAtPoint(Click, Camera.main.transform.position);
         }
     }
 
-    // 🎯 HÀM BẬT MENU & TẠM DỪNG GAME
+    // 🎯 HÀM BẬT MENU (Xử lý theo biến isMainMenu)
     public void Bat_MainMenu()
     {
         PlayClickSound();
@@ -41,8 +71,15 @@ public class Scene_load : MonoBehaviour
         {
             MainUi.SetActive(true);
 
-            // Dừng toàn bộ thời gian trong game
-            Time.timeScale = 1f; // Hoặc 0f tùy thuộc nhu cầu pause game của bạn
+            // Kiểm tra: Nếu là Main Menu thì không pause game (timeScale = 1), ngược lại pause game (timeScale = 0)
+            if (isMainMenu)
+            {
+                Time.timeScale = 1f;
+            }
+            else
+            {
+                Time.timeScale = 0f;
+            }
         }
     }
 
@@ -59,18 +96,48 @@ public class Scene_load : MonoBehaviour
         Time.timeScale = 1f;
     }
 
+    // 🎯 HÀM TẮT/BẬT GAME OBJECT "XOA HAY KHONG" (Gán vào Button)
+    public void Bat_Tat_Xoahaykhong()
+    {
+        PlayClickSound();
+        if (xoahaykhong != null)
+        {
+            // Tự động đảo ngược trạng thái (Đang bật -> Tắt, Đang tắt -> Bật)
+            bool trangThaiHienTai = xoahaykhong.activeSelf;
+            xoahaykhong.SetActive(!trangThaiHienTai);
+        }
+    }
+
+    // Hàm mở trực tiếp UI Xoahaykhong
+    public void Mo_Xoahaykhong()
+    {
+        PlayClickSound();
+        if (xoahaykhong != null)
+        {
+            xoahaykhong.SetActive(true);
+        }
+    }
+
+    // Hàm đóng trực tiếp UI Xoahaykhong
+    public void Dong_Xoahaykhong()
+    {
+        PlayClickSound();
+        if (xoahaykhong != null)
+        {
+            xoahaykhong.SetActive(false);
+        }
+    }
+
     // 🎯 HÀM NÚT TIẾP TỤC (CONTINUE GAME TỪ FILE SAVE)
     public void TiepTucGame()
     {
         PlayClickSound();
         Time.timeScale = 1f;
 
-        // Đảm bảo QuestSaveSystem đã đọc file Save mới nhất
         if (QuestSaveSystem.Instance != null)
         {
             QuestSaveSystem.Instance.LoadDuLieuQuestFromTxt();
 
-            // Lấy tên map mới tiếp theo từ file save
             string mapCanDen = QuestSaveSystem.Instance.LayMapMoiTiepTheo();
 
             if (!string.IsNullOrEmpty(mapCanDen))
@@ -79,7 +146,6 @@ public class Scene_load : MonoBehaviour
             }
             else
             {
-                // Trường hợp file save chưa có dữ liệu map, load map mặc định
                 SceneManager.LoadScene(mainMapName);
             }
         }
@@ -94,7 +160,7 @@ public class Scene_load : MonoBehaviour
     public void MainMaps()
     {
         PlayClickSound();
-        Time.timeScale = 1f; // Trả thời gian về 1 trước khi load scene mới
+        Time.timeScale = 1f;
         SceneManager.LoadScene(mainMapName);
     }
 
@@ -102,28 +168,28 @@ public class Scene_load : MonoBehaviour
     public void Map1s()
     {
         PlayClickSound();
-        Time.timeScale = 1f; // Trả thời gian về 1 trước khi load scene mới
+        Time.timeScale = 1f;
         SceneManager.LoadScene(map1Name);
     }
 
     public void Map2()
     {
         PlayClickSound();
-        Time.timeScale = 1f; // Trả thời gian về 1 trước khi load scene mới
+        Time.timeScale = 1f;
         SceneManager.LoadScene(map2Name);
     }
 
     public void Kinhthanh()
     {
         PlayClickSound();
-        Time.timeScale = 1f; // Trả thời gian về 1 trước khi load scene mới
+        Time.timeScale = 1f;
         SceneManager.LoadScene(Kinhthanhs);
     }
 
     public void VeMenues()
     {
         PlayClickSound();
-        Time.timeScale = 1f; // Trả thời gian về 1 trước khi load scene mới
+        Time.timeScale = 1f;
         SceneManager.LoadScene(VeMenu);
     }
 
@@ -131,7 +197,7 @@ public class Scene_load : MonoBehaviour
     public void Map2s()
     {
         PlayClickSound();
-        Time.timeScale = 1f; // Trả thời gian về 1 trước khi load scene mới
+        Time.timeScale = 1f;
         SceneManager.LoadScene(map2Name);
     }
 }

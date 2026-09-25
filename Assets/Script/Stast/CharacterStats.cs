@@ -60,6 +60,9 @@ public class CharacterStats : MonoBehaviour, IDamageable
     [SerializeField, ReadOnlyInspector]
     private bool isPoisoned = false;
 
+    [SerializeField, ReadOnlyInspector]
+    private bool isInvincible = false;
+
     [Header("=== PLAYER CONFIGURATION ===")]
     [SerializeField, Tooltip("Tick vào đây nếu GameObject này là Player")]
     private bool isPlayer = false;
@@ -81,9 +84,10 @@ public class CharacterStats : MonoBehaviour, IDamageable
     private float tiredDamageMultiplier = 3f;
 
     private BossDaSatMaQuan bossController;
-    private BossPhaseSystem bossPhaseSystem; // Bổ sung để kiểm tra Phase của Boss
+    private BossPhaseSystem bossPhaseSystem;
     private Animator anim;
     private Coroutine poisonCoroutine;
+    private Coroutine invincibleCoroutine;
 
     // Properties
     public Stat MaxHealth => maxHealth;
@@ -93,8 +97,9 @@ public class CharacterStats : MonoBehaviour, IDamageable
     public float CurrentHealth => currentHealth;
     public bool IsDead => currentHealth <= 0;
     public bool IsPlayer => isPlayer;
-    public bool IsBoss => isBoss; // Bổ sung Getter kiểm tra Boss
+    public bool IsBoss => isBoss;
     public bool IsPoisoned => isPoisoned;
+    public bool IsInvincible => isInvincible;
 
     // EVENTS
     public event Action<float, float> OnHealthChanged;
@@ -111,7 +116,6 @@ public class CharacterStats : MonoBehaviour, IDamageable
             gameOverUI.SetActive(false);
         }
 
-        // Đảm bảo chỉ tìm và gán component của Boss khi tick isBoss = true
         if (isBoss)
         {
             bossController = GetComponent<BossDaSatMaQuan>();
@@ -160,7 +164,6 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     private void HandleMaxHealthChanged(Stat stat)
     {
-        // Nếu là Boss, không tự động hạ currentHealth xuống khi MaxHealth thay đổi lúc chuyển Phase
         if (!isBoss)
         {
             currentHealth = Mathf.Min(currentHealth, stat.Value);
@@ -169,24 +172,38 @@ public class CharacterStats : MonoBehaviour, IDamageable
         OnHealthChanged?.Invoke(currentHealth, stat.Value);
     }
 
-    // ========================================================================
-    // BỔ SUNG MỚI: HÀM GÁN MÁU TRỰC TIẾP DÀNH RIÊNG CHO BOSS CHUYỂN PHASE
-    // ========================================================================
-    /// <summary>
-    /// Gán trực tiếp giá trị máu hiện tại (không bị chặn bởi điều kiện IsDead)
-    /// </summary>
-    /// <param name="health">Lượng máu mới cần gán</param>
     public void SetCurrentHealth(float health)
     {
         currentHealth = Mathf.Clamp(health, 0f, MaxHealth.Value);
         OnHealthChanged?.Invoke(currentHealth, MaxHealth.Value);
     }
 
+    // 🎯 ĐÃ BỔ SUNG KIỂM TRA: CHỈ PLAYER MỚI ĐƯỢC BẤT TỬ
+    public void SetInvincible(float duration)
+    {
+        // Kiểm tra an toàn: Phải tick isPlayer = true VÀ GameObject phải mang Tag "Player"
+        if (!isPlayer || !CompareTag("Player")) return;
+
+        if (invincibleCoroutine != null)
+        {
+            StopCoroutine(invincibleCoroutine);
+        }
+        invincibleCoroutine = StartCoroutine(Routine_InvincibleDuration(duration));
+    }
+
+    private IEnumerator Routine_InvincibleDuration(float duration)
+    {
+        isInvincible = true;
+        yield return new WaitForSeconds(duration);
+        isInvincible = false;
+        invincibleCoroutine = null;
+    }
+
     public void TakeDamage(float rawDamage)
     {
-        if (IsDead || rawDamage <= 0) return;
+        // Bị chặn ngay nếu đang chết, dame <= 0 HOẶC đang trong trạng thái bất tử
+        if (IsDead || rawDamage <= 0 || isInvincible) return;
 
-        // Xử lý riêng cho Boss khi nhận sát thương
         if (isBoss && bossController != null)
         {
             if (bossController.IsTired)
@@ -203,9 +220,6 @@ public class CharacterStats : MonoBehaviour, IDamageable
         OnDamaged?.Invoke(finalDamage);
         OnHealthChanged?.Invoke(currentHealth, MaxHealth.Value);
 
-        // KIỂM TRA ĐIỀU KIỆN CHẾT:
-        // Nếu là Boss -> Chỉ cho phép gọi Die() khi đang ở Phase cuối (IsCurrentPhaseLast == true)
-        // Nếu là Player/Creep bình thường -> Chết ngay khi HP <= 0
         if (IsDead)
         {
             if (isBoss)
@@ -222,15 +236,10 @@ public class CharacterStats : MonoBehaviour, IDamageable
         }
     }
 
-    /// <summary>
-    /// Kích hoạt trạng thái nhiễm độc dành riêng cho Player
-    /// </summary>
     public void ApplyPoison(float duration, float damagePerSecond)
     {
-        // Chỉ Player mới dính độc và phải còn sống
         if (!isPlayer || IsDead) return;
 
-        // Nếu đang bị độc thì dừng Coroutine cũ để reset lại thời gian nhiễm độc
         if (poisonCoroutine != null)
         {
             StopCoroutine(poisonCoroutine);
@@ -270,7 +279,6 @@ public class CharacterStats : MonoBehaviour, IDamageable
     {
         OnDeath?.Invoke();
 
-        // Dừng độc ngay khi chết
         if (poisonCoroutine != null)
         {
             StopCoroutine(poisonCoroutine);
@@ -291,7 +299,6 @@ public class CharacterStats : MonoBehaviour, IDamageable
         }
         else if (isBoss)
         {
-            // Xử lý animation chết cho Boss nếu có
             if (anim != null && !string.IsNullOrEmpty(dieAnimName))
             {
                 anim.SetTrigger(dieAnimName);

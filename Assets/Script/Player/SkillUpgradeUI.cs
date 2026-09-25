@@ -71,7 +71,8 @@ public class SkillUpgradeUI : MonoBehaviour
     }
 
     /// <summary>
-    /// Đọc dữ liệu từ Save System và GHI ĐÈ chỉ số (Level, Damage, Cooldown) vào ScriptableObject SkillData
+    /// 🎯 HÀM ĐÃ NÂNG CẤP: Đọc dữ liệu từ Save System để ghi đè chỉ số.
+    /// Nếu KHÔNG TÌM THẤY SAVE (Do đã xóa file Save), tự động Reset Skill về Cấp 1 gốc.
     /// </summary>
     private void LoadSkillDataFromSave()
     {
@@ -95,6 +96,11 @@ public class SkillUpgradeUI : MonoBehaviour
                     {
                         skill.cooldownTime = savedData.currentCooldown;
                     }
+                }
+                else
+                {
+                    // 🎯 ĐÃ THÊM: Nếu không có data save (xóa save/chơi mới) -> Tự động đưa Skill về cấp 1 gốc
+                    skill.ResetVeChiSoGoc();
                 }
             }
         }

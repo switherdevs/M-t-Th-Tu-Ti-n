@@ -94,12 +94,12 @@ public class QuestSaveSystem : MonoBehaviour
     public List<QuestData> danhSachQuestData = new List<QuestData>();
 
     [Header("--- CẤU HÌNH CÁC MAP CHÍNH (OVERWORLD) ---")]
-    [Tooltip("Danh sách đúng 3 Map Overworld chính trong game")]
+    [Tooltip("Danh sách 3 Map Overworld chính trong game. Đã khớp chính xác với tên Scene của bạn.")]
     public List<string> danhSachMapChinh = new List<string>()
     {
-        "Thanh Trúc Lâm",
-        "U Minh Lâm",
-        "Luyện Ngục"
+        "Map_1_Thanh Trúc Lâm",
+        "Map_2U Minh Lâm",
+        "Map_3 luyennguc"
     };
 
     [Header("--- CẤU HÌNH SAVE ---")]
@@ -143,18 +143,22 @@ public class QuestSaveSystem : MonoBehaviour
         KiemTraVoiResetQuestKhiSangMapChinhMoi(scene.name);
     }
 
+    // 🎯 HÀM CHỈ LƯU VÀ XỬ LÝ KHI THỰC SỰ LÀ MAIN MAP OVERWORLD
     public void KiemTraVoiResetQuestKhiSangMapChinhMoi(string tenMapMoi)
     {
+        // 1. Nếu Scene vừa load KHÔNG NẰM trong danh sách 3 Map chính thì BỎ QUA hoàn toàn
         if (!danhSachMapChinh.Contains(tenMapMoi)) return;
 
         string mapTruocDo = LayMapTruocDo();
 
-        if (!string.IsNullOrEmpty(mapTruocDo) && danhSachMapChinh.Contains(mapTruocDo) && mapTruocDo != tenMapMoi)
+        // 2. Nếu Map chính trước đó tồn tại và KHÁC với Map chính mới đến -> Tiến hành Reset Quest
+        if (!string.IsNullOrEmpty(mapTruocDo) && mapTruocDo != tenMapMoi)
         {
-            Debug.LogWarning($"<color=yellow>[QuestSystem]</color> Phát hiện người chơi di chuyển từ {mapTruocDo} sang {tenMapMoi}. Đang tiến hành reset nhiệm vụ...");
+            Debug.LogWarning($"<color=yellow>[QuestSystem]</color> Phát hiện chuyển từ Main Map {mapTruocDo} sang Main Map {tenMapMoi}. Tiến hành reset nhiệm vụ...");
             ResetToanBoQuestDangLam();
         }
 
+        // 3. Chỉ lưu lại tên nếu scene này LÀ Main Map Overworld
         LuuMapTruocDo(tenMapMoi);
     }
 
@@ -231,6 +235,18 @@ public class QuestSaveSystem : MonoBehaviour
                 if (duLieuSaveHienTai.moralStats == null)
                     duLieuSaveHienTai.moralStats = new MoralPointsSaveData();
 
+                // Kiểm tra nếu tên map lưu trước đó bị rỗng hoặc không thuộc danh sách mới -> Reset về Map_1_Thanh Trúc Lâm
+                if (string.IsNullOrEmpty(duLieuSaveHienTai.tenMapTruocDo) || !danhSachMapChinh.Contains(duLieuSaveHienTai.tenMapTruocDo))
+                {
+                    if (danhSachMapChinh != null && danhSachMapChinh.Count > 0)
+                    {
+                        duLieuSaveHienTai.tenMapTruocDo = danhSachMapChinh[0];
+                        SaveDuLieuQuestToTxt();
+                    }
+                }
+
+                DonDepNhiemVuLoiVacantData();
+
                 Debug.Log("<color=cyan>[Save System]</color> Đã load dữ liệu thành công.");
             }
             catch (Exception e)
@@ -245,9 +261,39 @@ public class QuestSaveSystem : MonoBehaviour
         }
     }
 
+    private void DonDepNhiemVuLoiVacantData()
+    {
+        if (duLieuSaveHienTai?.danhSachProgress == null) return;
+
+        bool coThayDoi = false;
+        for (int i = duLieuSaveHienTai.danhSachProgress.Count - 1; i >= 0; i--)
+        {
+            int id = duLieuSaveHienTai.danhSachProgress[i].idQuest;
+            if (LayQuestDataTheoID(id) == null)
+            {
+                Debug.LogWarning($"<color=orange>[Save System]</color> Phát hiện Quest ID {id} không hợp lệ trong file save. Đang tiến hành xóa bớt...");
+                duLieuSaveHienTai.danhSachProgress.RemoveAt(i);
+                coThayDoi = true;
+            }
+        }
+
+        if (coThayDoi)
+        {
+            SaveDuLieuQuestToTxt();
+        }
+    }
+
     private void TaoFileSaveMoi()
     {
         duLieuSaveHienTai = new DanhSachSaveQuest();
+
+        // Mặc định gán Map_1_Thanh Trúc Lâm làm Map khởi đầu khi tạo file mới
+        if (danhSachMapChinh != null && danhSachMapChinh.Count > 0)
+        {
+            duLieuSaveHienTai.tenMapTruocDo = danhSachMapChinh[0];
+            Debug.Log($"<color=yellow>[Save System]</color> Tạo Save mới thành công. Mặc định đặt Main Map khởi đầu là: {danhSachMapChinh[0]}");
+        }
+
         SaveDuLieuQuestToTxt();
     }
 
@@ -357,33 +403,41 @@ public class QuestSaveSystem : MonoBehaviour
 
         string tenMapHienTai = SceneManager.GetActiveScene().name;
 
-        duLieuSaveHienTai.tenMapTruocDo = tenMapHienTai;
-        SaveDuLieuQuestToTxt();
-        Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Map trước đó: " + tenMapHienTai);
+        // Chỉ lưu nếu đây là Main Map Overworld
+        if (danhSachMapChinh.Contains(tenMapHienTai))
+        {
+            duLieuSaveHienTai.tenMapTruocDo = tenMapHienTai;
+            SaveDuLieuQuestToTxt();
+            Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Main Map trước đó: " + tenMapHienTai);
+        }
     }
 
     public void LuuMapTruocDo(string tenMap)
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
 
-        duLieuSaveHienTai.tenMapTruocDo = tenMap;
-        SaveDuLieuQuestToTxt();
-        Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Map trước đó: " + tenMap);
+        // Chỉ lưu nếu tenMap truyền vào nằm trong danh sách Main Map Overworld
+        if (danhSachMapChinh.Contains(tenMap))
+        {
+            duLieuSaveHienTai.tenMapTruocDo = tenMap;
+            SaveDuLieuQuestToTxt();
+            Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Main Map trước đó: " + tenMap);
+        }
     }
 
     public void LuuMapMoiTiepTheo(string tenMapMoi)
     {
-        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
-
-        duLieuSaveHienTai.tenMapTruocDo = tenMapMoi;
-        SaveDuLieuQuestToTxt();
-        Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Map trước đó: " + tenMapMoi);
+        LuuMapTruocDo(tenMapMoi);
     }
 
     public string LayMapTruocDo()
     {
         if (duLieuSaveHienTai == null || string.IsNullOrEmpty(duLieuSaveHienTai.tenMapTruocDo))
         {
+            if (danhSachMapChinh != null && danhSachMapChinh.Count > 0)
+            {
+                return danhSachMapChinh[0];
+            }
             return "";
         }
         return duLieuSaveHienTai.tenMapTruocDo;

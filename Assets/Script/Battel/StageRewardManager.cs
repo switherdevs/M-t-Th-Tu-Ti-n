@@ -94,8 +94,17 @@ public class StageRewardManager : MonoBehaviour
 
             if (randomRoll <= config.dropChance)
             {
-                int soLuongThucTeNhan = UnityEngine.Random.Range(1, Mathf.Max(1, config.count) + 1);
+                // BƯỚC 1: Random số lượng item gốc
+                int soLuongGoc = UnityEngine.Random.Range(1, Mathf.Max(1, config.count) + 1);
 
+                // BƯỚC 2: Gọi RewardMultiplier để nhân hệ số bổ sung
+                int soLuongThucTeNhan = soLuongGoc;
+                if (RewardMultiplier.Instance != null)
+                {
+                    soLuongThucTeNhan = RewardMultiplier.Instance.TinhSoLuongSauNhan(soLuongGoc);
+                }
+
+                // BƯỚC 3: Lưu số lượng THỰC TẾ (đã nhân) vào file Save Game
                 if (QuestSaveSystem.Instance != null)
                 {
                     QuestSaveSystem.Instance.LuuItemVaoSaveGame(config.itemData.idItem, soLuongThucTeNhan);
@@ -130,11 +139,13 @@ public class StageRewardManager : MonoBehaviour
                     spawnedItem.transform.SetAsLastSibling();
                 }
 
-                // 2. HIỆN VÀ GÁN SỐ LƯỢNG VÀO TEXT MESH PRO
+                // 2. HIỆN VÀ GÁN SỐ LƯỢNG THỰC TẾ SAU CÙNG VÀO TEXT MESH PRO
                 if (rewardCountTextList != null && i < rewardCountTextList.Length && rewardCountTextList[i] != null)
                 {
                     // BẬT ACTIVE CẢ VÙNG CHỨA TEXT ĐỂ ĐẢM BẢO KHÔNG BỊ KHỦNG ẢNH HƯỞNG BỞI OBJECT CHA
                     rewardCountTextList[i].gameObject.SetActive(true);
+
+                    // Hiển thị số lượng thực tế đã qua xử lý hệ số nhân
                     rewardCountTextList[i].text = "x" + soLuongThucTeNhan.ToString();
 
                     // Đưa Text lên trên cùng để tránh bị Prefab đè mất

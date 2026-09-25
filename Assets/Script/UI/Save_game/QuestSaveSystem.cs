@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement; // Thêm thư viện để tự động lấy tên Scene
+using UnityEngine.SceneManagement;
 using GameCore.Quests;
 
 public enum TrangThaiQuest
@@ -18,7 +18,7 @@ public class ProgressQuest
 {
     public int idQuest;
     public TrangThaiQuest trangThai;
-    public int soBoXuongDaDiet; // Biến đếm chung
+    public int soBoXuongDaDiet;
 }
 
 [Serializable]
@@ -34,14 +34,13 @@ public class SaveItemData
     }
 }
 
-// 🎯 DỮ LIỆU LƯU CẤP ĐỘ & CHỈ SỐ SKILL
 [Serializable]
 public class SaveSkillData
 {
     public string skillName;
     public int skillLevel;
-    public float currentDamage;   // Sát thương hiện tại đã nâng cấp
-    public float currentCooldown; // Thời gian hồi hiện tại đã nâng cấp
+    public float currentDamage;
+    public float currentCooldown;
 
     public SaveSkillData(string name, int level, float damage, float cooldown)
     {
@@ -67,27 +66,23 @@ public class PlayerStatsSaveData
     public List<string> danhSachCanhGioiDaDotPha = new List<string>();
 }
 
-// 🎯 BỔ SUNG: DỮ LIỆU ĐIỂM ĐẠO ĐỨC (MORAL POINTS DATA)
 [Serializable]
 public class MoralPointsSaveData
 {
-    public int diemThien = 0;      // Point 1: Điểm Cứu Người / Việc Thiện
-    public int diemAc = 0;         // Point 2: Điểm Tà Đạo / Bỏ Mặc / Việc Ác
-    public int diemDanhVong = 0;   // Point 3: Điểm Danh Vọng / Uy Tín Giang Hồ
+    public int diemThien = 0;
+    public int diemAc = 0;
+    public int diemDanhVong = 0;
 }
 
 [Serializable]
 public class DanhSachSaveQuest
 {
-    // Chỉ lưu duy nhất vị trí map trước đó (không dùng chuỗi gán cứng)
     public string tenMapTruocDo = "";
 
     public List<ProgressQuest> danhSachProgress = new List<ProgressQuest>();
     public List<SaveItemData> danhSachItemSave = new List<SaveItemData>();
     public List<SaveSkillData> danhSachSkillSave = new List<SaveSkillData>();
     public PlayerStatsSaveData playerStats = new PlayerStatsSaveData();
-
-    // 🎯 BỔ SUNG: Dữ liệu điểm đạo đức trong Struct Save Json
     public MoralPointsSaveData moralStats = new MoralPointsSaveData();
 }
 
@@ -97,6 +92,15 @@ public class QuestSaveSystem : MonoBehaviour
 
     [Header("--- CẤU HÌNH DỮ LIỆU QUEST ---")]
     public List<QuestData> danhSachQuestData = new List<QuestData>();
+
+    [Header("--- CẤU HÌNH CÁC MAP CHÍNH (OVERWORLD) ---")]
+    [Tooltip("Danh sách đúng 3 Map Overworld chính trong game")]
+    public List<string> danhSachMapChinh = new List<string>()
+    {
+        "Thanh Trúc Lâm",
+        "U Minh Lâm",
+        "Luyện Ngục"
+    };
 
     [Header("--- CẤU HÌNH SAVE ---")]
     public string tenFileSave = "QuestProgressData.txt";
@@ -122,6 +126,66 @@ public class QuestSaveSystem : MonoBehaviour
         );
 
         LoadDuLieuQuestFromTxt();
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        KiemTraVoiResetQuestKhiSangMapChinhMoi(scene.name);
+    }
+
+    public void KiemTraVoiResetQuestKhiSangMapChinhMoi(string tenMapMoi)
+    {
+        if (!danhSachMapChinh.Contains(tenMapMoi)) return;
+
+        string mapTruocDo = LayMapTruocDo();
+
+        if (!string.IsNullOrEmpty(mapTruocDo) && danhSachMapChinh.Contains(mapTruocDo) && mapTruocDo != tenMapMoi)
+        {
+            Debug.LogWarning($"<color=yellow>[QuestSystem]</color> Phát hiện người chơi di chuyển từ {mapTruocDo} sang {tenMapMoi}. Đang tiến hành reset nhiệm vụ...");
+            ResetToanBoQuestDangLam();
+        }
+
+        LuuMapTruocDo(tenMapMoi);
+    }
+
+    public void ResetToanBoQuestDangLam()
+    {
+        if (duLieuSaveHienTai == null || duLieuSaveHienTai.danhSachProgress == null) return;
+
+        bool coThayDoi = false;
+
+        foreach (ProgressQuest quest in duLieuSaveHienTai.danhSachProgress)
+        {
+            if (quest.trangThai == TrangThaiQuest.DangLam || quest.trangThai == TrangThaiQuest.DaXongChuaTra)
+            {
+                quest.trangThai = TrangThaiQuest.ChuaNhan;
+                quest.soBoXuongDaDiet = 0;
+                coThayDoi = true;
+            }
+        }
+
+        if (coThayDoi)
+        {
+            SaveDuLieuQuestToTxt();
+
+            if (QuestManager.Instance != null)
+            {
+                QuestManager.Instance.DongBoActiveQuestsTuSaveSystem();
+            }
+
+            QuestHUDTracker.ThongBaoCapNhatHUD();
+            Debug.Log("<color=red>[QuestSystem]</color> Đã reset tất cả nhiệm vụ đang làm!");
+        }
     }
 
     public void SaveDuLieuQuestToTxt()
@@ -187,16 +251,6 @@ public class QuestSaveSystem : MonoBehaviour
         SaveDuLieuQuestToTxt();
     }
 
-    // =========================================================
-    // 🎯 QUẢN LÝ 3 ĐIỂM ĐẠO ĐỨC (MORAL POINTS SYSTEM)
-    // =========================================================
-
-    /// <summary>
-    /// Cộng/Trừ trực tiếp các điểm đạo đức và tự động ghi vào Save File.
-    /// </summary>
-    /// <param name="congDiemThien">Số điểm Thiện thay đổi</param>
-    /// <param name="congDiemAc">Số điểm Ác thay đổi</param>
-    /// <param name="congDiemDanhVong">Số điểm Danh Vọng thay đổi</param>
     public void ThayDoiDiemDaoDuc(int congDiemThien, int congDiemAc = 0, int congDiemDanhVong = 0)
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
@@ -210,33 +264,20 @@ public class QuestSaveSystem : MonoBehaviour
         Debug.Log($"<color=yellow>[Đạo Đức Update]</color> Thiện: {duLieuSaveHienTai.moralStats.diemThien} | Ác: {duLieuSaveHienTai.moralStats.diemAc} | Danh Vọng: {duLieuSaveHienTai.moralStats.diemDanhVong}");
     }
 
-    /// <summary>
-    /// Lấy điểm Thiện hiện tại
-    /// </summary>
     public int LayDiemThien()
     {
         return duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemThien : 0;
     }
 
-    /// <summary>
-    /// Lấy điểm Ác hiện tại
-    /// </summary>
     public int LayDiemAc()
     {
         return duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemAc : 0;
     }
 
-    /// <summary>
-    /// Lấy điểm Danh Vọng hiện tại
-    /// </summary>
     public int LayDiemDanhVong()
     {
         return duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemDanhVong : 0;
     }
-
-    // =========================================================
-    // 🎯 HÀM ĐỒNG BỘ ĐẾM VÀ GIỚI HẠN SỐ LƯỢNG QUEST
-    // =========================================================
 
     public int DemSoQuestDangLam()
     {
@@ -310,7 +351,6 @@ public class QuestSaveSystem : MonoBehaviour
         return duLieuSaveHienTai.danhSachSkillSave.Find(s => s.skillName == nameSkill);
     }
 
-    // 🎯 HÀM LƯU TỰ ĐỘNG TÊN SCENE HIỆN TẠI VÀO BIẾN tenMapTruocDo
     public void LuuMapHienTaiLamMapTruocDo()
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
@@ -331,7 +371,6 @@ public class QuestSaveSystem : MonoBehaviour
         Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Map trước đó: " + tenMap);
     }
 
-    // 🎯 KHÔI PHỤC HÀM NÀY ĐỂ FIX LỖI CS1061 Ở SCRIPT ChuyenMap.cs
     public void LuuMapMoiTiepTheo(string tenMapMoi)
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
@@ -350,7 +389,6 @@ public class QuestSaveSystem : MonoBehaviour
         return duLieuSaveHienTai.tenMapTruocDo;
     }
 
-    // 🎯 KHÔI PHỤC HÀM NÀY ĐỂ FIX LỖI CS1061 Ở SCRIPT Scene_load.cs và ChuyenMap.cs
     public string LayMapMoiTiepTheo()
     {
         return LayMapTruocDo();
@@ -485,7 +523,6 @@ public class QuestSaveSystem : MonoBehaviour
                 questProgress.soBoXuongDaDiet = questData.soLuongCanGiaiCuu;
                 questProgress.trangThai = TrangThaiQuest.DaXongChuaTra;
 
-                // 🎯 CỘNG NGAY 10 ĐIỂM THIỆN & 5 ĐIỂM DANH VỌNG KHI GIẢI CỨU THÀNH CÔNG
                 ThayDoiDiemDaoDuc(10, 0, 5);
             }
 

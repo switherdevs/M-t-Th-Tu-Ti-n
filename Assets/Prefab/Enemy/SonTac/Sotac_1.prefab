@@ -441,7 +441,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 0}
   m_FillRect: {fileID: 1891678622288392746}
   m_HandleRect: {fileID: 0}
@@ -525,7 +525,7 @@ MonoBehaviour:
   damageActiveDelay: 0.3
   damageDuration: 0.4
   attackCooldown: 2
-  audioSource: {fileID: 9095964114111210335}
+  audioComp: {fileID: 0}
   sfxAttack: {fileID: 8300000, guid: 7776f55bc360ea442ba21038d8e742f1, type: 3}
   sfxDeath: {fileID: 0}
   runAnimBool: IsRunning
@@ -696,7 +696,7 @@ AudioSource:
   m_GameObject: {fileID: 7054318151610211365}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 6604748582655308872, guid: 6d577e5bdeafe804da576e07cca632ed, type: 2}
+  OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 7776f55bc360ea442ba21038d8e742f1, type: 3}
   m_PlayOnAwake: 1

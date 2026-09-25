@@ -1,5 +1,4 @@
 using UnityEngine;
-using StatsSystem.Components; // BẮT BUỘC: Gọi namespace chứa CharacterStats
 
 public class DamageDealer : MonoBehaviour
 {
@@ -47,8 +46,33 @@ public class DamageDealer : MonoBehaviour
         // 3. Nếu tìm thấy script (Nghĩa là cục này có máu, có thể nhận sát thương)
         if (targetStats != null)
         {
-            // Truyền tổng sát thương (Gốc + Cộng thêm từ độ khó) vào hàm TakeDamage
-            float finalDamage = baseDamage + bonusDamage;
+            // SÁT THƯƠNG GỐC CỦA ĐẠN/VŨ KHÍ
+            float totalDamage = baseDamage + bonusDamage;
+
+            // NÂNG CẤP MỚI: TÌM CHARACTERSTATS CỦA CHỦ SỞ HỮU VŨ KHÍ/ĐẠN NÀY (NGƯỜI BẮN)
+            CharacterStats ownerStats = GetComponentInParent<CharacterStats>();
+
+            // Nếu không tìm thấy trên bản thân/cha, thử tìm Player chính trên Scene
+            if (ownerStats == null)
+            {
+                CharacterStats[] allStats = FindObjectsByType<CharacterStats>(FindObjectsSortMode.None);
+                foreach (var stat in allStats)
+                {
+                    if (stat.IsPlayer)
+                    {
+                        ownerStats = stat;
+                        break;
+                    }
+                }
+            }
+
+            // CHỈ CỘNG THÊM SÁT THƯƠNG NẾU TÌM THẤY OWNER CÓ TICK isPlayer == true
+            if (ownerStats != null && ownerStats.IsPlayer)
+            {
+                totalDamage += ownerStats.Attack.Value;
+            }
+
+            float finalDamage = totalDamage;
 
             // KIỂM TRA CHEAT: Nếu vũ khí này dành cho Player (nhắm tới Enemy) VÀ Cheat Damage đang BẬT
             if (isTargetEnemy && CheatItemSystem.IsDamageCheatActive)

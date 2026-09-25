@@ -31,11 +31,25 @@ public class PlayerSkillManager : MonoBehaviour
     [SerializeField] private Transform firePoint;
     [SerializeField] private CharacterStats skillStat;
 
+    // 🎯 BỔ SUNG: Cấu hình âm thanh khi thi triển skill chung
+    [Header("--- ÂM THANH THI TRIỂN SKILL ---")]
+    [Tooltip("AudioClip phát ra khi nhân vật bấm phím thi triển kỹ năng thành công")]
+    [SerializeField] private AudioClip skillCastSound;
+    [SerializeField][Range(0f, 1f)] private float castSoundVolume = 1f;
+    private AudioSource audioSource;
+
     private float nangLuongHienTai;
     private float[] cooldownTimers;
 
     private void Start()
     {
+        // 🎯 Tự động lấy hoặc thêm AudioSource Component
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
         // 🎯 Đồng bộ Energy Max từ Save System
         CapNhatMaxEnergyTuSave();
 
@@ -165,9 +179,28 @@ public class PlayerSkillManager : MonoBehaviour
         nangLuongHienTai -= skill.manaCost;
         skill.UseSkill(pointToFire, direction);
 
+        // 🎯 Phát âm thanh 1 lần khi thi triển skill thành công
+        PhatAmThanhThiTrian();
+
         cooldownTimers[index] = skill.cooldownTime;
 
         Debug.Log($"<color=green>[PLAYER SKILL]</color> Kích hoạt {skill.skillName}! Tốn {skill.manaCost} Mana.");
+    }
+
+    // 🎯 Hàm hỗ trợ phát âm thanh thi triển
+    private void PhatAmThanhThiTrian()
+    {
+        if (skillCastSound != null)
+        {
+            if (audioSource != null)
+            {
+                audioSource.PlayOneShot(skillCastSound, castSoundVolume);
+            }
+            else
+            {
+                AudioSource.PlayClipAtPoint(skillCastSound, transform.position, castSoundVolume);
+            }
+        }
     }
 
     private Vector2 LayHuongTheoConChuot()

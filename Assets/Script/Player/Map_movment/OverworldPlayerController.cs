@@ -82,7 +82,7 @@ public class OverworldPlayerController : MonoBehaviour
             return;
         }
 
-        // 🎯 BẤM SPACE ĐỂ DÙNG NGAY Ở Ô HIỆN TẠI (NẾU LỆCH SẼ TỰ ĐỘNG LÙI/CĂN VỀ TÂM Ô)
+        // 🎯 BẤM SPACE ĐỂ DỪNG NGAY VÀ CĂN VỀ TÂM Ô HIỆN TẠI
         if (Input.GetKeyDown(KeyCode.Space))
         {
             HandleSpaceAction();
@@ -91,7 +91,7 @@ public class OverworldPlayerController : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            // 🎯 CHẶN DI CHUYỂN KHI CLICK TRÚNG UI (BẤT KỂ OBJECT NÀO CÓ RAYCAST TARGET HOẶC BỊ UI CHE CHẮN)
+            // 🎯 CHẶN DI CHUYỂN KHI CLICK TRÚNG UI
             if (IsPointerOverUIObject())
             {
                 return;
@@ -102,35 +102,44 @@ public class OverworldPlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Xử lý hành động khi nhấn phím Space tại ô hiện tại
+    /// Xử lý dừng di chuyển, tắt Animation, ẩn Trail/Highlight và căn chỉnh vị trí khi nhấn Space
     /// </summary>
     private void HandleSpaceAction()
     {
-        // Cập nhật lại vị trí lưới hiện tại dựa trên tọa độ thực tế
+        // 1. Nếu đang chạy Coroutine di chuyển -> Hủy ngay lập tức
+        if (movementCoroutine != null)
+        {
+            StopCoroutine(movementCoroutine);
+            movementCoroutine = null;
+        }
+
+        // 2. Đặt lại các cờ trạng thái về dừng hẳn
+        isMoving = false;
+        isCollidedWithWall = false;
+
+        // 3. Tắt Animation di chuyển (đưa về Idle)
+        SetAnimBool(isMovingAnimBool, false);
+
+        // 4. Ẩn đường vẽ Trail (LineRenderer)
+        if (lineRenderer != null)
+        {
+            lineRenderer.positionCount = 0;
+        }
+
+        // 5. Ẩn biểu tượng Target Highlight đánh dấu điểm đến
+        if (targetHighlight != null)
+        {
+            targetHighlight.SetActive(false);
+        }
+
+        // 6. Căn chỉnh vị trí nhân vật chính xác về tâm ô hiện tại
         Vector2Int calculatedGridPos = mapGrid.WorldToGrid(transform.position);
         Vector3 exactCenterPos = mapGrid.GridToWorld(calculatedGridPos);
 
-        // Kiểm tra xem vị trí hiện tại có bị lệch so với tâm ô chuẩn hay không
-        if (Vector3.Distance(transform.position, exactCenterPos) > 0.001f)
-        {
-            Debug.Log("<color=yellow>[Player]</color> Vị trí bị lệch, đang lùi/căn chỉnh về tâm ô hiện tại!");
-
-            // Nếu đang di chuyển dở dang thì dừng Coroutine cũ lại
-            if (movementCoroutine != null)
-            {
-                StopCoroutine(movementCoroutine);
-                movementCoroutine = null;
-                isMoving = false;
-            }
-
-            // Đưa nhân vật về chính xác tâm ô hiện tại
-            transform.position = exactCenterPos;
-        }
-
+        transform.position = exactCenterPos;
         currentGridPos = calculatedGridPos;
 
-        // --- VIẾT LOGIC SỬ DỤNG / TƯƠNG TÁC TẠI Ô HIỆN TẠI Ở ĐÂY ---
-        Debug.Log($"<color=green>[Player]</color> Đã dùng kỹ năng/tương tác tại ô hiện tại: {currentGridPos}");
+        Debug.Log($"<color=yellow>[Player]</color> Đã nhấn Space: Dừng di chuyển, tắt Animation, ẩn UI Trail/Highlight và căn về ô: {currentGridPos}");
     }
 
     /// <summary>

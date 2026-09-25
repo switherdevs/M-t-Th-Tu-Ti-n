@@ -263,7 +263,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 0}
   m_FillRect: {fileID: 5283883288030524659}
   m_HandleRect: {fileID: 0}
@@ -602,6 +602,9 @@ MonoBehaviour:
   allyTag: Enemy
   moveSpeed: 7
   attackRange: 50
+  audioSource: {fileID: 0}
+  sfxShoot: {fileID: 0}
+  sfxDeath: {fileID: 0}
   dieAnimTrigger: Die
 --- !u!114 &2022831468828464221
 MonoBehaviour:
@@ -662,7 +665,7 @@ AudioSource:
   m_GameObject: {fileID: 7014485643774121954}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 6604748582655308872, guid: 6d577e5bdeafe804da576e07cca632ed, type: 2}
+  OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 7776f55bc360ea442ba21038d8e742f1, type: 3}
   m_PlayOnAwake: 1

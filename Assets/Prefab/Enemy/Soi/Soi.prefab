@@ -377,6 +377,7 @@ MonoBehaviour:
   cavan: {fileID: 2656393846364504396}
   targetStats: {fileID: 8976838510345714512}
   isPlayer: 0
+  isBoss: 0
   weaponTag: Kiem
   hideOnDeath: 1
 --- !u!114 &7098750026218020282
@@ -475,7 +476,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 0}
   m_FillRect: {fileID: 1036028621717534419}
   m_HandleRect: {fileID: 0}

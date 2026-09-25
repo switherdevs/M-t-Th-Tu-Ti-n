@@ -213,14 +213,13 @@ public class BangDotPhaSingleUI : MonoBehaviour
             return;
         }
 
-        PlayerStatsSaveData statsPlayer = QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats;
-
         if (QuestSaveSystem.Instance.KiemTraDaDatCanhGioi(idCanhGioi))
         {
             Debug.LogWarning("[Đột Phá] Cảnh giới này đã được đột phá rồi!");
             return;
         }
 
+        // 1. Trừ số lượng Item yêu cầu
         foreach (var yeuCau in danhSachItemYeuCau)
         {
             if (yeuCau.itemData != null)
@@ -229,29 +228,34 @@ public class BangDotPhaSingleUI : MonoBehaviour
             }
         }
 
-        statsPlayer.tenCanhGioi = tenCanhGioiMoi;
-        statsPlayer.damage += congDamage;
-        statsPlayer.maxHP += congMaxHP;
-        statsPlayer.armor += congArmor;
-        statsPlayer.maxEnergy += congEnergy;
+        // 2. SỬA LỖI: Truy cập VÀ THAY ĐỔI Trực tiếp vào biến gốc trong Save Manager
+        QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats.tenCanhGioi = tenCanhGioiMoi;
+        QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats.damage += congDamage;
+        QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats.maxHP += congMaxHP;
+        QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats.armor += congArmor;
+        QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats.maxEnergy += congEnergy;
 
-        if (statsPlayer.danhSachCanhGioiDaDotPha == null)
+        // 3. Cập nhật danh sách các cảnh giới đã đột phá thành công
+        if (QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats.danhSachCanhGioiDaDotPha == null)
         {
-            statsPlayer.danhSachCanhGioiDaDotPha = new List<string>();
+            QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats.danhSachCanhGioiDaDotPha = new List<string>();
         }
-        if (!statsPlayer.danhSachCanhGioiDaDotPha.Contains(idCanhGioi))
+        if (!QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats.danhSachCanhGioiDaDotPha.Contains(idCanhGioi))
         {
-            statsPlayer.danhSachCanhGioiDaDotPha.Add(idCanhGioi);
+            QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats.danhSachCanhGioiDaDotPha.Add(idCanhGioi);
         }
 
+        // 4. Lưu dữ liệu mới xuống file Save .txt
         QuestSaveSystem.Instance.SaveDuLieuQuestToTxt();
 
+        // 5. Cập nhật chỉ số thực tế cho CharacterStats trong Scene
         CharacterStats[] allStats = FindObjectsByType<CharacterStats>(FindObjectsSortMode.None);
         foreach (var stat in allStats)
         {
             stat.TaiThongSoTuSaveFile();
         }
 
+        // 6. Cập nhật Energy cho Skill Manager
         PlayerSkillManager skillManager = FindFirstObjectByType<PlayerSkillManager>();
         if (skillManager != null)
         {

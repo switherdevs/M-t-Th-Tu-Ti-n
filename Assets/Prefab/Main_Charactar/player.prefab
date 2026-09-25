@@ -306,6 +306,7 @@ Transform:
   - {fileID: 8125662131593433016}
   - {fileID: 2076598672035718660}
   - {fileID: 6414982881728090050}
+  - {fileID: 5986763965185631739}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &3988947514577897818
@@ -603,6 +604,8 @@ MonoBehaviour:
   - {fileID: 1822463447760922392}
   firePoint: {fileID: 4939676197556815829}
   skillStat: {fileID: 1713447433952917287}
+  skillCastSound: {fileID: 8300000, guid: de84fa14292fdc7488d0f341bbd9529b, type: 3}
+  castSoundVolume: 1
 --- !u!82 &8712972713771717828
 AudioSource:
   m_ObjectHideFlags: 0
@@ -616,7 +619,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 172ee2c4a2ec3ce42ab2a8fb17cf9cfd, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -780,7 +783,7 @@ MonoBehaviour:
     volume: 1
   - delayTime: 2
     audioClip: {fileID: 8300000, guid: 7776f55bc360ea442ba21038d8e742f1, type: 3}
-    volume: 0.5
+    volume: 0.75
 --- !u!114 &7444521958323705293
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1352,6 +1355,37 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.35, y: 3.19, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5611064089201835857}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8938387629160041651
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5986763965185631739}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5986763965185631739
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8938387629160041651}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -2.2589588, y: 1.2461245, z: -0.0044673244}
+  m_LocalScale: {x: 0.6666667, y: 0.6666667, z: 0.6666667}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5611064089201835857}

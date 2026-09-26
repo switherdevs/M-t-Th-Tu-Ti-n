@@ -18,7 +18,7 @@ public class ProgressQuest
 {
     public int idQuest;
     public TrangThaiQuest trangThai;
-    public int soBoXuongDaDiet;
+    public int soBoXuongDaDiet; // Biến ghi nhận tiến trình (diệt quái, nhặt đồ, v.v.)
 }
 
 [Serializable]
@@ -146,19 +146,16 @@ public class QuestSaveSystem : MonoBehaviour
     // 🎯 HÀM CHỈ LƯU VÀ XỬ LÝ KHI THỰC SỰ LÀ MAIN MAP OVERWORLD
     public void KiemTraVoiResetQuestKhiSangMapChinhMoi(string tenMapMoi)
     {
-        // 1. Nếu Scene vừa load KHÔNG NẰM trong danh sách 3 Map chính thì BỎ QUA hoàn toàn
         if (!danhSachMapChinh.Contains(tenMapMoi)) return;
 
         string mapTruocDo = LayMapTruocDo();
 
-        // 2. Nếu Map chính trước đó tồn tại và KHÁC với Map chính mới đến -> Tiến hành Reset Quest
         if (!string.IsNullOrEmpty(mapTruocDo) && mapTruocDo != tenMapMoi)
         {
             Debug.LogWarning($"<color=yellow>[QuestSystem]</color> Phát hiện chuyển từ Main Map {mapTruocDo} sang Main Map {tenMapMoi}. Tiến hành reset nhiệm vụ...");
             ResetToanBoQuestDangLam();
         }
 
-        // 3. Chỉ lưu lại tên nếu scene này LÀ Main Map Overworld
         LuuMapTruocDo(tenMapMoi);
     }
 
@@ -198,7 +195,7 @@ public class QuestSaveSystem : MonoBehaviour
         {
             string chuoiJson = JsonUtility.ToJson(duLieuSaveHienTai, true);
             File.WriteAllText(duongDanTuyetDoi, chuoiJson);
-            Debug.Log("<color=green>[Save System]</color> Đã lưu dữ liệu: " + duongDanTuyetDoi);
+            Debug.Log("<color=green>[Save System]</color> Đã lưu dữ liệu thành công!");
         }
         catch (Exception e)
         {
@@ -235,7 +232,6 @@ public class QuestSaveSystem : MonoBehaviour
                 if (duLieuSaveHienTai.moralStats == null)
                     duLieuSaveHienTai.moralStats = new MoralPointsSaveData();
 
-                // Kiểm tra nếu tên map lưu trước đó bị rỗng hoặc không thuộc danh sách mới -> Reset về Map_1_Thanh Trúc Lâm
                 if (string.IsNullOrEmpty(duLieuSaveHienTai.tenMapTruocDo) || !danhSachMapChinh.Contains(duLieuSaveHienTai.tenMapTruocDo))
                 {
                     if (danhSachMapChinh != null && danhSachMapChinh.Count > 0)
@@ -261,6 +257,27 @@ public class QuestSaveSystem : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// BỔ SUNG: Hàm xóa sạch file save cũ trên ổ cứng khi bắt đầu game mới hoàn toàn
+    /// </summary>
+    public void XoaToanBoSaveData()
+    {
+        if (File.Exists(duongDanTuyetDoi))
+        {
+            try
+            {
+                File.Delete(duongDanTuyetDoi);
+                Debug.Log("<color=red>[Save System]</color> Đã xóa file save cũ thành công!");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("[Save System] Không thể xóa file save: " + e.Message);
+            }
+        }
+
+        TaoFileSaveMoi();
+    }
+
     private void DonDepNhiemVuLoiVacantData()
     {
         if (duLieuSaveHienTai?.danhSachProgress == null) return;
@@ -271,7 +288,7 @@ public class QuestSaveSystem : MonoBehaviour
             int id = duLieuSaveHienTai.danhSachProgress[i].idQuest;
             if (LayQuestDataTheoID(id) == null)
             {
-                Debug.LogWarning($"<color=orange>[Save System]</color> Phát hiện Quest ID {id} không hợp lệ trong file save. Đang tiến hành xóa bớt...");
+                Debug.LogWarning($"<color=orange>[Save System]</color> Phát hiện Quest ID {id} không hợp lệ. Đang xóa...");
                 duLieuSaveHienTai.danhSachProgress.RemoveAt(i);
                 coThayDoi = true;
             }
@@ -287,11 +304,10 @@ public class QuestSaveSystem : MonoBehaviour
     {
         duLieuSaveHienTai = new DanhSachSaveQuest();
 
-        // Mặc định gán Map_1_Thanh Trúc Lâm làm Map khởi đầu khi tạo file mới
         if (danhSachMapChinh != null && danhSachMapChinh.Count > 0)
         {
             duLieuSaveHienTai.tenMapTruocDo = danhSachMapChinh[0];
-            Debug.Log($"<color=yellow>[Save System]</color> Tạo Save mới thành công. Mặc định đặt Main Map khởi đầu là: {danhSachMapChinh[0]}");
+            Debug.Log($"<color=yellow>[Save System]</color> Tạo Save mới thành công. Map mặc định: {danhSachMapChinh[0]}");
         }
 
         SaveDuLieuQuestToTxt();
@@ -307,23 +323,11 @@ public class QuestSaveSystem : MonoBehaviour
         duLieuSaveHienTai.moralStats.diemDanhVong += congDiemDanhVong;
 
         SaveDuLieuQuestToTxt();
-        Debug.Log($"<color=yellow>[Đạo Đức Update]</color> Thiện: {duLieuSaveHienTai.moralStats.diemThien} | Ác: {duLieuSaveHienTai.moralStats.diemAc} | Danh Vọng: {duLieuSaveHienTai.moralStats.diemDanhVong}");
     }
 
-    public int LayDiemThien()
-    {
-        return duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemThien : 0;
-    }
-
-    public int LayDiemAc()
-    {
-        return duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemAc : 0;
-    }
-
-    public int LayDiemDanhVong()
-    {
-        return duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemDanhVong : 0;
-    }
+    public int LayDiemThien() => duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemThien : 0;
+    public int LayDiemAc() => duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemAc : 0;
+    public int LayDiemDanhVong() => duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemDanhVong : 0;
 
     public int DemSoQuestDangLam()
     {
@@ -403,7 +407,6 @@ public class QuestSaveSystem : MonoBehaviour
 
         string tenMapHienTai = SceneManager.GetActiveScene().name;
 
-        // Chỉ lưu nếu đây là Main Map Overworld
         if (danhSachMapChinh.Contains(tenMapHienTai))
         {
             duLieuSaveHienTai.tenMapTruocDo = tenMapHienTai;
@@ -416,7 +419,6 @@ public class QuestSaveSystem : MonoBehaviour
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
 
-        // Chỉ lưu nếu tenMap truyền vào nằm trong danh sách Main Map Overworld
         if (danhSachMapChinh.Contains(tenMap))
         {
             duLieuSaveHienTai.tenMapTruocDo = tenMap;
@@ -526,6 +528,31 @@ public class QuestSaveSystem : MonoBehaviour
         }
 
         SaveDuLieuQuestToTxt();
+    }
+
+    /// <summary>
+    /// BỔ SUNG: Cập nhật trực tiếp số lượng đã làm của 1 Quest cụ thể và lưu ngay vào file Save
+    /// </summary>
+    public void GhiNhanCapNhatTienTrinh(int idQuest, int soLuongMoi)
+    {
+        ProgressQuest quest = LayTienTrinhQuest(idQuest);
+        if (quest == null) return;
+
+        quest.soBoXuongDaDiet = soLuongMoi;
+
+        QuestData qData = LayQuestDataTheoID(idQuest);
+        if (qData != null)
+        {
+            int mucTieu = qData.loaiQuest == LoaiQuest.DietQuai ? qData.soLuongBoXuongCanDiet : qData.soLuongCanGiaiCuu;
+            if (quest.soBoXuongDaDiet >= mucTieu)
+            {
+                quest.soBoXuongDaDiet = mucTieu;
+                quest.trangThai = TrangThaiQuest.DaXongChuaTra;
+            }
+        }
+
+        SaveDuLieuQuestToTxt();
+        QuestHUDTracker.ThongBaoCapNhatHUD();
     }
 
     public void GhiNhanDietQuai(int idQuai, int soLuong = 1)

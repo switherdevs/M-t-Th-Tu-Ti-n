@@ -18,7 +18,7 @@ public class ProgressQuest
 {
     public int idQuest;
     public TrangThaiQuest trangThai;
-    public int soBoXuongDaDiet; // Biến ghi nhận tiến trình (diệt quái, nhặt đồ, v.v.)
+    public int soBoXuongDaDiet; // Biến ghi nhận tiến trình
 }
 
 [Serializable]
@@ -91,10 +91,11 @@ public class QuestSaveSystem : MonoBehaviour
     public static QuestSaveSystem Instance;
 
     [Header("--- CẤU HÌNH DỮ LIỆU QUEST ---")]
+    [Tooltip("Danh sách QuestData tự động đồng bộ từ Inspector hoặc thư mục Resources")]
     public List<QuestData> danhSachQuestData = new List<QuestData>();
 
     [Header("--- CẤU HÌNH CÁC MAP CHÍNH (OVERWORLD) ---")]
-    [Tooltip("Danh sách 3 Map Overworld chính trong game. Đã khớp chính xác với tên Scene của bạn.")]
+    [Tooltip("Danh sách 3 Map Overworld chính trong game.")]
     public List<string> danhSachMapChinh = new List<string>()
     {
         "Map_1_Thanh Trúc Lâm",
@@ -113,9 +114,15 @@ public class QuestSaveSystem : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
         else if (Instance != this)
         {
+            // Nếu đã có Instance cũ, hãy đồng bộ danh sách QuestData từ Scene mới sang Instance cũ trước khi hủy Object thừa
+            if (danhSachQuestData != null && danhSachQuestData.Count > 0)
+            {
+                Instance.CapNhatDanhSachQuestData(danhSachQuestData);
+            }
             Destroy(gameObject);
             return;
         }
@@ -125,6 +132,7 @@ public class QuestSaveSystem : MonoBehaviour
             tenFileSave
         );
 
+        NapToanBoQuestDataTuResources();
         LoadDuLieuQuestFromTxt();
     }
 
@@ -143,7 +151,41 @@ public class QuestSaveSystem : MonoBehaviour
         KiemTraVoiResetQuestKhiSangMapChinhMoi(scene.name);
     }
 
-    // 🎯 HÀM CHỈ LƯU VÀ XỬ LÝ KHI THỰC SỰ LÀ MAIN MAP OVERWORLD
+    /// <summary>
+    /// 🎯 HÀM NẠP TẤT CẢ QUEST DATA TỪ THƯ MỤC RESOURCES ĐỂ TRÁNH LỖI THIẾU DATA KHI CHUYỂN MAP
+    /// </summary>
+    public void NapToanBoQuestDataTuResources()
+    {
+        QuestData[] loadedQuests = Resources.LoadAll<QuestData>("");
+        if (loadedQuests != null && loadedQuests.Length > 0)
+        {
+            foreach (QuestData q in loadedQuests)
+            {
+                if (q != null && !danhSachQuestData.Contains(q))
+                {
+                    danhSachQuestData.Add(q);
+                }
+            }
+            Debug.Log($"<color=cyan>[Save System]</color> Đã tự động nạp {loadedQuests.Length} QuestData từ Resources!");
+        }
+    }
+
+    /// <summary>
+    /// 🎯 HÀM CẬP NHẬT/BỔ SUNG CÁC QUEST DATA MỚI TỪ MAP HIỆN TẠI VÀO BỘ NHỚ CHUNG
+    /// </summary>
+    public void CapNhatDanhSachQuestData(List<QuestData> danhSachMoi)
+    {
+        if (danhSachMoi == null || danhSachMoi.Count == 0) return;
+
+        foreach (QuestData q in danhSachMoi)
+        {
+            if (q != null && !danhSachQuestData.Exists(x => x.idQuest == q.idQuest))
+            {
+                danhSachQuestData.Add(q);
+            }
+        }
+    }
+
     public void KiemTraVoiResetQuestKhiSangMapChinhMoi(string tenMapMoi)
     {
         if (!danhSachMapChinh.Contains(tenMapMoi)) return;
@@ -196,6 +238,12 @@ public class QuestSaveSystem : MonoBehaviour
             string chuoiJson = JsonUtility.ToJson(duLieuSaveHienTai, true);
             File.WriteAllText(duongDanTuyetDoi, chuoiJson);
             Debug.Log("<color=green>[Save System]</color> Đã lưu dữ liệu thành công!");
+
+            Scene_load sceneLoader = UnityEngine.Object.FindAnyObjectByType<Scene_load>();
+            if (sceneLoader != null)
+            {
+                sceneLoader.CapNhatTrangThaiButtonTiepTuc();
+            }
         }
         catch (Exception e)
         {
@@ -237,7 +285,6 @@ public class QuestSaveSystem : MonoBehaviour
                     if (danhSachMapChinh != null && danhSachMapChinh.Count > 0)
                     {
                         duLieuSaveHienTai.tenMapTruocDo = danhSachMapChinh[0];
-                        SaveDuLieuQuestToTxt();
                     }
                 }
 
@@ -257,9 +304,6 @@ public class QuestSaveSystem : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// BỔ SUNG: Hàm xóa sạch file save cũ trên ổ cứng khi bắt đầu game mới hoàn toàn
-    /// </summary>
     public void XoaToanBoSaveData()
     {
         if (File.Exists(duongDanTuyetDoi))
@@ -280,6 +324,7 @@ public class QuestSaveSystem : MonoBehaviour
 
     private void DonDepNhiemVuLoiVacantData()
     {
+        if (danhSachQuestData == null || danhSachQuestData.Count == 0) return;
         if (duLieuSaveHienTai?.danhSachProgress == null) return;
 
         bool coThayDoi = false;
@@ -307,10 +352,9 @@ public class QuestSaveSystem : MonoBehaviour
         if (danhSachMapChinh != null && danhSachMapChinh.Count > 0)
         {
             duLieuSaveHienTai.tenMapTruocDo = danhSachMapChinh[0];
-            Debug.Log($"<color=yellow>[Save System]</color> Tạo Save mới thành công. Map mặc định: {danhSachMapChinh[0]}");
         }
 
-        SaveDuLieuQuestToTxt();
+        Debug.Log($"<color=yellow>[Save System]</color> Khởi tạo dữ liệu save mới trong RAM thành công.");
     }
 
     public void ThayDoiDiemDaoDuc(int congDiemThien, int congDiemAc = 0, int congDiemDanhVong = 0)
@@ -485,10 +529,24 @@ public class QuestSaveSystem : MonoBehaviour
 
     public QuestData LayQuestDataTheoID(int idQuest)
     {
+        if (danhSachQuestData == null) return null;
+
         foreach (QuestData q in danhSachQuestData)
         {
             if (q != null && q.idQuest == idQuest) return q;
         }
+
+        // Nếu chưa tìm thấy trong List, thử load trực tiếp từ Resources
+        QuestData[] allQuests = Resources.LoadAll<QuestData>("");
+        foreach (QuestData q in allQuests)
+        {
+            if (q != null && q.idQuest == idQuest)
+            {
+                if (!danhSachQuestData.Contains(q)) danhSachQuestData.Add(q);
+                return q;
+            }
+        }
+
         return null;
     }
 
@@ -530,9 +588,6 @@ public class QuestSaveSystem : MonoBehaviour
         SaveDuLieuQuestToTxt();
     }
 
-    /// <summary>
-    /// BỔ SUNG: Cập nhật trực tiếp số lượng đã làm của 1 Quest cụ thể và lưu ngay vào file Save
-    /// </summary>
     public void GhiNhanCapNhatTienTrinh(int idQuest, int soLuongMoi)
     {
         ProgressQuest quest = LayTienTrinhQuest(idQuest);

@@ -178,11 +178,12 @@ public class CharacterStats : MonoBehaviour, IDamageable
         OnHealthChanged?.Invoke(currentHealth, MaxHealth.Value);
     }
 
-    // 🎯 ĐÃ BỔ SUNG KIỂM TRA: CHỈ PLAYER MỚI ĐƯỢC BẤT TỬ
+    /// <summary>
+    /// Kích hoạt trạng thái Bất tử cho Player
+    /// </summary>
     public void SetInvincible(float duration)
     {
-        // Kiểm tra an toàn: Phải tick isPlayer = true VÀ GameObject phải mang Tag "Player"
-        if (!isPlayer || !CompareTag("Player")) return;
+        if (!isPlayer) return;
 
         if (invincibleCoroutine != null)
         {

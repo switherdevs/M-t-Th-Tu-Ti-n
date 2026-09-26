@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using GameCore.Player; // Kết nối với Namespace chứa PlayerUrinationMechanism
 
 public class EnemyFearState : MonoBehaviour
 {
@@ -47,26 +48,32 @@ public class EnemyFearState : MonoBehaviour
         HuyDangKySuKien();
     }
 
+    /// <summary>
+    /// COROUTINE KẾT NỐI TỰ ĐỘNG VỚI SCRIPT MẮC TIỂU CỦA PLAYER
+    /// </summary>
     private IEnumerator KetNoiPlayer()
     {
-        while (PlayerExecutionManager.Instance == null)
+        while (PlayerUrinationMechanism.Instance == null)
         {
             yield return null;
         }
 
         HuyDangKySuKien();
 
-        PlayerExecutionManager.Instance.OnExecutionStart += BatDauSoHai;
-        PlayerExecutionManager.Instance.OnExecutionEnd += KetThucSoHai;
-        playerTransform = PlayerExecutionManager.Instance.transform;
+        PlayerUrinationMechanism.Instance.OnExecutionStart += BatDauSoHai;
+        PlayerUrinationMechanism.Instance.OnExecutionEnd += KetThucSoHai;
+        playerTransform = PlayerUrinationMechanism.Instance.transform;
     }
 
+    /// <summary>
+    /// HỦY ĐĂNG KÝ SỰ KIỆN TRÁNH LỖI BỘ NHỚ
+    /// </summary>
     private void HuyDangKySuKien()
     {
-        if (PlayerExecutionManager.Instance != null)
+        if (PlayerUrinationMechanism.Instance != null)
         {
-            PlayerExecutionManager.Instance.OnExecutionStart -= BatDauSoHai;
-            PlayerExecutionManager.Instance.OnExecutionEnd -= KetThucSoHai;
+            PlayerUrinationMechanism.Instance.OnExecutionStart -= BatDauSoHai;
+            PlayerUrinationMechanism.Instance.OnExecutionEnd -= KetThucSoHai;
         }
     }
 
@@ -110,7 +117,7 @@ public class EnemyFearState : MonoBehaviour
     }
 
     /// <summary>
-    /// BẮT ĐẦU TRẠNG THÁI SỢ HÃI
+    /// BẮT ĐẦU TRẠNG THÁI SỢ HÃI (KHI PLAYER BẮT ĐẦU TIỂU)
     /// </summary>
     private void BatDauSoHai()
     {
@@ -123,13 +130,11 @@ public class EnemyFearState : MonoBehaviour
             scriptAIGoc.enabled = false;
         }
 
-        // Ép hướng mặt quái quay về phía Player tại thời điểm bắt đầu Execution,
-        // sau đó KHÔNG quay mặt lại nữa để tạo cảm giác đi lùi giật lùi ra xa
+        // Ép hướng mặt quái quay về phía Player tại thời điểm bắt đầu
         if (playerTransform != null)
         {
             float xDiff = playerTransform.position.x - transform.position.x;
 
-            // Xử lý quay mặt bằng Y Rotation (nếu dùng Euler Angles 0 và 180)
             Vector3 rot = transform.eulerAngles;
             rot.y = xDiff > 0 ? 0f : 180f;
             transform.eulerAngles = rot;
@@ -139,7 +144,7 @@ public class EnemyFearState : MonoBehaviour
     }
 
     /// <summary>
-    /// KẾT THÚC TRẠNG THÁI SỢ HÃI
+    /// KẾT THÚC TRẠNG THÁI SỢ HÃI (KHI PLAYER TIỂU XONG)
     /// </summary>
     private void KetThucSoHai()
     {

@@ -512,6 +512,7 @@ GameObject:
   - component: {fileID: 7043184645017480368}
   - component: {fileID: 4408484162979600654}
   - component: {fileID: 2783754540330282825}
+  - component: {fileID: 2124648020005276523}
   m_Layer: 5
   m_Name: UI_nangcapSkill
   m_TagString: Untagged
@@ -651,14 +652,111 @@ MonoBehaviour:
   textThongBaoPopup: {fileID: 6696468672308664976}
   thoiGianHienPopup: 1
   tocDoFade: 1.5
-  audioSource: {fileID: 0}
-  amThanhNangCapThanhCong: {fileID: 0}
-  amThanhNangCapThatBai: {fileID: 0}
-  hieuUngNangCapPrefab: {fileID: 0}
-  viTriXuatHienHieuUng: {fileID: 0}
+  audioSource: {fileID: 2124648020005276523}
+  amThanhNangCapThanhCong: {fileID: 8300000, guid: 8f58b97799ce2ee45ab4cc1dc40fa6f8, type: 3}
+  amThanhNangCapThatBai: {fileID: 8300000, guid: 6f051c4343dc0214fa81295d72189e80, type: 3}
+  hieuUngNangCapPrefab: {fileID: 6866004461401601130, guid: 3ed39e6f36a74ce4f994a6e2170ce801, type: 3}
+  viTriXuatHienHieuUng: {fileID: 3225227431929785841}
   mauBinhThuong: {r: 1, g: 1, b: 1, a: 1}
   mauDaChon: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   mauToiKhiChuaDuLevel: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+--- !u!82 &2124648020005276523
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1133795180544794231}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: fe980418dea2cd642b2236e9210d4548, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1497369263144335589
 GameObject:
   m_ObjectHideFlags: 0
@@ -2308,6 +2406,7 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   amThanhGoChu: {fileID: 0}
   tenNPC: "S\u01B0 ph\u1EE5 v\u01B0\u1EE3ng lo"
+  tenNPC_EN: Anonymous Master
   tocDoGoChu: 0.04
   thoiGianDoiThoai: 20
   danhSachThoaiRandom:
@@ -2320,6 +2419,7 @@ MonoBehaviour:
     con"
   - "Con \u0111\xE3 \u0111\u1EA1t \u0111\u1EBFn c\u1EA3nh gi\u1EDBi n\xE0o r\u1ED3i
     nh\u1EC9"
+  danhSachThoaiRandomEN: []
 --- !u!1 &5593643369825827116
 GameObject:
   m_ObjectHideFlags: 0

@@ -34,7 +34,7 @@ public class DamageDealer : MonoBehaviour
         bonusDamage += amount;
     }
 
-    // Hàm mặc định của Unity, kích hoạt khi có 1 Collider2D khác chạm vào (Cần tick isTrigger ở Collider)
+    // Hàm mặc định của Unity, kích hoạt khi có 1 Collider2D khác chạm vào
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // 1. Kiểm tra xem thứ vừa chạm có đúng là mục tiêu mình muốn đánh không
@@ -43,17 +43,16 @@ public class DamageDealer : MonoBehaviour
         // 2. Tìm script CharacterStats trên đối tượng bị đánh trúng
         CharacterStats targetStats = collision.GetComponentInParent<CharacterStats>();
 
-        // 3. Nếu tìm thấy script (Nghĩa là cục này có máu, có thể nhận sát thương)
+        // 3. Nếu tìm thấy script (Nghĩa là mục tiêu có máu)
         if (targetStats != null)
         {
             // SÁT THƯƠNG GỐC CỦA ĐẠN/VŨ KHÍ
             float totalDamage = baseDamage + bonusDamage;
 
-            // NÂNG CẤP MỚI: TÌM CHARACTERSTATS CỦA CHỦ SỞ HỮU VŨ KHÍ/ĐẠN NÀY (NGƯỜI BẮN)
+            // 🎯 SỬA LỖI 1: CHỈ TÌM OWNER LÀ PLAYER NẾU ĐÂY LÀ ĐẠN DÀNH ĐỂ ĐÁNH ENEMY
             CharacterStats ownerStats = GetComponentInParent<CharacterStats>();
 
-            // Nếu không tìm thấy trên bản thân/cha, thử tìm Player chính trên Scene
-            if (ownerStats == null)
+            if (isTargetEnemy && ownerStats == null)
             {
                 CharacterStats[] allStats = FindObjectsByType<CharacterStats>(FindObjectsSortMode.None);
                 foreach (var stat in allStats)
@@ -66,15 +65,15 @@ public class DamageDealer : MonoBehaviour
                 }
             }
 
-            // CHỈ CỘNG THÊM SÁT THƯƠNG NẾU TÌM THẤY OWNER CÓ TICK isPlayer == true
-            if (ownerStats != null && ownerStats.IsPlayer)
+            // CHỈ CỘNG THÊM ATTACK CỦA PLAYER NẾU ĐÂY LÀ ĐẠN CỦA PLAYER
+            if (isTargetEnemy && ownerStats != null && ownerStats.IsPlayer)
             {
                 totalDamage += ownerStats.Attack.Value;
             }
 
             float finalDamage = totalDamage;
 
-            // KIỂM TRA CHEAT: Nếu vũ khí này dành cho Player (nhắm tới Enemy) VÀ Cheat Damage đang BẬT
+            // 🎯 SỬA LỖI 2: CHỈ ÁP DỤNG CHEAT DAMAGE CHO ĐẠN CỦA PLAYER ĐÁNH QUÁI
             if (isTargetEnemy && CheatItemSystem.IsDamageCheatActive)
             {
                 finalDamage *= CheatItemSystem.DamageHeSoNhan;
@@ -85,17 +84,8 @@ public class DamageDealer : MonoBehaviour
             // Tính điểm va chạm thực tế trên bề mặt Collider
             Vector3 hitPoint = collision.ClosestPoint(transform.position);
 
-            // XÁC ĐỊNH MÀU SẮC DỰA VÀO CHECKBOX BOOL TRÊN INSPECTOR:
-            Color popupColor = Color.white; // Màu mặc định
-
-            if (isTargetPlayer)
-            {
-                popupColor = Color.red;    // Đánh Player -> Màu ĐỎ
-            }
-            else if (isTargetEnemy)
-            {
-                popupColor = Color.white;  // Đánh Enemy -> Màu TRẮNG
-            }
+            // XÁC ĐỊNH MÀU SẮC DỰA VÀO CHECKBOX BOOL TRÊN INSPECTOR
+            Color popupColor = isTargetPlayer ? Color.red : Color.white;
 
             // Hiển thị Popup ngay tại vị trí tiếp xúc
             SpawnDamagePopup(finalDamage, hitPoint, popupColor);
@@ -109,10 +99,8 @@ public class DamageDealer : MonoBehaviour
     {
         if (damagePopupPrefab == null) return;
 
-        // Sinh ra Prefab Popup ngay tại vị trí va chạm tiếp xúc
         GameObject popupObj = Instantiate(damagePopupPrefab, spawnPosition, Quaternion.identity);
 
-        // Lấy script DamagePopup và truyền thông số
         DamagePopup popupScript = popupObj.GetComponent<DamagePopup>();
         if (popupScript != null)
         {
@@ -120,14 +108,9 @@ public class DamageDealer : MonoBehaviour
         }
     }
 
-    // ========================================================================
-    // BỔ SUNG MỚI: HÀM TẠO POPUP DÀNH RIÊNG CHO SỰ KIỆN GỌI KIẾM BAY VỀ
-    // ========================================================================
     /// <summary>
-    /// GHI CHÚ QUAN TRỌNG: Hàm công khai để PhiKiemGoiVe.cs kích hoạt Popup với sát thương đã x2
+    /// Hàm công khai để PhiKiemGoiVe.cs kích hoạt Popup với sát thương đã x2
     /// </summary>
-    /// <param name="satThuongGoiVe">Sát thương thực tế đã nhân hệ số</param>
-    /// <param name="viTriVaCham">Điểm tiếp xúc trên thân quái</param>
     public void HienThiPopupGoiVe(float satThuongGoiVe, Vector3 viTriVaCham)
     {
         Color mauPopup = isTargetPlayer ? Color.red : Color.white;

@@ -38,10 +38,8 @@ public class CheatItemSystem : MonoBehaviour
     // Lưu thông số gốc
     private float moveSpeedGoc = 5f;
     private float sprintSpeedGoc = 9f;
-    private float damageGoc = 20f;
 
     private PlayerController playerController;
-    private CharacterStats playerStats;
 
     private void Start()
     {
@@ -57,17 +55,11 @@ public class CheatItemSystem : MonoBehaviour
     private void TimVaLuuThongSoGoc()
     {
         if (playerController == null) playerController = FindFirstObjectByType<PlayerController>();
-        if (playerStats == null && playerController != null) playerStats = playerController.GetComponent<CharacterStats>();
 
         if (playerController != null)
         {
             moveSpeedGoc = (float)LayGiaTriPrivate(playerController, "moveSpeed", 5f);
             sprintSpeedGoc = (float)LayGiaTriPrivate(playerController, "sprintSpeed", 9f);
-        }
-
-        if (playerStats != null)
-        {
-            damageGoc = playerStats.Attack.Value;
         }
     }
 
@@ -105,29 +97,15 @@ public class CheatItemSystem : MonoBehaviour
         IsDamageCheatActive = isDamageCheatActive;
         DamageHeSoNhan = damageHeSoNhan;
 
-        TimVaLuuThongSoGoc();
-
-        if (playerStats != null)
+        // 🎯 SỬA LỖI: Không sửa trực tiếp playerStats.Attack.Value nữa. 
+        // Việc nhân hệ số sẽ do DamageDealer tự xử lý khi gây sát thương lên quái.
+        if (isDamageCheatActive)
         {
-            if (isDamageCheatActive)
-            {
-                // Bật Cheat Damage: Nhân Sát thương trên Stats
-                playerStats.Attack.Value = damageGoc * damageHeSoNhan;
-                Debug.Log("<color=red>[Cheat Damage]</color> Đã kích hoạt x10 Damage cho Player!");
-            }
-            else
-            {
-                // Tắt Cheat Damage: Đọc lại File Save để trả lại Damage gốc
-                if (QuestSaveSystem.Instance != null && QuestSaveSystem.Instance.duLieuSaveHienTai != null)
-                {
-                    playerStats.TaiThongSoTuSaveFile();
-                }
-                else
-                {
-                    playerStats.Attack.Value = damageGoc;
-                }
-                Debug.Log("<color=yellow>[Cheat Damage]</color> Đã tắt Cheat Damage, trả về thông số gốc!");
-            }
+            Debug.Log("<color=red>[Cheat Damage]</color> Đã kích hoạt x10 Damage cho Player!");
+        }
+        else
+        {
+            Debug.Log("<color=yellow>[Cheat Damage]</color> Đã tắt Cheat Damage!");
         }
 
         DoiMauButton(nutCheatDamage, isDamageCheatActive);
@@ -169,7 +147,6 @@ public class CheatItemSystem : MonoBehaviour
     {
         if (btn == null) return;
 
-        // Đổi màu trực tiếp trên Target Graphic (Image) của Button
         if (btn.targetGraphic != null)
         {
             btn.targetGraphic.color = isActive ? mauNutKichHoat : mauNutThuong;

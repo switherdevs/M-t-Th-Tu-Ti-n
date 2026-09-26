@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4440501028585933767}
   - component: {fileID: 6356928902018215822}
   - component: {fileID: 6027094519111240382}
+  - component: {fileID: 8548678118446681234}
   m_Layer: 5
   m_Name: Image_backgrond
   m_TagString: Untagged
@@ -99,6 +100,23 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 20
   m_TargetDisplay: 0
+--- !u!114 &8548678118446681234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 23909124500133000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &642550851678916701
 GameObject:
   m_ObjectHideFlags: 0
@@ -342,7 +360,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
 --- !u!114 &7465624773610462039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -355,6 +373,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b7a14b4beae4dd43bc3da898d6b2b93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isMainMenu: 0
   mainMapName: "Map_1_Thanh Tr\xFAc L\xE2m"
   map1Name: 
   map2Name: 
@@ -362,6 +381,11 @@ MonoBehaviour:
   VeMenu: 
   Click: {fileID: 8300000, guid: fe980418dea2cd642b2236e9210d4548, type: 3}
   MainUi: {fileID: 7399692797807908611}
+  btnStartGame: {fileID: 0}
+  btnTiepTucGame: {fileID: 0}
+  xoahaykhong: {fileID: 0}
+  CheDo: {fileID: 0}
+  khoiDauLanNua: {fileID: 0}
 --- !u!82 &4222008745019494234
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1073,7 +1097,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -58.621872, y: 58.687603}
+  m_AnchoredPosition: {x: -58.621872, y: 56.63892}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5119045277887823632
@@ -1182,7 +1206,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af6e2279d9afbdc41a9e1948404c788e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UiGameOb: {fileID: 6762711054325600087}
+  UiGameOb: {fileID: 1913901133924519586}
 --- !u!1 &4228301385010744012
 GameObject:
   m_ObjectHideFlags: 0
@@ -1760,7 +1784,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 96.06012, y: 61.958954}
+  m_AnchoredPosition: {x: 94.431076, y: 51.66575}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9020300447695933830
@@ -2199,7 +2223,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -801.9311, y: 389.6906}
+  m_AnchoredPosition: {x: -801.9311, y: 374.76413}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8007199937043314561
@@ -2812,6 +2836,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b7a14b4beae4dd43bc3da898d6b2b93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isMainMenu: 0
   mainMapName: "Map_1_Thanh Tr\xFAc L\xE2m"
   map1Name: Map_forrest
   map2Name: Map_cave
@@ -2819,6 +2844,11 @@ MonoBehaviour:
   VeMenu: Main_Menu_Ui
   Click: {fileID: 8300000, guid: fe980418dea2cd642b2236e9210d4548, type: 3}
   MainUi: {fileID: 7399692797807908611}
+  btnStartGame: {fileID: 0}
+  btnTiepTucGame: {fileID: 0}
+  xoahaykhong: {fileID: 0}
+  CheDo: {fileID: 0}
+  khoiDauLanNua: {fileID: 0}
 --- !u!114 &292182272429057352
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3465,6 +3495,10 @@ PrefabInstance:
       propertyPath: m_PresetInfoIsWorld
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1467125815466718734, guid: 95a85d1760c02d64f8b0ca4d7fe8da43, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1491985204930344723, guid: 95a85d1760c02d64f8b0ca4d7fe8da43, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -3583,7 +3617,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5983652266410014715, guid: 95a85d1760c02d64f8b0ca4d7fe8da43, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6366126646517387334, guid: 95a85d1760c02d64f8b0ca4d7fe8da43, type: 3}
       propertyPath: m_AnchorMax.y
@@ -3686,6 +3720,11 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1491985204930344723, guid: 95a85d1760c02d64f8b0ca4d7fe8da43, type: 3}
   m_PrefabInstance: {fileID: 1068423860077672620}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1913901133924519586 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1467125815466718734, guid: 95a85d1760c02d64f8b0ca4d7fe8da43, type: 3}
+  m_PrefabInstance: {fileID: 1068423860077672620}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &4873532239444141555 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5580397643328150879, guid: 95a85d1760c02d64f8b0ca4d7fe8da43, type: 3}
@@ -3697,11 +3736,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &6762711054325600087 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5983652266410014715, guid: 95a85d1760c02d64f8b0ca4d7fe8da43, type: 3}
-  m_PrefabInstance: {fileID: 1068423860077672620}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &6968017672050408789 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7953518504014923257, guid: 95a85d1760c02d64f8b0ca4d7fe8da43, type: 3}

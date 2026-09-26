@@ -49,6 +49,12 @@ public class PlayerController : MonoBehaviour
         InitAnimationHashes();
     }
 
+    private void OnDisable()
+    {
+        // Khi Script bị tắt (VD: Khi người chơi đang tiểu), ép dừng di chuyển và Animation lập tức
+        StopMovementAndAnimation();
+    }
+
     private void InitAnimationHashes()
     {
         if (!string.IsNullOrEmpty(walkAnimName)) walkAnimHash = Animator.StringToHash(walkAnimName);
@@ -58,7 +64,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
-        if (stats != null && stats.IsDead)
+        if ((stats != null && stats.IsDead) || !enabled)
         {
             moveInput = Vector2.zero;
             return;
@@ -69,7 +75,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnSprint(InputAction.CallbackContext context)
     {
-        if (stats != null && stats.IsDead)
+        if ((stats != null && stats.IsDead) || !enabled)
         {
             isSprinting = false;
             return;
@@ -148,7 +154,6 @@ public class PlayerController : MonoBehaviour
 
     public void ForceRefreshRotation()
     {
-        // Khôi phục scale chuẩn dương
         transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), Mathf.Abs(transform.localScale.y), Mathf.Abs(transform.localScale.z));
 
         if (mainCam == null) mainCam = Camera.main;

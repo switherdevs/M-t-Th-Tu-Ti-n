@@ -25,7 +25,7 @@ public class Scene_load : MonoBehaviour
     [Tooltip("Button Start Game (Chỉ cấu hình tự động khi TICK isMainMenu)")]
     [SerializeField] private Button btnStartGame;
 
-    [Tooltip("BỔ SUNG: Button Tiếp Tục Game (Sẽ bị mờ nếu không có file save)")]
+    [Tooltip("Button Tiếp Tục Game (Sẽ bị mờ nếu không có file save)")]
     [SerializeField] private Button btnTiepTucGame;
 
     [Tooltip("Game Object UI Xoahaykhong (Bật/Tắt qua Button)")]

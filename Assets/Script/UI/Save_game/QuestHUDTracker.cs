@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
+using GameCore.Quests;
 
 public class QuestHUDTracker : MonoBehaviour
 {
@@ -30,6 +32,9 @@ public class QuestHUDTracker : MonoBehaviour
 
     public static event Action OnQuestProgressChanged;
 
+    // Bộ nhớ tạm Cache lưu QuestData để tối ưu hiệu năng
+    private static Dictionary<int, QuestData> cacheQuestData = new Dictionary<int, QuestData>();
+
     private void Awake()
     {
         if (Instance == null)
@@ -46,16 +51,28 @@ public class QuestHUDTracker : MonoBehaviour
     private void OnEnable()
     {
         OnQuestProgressChanged += CapNhatGiaoDienHUD;
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
         OnQuestProgressChanged -= CapNhatGiaoDienHUD;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        StartCoroutine(ThucHienCapNhatTre());
     }
 
     private IEnumerator Start()
     {
-        // Chờ 1 frame để đảm bảo QuestSaveSystem đã Awake() và Load xong dữ liệu
+        yield return null;
+        CapNhatGiaoDienHUD();
+    }
+
+    private IEnumerator ThucHienCapNhatTre()
+    {
         yield return null;
         CapNhatGiaoDienHUD();
     }
@@ -78,7 +95,6 @@ public class QuestHUDTracker : MonoBehaviour
         // 1. Kiểm tra singleton SaveSystem
         if (QuestSaveSystem.Instance == null || QuestSaveSystem.Instance.duLieuSaveHienTai == null)
         {
-            Debug.LogWarning("[QuestHUDTracker] Không tìm thấy QuestSaveSystem hoặc dữ liệu save chưa sẵn sàng!");
             return;
         }
 
@@ -104,7 +120,6 @@ public class QuestHUDTracker : MonoBehaviour
 
         if (danhSachTextQuestUI == null || danhSachTextQuestUI.Length == 0)
         {
-            Debug.LogError("[QuestHUDTracker] Mảng danhSachTextQuestUI đang trống! Hãy kéo thả các Text UI vào Inspector.");
             return;
         }
 
@@ -115,7 +130,9 @@ public class QuestHUDTracker : MonoBehaviour
             if (danhSachTextQuestUI[i] == null) continue;
 
             ProgressQuest progress = danhSachQuestDangActive[i];
-            QuestData data = QuestSaveSystem.Instance.LayQuestDataTheoID(progress.idQuest);
+
+            // 🎯 Lấy QuestData từ hệ thống lưu trữ đồng bộ
+            QuestData data = LayQuestDataDongBo(progress.idQuest);
 
             if (data != null)
             {
@@ -134,9 +151,45 @@ public class QuestHUDTracker : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"[QuestHUDTracker] Không tìm thấy QuestData cho Quest ID: {progress.idQuest}. Kiểm tra danhSachQuestData ở QuestSaveSystem!");
+                Debug.LogWarning($"[QuestHUDTracker] Không tìm thấy QuestData cho Quest ID: {progress.idQuest}");
             }
         }
+    }
+
+    /// <summary>
+    /// 🎯 HÀM LẤY QUEST DATA ĐỒNG BỘ NĂNG ĐỘNG
+    /// </summary>
+    private QuestData LayQuestDataDongBo(int idQuest)
+    {
+        // Lớp 1: Đọc từ Cache RAM
+        if (cacheQuestData.TryGetValue(idQuest, out QuestData cached) && cached != null)
+        {
+            return cached;
+        }
+
+        // Lớp 2: Tìm từ QuestSaveSystem.Instance
+        if (QuestSaveSystem.Instance != null)
+        {
+            QuestData dataFromSave = QuestSaveSystem.Instance.LayQuestDataTheoID(idQuest);
+            if (dataFromSave != null)
+            {
+                cacheQuestData[idQuest] = dataFromSave;
+                return dataFromSave;
+            }
+        }
+
+        // Lớp 3: Tìm trực tiếp trong thư mục Resources (Quét tất cả thư mục con)
+        QuestData[] allQuests = Resources.LoadAll<QuestData>("");
+        foreach (QuestData q in allQuests)
+        {
+            if (q != null && q.idQuest == idQuest)
+            {
+                cacheQuestData[idQuest] = q;
+                return q;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -144,11 +197,13 @@ public class QuestHUDTracker : MonoBehaviour
     /// </summary>
     private bool KiemTraDaHoanThanhTatCaQuest()
     {
+        if (QuestSaveSystem.Instance?.duLieuSaveHienTai?.danhSachProgress == null) return false;
+
         List<ProgressQuest> danhSachProgress = QuestSaveSystem.Instance.duLieuSaveHienTai.danhSachProgress;
 
         if (danhSachProgress == null || danhSachProgress.Count == 0) return false;
 
-        int tongSoQuestTrongGame = QuestSaveSystem.Instance.danhSachQuestData.Count;
+        int tongSoQuestTrongGame = QuestSaveSystem.Instance.danhSachQuestData != null ? QuestSaveSystem.Instance.danhSachQuestData.Count : 0;
         if (tongSoQuestTrongGame == 0 || danhSachProgress.Count < tongSoQuestTrongGame) return false;
 
         foreach (ProgressQuest progress in danhSachProgress)

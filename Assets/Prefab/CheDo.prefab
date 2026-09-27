@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8616579696451003750
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 863028643751845842}
+  - component: {fileID: 5439830900445270141}
+  m_Layer: 0
+  m_Name: CheDo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &863028643751845842
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8616579696451003750}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.3468173, y: 3.577329, z: 1.7634907}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5439830900445270141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8616579696451003750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 161edd6e0a34d6d408c9dac33354f26f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  easyMode:
+    bonusHealth: -100
+    bonusDefense: -0.05
+    bonusAttack: -5
+    bonusDamageDealer: -5
+  normalMode:
+    bonusHealth: -25
+    bonusDefense: -0.1
+    bonusAttack: 0
+    bonusDamageDealer: 0
+  hardMode:
+    bonusHealth: 50
+    bonusDefense: 0.1
+    bonusAttack: 10
+    bonusDamageDealer: 10
+  asianMode:
+    bonusHealth: 150
+    bonusDefense: 0.25
+    bonusAttack: 35
+    bonusDamageDealer: 30
+  enemyTag: Enemy
+  updateInterval: 0.5

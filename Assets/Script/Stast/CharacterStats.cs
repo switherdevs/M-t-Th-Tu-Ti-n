@@ -132,6 +132,28 @@ public class CharacterStats : MonoBehaviour, IDamageable
         else
         {
             currentHealth = MaxHealth.Value;
+
+            // 🎯 LẮNG NGHE SỰ KIỆN QUÁI CHẾT ĐỂ CỘNG NĂNG LƯỢNG CHO SKILL
+            OnDeath += XuLyKhiQuaiChet;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // Hủy đăng ký sự kiện để tránh rò rỉ bộ nhớ (Memory Leak)
+        if (!isPlayer)
+        {
+            OnDeath -= XuLyKhiQuaiChet;
+        }
+    }
+
+    // 🎯 HÀM TỰ ĐỘNG GỌI KHI QUÁI CHẾT
+    private void XuLyKhiQuaiChet()
+    {
+        if (SwordRainSkill.Instance != null)
+        {
+            // Tự động cộng 5 điểm năng lượng cho Mưa Kiếm
+            SwordRainSkill.Instance.CongNangLuong(5f);
         }
     }
 
@@ -178,9 +200,6 @@ public class CharacterStats : MonoBehaviour, IDamageable
         OnHealthChanged?.Invoke(currentHealth, MaxHealth.Value);
     }
 
-    /// <summary>
-    /// Kích hoạt trạng thái Bất tử cho Player
-    /// </summary>
     public void SetInvincible(float duration)
     {
         if (!isPlayer) return;
@@ -202,7 +221,6 @@ public class CharacterStats : MonoBehaviour, IDamageable
 
     public void TakeDamage(float rawDamage)
     {
-        // Bị chặn ngay nếu đang chết, dame <= 0 HOẶC đang trong trạng thái bất tử
         if (IsDead || rawDamage <= 0 || isInvincible) return;
 
         if (isBoss && bossController != null)
@@ -304,6 +322,15 @@ public class CharacterStats : MonoBehaviour, IDamageable
             {
                 anim.SetTrigger(dieAnimName);
             }
+        }
+        else
+        {
+            // Quái thường
+            if (anim != null && !string.IsNullOrEmpty(dieAnimName))
+            {
+                anim.SetTrigger(dieAnimName);
+            }
+            Destroy(gameObject, 1.5f);
         }
     }
 

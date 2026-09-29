@@ -294,13 +294,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: player
       objectReference: {fileID: 0}
-    - target: {fileID: 2723589341278259873, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 3839831015277101688, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5062161427350777841, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
+      propertyPath: testGame
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5062161427350777841, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
+      propertyPath: viTriLechVungBox.x
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 5062161427350777841, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
+      propertyPath: viTriLechVungBox.y
+      value: 70
       objectReference: {fileID: 0}
     - target: {fileID: 5068338573283883056, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
       propertyPath: m_AnchorMax.y
@@ -359,6 +367,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7491590302181446272, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8377370740005693332, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
@@ -1567,6 +1579,10 @@ PrefabInstance:
       propertyPath: m_text
       value: Leave Batte
       objectReference: {fileID: 0}
+    - target: {fileID: 5538960663070357150, guid: d200f49d5ea7c9f48ab45908ab920089, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5570514008492609319, guid: d200f49d5ea7c9f48ab45908ab920089, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1588,6 +1604,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7542070908087666788, guid: d200f49d5ea7c9f48ab45908ab920089, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7854662909721110277, guid: d200f49d5ea7c9f48ab45908ab920089, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
@@ -21838,7 +21858,7 @@ Transform:
   m_GameObject: {fileID: 1462711482}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 17.290283, y: 0, z: 0}
+  m_LocalPosition: {x: 13.532978, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

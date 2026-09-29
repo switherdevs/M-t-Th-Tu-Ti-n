@@ -28,12 +28,9 @@ namespace GameCore.Player
         [Tooltip("Tốc độ tăng mức mắc tiểu theo thời gian (Số điểm / Giây)")]
         [SerializeField] private float tocDoTangMacTieu = 5f;
 
-        [Header("=== CẤU HÌNH THỜI GIAN TIỂU THEO TỶ LỆ ===")]
-        [Tooltip("Thời gian tiểu ngắn nhất (khi mức tiểu > 0 nhưng rất ít) - tính bằng Giây")]
-        [SerializeField] private float thoiGianTieuToiThieu = 1f;
-
-        [Tooltip("Thời gian tiểu lâu nhất (khi mức tiểu đầy 100%) - tính bằng Giây")]
-        [SerializeField] private float thoiGianTieuToiDa = 5f;
+        [Header("=== CẤU HÌNH TỐC ĐỘ XẢ TIỂU ===")]
+        [Tooltip("Tốc độ tuột thanh mắc tiểu khi đang tiểu (Số điểm / Giây)")]
+        [SerializeField] private float tocDoXamTieu = 25f;
 
         [Tooltip("Phím bấm để thực hiện hành động tiểu (Mặc định phím U)")]
         [SerializeField] private KeyCode phimTieu = KeyCode.U;
@@ -52,9 +49,13 @@ namespace GameCore.Player
         [Tooltip("Slider hiển thị mức độ mắc tiểu")]
         [SerializeField] private Slider sliderMacTieu;
 
-        // Bổ sung tham chiếu nội bộ
+        // Tham chiếu các script điều khiển
         private PlayerController playerController;
+        private TanCong tanCongScript;
+        private Luot luotScript;
         private CharacterStats characterStats;
+        private Rigidbody2D rb;
+
         private bool đangTieu = false;
 
         public bool DangTieu => đangTieu;
@@ -71,8 +72,12 @@ namespace GameCore.Player
                 return;
             }
 
+            // Tự động tìm tất cả các script chức năng trên Player để vô hiệu hóa khi tiểu
             playerController = GetComponent<PlayerController>();
+            tanCongScript = GetComponent<TanCong>();
+            luotScript = GetComponent<Luot>();
             characterStats = GetComponent<CharacterStats>();
+            rb = GetComponent<Rigidbody2D>();
         }
 
         private void Start()
@@ -133,14 +138,14 @@ namespace GameCore.Player
         /// </summary>
         private void KiemTraDieuKienTieu()
         {
-            // 1. Tự động tiểu ngay lập tức bất chấp hành động nếu thanh slider đầy (>= 100%)
+            // 1. Tự động tiểu ngay lập tức khi thanh slider đầy (>= 100%)
             if (mucDoMacTieuHienTai >= mucDoMacTieuToiDa)
             {
                 StartCoroutine(ThucHienHanhDongTieu());
                 return;
             }
 
-            // 2. Người chơi tự bấm phím tiểu bất kể khi nào (chỉ cần mức mắc tiểu > 0)
+            // 2. Người chơi tự bấm phím tiểu (chỉ cần mức mắc tiểu > 0)
             if (Input.GetKeyDown(phimTieu) && mucDoMacTieuHienTai > 0f)
             {
                 StartCoroutine(ThucHienHanhDongTieu());
@@ -148,69 +153,74 @@ namespace GameCore.Player
         }
 
         /// <summary>
-        /// Coroutine xử lý tiến trình tiểu, tính toán thời gian theo tỷ lệ mắc tiểu,
-        /// bật bất tử và khóa di chuyển
+        /// Coroutine xử lý tiến trình xả tiểu: thanh slider tuột dần về 0 mới kết thúc
         /// </summary>
         private IEnumerator ThucHienHanhDongTieu()
         {
             đangTieu = true;
 
-            // Tính toán thời gian tiểu tuyến tính (Mắc tiểu càng ít tiểu càng nhanh, mắc tiểu đầy tiểu lâu nhất)
-            float tyLeMacTieu = Mathf.Clamp01(mucDoMacTieuHienTai / mucDoMacTieuToiDa);
-            float thoiGianTieuThucTe = Mathf.Lerp(thoiGianTieuToiThieu, thoiGianTieuToiDa, tyLeMacTieu);
-
-            // Bật trạng thái nhân vật đang tiểu (Khóa di chuyển + Bật Bất tử + Đổi GameObject)
-            ThietLapTrangThaiDangTieu(true, thoiGianTieuThucTe);
+            // Khóa di chuyển, tấn công, lướt và kích hoạt nhân vật tiểu
+            ThietLapTrangThaiKhoaHanhDong(true);
 
             // Phát sự kiện thông báo cho Quái hoảng sợ bỏ chạy
             OnExecutionStart?.Invoke();
 
-            // Chờ hết thời gian tiểu thực tế
-            yield return new WaitForSeconds(thoiGianTieuThucTe);
+            // VÒNG LẶP TUỘT SLIDER: Xả dần năng lượng cho đến khi hết hẳn
+            while (mucDoMacTieuHienTai > 0f)
+            {
+                mucDoMacTieuHienTai -= tocDoXamTieu * Time.deltaTime;
+                mucDoMacTieuHienTai = Mathf.Max(0f, mucDoMacTieuHienTai);
 
-            // Reset mức mắc tiểu về 0 và cập nhật Slider UI
-            mucDoMacTieuHienTai = 0f;
-            CapNhatUI();
+                CapNhatUI();
 
-            // Trả lại trạng thái nhân vật bình thường
-            ThietLapTrangThaiDangTieu(false, 0f);
+                // Duy trì bất tử liên tục trong suốt thời gian xả tiểu
+                if (characterStats != null)
+                {
+                    characterStats.SetInvincible(0.5f);
+                }
 
-            // Phát sự kiện kết thúc (Quái hết sợ, dính Knockback và đánh tiếp)
+                yield return null; // Chờ sang khung hình tiếp theo
+            }
+
+            // Mở lại hoạt động nhân vật bình thường
+            ThietLapTrangThaiKhoaHanhDong(false);
+
+            // Phát sự kiện kết thúc
             OnExecutionEnd?.Invoke();
 
             đangTieu = false;
         }
 
         /// <summary>
-        /// Thiết lập ẩn hiện GameObject, khóa di chuyển và bật/tắt bất tử
+        /// Khóa/Mở lại các Script điều khiển (Di chuyển, Bắn, Lướt) và đổi GameObject
         /// </summary>
-        private void ThietLapTrangThaiDangTieu(bool isUrination, float duration)
+        private void ThietLapTrangThaiKhoaHanhDong(bool isUrination)
         {
             // 1. Hoán đổi GameObject hiển thị
             if (gameObjectNhanVatGoc != null) gameObjectNhanVatGoc.SetActive(!isUrination);
             if (gameObjectNhanVatDangTieu != null) gameObjectNhanVatDangTieu.SetActive(isUrination);
 
-            // 2. Khóa / Mở lại di chuyển người chơi
+            // 2. Vô hiệu hóa/Kích hoạt lại các script hành động của Player
             if (playerController != null)
             {
-                if (isUrination)
-                {
-                    playerController.StopMovementAndAnimation();
-                    playerController.enabled = false;
-                }
-                else
-                {
-                    playerController.enabled = true;
-                }
+                if (isUrination) playerController.StopMovementAndAnimation();
+                playerController.enabled = !isUrination;
             }
 
-            // 3. Bật / Tắt trạng thái Bất tử không bị mất máu
-            if (characterStats != null)
+            if (tanCongScript != null)
             {
-                if (isUrination)
-                {
-                    characterStats.SetInvincible(duration + 0.1f);
-                }
+                tanCongScript.enabled = !isUrination;
+            }
+
+            if (luotScript != null)
+            {
+                luotScript.enabled = !isUrination;
+            }
+
+            // 3. Triệt tiêu ngay vận tốc hiện tại nếu đang di chuyển dở
+            if (isUrination && rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
             }
         }
 

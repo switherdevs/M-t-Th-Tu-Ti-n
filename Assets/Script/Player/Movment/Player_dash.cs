@@ -7,19 +7,23 @@ public class Luot : MonoBehaviour
 {
     [Header("Dash Settings")]
     [SerializeField] private float dashDistance = 5f;
-    [SerializeField] private float dashCooldown = 2f;
-    [SerializeField] private float dashDuration = 0.1f;    // Thời gian thực hiện cú lướt
-    [SerializeField] private float trailDuration = 0.2f;   // Thời gian vệt sáng tồn tại
+    [SerializeField] private float dashCooldown = 0.2f;   // Cooldown ngắn để có thể dash liên tục
+    [SerializeField] private float dashDuration = 0.1f;   // Thời gian thực hiện cú lướt
+    [SerializeField] private float trailDuration = 0.2f;  // Thời gian vệt sáng tồn tại
+
+    [Header("Asian Mode Meme Settings")]
+    [SerializeField] private int maxDashAllowed = 7;      // Giới hạn 7 lần
+    [SerializeField] private float dashResetWindow = 3f;  // Thời gian cửa sổ đếm liên tục (3s)
 
     [Header("Invincible Settings")]
     [SerializeField, Tooltip("Thời gian bất tử (không dính sát thương) khi lướt")]
     private float invincibleDuration = 2f;
 
     [Header("Animation Settings")]
-    [SerializeField] private string dashTriggerName = "Dash"; // Tên Trigger animation lướt
+    [SerializeField] private string dashTriggerName = "Dash";
 
     [Header("Trail Settings")]
-    [SerializeField] private TrailRenderer trailRenderer; // Gắn TrailRenderer vào đây
+    [SerializeField] private TrailRenderer trailRenderer;
 
     private Rigidbody2D rb;
     private Animator animator;
@@ -28,11 +32,14 @@ public class Luot : MonoBehaviour
     private Vector2 dashDirection = Vector2.right;
     private bool isDashing = false;
 
+    // Các biến đếm lướt liên tục
+    private int consecutiveDashCount = 0;
+    private float lastDashTrackerTime = 0f;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponentInChildren<Animator>();
-
         characterStats = GetComponent<CharacterStats>();
 
         if (trailRenderer != null)
@@ -44,6 +51,12 @@ public class Luot : MonoBehaviour
     void Update()
     {
         if (isDashing) return;
+
+        // Reset đếm lướt liên tục nếu đã quá thời gian quy định
+        if (Time.time - lastDashTrackerTime > dashResetWindow)
+        {
+            consecutiveDashCount = 0;
+        }
 
         // 1. Lấy hướng lướt dựa trên phím di chuyển hiện tại (W, A, S, D)
         Vector2 input = Vector2.zero;
@@ -70,7 +83,24 @@ public class Luot : MonoBehaviour
         isDashing = true;
         lastDashTime = Time.time;
 
-        // Gọi hàm kích hoạt bất tử 2s
+        // BẪY ASIAN MODE: Đếm số lần lướt liên tục
+        consecutiveDashCount++;
+        lastDashTrackerTime = Time.time;
+
+        int currentDifficulty = PlayerPrefs.GetInt("GameDifficulty", 1);
+        if (currentDifficulty == 3 && consecutiveDashCount >= maxDashAllowed)
+        {
+            Debug.LogWarning("<color=red>[Asian Mode Meme]</color> Lướt liên tục quá 7 lần! Đột quỵ chết!");
+            if (characterStats != null)
+            {
+                characterStats.StopAllCoroutines();
+                characterStats.TakeDamage(9999999f);
+            }
+            isDashing = false;
+            yield break;
+        }
+
+        // Gọi hàm kích hoạt bất tử
         if (characterStats != null)
         {
             characterStats.SetInvincible(invincibleDuration);

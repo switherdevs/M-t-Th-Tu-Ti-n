@@ -295,6 +295,7 @@ MonoBehaviour:
     baseValue: 0.1
   currentHealth: 0
   isPoisoned: 0
+  isInvincible: 0
   isPlayer: 0
   dieAnimName: Die
   deathDelay: 2
@@ -349,17 +350,17 @@ MonoBehaviour:
   shootsBeforeRoar: 3
   roarWindupTime: 5
   roarDuration: 2
-  sfxRoar: {fileID: 0}
+  sfxRoar: {fileID: 8300000, guid: 0c5c821a6adeea04ca278317467e8fa1, type: 3}
   roarCameraShakeIntensity: 50
   roarCameraShakeDuration: 5
-  playerSlowMultiplier: 0.75
+  playerSlowMultiplier: 1.5
   playerSlowDuration: 2.5
   roarAffectRadius: 130
   audioSource: {fileID: 6028217224675617043}
   sfxPrepareAttack: {fileID: 0}
   sfxClaw1: {fileID: 8300000, guid: 0711f32949ec29845be5de473c2e319b, type: 3}
   sfxClaw2: {fileID: 8300000, guid: 4fe0f624f40d97a45a7cd7016eb3449d, type: 3}
-  sfxBreath: {fileID: 8300000, guid: 0c5c821a6adeea04ca278317467e8fa1, type: 3}
+  sfxBreath: {fileID: 8300000, guid: 172ee2c4a2ec3ce42ab2a8fb17cf9cfd, type: 3}
   sfxStun: {fileID: 0}
   sfxDeath: {fileID: 0}
   animWalk: isWalking
@@ -387,7 +388,7 @@ MonoBehaviour:
   executionStateName: BeingExecuted
   die2StateName: Die2
   executionVFXPrefab: {fileID: 3486426238667156243, guid: 6e576f3e155399c4e8bae0d95be2851f, type: 3}
-  vfxSpawnPoint: {fileID: 7877542390242093592}
+  vfxSpawnPoint: {fileID: 3046005955171245084}
   executePromptUI: {fileID: 0}
   stunVFXObject: {fileID: 5901866960104184876}
 --- !u!82 &6028217224675617043

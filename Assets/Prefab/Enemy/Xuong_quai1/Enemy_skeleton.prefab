@@ -750,6 +750,7 @@ MonoBehaviour:
     baseValue: 0.1
   currentHealth: 100
   isPoisoned: 0
+  isInvincible: 0
   isPlayer: 0
   dieAnimName: Die
   deathDelay: 2
@@ -923,7 +924,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc5621c62038f354d974f198b7f7efef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scriptAIGoc: {fileID: 2399408769851875274}
+  scriptAIGoc: {fileID: 548920370642440125}
   animator: {fileID: 7767641472182091394}
   tenParamAnimation: isWalking
   khoangCachAnToan: 10

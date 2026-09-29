@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro; // Bổ sung thư viện TextMeshPro
 
 public class DifficultyUISystem : MonoBehaviour
 {
@@ -16,6 +17,9 @@ public class DifficultyUISystem : MonoBehaviour
     [SerializeField] private Button btnNormal;
     [SerializeField] private Button btnHard;
     [SerializeField] private Button btnAsian;
+
+    [Header("=== HIỂN THỊ TÊN ĐỘ KHÓ (TEXT MESH PRO) ===")]
+    [SerializeField] private TextMeshProUGUI txtDifficultyName; // Kéo thả UI Text (TMP) vào đây
 
     [Header("=== MÀU SẮC ĐỂ PHÂN BIỆT TRẠNG THÁI NÚT ===")]
     [SerializeField] private Color normalColor = Color.white;
@@ -55,7 +59,10 @@ public class DifficultyUISystem : MonoBehaviour
         currentlySelectedButton = clickedButton;
         SetButtonVisual(currentlySelectedButton, true);
 
-        // 4. Lưu Vào Save File (PlayerPrefs) Ngay Lập Tức
+        // 4. Cập nhật TextMeshPro hiển thị tên độ khó bằng tiếng Anh
+        UpdateDifficultyText(mode);
+
+        // 5. Lưu Vào Save File (PlayerPrefs) Ngay Lập Tức
         PlayerPrefs.SetInt(SAVED_DIFFICULTY_KEY, (int)mode);
         PlayerPrefs.Save();
 
@@ -78,6 +85,9 @@ public class DifficultyUISystem : MonoBehaviour
             currentlySelectedButton = targetButton;
             SetButtonVisual(targetButton, true);
         }
+
+        // Cập nhật Text hiển thị đúng chế độ đã save bằng tiếng Anh khi vừa vào game
+        UpdateDifficultyText(mode);
     }
 
     private void SetButtonVisual(Button btn, bool isSelected)
@@ -90,5 +100,27 @@ public class DifficultyUISystem : MonoBehaviour
 
         // Làm Cho Nút Đang Giữ Bị Vô Hiệu Hóa Click Tạm Thời Để Rõ Ràng Hơn
         btn.interactable = !isSelected;
+    }
+
+    // Hàm cập nhật chữ hiển thị trên UI TextMeshPro bằng Tiếng Anh
+    private void UpdateDifficultyText(DifficultyMode mode)
+    {
+        if (txtDifficultyName == null) return;
+
+        switch (mode)
+        {
+            case DifficultyMode.Easy:
+                txtDifficultyName.text = "Difficulty: EASY";
+                break;
+            case DifficultyMode.Normal:
+                txtDifficultyName.text = "Difficulty: NORMAL";
+                break;
+            case DifficultyMode.Hard:
+                txtDifficultyName.text = "Difficulty: HARD";
+                break;
+            case DifficultyMode.Asian:
+                txtDifficultyName.text = "Difficulty: ASIAN";
+                break;
+        }
     }
 }

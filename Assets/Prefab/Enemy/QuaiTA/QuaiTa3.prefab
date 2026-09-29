@@ -355,6 +355,7 @@ MonoBehaviour:
     baseValue: 0.1
   currentHealth: 0
   isPoisoned: 0
+  isInvincible: 0
   isPlayer: 0
   dieAnimName: Die
   deathDelay: 2
@@ -467,7 +468,7 @@ MonoBehaviour:
   executionStateName: BeingExecuted
   die2StateName: Die2
   executionVFXPrefab: {fileID: 3486426238667156243, guid: 6e576f3e155399c4e8bae0d95be2851f, type: 3}
-  vfxSpawnPoint: {fileID: 2168164391859662949}
+  vfxSpawnPoint: {fileID: 3175585894070689707}
   executePromptUI: {fileID: 0}
   stunVFXObject: {fileID: 256166917805934538}
 --- !u!82 &590500767433558846

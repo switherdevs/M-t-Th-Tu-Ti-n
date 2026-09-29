@@ -26,7 +26,7 @@ public class Elite_TyHuu : MonoBehaviour
     [Header("--- KỸ NĂNG 2: ROAR SKILL (GẦM) ---")]
     [SerializeField] private float roarWindupTime = 1f;
     [SerializeField] private float roarDuration = 2f;
-    [SerializeField] private AudioClip sfxRoar; // ÂM THANH GẦM
+    [SerializeField] private AudioClip sfxRoar; // ÂM THANH GẦM (Gán AudioClip tiếng gầm vào đây trong Inspector)
     [SerializeField] private float roarCameraShakeIntensity = 2.5f;
     [SerializeField] private float roarCameraShakeDuration = 0.8f;
     [SerializeField] private float playerSlowMultiplier = 0.3f;
@@ -36,9 +36,9 @@ public class Elite_TyHuu : MonoBehaviour
     [Header("--- ÂM THANH (AUDIO) ---")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip sfxPrepareAttack;
-    [SerializeField] private AudioClip sfxClaw1; // Bổ sung âm thanh vuốt 1
-    [SerializeField] private AudioClip sfxClaw2; // Bổ sung âm thanh vuốt 2
-    [SerializeField] private AudioClip sfxBreath; // Âm thanh khi bắn đá
+    [SerializeField] private AudioClip sfxClaw1;
+    [SerializeField] private AudioClip sfxClaw2;
+    [SerializeField] private AudioClip sfxBreath;
     [SerializeField] private AudioClip sfxStun;
     [SerializeField] private AudioClip sfxDeath;
 
@@ -397,7 +397,12 @@ public class Elite_TyHuu : MonoBehaviour
                 if (playerTransform.TryGetComponent<PlayerController>(out PlayerController playerController))
                 {
                     playerController.ApplySlow(playerSlowMultiplier, playerSlowDuration);
+                    Debug.Log($"<color=red>[Elite Tỳ Hưu]</color> Đã kích hoạt gầm trúng Player! Tốc độ giảm còn {playerSlowMultiplier * 100}% trong {playerSlowDuration}s.");
                 }
+            }
+            else
+            {
+                Debug.Log($"<color=yellow>[Elite Tỳ Hưu]</color> Player đứng ngoài tầm gầm ({distToPlayer:F1}m / {roarAffectRadius}m).");
             }
         }
     }

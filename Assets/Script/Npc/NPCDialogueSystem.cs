@@ -429,8 +429,8 @@ public class NPCDialogueSystem : MonoBehaviour
                 bool daNhanThanhCong = XuLyNhanQuestVaSave(luaChon.questDataToAccept);
                 if (daNhanThanhCong)
                 {
-                    bool isEN = SettingsManager.Instance != null && SettingsManager.Instance.IsEnglish();
-                    HienThiCauThoaiTamBiet(isEN ? "Thank you! Take care." : "Cảm ơn ngươi! Hãy bảo trọng.");
+                    // 🎯 FIX: CHUYỂN THẲNG TỚI THOẠI ĐÃ NHẬN QUEST (BỎ QUA ID THOẠI TIẾP THEO)
+                    HienThiThoaiDaNhanQuest();
                 }
                 break;
 
@@ -481,9 +481,6 @@ public class NPCDialogueSystem : MonoBehaviour
         if (btnLuaChon2 != null) btnLuaChon2.gameObject.SetActive(false);
     }
 
-    /// <summary>
-    /// Kiểm tra xem người chơi đã hoàn tất toàn bộ danh sách Quest phụ yêu cầu hay chưa
-    /// </summary>
     private bool KiemTraDaHoanThanhHetQuestPhu()
     {
         if (danhSachQuestPhuYeuCau == null || danhSachQuestPhuYeuCau.Count == 0) return true;
@@ -495,7 +492,7 @@ public class NPCDialogueSystem : MonoBehaviour
             TrangThaiQuest trangThai = LayTrangThaiQuestSave(quest.idQuest);
             if (trangThai != TrangThaiQuest.HoanThanh)
             {
-                return false; // Chỉ cần 1 quest chưa hoàn thành -> Không đủ điều kiện Good Ending
+                return false;
             }
         }
 
@@ -508,7 +505,6 @@ public class NPCDialogueSystem : MonoBehaviour
 
         DungToanBoGoChuVaAmThanh();
 
-        // 🎯 KIỂM TRA NẾU LÀ THOẠI CUỐI GAME (FINAL DIALOGUE)
         if (isFinalDialogue)
         {
             bool daXongHetQuestPhu = KiemTraDaHoanThanhHetQuestPhu();
@@ -528,7 +524,6 @@ public class NPCDialogueSystem : MonoBehaviour
             return;
         }
 
-        // 🎯 NẾU KHÔNG PHẢI FINAL THOẠI -> CHẠY LUỒNG THƯỜNG
         if (chuyenMapKhiTamBiet)
         {
             if (!string.IsNullOrEmpty(tenSceneChuyenDen))

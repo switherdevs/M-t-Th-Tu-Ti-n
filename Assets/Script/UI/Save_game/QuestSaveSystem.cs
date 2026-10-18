@@ -18,7 +18,8 @@ public class ProgressQuest
 {
     public int idQuest;
     public TrangThaiQuest trangThai;
-    public int soBoXuongDaDiet; // Biến ghi nhận tiến trình
+    public LoaiQuest loaiQuest; // Bổ sung trường này để lưu loại Quest (DietQuai = 0, GiaiCuu = 1) ra file txt
+    public int soBoXuongDaDiet; // Biến ghi nhận tiến trình (Diệt quái hoặc Giải cứu)
 }
 
 [Serializable]
@@ -562,10 +563,15 @@ public class QuestSaveSystem : MonoBehaviour
             if (quest.idQuest == idQuest) return quest;
         }
 
+        // Lấy thông tin QuestData để xác định loại Quest (DietQuai hay GiaiCuu)
+        QuestData qData = LayQuestDataTheoID(idQuest);
+        LoaiQuest loai = qData != null ? qData.loaiQuest : LoaiQuest.DietQuai;
+
         ProgressQuest questMoi = new ProgressQuest
         {
             idQuest = idQuest,
             trangThai = TrangThaiQuest.ChuaNhan,
+            loaiQuest = loai, // Tự động đồng bộ loại quest từ QuestData
             soBoXuongDaDiet = 0
         };
 

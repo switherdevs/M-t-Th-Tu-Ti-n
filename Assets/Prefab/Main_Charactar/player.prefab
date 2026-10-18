@@ -628,6 +628,8 @@ MonoBehaviour:
   dashCooldown: 0.5
   dashDuration: 0.1
   trailDuration: 0.2
+  maxDashAllowed: 7
+  dashResetWindow: 3
   invincibleDuration: 2
   dashTriggerName: Dash
   trailRenderer: {fileID: 6823664449348580605}
@@ -906,6 +908,12 @@ MonoBehaviour:
   tocDoTangMacTieu: 1
   tocDoXamTieu: 25
   phimTieu: 117
+  checkRadius: 1.5
+  petTag: pet
+  teDanTag: Tedan
+  checkLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   gameObjectNhanVatGoc: {fileID: 2087575674238348434}
   gameObjectNhanVatDangTieu: {fileID: 6060328584861372797}
   sliderMacTieu: {fileID: 6283949462002696473}
@@ -1821,7 +1829,7 @@ MonoBehaviour:
   currentLevel: 1
   currentExp: 0
   maxExp: 5
-  expMultiplier: 1.5
+  expMultiplier: 0.25
   minRandomNgoTinh: 0.7
   maxRandomNgoTinh: 0.9
 --- !u!114 &8504750307135505312

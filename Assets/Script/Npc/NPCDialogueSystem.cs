@@ -426,12 +426,9 @@ public class NPCDialogueSystem : MonoBehaviour
                 break;
 
             case HanhDongLuaChon.NhanQuest:
-                bool daNhanThanhCong = XuLyNhanQuestVaSave(luaChon.questDataToAccept);
-                if (daNhanThanhCong)
-                {
-                    // 🎯 FIX: CHUYỂN THẲNG TỚI THOẠI ĐÃ NHẬN QUEST (BỎ QUA ID THOẠI TIẾP THEO)
-                    HienThiThoaiDaNhanQuest();
-                }
+                // Tự động nhận Quest và ép hiển thị ngay Thoại Đã Nhận Quest bất kể trả về true/false
+                XuLyNhanQuestVaSave(luaChon.questDataToAccept);
+                HienThiThoaiDaNhanQuest();
                 break;
 
             case HanhDongLuaChon.DongThoai:
@@ -444,20 +441,25 @@ public class NPCDialogueSystem : MonoBehaviour
     {
         if (quest == null) return false;
 
-        if (QuestManager.Instance != null)
+        // Tự động gán Quest Kiểm Tra nếu NPC chưa cài sẵn
+        if (questKiemTra == null)
         {
-            bool ketQuaNhan = QuestManager.Instance.AcceptQuest(quest);
-
-            if (ketQuaNhan && QuestSaveSystem.Instance != null)
-            {
-                QuestSaveSystem.Instance.CapNhatTrangThaiQuest(quest.idQuest, TrangThaiQuest.DangLam);
-                QuestHUDTracker.ThongBaoCapNhatHUD();
-            }
-
-            return ketQuaNhan;
+            questKiemTra = quest;
         }
 
-        return false;
+        if (QuestSaveSystem.Instance != null)
+        {
+            // Cập nhật trạng thái Quest thành DangLam và lưu file txt lập tức
+            QuestSaveSystem.Instance.CapNhatTrangThaiQuest(quest.idQuest, TrangThaiQuest.DangLam);
+            QuestHUDTracker.ThongBaoCapNhatHUD();
+        }
+
+        if (QuestManager.Instance != null)
+        {
+            return QuestManager.Instance.AcceptQuest(quest);
+        }
+
+        return true;
     }
 
     private void HienThiCauThoaiTamBiet(string loiTamBiet)

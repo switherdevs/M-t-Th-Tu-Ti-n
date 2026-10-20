@@ -25,6 +25,7 @@ namespace StatsSystem.Components
         private Animator animator;
         private Rigidbody2D rb;
         private bool isStunned = false;
+        private bool isDeadHandled = false; // Biến cờ bảo vệ chống kích hoạt chết 2 lần
 
         private void Awake()
         {
@@ -35,12 +36,18 @@ namespace StatsSystem.Components
 
         private void OnEnable()
         {
-            stats.OnDeath += HandleDeath;
+            if (stats != null)
+            {
+                stats.OnDeath += HandleDeath;
+            }
         }
 
         private void OnDisable()
         {
-            stats.OnDeath -= HandleDeath;
+            if (stats != null)
+            {
+                stats.OnDeath -= HandleDeath;
+            }
         }
 
         /// <summary>
@@ -58,7 +65,7 @@ namespace StatsSystem.Components
         // ==========================================
         public void ApplyStun(float duration)
         {
-            if (isStunned) return;
+            if (isStunned || isDeadHandled) return;
             StartCoroutine(StunRoutine(duration));
         }
 
@@ -79,7 +86,7 @@ namespace StatsSystem.Components
             yield return new WaitForSeconds(duration);
 
             isStunned = false;
-            if (animator != null)
+            if (animator != null && !isDeadHandled)
             {
                 animator.ResetTrigger(dieTriggerName);
             }
@@ -90,15 +97,30 @@ namespace StatsSystem.Components
         // ==========================================
         private void HandleDeath()
         {
+            // Tránh chạy trùng lặp nhiều lần nếu có nhiều nguồn gây sát thương cùng lúc
+            if (isDeadHandled) return;
+            isDeadHandled = true;
+
             Debug.Log($"{gameObject.name} (ID Quái: {idQuai}) đã chết!");
 
-            StopAllCoroutines();
+            // Dừng di chuyển ngay lập tức
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+                rb.simulated = false; // Tắt vật lý để tránh va chạm khi đã chết
+            }
 
+            // Tắt Collider ngay lập tức
+            Collider2D col = GetComponent<Collider2D>();
+            if (col != null) col.enabled = false;
+
+            // Kích hoạt Animation Chết
             if (animator != null)
             {
                 animator.SetTrigger(dieTriggerName);
             }
 
+            // Cộng EXP cho Player (Kiểm tra an toàn)
             if (LevelSystem.Instance != null)
             {
                 LevelSystem.Instance.AddExp(expNhanDuoc);
@@ -108,6 +130,7 @@ namespace StatsSystem.Components
                 Debug.LogWarning("[EnemyController] Không tìm thấy LevelSystem.Instance trong Scene!");
             }
 
+            // Ghi nhận nhiệm vụ
             if (QuestSaveSystem.Instance != null)
             {
                 QuestSaveSystem.Instance.GhiNhanDietQuai(idQuai, 1);
@@ -117,9 +140,10 @@ namespace StatsSystem.Components
                 Debug.LogWarning("[EnemyController] Không tìm thấy QuestSaveSystem.Instance trong Scene!");
             }
 
-            Collider2D col = GetComponent<Collider2D>();
-            if (col != null) col.enabled = false;
+            // Dừng các Coroutine cũ (như Stun, AI Skill) trên GameObject này
+            StopAllCoroutines();
 
+            // Chạy Coroutine tự hủy sau thời gian chờ
             StartCoroutine(DestroyAfterDelay(destroyDelay));
         }
 

@@ -13,7 +13,7 @@ namespace StatsSystem.Components
         [SerializeField] private float maxExp = 5f;
 
         [Header("=== CẤU HÌNH RANDOM ĐỘT PHÁ ===")]
-        [SerializeField] private float expMultiplier = 1.5f;
+        [SerializeField] private float expMultiplier = 1.2f;
         [SerializeField] private float minRandomNgoTinh = 0.8f;
         [SerializeField] private float maxRandomNgoTinh = 1.2f;
 
@@ -41,9 +41,6 @@ namespace StatsSystem.Components
             LoadExpFromSave();
         }
 
-        /// <summary>
-        /// Nạp dữ liệu Level & EXP từ QuestSaveSystem
-        /// </summary>
         public void LoadExpFromSave()
         {
             if (QuestSaveSystem.Instance != null && QuestSaveSystem.Instance.duLieuSaveHienTai != null)
@@ -65,16 +62,12 @@ namespace StatsSystem.Components
                 Debug.LogWarning("[LevelSystem] Chưa tìm thấy QuestSaveSystem.Instance. Đang giữ nguyên thông số mặc định.");
             }
 
-            // Báo UI cập nhật lại thông số ngay lập tức
             OnExpChanged?.Invoke(currentLevel, currentExp, maxExp);
         }
 
-        /// <summary>
-        /// Đồng bộ dữ liệu hiện tại vào QuestSaveSystem
-        /// </summary>
         public void SaveExpToSaveSystem()
         {
-            if (!isLoaded) return; // Bảo vệ: Không lưu khi chưa load dữ liệu cũ xong
+            if (!isLoaded) return;
 
             if (QuestSaveSystem.Instance != null && QuestSaveSystem.Instance.duLieuSaveHienTai != null)
             {
@@ -94,10 +87,18 @@ namespace StatsSystem.Components
         {
             if (amount <= 0) return;
 
+            // Đảm bảo maxExp luôn lớn hơn 0 để tránh chia cho 0 hoặc lặp vô tận
+            if (maxExp <= 0) maxExp = 5f;
+
             currentExp += amount;
 
-            while (currentExp >= maxExp)
+            // 🎯 CHỐT BẢO VỆ CHỐNG ĐÓNG BĂNG UNITY: Đếm số vòng lặp tối đa
+            int loopSafetyCounter = 0;
+            int maxAllowedLoops = 100; // Giới hạn tối đa 100 level/lần cộng exp
+
+            while (currentExp >= maxExp && loopSafetyCounter < maxAllowedLoops)
             {
+                loopSafetyCounter++;
                 currentExp -= maxExp;
                 currentLevel++;
 
@@ -107,10 +108,12 @@ namespace StatsSystem.Components
                 OnLevelUp?.Invoke(currentLevel);
             }
 
-            // Cập nhật UI ngay lập tức
-            OnExpChanged?.Invoke(currentLevel, currentExp, maxExp);
+            if (loopSafetyCounter >= maxAllowedLoops)
+            {
+                Debug.LogError("<color=red>[LevelSystem]</color> CẢNH BÁO: Đã chặn vòng lặp vô tận khi cộng EXP! Kiểm tra lại maxExp.");
+            }
 
-            // Ghi dữ liệu vừa cập nhật vào File Save
+            OnExpChanged?.Invoke(currentLevel, currentExp, maxExp);
             SaveExpToSaveSystem();
         }
 
@@ -119,6 +122,9 @@ namespace StatsSystem.Components
             float baseNextExp = maxExp * expMultiplier;
             float randomNgoTinh = UnityEngine.Random.Range(minRandomNgoTinh, maxRandomNgoTinh);
             maxExp = Mathf.Round(baseNextExp * randomNgoTinh);
+
+            // 🎯 Ép maxExp tối thiểu phải là 1 để tránh maxExp = 0 gây treo loop
+            if (maxExp <= 0) maxExp = 1f;
         }
     }
 }

@@ -18,11 +18,13 @@ namespace GameCore.AI
 
         protected override bool CanUseSkill()
         {
-            return skillCooldownTimer <= 0f && !isPerformingSkill;
+            return skillCooldownTimer <= 0f && !isPerformingSkill && (myStats == null || !myStats.IsDead);
         }
 
         protected override void SelectAndExecuteSkill()
         {
+            if (myStats != null && myStats.IsDead) return;
+
             int randomSkill = Random.Range(1, 4);
 
             switch (randomSkill)
@@ -39,7 +41,7 @@ namespace GameCore.AI
             }
         }
 
-        // Skill 1: Thạch Thỏ Cuồng Bắn (Ném đá tầm xa)
+        // Skill 1: Thạch Thỏ Cuồng Bắn
         private IEnumerator Routine_Skill1_RangedPebble()
         {
             isPerformingSkill = true;
@@ -47,6 +49,13 @@ namespace GameCore.AI
 
             if (anim != null) anim.SetTrigger("Skill1");
             yield return new WaitForSeconds(0.3f);
+
+            // Kiểm tra nếu quái chết giữa chừng thì dừng Coroutine lập tức
+            if (myStats != null && myStats.IsDead)
+            {
+                isPerformingSkill = false;
+                yield break;
+            }
 
             if (rockProjectilePrefab != null && playerTransform != null)
             {
@@ -66,7 +75,7 @@ namespace GameCore.AI
             isPerformingSkill = false;
         }
 
-        // Skill 2: Cuồng Nộ Ma Thỏ (Hồi máu + Buff công 10s)
+        // Skill 2: Cuồng Nộ Ma Thỏ
         private IEnumerator Routine_Skill2_BuffAndHeal()
         {
             isPerformingSkill = true;
@@ -74,8 +83,7 @@ namespace GameCore.AI
 
             if (anim != null) anim.SetTrigger("Skill2");
 
-            // Hồi máu
-            if (myStats != null)
+            if (myStats != null && !myStats.IsDead)
             {
                 myStats.Heal(healAmount);
                 myStats.Attack.Value += buffAttackBonus;
@@ -85,7 +93,6 @@ namespace GameCore.AI
             skillCooldownTimer = globalSkillCooldown;
             isPerformingSkill = false;
 
-            // Đếm ngược 10s tự động trả lại chỉ số Attack cũ
             yield return new WaitForSeconds(buffDuration);
             if (myStats != null)
             {
@@ -93,7 +100,7 @@ namespace GameCore.AI
             }
         }
 
-        // Skill 3: Đột Kích Thỏ Cụ (Lao vút đè bẹp diện rộng)
+        // Skill 3: Đột Kích Thỏ Cụ
         private IEnumerator Routine_Skill3_CarrotPounce()
         {
             isPerformingSkill = true;
@@ -111,6 +118,13 @@ namespace GameCore.AI
 
                 while (elapsed < jumpTime)
                 {
+                    // 🎯 BẢO VỆ: Nếu thỏ chết khi đang nhảy trên không -> Thoát Coroutine ngay
+                    if (myStats != null && myStats.IsDead)
+                    {
+                        isPerformingSkill = false;
+                        yield break;
+                    }
+
                     transform.position = Vector3.Lerp(startPos, targetPos, elapsed / jumpTime);
                     elapsed += Time.deltaTime;
                     yield return null;
@@ -118,14 +132,16 @@ namespace GameCore.AI
 
                 transform.position = targetPos;
 
-                // Gây sát thương AoE khi tiếp đất
-                Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 2f);
-                foreach (var hit in hits)
+                if (myStats != null && !myStats.IsDead)
                 {
-                    if (hit.CompareTag("Player"))
+                    Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 2f);
+                    foreach (var hit in hits)
                     {
-                        CharacterStats target = hit.GetComponent<CharacterStats>();
-                        if (target != null) target.TakeDamage(pounceDamage + myStats.Attack.Value);
+                        if (hit.CompareTag("Player"))
+                        {
+                            CharacterStats target = hit.GetComponent<CharacterStats>();
+                            if (target != null) target.TakeDamage(pounceDamage + myStats.Attack.Value);
+                        }
                     }
                 }
             }

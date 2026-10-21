@@ -29,6 +29,7 @@ namespace GameCore.AI
         {
             rb = GetComponent<Rigidbody2D>();
             myStats = GetComponent<CharacterStats>();
+            // Lấy Animator luôn từ GameObject con (Model/Sprite)
             anim = GetComponentInChildren<Animator>();
         }
 
@@ -57,7 +58,7 @@ namespace GameCore.AI
         {
             if (myStats != null && myStats.IsDead)
             {
-                rb.linearVelocity = Vector2.zero;
+                StopMoving();
                 return;
             }
 
@@ -72,7 +73,7 @@ namespace GameCore.AI
                 skillCooldownTimer -= Time.deltaTime;
             }
 
-            // Xử lý khi Player xả tiểu
+            // Xử lý khi Player xả tiểu (Quái hoảng sợ bỏ chạy)
             if (isFleeing)
             {
                 ExecuteFleeing();
@@ -125,7 +126,11 @@ namespace GameCore.AI
 
         protected void StopMoving()
         {
-            rb.linearVelocity = Vector2.zero;
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
             if (anim != null)
             {
                 anim.SetBool("isMoving", false);

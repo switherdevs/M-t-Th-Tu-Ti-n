@@ -5,16 +5,40 @@ namespace GameCore.AI
 {
     public class MonsterRabbitAI : MonsterAIBase
     {
-        [Header("=== CẤU HÌNH PREFAB ĐẠN / EFFECT ===")]
+        [Header("=== CẤU HÌNH GAMEOBJECT & PREFAB ===")]
+        [Tooltip("Prefab của viên đá thỏ ném ra ở Skill 1 (Phải có Rigidbody2D và DamageDealer)")]
         [SerializeField] private GameObject rockProjectilePrefab;
+
+        [Tooltip("Điểm xuất phát của viên đá (Kéo Transform vị trí miệng/tay thỏ vào đây)")]
         [SerializeField] private Transform launchPoint;
 
-        [Header("=== THÔNG SỐ SKILL THỎ ===")]
+        [Header("=== CẤU HÌNH THỜI GIAN HỒI CHIÊU CHUNG ===")]
+        [Tooltip("Khoảng thời gian nghỉ (giây) giữa các lần tung Skill")]
         [SerializeField] private float globalSkillCooldown = 3f;
+
+        [Header("=== THÔNG SỐ SKILL 1: THẠCH THỎ CUỒNG BẮN (NÉM ĐÁ) ===")]
+        [Tooltip("Tốc độ bay của viên đá khi thỏ ném ra")]
+        [SerializeField] private float rockFlySpeed = 12f;
+
+        [Header("=== THÔNG SỐ SKILL 2: CUỒNG NỘ MA THỎ (BUFF & HEAL) ===")]
+        [Tooltip("Lượng máu thỏ được hồi ngay lập tức khi bật Buff")]
         [SerializeField] private float healAmount = 35f;
+
+        [Tooltip("Số điểm Sát Thương (Attack) cộng thêm cho thỏ trong thời gian Buff")]
         [SerializeField] private float buffAttackBonus = 15f;
+
+        [Tooltip("Thời gian duy trì trạng thái Buff Sát Thương (giây)")]
         [SerializeField] private float buffDuration = 10f;
+
+        [Header("=== THÔNG SỐ SKILL 3: ĐỘT KÍCH THỎ CỤ (DẬM ĐẤT AOE) ===")]
+        [Tooltip("Sát thương cơ bản gây ra khi thỏ dập xuống đất (Cộng thêm với Attack hiện tại)")]
         [SerializeField] private float pounceDamage = 40f;
+
+        [Tooltip("Bán kính vòng tròn gây sát thương diện rộng (AoE) khi thỏ tiếp đất")]
+        [SerializeField] private float pounceAoeRadius = 2f;
+
+        [Tooltip("Thời gian thỏ di chuyển trên không trung khi nhảy tới vị trí Player (giây)")]
+        [SerializeField] private float jumpDuration = 0.5f;
 
         protected override bool CanUseSkill()
         {
@@ -50,7 +74,6 @@ namespace GameCore.AI
             if (anim != null) anim.SetTrigger("Skill1");
             yield return new WaitForSeconds(0.3f);
 
-            // Kiểm tra nếu quái chết giữa chừng thì dừng Coroutine lập tức
             if (myStats != null && myStats.IsDead)
             {
                 isPerformingSkill = false;
@@ -66,7 +89,7 @@ namespace GameCore.AI
                 Rigidbody2D rockRb = rock.GetComponent<Rigidbody2D>();
                 if (rockRb != null)
                 {
-                    rockRb.linearVelocity = launchDir * 12f;
+                    rockRb.linearVelocity = launchDir * rockFlySpeed;
                 }
             }
 
@@ -112,20 +135,18 @@ namespace GameCore.AI
             if (playerTransform != null)
             {
                 Vector3 targetPos = playerTransform.position;
-                float jumpTime = 0.5f;
                 float elapsed = 0f;
                 Vector3 startPos = transform.position;
 
-                while (elapsed < jumpTime)
+                while (elapsed < jumpDuration)
                 {
-                    // 🎯 BẢO VỆ: Nếu thỏ chết khi đang nhảy trên không -> Thoát Coroutine ngay
                     if (myStats != null && myStats.IsDead)
                     {
                         isPerformingSkill = false;
                         yield break;
                     }
 
-                    transform.position = Vector3.Lerp(startPos, targetPos, elapsed / jumpTime);
+                    transform.position = Vector3.Lerp(startPos, targetPos, elapsed / jumpDuration);
                     elapsed += Time.deltaTime;
                     yield return null;
                 }
@@ -134,7 +155,7 @@ namespace GameCore.AI
 
                 if (myStats != null && !myStats.IsDead)
                 {
-                    Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 2f);
+                    Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, pounceAoeRadius);
                     foreach (var hit in hits)
                     {
                         if (hit.CompareTag("Player"))

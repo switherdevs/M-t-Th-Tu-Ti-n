@@ -20,7 +20,6 @@ namespace GameCore.AI
         [SerializeField] private AnimParamType skill3ParamType = AnimParamType.Trigger;
 
         [Header("=== CẤU HÌNH TRỌNG SỐ TUNG SKILL ===")]
-        [SerializeField, Range(1, 100)] private int skill1Weight = 50;
         [SerializeField, Range(1, 100)] private int skill2Weight = 20;
         [SerializeField, Range(1, 100)] private int skill3Weight = 30;
 
@@ -31,7 +30,7 @@ namespace GameCore.AI
         [SerializeField] private float pebbleFlySpeed = 10f;
         [SerializeField] private float castTimeSkill1 = 0.7f;
 
-        [Header("=== THÔNG SỐ SKILL 2: NƯỚC THẦN TẨY RỬA (BUFF & HEAL) ===")]
+        [Header("=== THÔNG SỐ SKILL 2: NƯỚC THẦN TẨY RỬA (BUFF & HEAL - DƯỚI 50% MÁU) ===")]
         [SerializeField] private float healAmount = 50f;
         [SerializeField] private float buffAttackBonus = 20f;
         [SerializeField] private float buffDuration = 10f;
@@ -47,18 +46,24 @@ namespace GameCore.AI
             return skillCooldownTimer <= 0f && !isPerformingSkill && (myStats == null || !myStats.IsDead);
         }
 
-        protected override void SelectAndExecuteSkill()
+        protected override void SelectAndExecuteSkill(bool isRangedDistance)
         {
             if (myStats != null && myStats.IsDead) return;
 
-            int totalWeight = skill1Weight + skill2Weight + skill3Weight;
-            int randomValue = Random.Range(0, totalWeight);
-
-            if (randomValue < skill1Weight)
+            if (isRangedDistance)
             {
                 StartCoroutine(Routine_Skill1_FrozenPebble());
+                return;
             }
-            else if (randomValue < skill1Weight + skill2Weight)
+
+            bool canUseHealBuff = (myStats.CurrentHealth <= myStats.MaxHealth.Value * 0.5f);
+
+            int totalWeight = skill3Weight;
+            if (canUseHealBuff) totalWeight += skill2Weight;
+
+            int randomValue = Random.Range(0, totalWeight);
+
+            if (canUseHealBuff && randomValue < skill2Weight)
             {
                 StartCoroutine(Routine_Skill2_PurificationFlush());
             }

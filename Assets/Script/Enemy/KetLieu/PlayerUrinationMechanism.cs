@@ -318,7 +318,7 @@ namespace GameCore.Player
             if (luotScript != null) luotScript.enabled = !isUrination;
         }
 
-        public void CongMucMacTieu(float luongTang)
+        public void CongMucMacTieu(float luongTang)     
         {
             mucDoMacTieuHienTai = Mathf.Clamp(mucDoMacTieuHienTai + luongTang, 0f, mucDoMacTieuToiDa);
             CapNhatUI();

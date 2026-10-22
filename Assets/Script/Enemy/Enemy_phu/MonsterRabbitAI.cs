@@ -8,14 +8,10 @@ namespace GameCore.AI
         public enum AnimParamType { Trigger, Bool }
 
         [Header("=== CẤU HÌNH GAMEOBJECT & PREFAB ===")]
-        [Tooltip("Prefab của viên đá thỏ ném ra ở Skill 1 (Phải có Rigidbody2D và DamageDealer)")]
         [SerializeField] private GameObject rockProjectilePrefab;
-
-        [Tooltip("Điểm xuất phát của viên đá (Kéo Transform vị trí miệng/tay thỏ vào đây)")]
         [SerializeField] private Transform launchPoint;
 
         [Header("=== CẤU HÌNH ANIMATION PARAMETER ===")]
-        [SerializeField] private string moveAnimName = "isMoving";
         [SerializeField] private string skill1AnimName = "Skill1";
         [SerializeField] private AnimParamType skill1ParamType = AnimParamType.Trigger;
         [SerializeField] private string skill2AnimName = "Skill2";
@@ -24,7 +20,6 @@ namespace GameCore.AI
         [SerializeField] private AnimParamType skill3ParamType = AnimParamType.Trigger;
 
         [Header("=== CẤU HÌNH TRỌNG SỐ TUNG SKILL ===")]
-        [SerializeField, Range(1, 100)] private int skill1Weight = 50;
         [SerializeField, Range(1, 100)] private int skill2Weight = 25;
         [SerializeField, Range(1, 100)] private int skill3Weight = 25;
 
@@ -35,7 +30,7 @@ namespace GameCore.AI
         [SerializeField] private float rockFlySpeed = 12f;
         [SerializeField] private float castTimeSkill1 = 0.8f;
 
-        [Header("=== THÔNG SỐ SKILL 2: CUỒNG NỘ MA THỎ (BUFF & HEAL) ===")]
+        [Header("=== THÔNG SỐ SKILL 2: CUỒNG NỘ MA THỎ (BUFF & HEAL - DƯỚI 50% MÁU) ===")]
         [SerializeField] private float healAmount = 35f;
         [SerializeField] private float buffAttackBonus = 15f;
         [SerializeField] private float buffDuration = 10f;
@@ -50,18 +45,26 @@ namespace GameCore.AI
             return skillCooldownTimer <= 0f && !isPerformingSkill && (myStats == null || !myStats.IsDead);
         }
 
-        protected override void SelectAndExecuteSkill()
+        protected override void SelectAndExecuteSkill(bool isRangedDistance)
         {
             if (myStats != null && myStats.IsDead) return;
 
-            int totalWeight = skill1Weight + skill2Weight + skill3Weight;
-            int randomValue = Random.Range(0, totalWeight);
-
-            if (randomValue < skill1Weight)
+            // Nếu người chơi ở tầm xa, ép buộc sử dụng Skill 1 (Tấn công tầm xa)
+            if (isRangedDistance)
             {
                 StartCoroutine(Routine_Skill1_RangedPebble());
+                return;
             }
-            else if (randomValue < skill1Weight + skill2Weight)
+
+            // Nếu ở tầm gần, kiểm tra điều kiện máu: Chỉ được dùng Skill 2 khi máu <= 50%
+            bool canUseHealBuff = (myStats.CurrentHealth <= myStats.MaxHealth.Value * 0.5f);
+
+            int totalWeight = skill3Weight;
+            if (canUseHealBuff) totalWeight += skill2Weight;
+
+            int randomValue = Random.Range(0, totalWeight);
+
+            if (canUseHealBuff && randomValue < skill2Weight)
             {
                 StartCoroutine(Routine_Skill2_BuffAndHeal());
             }

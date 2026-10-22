@@ -1085,7 +1085,7 @@ RectTransform:
   m_Father: {fileID: 2086780868}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1529,7 +1529,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &707918697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1546,6 +1546,7 @@ MonoBehaviour:
   detectionRadius: 100
   attackRange: 2
   rangedAttackRange: 7
+  hasWalkAnimation: 1
   fleeSpeedMultiplier: 1.5
   rockProjectilePrefab: {fileID: 8627358853674614155, guid: cd24f739d9ca50d48a21c47775ec41d4, type: 3}
   launchPoint: {fileID: 1522538432}
@@ -2683,9 +2684,12 @@ MonoBehaviour:
   detectionRadius: 100
   attackRange: 2
   rangedAttackRange: 7
+  hasWalkAnimation: 1
   fleeSpeedMultiplier: 1.5
-  boulderPrefab: {fileID: 0}
-  launchPoint: {fileID: 92258058}
+  woodenSpikePrefab: {fileID: 4516755978758888189, guid: 8bc4af8202bee854a930e4a72912db40, type: 3}
+  playerLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
   moveAnimName: isMoving
   skill1AnimName: Skill1
   skill1ParamType: 0
@@ -2697,8 +2701,9 @@ MonoBehaviour:
   skill2Weight: 100
   skill3Weight: 100
   globalSkillCooldown: 4
-  boulderFlySpeed: 8
   castTimeSkill1: 1
+  spikeCount: 3
+  spikeSpacing: 1.5
   healAmount: 60
   buffAttackBonus: 25
   buffDuration: 10
@@ -3366,7 +3371,7 @@ Transform:
   m_GameObject: {fileID: 1226720640}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 14.374016, y: -0.000004351139, z: 0}
+  m_LocalPosition: {x: 20.099457, y: -0.000004351139, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4322,7 +4327,7 @@ RectTransform:
   m_Father: {fileID: 143848712}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -5359,7 +5364,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1944449134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5376,6 +5381,7 @@ MonoBehaviour:
   detectionRadius: 100
   attackRange: 2
   rangedAttackRange: 7
+  hasWalkAnimation: 1
   fleeSpeedMultiplier: 1.5
   frozenPebblePrefab: {fileID: 0}
   launchPoint: {fileID: 1630604278}

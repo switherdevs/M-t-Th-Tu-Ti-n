@@ -10,8 +10,9 @@ namespace GameCore.AI
         [Header("=== CẤU HÌNH DI CHUYỂN & TẦM NHÌN ===")]
         [SerializeField] protected float moveSpeed = 3.5f;
         [SerializeField] protected float detectionRadius = 10f;
-        [SerializeField] protected float attackRange = 2f;
-        [SerializeField, Tooltip("Tầm khoảng cách tối đa quái được phép đứng từ xa để tung Skill tầm xa (Skill 1)")]
+        [SerializeField, Tooltip("Khoảng cách tầm gần để quái áp sát thực hiện tấn công/skill cận chiến")]
+        protected float attackRange = 2f;
+        [SerializeField, Tooltip("Khoảng cách tối đa quái sẽ dừng lại đứng bắn/ném skill tầm xa khi người chơi ở xa")]
         protected float rangedAttackRange = 7f;
 
         [Header("=== CẤU HÌNH ANIMATION CHUNG ===")]
@@ -95,11 +96,25 @@ namespace GameCore.AI
             {
                 FlipTowards(playerTransform.position);
 
-                if (CanUseSkill() && distanceToPlayer <= rangedAttackRange)
+                // KIỂM TRA ĐIỀU KIỆN TUNG SKILL TẦM XA HOẶC TẦM GẦN
+                if (CanUseSkill())
                 {
-                    SelectAndExecuteSkill();
+                    // Nếu người chơi đứng trong khoảng tầm xa (từ attackRange đến rangedAttackRange), quái sẽ DỪNG LẠI thi triển skill tầm xa
+                    if (distanceToPlayer > attackRange && distanceToPlayer <= rangedAttackRange)
+                    {
+                        SelectAndExecuteSkill(true); // true = ưu tiên skill tầm xa (Skill 1)
+                        return;
+                    }
+                    // Nếu người chơi ở sát trong phạm vi cận chiến (<= attackRange)
+                    else if (distanceToPlayer <= attackRange)
+                    {
+                        SelectAndExecuteSkill(false); // false = chọn ngẫu nhiên skill cận chiến/đặc trưng/buff
+                        return;
+                    }
                 }
-                else if (distanceToPlayer > attackRange)
+
+                // Nếu chưa đủ điều kiện dùng skill hoặc người chơi ở quá xa, quái tiếp tục di chuyển áp sát
+                if (distanceToPlayer > attackRange)
                 {
                     MoveTowards(playerTransform.position, moveSpeed);
                 }
@@ -131,7 +146,6 @@ namespace GameCore.AI
             Vector2 direction = (targetPosition - (Vector2)transform.position).normalized;
             rb.linearVelocity = direction * speed;
 
-            // 🎯 CHỈ GỌI ANIMATION DI CHUYỂN NẾU QUÁI CÓ HỖ TRỢ
             if (anim != null && hasWalkAnimation)
             {
                 anim.SetBool("isMoving", true);
@@ -185,7 +199,7 @@ namespace GameCore.AI
         }
 
         protected abstract bool CanUseSkill();
-        protected abstract void SelectAndExecuteSkill();
+        protected abstract void SelectAndExecuteSkill(bool isRangedDistance);
 
         protected virtual void OnDrawGizmosSelected()
         {

@@ -5,42 +5,42 @@ namespace GameCore.AI
 {
     public class MonsterBearAI : MonsterAIBase
     {
-        [Header("=== CẤU HÌNH GAMEOBJECT & PREFAB ===")]
-        [Tooltip("Prefab của mảng đá to mà gấu ném ra ở Skill 1 (Có Rigidbody2D và DamageDealer)")]
-        [SerializeField] private GameObject boulderPrefab;
+        public enum AnimParamType { Trigger, Bool }
 
-        [Tooltip("Điểm xuất phát của mảng đá khi ném (Transform vị trí bàn tay gấu)")]
+        [Header("=== CẤU HÌNH GAMEOBJECT & PREFAB ===")]
+        [SerializeField] private GameObject boulderPrefab;
         [SerializeField] private Transform launchPoint;
 
+        [Header("=== CẤU HÌNH ANIMATION PARAMETER ===")]
+        [SerializeField] private string moveAnimName = "isMoving";
+        [SerializeField] private string skill1AnimName = "Skill1";
+        [SerializeField] private AnimParamType skill1ParamType = AnimParamType.Trigger;
+        [SerializeField] private string skill2AnimName = "Skill2";
+        [SerializeField] private AnimParamType skill2ParamType = AnimParamType.Trigger;
+        [SerializeField] private string skill3AnimName = "Skill3";
+        [SerializeField] private AnimParamType skill3ParamType = AnimParamType.Trigger;
+
+        [Header("=== CẤU HÌNH TRỌNG SỐ TUNG SKILL ===")]
+        [SerializeField, Range(1, 100)] private int skill1Weight = 40;
+        [SerializeField, Range(1, 100)] private int skill2Weight = 30;
+        [SerializeField, Range(1, 100)] private int skill3Weight = 30;
+
         [Header("=== CẤU HÌNH THỜI GIAN HỒI CHIÊU CHUNG ===")]
-        [Tooltip("Khoảng thời gian nghỉ (giây) giữa các lần tung Skill")]
         [SerializeField] private float globalSkillCooldown = 4f;
 
-        [Header("=== THÔNG SỐ SKILL 1: BÃO ĐÁ MA BÃO (NÉM TẢO ĐÁ) ===")]
-        [Tooltip("Tốc độ bay của mảng đá to")]
+        [Header("=== THÔNG SỐ SKILL 1: BÃO ĐÁ MA BÃO (NÉM ĐÁ TẦM XA) ===")]
         [SerializeField] private float boulderFlySpeed = 8f;
+        [SerializeField] private float castTimeSkill1 = 1.0f;
 
         [Header("=== THÔNG SỐ SKILL 2: BÀNG HÃI TIẾNG GẦM (BUFF & HEAL) ===")]
-        [Tooltip("Lượng máu gấu tự phục hồi ngay khi gầm lên")]
         [SerializeField] private float healAmount = 60f;
-
-        [Tooltip("Số điểm Sát Thương (Attack) cộng thêm cho gấu trong thời gian Buff")]
         [SerializeField] private float buffAttackBonus = 25f;
-
-        [Tooltip("Thời gian duy trì trạng thái Buff Sát Thương (giây)")]
         [SerializeField] private float buffDuration = 10f;
 
         [Header("=== THÔNG SỐ SKILL 3: ĐỊA LẠC CUỒNG CÀO (ỦI CÀN QUÉT) ===")]
-        [Tooltip("Tốc độ gấu lao thẳng về phía Player khi ủi")]
         [SerializeField] private float chargeSpeed = 10f;
-
-        [Tooltip("Thời gian tối đa gấu duy trì đòn lao ủi (giây)")]
         [SerializeField] private float chargeDuration = 0.6f;
-
-        [Tooltip("Sát thương cơ bản gây ra khi ủi trúng Player (Cộng thêm với Attack hiện tại)")]
         [SerializeField] private float chargeDamage = 50f;
-
-        [Tooltip("Bán kính vòng tròn va chạm kiểm tra ủi trúng Player")]
         [SerializeField] private float chargeHitRadius = 1.5f;
 
         protected override bool CanUseSkill()
@@ -52,29 +52,39 @@ namespace GameCore.AI
         {
             if (myStats != null && myStats.IsDead) return;
 
-            int randomSkill = Random.Range(1, 4);
+            int totalWeight = skill1Weight + skill2Weight + skill3Weight;
+            int randomValue = Random.Range(0, totalWeight);
 
-            switch (randomSkill)
+            if (randomValue < skill1Weight)
             {
-                case 1:
-                    StartCoroutine(Routine_Skill1_BoulderingSmash());
-                    break;
-                case 2:
-                    StartCoroutine(Routine_Skill2_BeastHysteria());
-                    break;
-                case 3:
-                    StartCoroutine(Routine_Skill3_BerserkCharge());
-                    break;
+                StartCoroutine(Routine_Skill1_BoulderingSmash());
+            }
+            else if (randomValue < skill1Weight + skill2Weight)
+            {
+                StartCoroutine(Routine_Skill2_BeastHysteria());
+            }
+            else
+            {
+                StartCoroutine(Routine_Skill3_BerserkCharge());
             }
         }
 
-        // Skill 1: Bão Đá Ma Bão
+        private void PlayAnim(string paramName, AnimParamType type, bool boolValue = true)
+        {
+            if (anim == null || string.IsNullOrEmpty(paramName)) return;
+
+            if (type == AnimParamType.Trigger)
+                anim.SetTrigger(paramName);
+            else if (type == AnimParamType.Bool)
+                anim.SetBool(paramName, boolValue);
+        }
+
         private IEnumerator Routine_Skill1_BoulderingSmash()
         {
             isPerformingSkill = true;
             StopMoving();
 
-            if (anim != null) anim.SetTrigger("Skill1");
+            PlayAnim(skill1AnimName, skill1ParamType, true);
             yield return new WaitForSeconds(0.4f);
 
             if (myStats != null && myStats.IsDead)
@@ -96,18 +106,20 @@ namespace GameCore.AI
                 }
             }
 
-            yield return new WaitForSeconds(0.6f);
+            yield return new WaitForSeconds(castTimeSkill1);
+
+            if (skill1ParamType == AnimParamType.Bool) PlayAnim(skill1AnimName, skill1ParamType, false);
+
             skillCooldownTimer = globalSkillCooldown;
             isPerformingSkill = false;
         }
 
-        // Skill 2: Bàng Hãi Tiếng GẦm
         private IEnumerator Routine_Skill2_BeastHysteria()
         {
             isPerformingSkill = true;
             StopMoving();
 
-            if (anim != null) anim.SetTrigger("Skill2");
+            PlayAnim(skill2AnimName, skill2ParamType, true);
 
             if (myStats != null && !myStats.IsDead)
             {
@@ -116,6 +128,9 @@ namespace GameCore.AI
             }
 
             yield return new WaitForSeconds(0.8f);
+
+            if (skill2ParamType == AnimParamType.Bool) PlayAnim(skill2AnimName, skill2ParamType, false);
+
             skillCooldownTimer = globalSkillCooldown;
             isPerformingSkill = false;
 
@@ -126,12 +141,11 @@ namespace GameCore.AI
             }
         }
 
-        // Skill 3: Địa Lạc Cuồng Cào
         private IEnumerator Routine_Skill3_BerserkCharge()
         {
             isPerformingSkill = true;
 
-            if (anim != null) anim.SetTrigger("Skill3");
+            PlayAnim(skill3AnimName, skill3ParamType, true);
             yield return new WaitForSeconds(0.3f);
 
             if (playerTransform != null)
@@ -166,6 +180,9 @@ namespace GameCore.AI
 
             StopMoving();
             yield return new WaitForSeconds(0.5f);
+
+            if (skill3ParamType == AnimParamType.Bool) PlayAnim(skill3AnimName, skill3ParamType, false);
+
             skillCooldownTimer = globalSkillCooldown;
             isPerformingSkill = false;
         }

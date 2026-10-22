@@ -1545,11 +1545,23 @@ MonoBehaviour:
   moveSpeed: 10
   detectionRadius: 100
   attackRange: 2
+  rangedAttackRange: 7
   fleeSpeedMultiplier: 1.5
   rockProjectilePrefab: {fileID: 8627358853674614155, guid: cd24f739d9ca50d48a21c47775ec41d4, type: 3}
   launchPoint: {fileID: 1522538432}
+  moveAnimName: isMoving
+  skill1AnimName: Skill1
+  skill1ParamType: 0
+  skill2AnimName: Skill2
+  skill2ParamType: 0
+  skill3AnimName: Skill3
+  skill3ParamType: 0
+  skill1Weight: 100
+  skill2Weight: 100
+  skill3Weight: 100
   globalSkillCooldown: 3
   rockFlySpeed: 50
+  castTimeSkill1: 0.8
   healAmount: 35
   buffAttackBonus: 15
   buffDuration: 10
@@ -2670,11 +2682,23 @@ MonoBehaviour:
   moveSpeed: 10
   detectionRadius: 100
   attackRange: 2
+  rangedAttackRange: 7
   fleeSpeedMultiplier: 1.5
   boulderPrefab: {fileID: 0}
   launchPoint: {fileID: 92258058}
+  moveAnimName: isMoving
+  skill1AnimName: Skill1
+  skill1ParamType: 0
+  skill2AnimName: Skill2
+  skill2ParamType: 0
+  skill3AnimName: Skill3
+  skill3ParamType: 0
+  skill1Weight: 100
+  skill2Weight: 100
+  skill3Weight: 100
   globalSkillCooldown: 4
   boulderFlySpeed: 8
+  castTimeSkill1: 1
   healAmount: 60
   buffAttackBonus: 25
   buffDuration: 10
@@ -3101,6 +3125,14 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -5195702757113009245, guid: c480298f03a3819408a114abeb7be406, type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1548404341157584135, guid: c480298f03a3819408a114abeb7be406, type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3334,7 +3366,7 @@ Transform:
   m_GameObject: {fileID: 1226720640}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 15.728409, y: -0.000004351139, z: 0}
+  m_LocalPosition: {x: 14.374016, y: -0.000004351139, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3532,6 +3564,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 707918702}
     m_Modifications:
+    - target: {fileID: -8746298435933122833, guid: 7fb751691b7d6bf49b8d66d96fd0308d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -8653719598885068355, guid: 7fb751691b7d6bf49b8d66d96fd0308d, type: 3}
       propertyPath: m_Name
       value: Tho_enemy
@@ -3591,6 +3627,18 @@ PrefabInstance:
     - target: {fileID: -7552582706839291426, guid: 7fb751691b7d6bf49b8d66d96fd0308d, type: 3}
       propertyPath: m_ConstrainProportionsScale
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4177697548718398244, guid: 7fb751691b7d6bf49b8d66d96fd0308d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4208053537020992774, guid: 7fb751691b7d6bf49b8d66d96fd0308d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6100894345243170053, guid: 7fb751691b7d6bf49b8d66d96fd0308d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4591,7 +4639,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6725891016059587302, guid: d200f49d5ea7c9f48ab45908ab920089, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -28.743927
+      value: -28.743896
       objectReference: {fileID: 0}
     - target: {fileID: 6971084397368037922, guid: d200f49d5ea7c9f48ab45908ab920089, type: 3}
       propertyPath: m_AnchorMax.y
@@ -5327,11 +5375,22 @@ MonoBehaviour:
   moveSpeed: 10
   detectionRadius: 100
   attackRange: 2
+  rangedAttackRange: 7
   fleeSpeedMultiplier: 1.5
   frozenPebblePrefab: {fileID: 0}
   launchPoint: {fileID: 1630604278}
+  skill1AnimName: Skill1
+  skill1ParamType: 0
+  skill2AnimName: Skill2
+  skill2ParamType: 0
+  skill3AnimName: Skill3
+  skill3ParamType: 0
+  skill1Weight: 100
+  skill2Weight: 100
+  skill3Weight: 100
   globalSkillCooldown: 3.5
   pebbleFlySpeed: 10
+  castTimeSkill1: 0.7
   healAmount: 50
   buffAttackBonus: 20
   buffDuration: 10

@@ -5,6 +5,8 @@ namespace GameCore.AI
 {
     public class MonsterRabbitAI : MonsterAIBase
     {
+        public enum AnimParamType { Trigger, Bool }
+
         [Header("=== CẤU HÌNH GAMEOBJECT & PREFAB ===")]
         [Tooltip("Prefab của viên đá thỏ ném ra ở Skill 1 (Phải có Rigidbody2D và DamageDealer)")]
         [SerializeField] private GameObject rockProjectilePrefab;
@@ -12,32 +14,35 @@ namespace GameCore.AI
         [Tooltip("Điểm xuất phát của viên đá (Kéo Transform vị trí miệng/tay thỏ vào đây)")]
         [SerializeField] private Transform launchPoint;
 
+        [Header("=== CẤU HÌNH ANIMATION PARAMETER ===")]
+        [SerializeField] private string moveAnimName = "isMoving";
+        [SerializeField] private string skill1AnimName = "Skill1";
+        [SerializeField] private AnimParamType skill1ParamType = AnimParamType.Trigger;
+        [SerializeField] private string skill2AnimName = "Skill2";
+        [SerializeField] private AnimParamType skill2ParamType = AnimParamType.Trigger;
+        [SerializeField] private string skill3AnimName = "Skill3";
+        [SerializeField] private AnimParamType skill3ParamType = AnimParamType.Trigger;
+
+        [Header("=== CẤU HÌNH TRỌNG SỐ TUNG SKILL ===")]
+        [SerializeField, Range(1, 100)] private int skill1Weight = 50;
+        [SerializeField, Range(1, 100)] private int skill2Weight = 25;
+        [SerializeField, Range(1, 100)] private int skill3Weight = 25;
+
         [Header("=== CẤU HÌNH THỜI GIAN HỒI CHIÊU CHUNG ===")]
-        [Tooltip("Khoảng thời gian nghỉ (giây) giữa các lần tung Skill")]
         [SerializeField] private float globalSkillCooldown = 3f;
 
-        [Header("=== THÔNG SỐ SKILL 1: THẠCH THỎ CUỒNG BẮN (NÉM ĐÁ) ===")]
-        [Tooltip("Tốc độ bay của viên đá khi thỏ ném ra")]
+        [Header("=== THÔNG SỐ SKILL 1: THẠCH THỎ CUỒNG BẮN (NÉM ĐÁ TẦM XA) ===")]
         [SerializeField] private float rockFlySpeed = 12f;
+        [SerializeField] private float castTimeSkill1 = 0.8f;
 
         [Header("=== THÔNG SỐ SKILL 2: CUỒNG NỘ MA THỎ (BUFF & HEAL) ===")]
-        [Tooltip("Lượng máu thỏ được hồi ngay lập tức khi bật Buff")]
         [SerializeField] private float healAmount = 35f;
-
-        [Tooltip("Số điểm Sát Thương (Attack) cộng thêm cho thỏ trong thời gian Buff")]
         [SerializeField] private float buffAttackBonus = 15f;
-
-        [Tooltip("Thời gian duy trì trạng thái Buff Sát Thương (giây)")]
         [SerializeField] private float buffDuration = 10f;
 
         [Header("=== THÔNG SỐ SKILL 3: ĐỘT KÍCH THỎ CỤ (DẬM ĐẤT AOE) ===")]
-        [Tooltip("Sát thương cơ bản gây ra khi thỏ dập xuống đất (Cộng thêm với Attack hiện tại)")]
         [SerializeField] private float pounceDamage = 40f;
-
-        [Tooltip("Bán kính vòng tròn gây sát thương diện rộng (AoE) khi thỏ tiếp đất")]
         [SerializeField] private float pounceAoeRadius = 2f;
-
-        [Tooltip("Thời gian thỏ di chuyển trên không trung khi nhảy tới vị trí Player (giây)")]
         [SerializeField] private float jumpDuration = 0.5f;
 
         protected override bool CanUseSkill()
@@ -49,29 +54,39 @@ namespace GameCore.AI
         {
             if (myStats != null && myStats.IsDead) return;
 
-            int randomSkill = Random.Range(1, 4);
+            int totalWeight = skill1Weight + skill2Weight + skill3Weight;
+            int randomValue = Random.Range(0, totalWeight);
 
-            switch (randomSkill)
+            if (randomValue < skill1Weight)
             {
-                case 1:
-                    StartCoroutine(Routine_Skill1_RangedPebble());
-                    break;
-                case 2:
-                    StartCoroutine(Routine_Skill2_BuffAndHeal());
-                    break;
-                case 3:
-                    StartCoroutine(Routine_Skill3_CarrotPounce());
-                    break;
+                StartCoroutine(Routine_Skill1_RangedPebble());
+            }
+            else if (randomValue < skill1Weight + skill2Weight)
+            {
+                StartCoroutine(Routine_Skill2_BuffAndHeal());
+            }
+            else
+            {
+                StartCoroutine(Routine_Skill3_CarrotPounce());
             }
         }
 
-        // Skill 1: Thạch Thỏ Cuồng Bắn
+        private void PlayAnim(string paramName, AnimParamType type, bool boolValue = true)
+        {
+            if (anim == null || string.IsNullOrEmpty(paramName)) return;
+
+            if (type == AnimParamType.Trigger)
+                anim.SetTrigger(paramName);
+            else if (type == AnimParamType.Bool)
+                anim.SetBool(paramName, boolValue);
+        }
+
         private IEnumerator Routine_Skill1_RangedPebble()
         {
             isPerformingSkill = true;
             StopMoving();
 
-            if (anim != null) anim.SetTrigger("Skill1");
+            PlayAnim(skill1AnimName, skill1ParamType, true);
             yield return new WaitForSeconds(0.3f);
 
             if (myStats != null && myStats.IsDead)
@@ -93,18 +108,20 @@ namespace GameCore.AI
                 }
             }
 
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(castTimeSkill1);
+
+            if (skill1ParamType == AnimParamType.Bool) PlayAnim(skill1AnimName, skill1ParamType, false);
+
             skillCooldownTimer = globalSkillCooldown;
             isPerformingSkill = false;
         }
 
-        // Skill 2: Cuồng Nộ Ma Thỏ
         private IEnumerator Routine_Skill2_BuffAndHeal()
         {
             isPerformingSkill = true;
             StopMoving();
 
-            if (anim != null) anim.SetTrigger("Skill2");
+            PlayAnim(skill2AnimName, skill2ParamType, true);
 
             if (myStats != null && !myStats.IsDead)
             {
@@ -112,7 +129,10 @@ namespace GameCore.AI
                 myStats.Attack.Value += buffAttackBonus;
             }
 
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.6f);
+
+            if (skill2ParamType == AnimParamType.Bool) PlayAnim(skill2AnimName, skill2ParamType, false);
+
             skillCooldownTimer = globalSkillCooldown;
             isPerformingSkill = false;
 
@@ -123,13 +143,12 @@ namespace GameCore.AI
             }
         }
 
-        // Skill 3: Đột Kích Thỏ Cụ
         private IEnumerator Routine_Skill3_CarrotPounce()
         {
             isPerformingSkill = true;
             StopMoving();
 
-            if (anim != null) anim.SetTrigger("Skill3");
+            PlayAnim(skill3AnimName, skill3ParamType, true);
             yield return new WaitForSeconds(0.2f);
 
             if (playerTransform != null)
@@ -168,6 +187,9 @@ namespace GameCore.AI
             }
 
             yield return new WaitForSeconds(0.4f);
+
+            if (skill3ParamType == AnimParamType.Bool) PlayAnim(skill3AnimName, skill3ParamType, false);
+
             skillCooldownTimer = globalSkillCooldown;
             isPerformingSkill = false;
         }

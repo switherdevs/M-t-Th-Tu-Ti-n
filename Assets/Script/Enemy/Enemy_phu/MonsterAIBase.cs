@@ -7,10 +7,16 @@ namespace GameCore.AI
     [RequireComponent(typeof(CharacterStats))]
     public abstract class MonsterAIBase : MonoBehaviour
     {
-        [Header("=== CẤU HÌNH DI CHUYỂN CƠ BẢN ===")]
+        [Header("=== CẤU HÌNH DI CHUYỂN & TẦM NHÌN ===")]
         [SerializeField] protected float moveSpeed = 3.5f;
         [SerializeField] protected float detectionRadius = 10f;
         [SerializeField] protected float attackRange = 2f;
+        [SerializeField, Tooltip("Tầm khoảng cách tối đa quái được phép đứng từ xa để tung Skill tầm xa (Skill 1)")]
+        protected float rangedAttackRange = 7f;
+
+        [Header("=== CẤU HÌNH ANIMATION CHUNG ===")]
+        [Tooltip("Tích chọn nếu quái có animation di chuyển (isMoving). Bỏ chọn nếu quái không có animation đi bộ (như Toilet)")]
+        [SerializeField] protected bool hasWalkAnimation = true;
 
         [Header("=== CẤU HÌNH BỎ CHẠY KHI PLAYER TIỂU ===")]
         [SerializeField] protected float fleeSpeedMultiplier = 1.5f;
@@ -29,7 +35,6 @@ namespace GameCore.AI
         {
             rb = GetComponent<Rigidbody2D>();
             myStats = GetComponent<CharacterStats>();
-            // Lấy Animator luôn từ GameObject con (Model/Sprite)
             anim = GetComponentInChildren<Animator>();
         }
 
@@ -37,7 +42,6 @@ namespace GameCore.AI
         {
             FindPlayer();
 
-            // Đăng ký sự kiện lắng nghe Player xả tiểu
             if (GameCore.Player.PlayerUrinationMechanism.Instance != null)
             {
                 GameCore.Player.PlayerUrinationMechanism.Instance.OnExecutionStart += OnPlayerStartUrination;
@@ -62,6 +66,12 @@ namespace GameCore.AI
                 return;
             }
 
+            if (isPerformingSkill)
+            {
+                StopMoving();
+                return;
+            }
+
             if (playerTransform == null)
             {
                 FindPlayer();
@@ -73,14 +83,11 @@ namespace GameCore.AI
                 skillCooldownTimer -= Time.deltaTime;
             }
 
-            // Xử lý khi Player xả tiểu (Quái hoảng sợ bỏ chạy)
             if (isFleeing)
             {
                 ExecuteFleeing();
                 return;
             }
-
-            if (isPerformingSkill) return;
 
             float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
 
@@ -88,13 +95,17 @@ namespace GameCore.AI
             {
                 FlipTowards(playerTransform.position);
 
-                if (CanUseSkill() && distanceToPlayer <= attackRange)
+                if (CanUseSkill() && distanceToPlayer <= rangedAttackRange)
                 {
                     SelectAndExecuteSkill();
                 }
-                else
+                else if (distanceToPlayer > attackRange)
                 {
                     MoveTowards(playerTransform.position, moveSpeed);
+                }
+                else
+                {
+                    StopMoving();
                 }
             }
             else
@@ -115,10 +126,13 @@ namespace GameCore.AI
 
         protected void MoveTowards(Vector2 targetPosition, float speed)
         {
+            if (isPerformingSkill) return;
+
             Vector2 direction = (targetPosition - (Vector2)transform.position).normalized;
             rb.linearVelocity = direction * speed;
 
-            if (anim != null)
+            // 🎯 CHỈ GỌI ANIMATION DI CHUYỂN NẾU QUÁI CÓ HỖ TRỢ
+            if (anim != null && hasWalkAnimation)
             {
                 anim.SetBool("isMoving", true);
             }
@@ -131,7 +145,7 @@ namespace GameCore.AI
                 rb.linearVelocity = Vector2.zero;
             }
 
-            if (anim != null)
+            if (anim != null && hasWalkAnimation)
             {
                 anim.SetBool("isMoving", false);
             }
@@ -147,14 +161,13 @@ namespace GameCore.AI
 
         protected virtual void ExecuteFleeing()
         {
-            if (playerTransform == null) return;
+            if (playerTransform == null || isPerformingSkill) return;
 
-            // Bỏ chạy ra xa Player
             Vector2 fleeDirection = (transform.position - playerTransform.position).normalized;
             rb.linearVelocity = fleeDirection * (moveSpeed * fleeSpeedMultiplier);
             FlipTowards(transform.position + (Vector3)fleeDirection);
 
-            if (anim != null)
+            if (anim != null && hasWalkAnimation)
             {
                 anim.SetBool("isMoving", true);
             }
@@ -181,6 +194,9 @@ namespace GameCore.AI
 
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, attackRange);
+
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(transform.position, rangedAttackRange);
         }
     }
 }

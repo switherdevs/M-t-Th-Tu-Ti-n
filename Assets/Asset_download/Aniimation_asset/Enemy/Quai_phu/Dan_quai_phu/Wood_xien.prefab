@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 9171366615940631615}
   - component: {fileID: 2550344403097973860}
   - component: {fileID: 3450946919235661127}
+  - component: {fileID: 3874875138022963214}
   m_Layer: 0
   m_Name: Wood_xien
   m_TagString: Untagged
@@ -157,3 +158,22 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &3874875138022963214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4516755978758888189}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17aa1ab8892b273478482249e725b070, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDan: 0
+  hitVFX: {fileID: 6866004461401601130, guid: 3ed39e6f36a74ce4f994a6e2170ce801, type: 3}
+  vfxDestroyTime: 1
+  sfxHit: {fileID: 8300000, guid: 7776f55bc360ea442ba21038d8e742f1, type: 3}
+  sfxVolume: 1
+  time: 3
+  ignoreWallTime: 0.2

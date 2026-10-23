@@ -7,11 +7,20 @@ namespace GameCore.AI
     {
         public enum AnimParamType { Trigger, Bool }
 
+        [Header("=== CẤU HÌNH BẬT/TẮT SKILL (INSPECTOR TOGGLE) ===")]
+        [SerializeField] private bool useSkill1 = true;
+        [SerializeField] private bool useSkill2 = true;
+        [SerializeField] private bool useSkill3 = true;
+
         [Header("=== CẤU HÌNH GAMEOBJECT & PREFAB ===")]
         [SerializeField] private GameObject frozenPebblePrefab;
         [SerializeField] private Transform launchPoint;
 
-        [Header("=== CẤU HÌNH ANIMATION PARAMETER ===")]
+        [Header("=== CẤU HÌNH TÌM KIẾM PLAYER (TẦM XA) ===")]
+        [Tooltip("LayerMask dùng để nhận diện Player khi bắn đạn tầm xa")]
+        [SerializeField] private LayerMask playerLayerMask;
+
+        [Header("=== CẤU HÌNH ANIMATION PARAMETER SKILL ===")]
         [SerializeField] private string skill1AnimName = "Skill1";
         [SerializeField] private AnimParamType skill1ParamType = AnimParamType.Trigger;
         [SerializeField] private string skill2AnimName = "Skill2";
@@ -43,7 +52,7 @@ namespace GameCore.AI
 
         protected override bool CanUseSkill()
         {
-            return skillCooldownTimer <= 0f && !isPerformingSkill && (myStats == null || !myStats.IsDead);
+            return skillCooldownTimer <= 0f && !isPerformingSkill && !isPerformingBasicAttack && (myStats == null || !myStats.IsDead);
         }
 
         protected override void SelectAndExecuteSkill(bool isRangedDistance)
@@ -52,14 +61,20 @@ namespace GameCore.AI
 
             if (isRangedDistance)
             {
-                StartCoroutine(Routine_Skill1_FrozenPebble());
+                if (useSkill1) StartCoroutine(Routine_Skill1_FrozenPebble());
                 return;
             }
 
-            bool canUseHealBuff = (myStats.CurrentHealth <= myStats.MaxHealth.Value * 0.5f);
+            bool canUseHealBuff = useSkill2 && (myStats.CurrentHealth <= myStats.MaxHealth.Value * 0.5f);
+            bool canUseSuction = useSkill3;
 
-            int totalWeight = skill3Weight;
+            if (!canUseHealBuff && !canUseSuction) return;
+
+            int totalWeight = 0;
             if (canUseHealBuff) totalWeight += skill2Weight;
+            if (canUseSuction) totalWeight += skill3Weight;
+
+            if (totalWeight <= 0) return;
 
             int randomValue = Random.Range(0, totalWeight);
 
@@ -67,7 +82,7 @@ namespace GameCore.AI
             {
                 StartCoroutine(Routine_Skill2_PurificationFlush());
             }
-            else
+            else if (canUseSuction)
             {
                 StartCoroutine(Routine_Skill3_VortexSuction());
             }
@@ -83,6 +98,7 @@ namespace GameCore.AI
                 anim.SetBool(paramName, boolValue);
         }
 
+        // Skill 1: Khối Băng Hoang Thạch (Bắn đạn tầm xa tự động tìm Player & Player Layer)
         private IEnumerator Routine_Skill1_FrozenPebble()
         {
             isPerformingSkill = true;
@@ -97,12 +113,24 @@ namespace GameCore.AI
                 yield break;
             }
 
-            if (frozenPebblePrefab != null && playerTransform != null)
+            // Tự động tìm vị trí Player thông qua playerTransform hoặc quét LayerMask
+            Transform targetPlayer = playerTransform;
+            if (targetPlayer == null)
+            {
+                Collider2D playerCol = Physics2D.OverlapCircle(transform.position, detectionRadius, playerLayerMask);
+                if (playerCol != null)
+                {
+                    targetPlayer = playerCol.transform;
+                }
+            }
+
+            if (frozenPebblePrefab != null && targetPlayer != null)
             {
                 Vector3 spawnPos = launchPoint != null ? launchPoint.position : transform.position;
                 GameObject pebble = Instantiate(frozenPebblePrefab, spawnPos, Quaternion.identity);
 
-                Vector2 dir = (playerTransform.position - spawnPos).normalized;
+                // Tính toán hướng bay chuẩn xác từ vị trí bồn cầu tới Player
+                Vector2 dir = (targetPlayer.position - spawnPos).normalized;
                 Rigidbody2D pebbleRb = pebble.GetComponent<Rigidbody2D>();
                 if (pebbleRb != null)
                 {

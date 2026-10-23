@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7804396667790607463}
   - component: {fileID: 1177138767827414568}
   - component: {fileID: 7002575857627697178}
+  - component: {fileID: 4283668800522638560}
   m_Layer: 0
   m_Name: Ice_xien
   m_TagString: Untagged
@@ -162,3 +163,22 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &4283668800522638560
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8185852855495969196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17aa1ab8892b273478482249e725b070, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDan: 0
+  hitVFX: {fileID: 6866004461401601130, guid: 3ed39e6f36a74ce4f994a6e2170ce801, type: 3}
+  vfxDestroyTime: 1
+  sfxHit: {fileID: 8300000, guid: 66c506ec0b2e4404b8d869d26da2b249, type: 3}
+  sfxVolume: 1
+  time: 3
+  ignoreWallTime: 0.2

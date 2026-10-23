@@ -7,11 +7,16 @@ namespace GameCore.AI
     {
         public enum AnimParamType { Trigger, Bool }
 
+        [Header("=== CẤU HÌNH BẬT/TẮT SKILL (INSPECTOR TOGGLE) ===")]
+        [SerializeField] private bool useSkill1 = true;
+        [SerializeField] private bool useSkill2 = true;
+        [SerializeField] private bool useSkill3 = true;
+
         [Header("=== CẤU HÌNH GAMEOBJECT & PREFAB ===")]
         [SerializeField] private GameObject rockProjectilePrefab;
         [SerializeField] private Transform launchPoint;
 
-        [Header("=== CẤU HÌNH ANIMATION PARAMETER ===")]
+        [Header("=== CẤU HÌNH ANIMATION PARAMETER SKILL ===")]
         [SerializeField] private string skill1AnimName = "Skill1";
         [SerializeField] private AnimParamType skill1ParamType = AnimParamType.Trigger;
         [SerializeField] private string skill2AnimName = "Skill2";
@@ -42,25 +47,29 @@ namespace GameCore.AI
 
         protected override bool CanUseSkill()
         {
-            return skillCooldownTimer <= 0f && !isPerformingSkill && (myStats == null || !myStats.IsDead);
+            return skillCooldownTimer <= 0f && !isPerformingSkill && !isPerformingBasicAttack && (myStats == null || !myStats.IsDead);
         }
 
         protected override void SelectAndExecuteSkill(bool isRangedDistance)
         {
             if (myStats != null && myStats.IsDead) return;
 
-            // Nếu người chơi ở tầm xa, ép buộc sử dụng Skill 1 (Tấn công tầm xa)
             if (isRangedDistance)
             {
-                StartCoroutine(Routine_Skill1_RangedPebble());
+                if (useSkill1) StartCoroutine(Routine_Skill1_RangedPebble());
                 return;
             }
 
-            // Nếu ở tầm gần, kiểm tra điều kiện máu: Chỉ được dùng Skill 2 khi máu <= 50%
-            bool canUseHealBuff = (myStats.CurrentHealth <= myStats.MaxHealth.Value * 0.5f);
+            bool canUseHealBuff = useSkill2 && (myStats.CurrentHealth <= myStats.MaxHealth.Value * 0.5f);
+            bool canUsePounce = useSkill3;
 
-            int totalWeight = skill3Weight;
+            if (!canUseHealBuff && !canUsePounce) return;
+
+            int totalWeight = 0;
             if (canUseHealBuff) totalWeight += skill2Weight;
+            if (canUsePounce) totalWeight += skill3Weight;
+
+            if (totalWeight <= 0) return;
 
             int randomValue = Random.Range(0, totalWeight);
 
@@ -68,7 +77,7 @@ namespace GameCore.AI
             {
                 StartCoroutine(Routine_Skill2_BuffAndHeal());
             }
-            else
+            else if (canUsePounce)
             {
                 StartCoroutine(Routine_Skill3_CarrotPounce());
             }

@@ -10,10 +10,20 @@ namespace GameCore.AI
         [Header("=== CẤU HÌNH DI CHUYỂN & TẦM NHÌN ===")]
         [SerializeField] protected float moveSpeed = 3.5f;
         [SerializeField] protected float detectionRadius = 10f;
-        [SerializeField, Tooltip("Khoảng cách tầm gần để quái áp sát thực hiện tấn công/skill cận chiến")]
+        [SerializeField, Tooltip("Khoảng cách tầm gần để quái áp sát thực hiện tấn công cận chiến")]
         protected float attackRange = 2f;
-        [SerializeField, Tooltip("Khoảng cách tối đa quái sẽ dừng lại đứng bắn/ném skill tầm xa khi người chơi ở xa")]
+        [SerializeField, Tooltip("Khoảng cách tối đa quái dừng lại đứng bắn/ném skill tầm xa")]
         protected float rangedAttackRange = 7f;
+
+        [Header("=== CẤU HÌNH ĐÁNH THƯỜNG CẬN CHIẾN & HITBOX ===")]
+        [Tooltip("Game Object chứa Collider/DamageDealer gây sát thương khi quái vung tay đánh thường")]
+        [SerializeField] protected GameObject meleeAttackHitbox;
+        [Tooltip("Thời gian (giây) vùng va chạm xuất hiện khi vung đòn")]
+        [SerializeField] protected float hitboxActiveDuration = 0.3f;
+        [SerializeField] protected float basicAttackCooldown = 1.5f;
+        [SerializeField] protected float basicAttackDamage = 15f;
+        [SerializeField] protected string attack1AnimName = "Attack1";
+        [SerializeField] protected string attack2AnimName = "Attack2";
 
         [Header("=== CẤU HÌNH ANIMATION CHUNG ===")]
         [Tooltip("Tích chọn nếu quái có animation di chuyển (isMoving). Bỏ chọn nếu quái không có animation đi bộ (như Toilet)")]
@@ -30,13 +40,21 @@ namespace GameCore.AI
 
         protected bool isFleeing = false;
         protected bool isPerformingSkill = false;
+        protected bool isPerformingBasicAttack = false;
         protected float skillCooldownTimer = 0f;
+        protected float basicAttackCooldownTimer = 0f;
 
         protected virtual void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
             myStats = GetComponent<CharacterStats>();
             anim = GetComponentInChildren<Animator>();
+
+            // Mặc định ẩn vùng va chạm cận chiến khi vừa khởi tạo
+            if (meleeAttackHitbox != null)
+            {
+                meleeAttackHitbox.SetActive(false);
+            }
         }
 
         protected virtual void Start()
@@ -64,10 +82,11 @@ namespace GameCore.AI
             if (myStats != null && myStats.IsDead)
             {
                 StopMoving();
+                if (meleeAttackHitbox != null) meleeAttackHitbox.SetActive(false);
                 return;
             }
 
-            if (isPerformingSkill)
+            if (isPerformingSkill || isPerformingBasicAttack)
             {
                 StopMoving();
                 return;
@@ -79,10 +98,8 @@ namespace GameCore.AI
                 return;
             }
 
-            if (skillCooldownTimer > 0)
-            {
-                skillCooldownTimer -= Time.deltaTime;
-            }
+            if (skillCooldownTimer > 0) skillCooldownTimer -= Time.deltaTime;
+            if (basicAttackCooldownTimer > 0) basicAttackCooldownTimer -= Time.deltaTime;
 
             if (isFleeing)
             {
@@ -96,37 +113,87 @@ namespace GameCore.AI
             {
                 FlipTowards(playerTransform.position);
 
-                // KIỂM TRA ĐIỀU KIỆN TUNG SKILL TẦM XA HOẶC TẦM GẦN
+                // 1. Nếu đủ điều kiện dùng Skill
                 if (CanUseSkill())
                 {
-                    // Nếu người chơi đứng trong khoảng tầm xa (từ attackRange đến rangedAttackRange), quái sẽ DỪNG LẠI thi triển skill tầm xa
                     if (distanceToPlayer > attackRange && distanceToPlayer <= rangedAttackRange)
                     {
-                        SelectAndExecuteSkill(true); // true = ưu tiên skill tầm xa (Skill 1)
+                        SelectAndExecuteSkill(true);
                         return;
                     }
-                    // Nếu người chơi ở sát trong phạm vi cận chiến (<= attackRange)
                     else if (distanceToPlayer <= attackRange)
                     {
-                        SelectAndExecuteSkill(false); // false = chọn ngẫu nhiên skill cận chiến/đặc trưng/buff
+                        SelectAndExecuteSkill(false);
                         return;
                     }
                 }
 
-                // Nếu chưa đủ điều kiện dùng skill hoặc người chơi ở quá xa, quái tiếp tục di chuyển áp sát
-                if (distanceToPlayer > attackRange)
+                // 2. Nếu ở trong phạm vi attackRange mà Skill đang hồi -> Thực hiện ĐÁNH THƯỜNG
+                if (distanceToPlayer <= attackRange)
                 {
-                    MoveTowards(playerTransform.position, moveSpeed);
+                    if (basicAttackCooldownTimer <= 0f)
+                    {
+                        StartCoroutine(Routine_ExecuteBasicAttack());
+                    }
+                    else
+                    {
+                        StopMoving();
+                    }
+                    return;
                 }
-                else
-                {
-                    StopMoving();
-                }
+
+                // 3. Tiến lại gần Player nếu ở ngoài tầm đánh
+                MoveTowards(playerTransform.position, moveSpeed);
             }
             else
             {
                 StopMoving();
             }
+        }
+
+        protected virtual IEnumerator Routine_ExecuteBasicAttack()
+        {
+            isPerformingBasicAttack = true;
+            StopMoving();
+
+            // Ngẫu nhiên Trigger Attack1 hoặc Attack2
+            string selectedAttackAnim = (Random.Range(0, 2) == 0) ? attack1AnimName : attack2AnimName;
+            if (anim != null && !string.IsNullOrEmpty(selectedAttackAnim))
+            {
+                anim.SetTrigger(selectedAttackAnim);
+            }
+
+            yield return new WaitForSeconds(0.2f); // Thời gian vung đòn
+
+            // 🎯 BẬT GAME OBJECT HITBOX CHO NÓ XUẤT HIỆN
+            if (meleeAttackHitbox != null && myStats != null && !myStats.IsDead)
+            {
+                meleeAttackHitbox.SetActive(true);
+            }
+
+            // Gây sát thương dựa trên khoảng cách (dự phòng)
+            if (myStats != null && !myStats.IsDead && playerTransform != null)
+            {
+                if (Vector2.Distance(transform.position, playerTransform.position) <= attackRange + 0.5f)
+                {
+                    if (playerStats != null)
+                    {
+                        playerStats.TakeDamage(basicAttackDamage + myStats.Attack.Value);
+                    }
+                }
+            }
+
+            yield return new WaitForSeconds(hitboxActiveDuration); // Chờ hết thời gian xuất hiện đòn đánh
+
+            // 🎯 TẮT VÙNG HITBOX VỀ LẠI ẨN MẶC ĐỊNH
+            if (meleeAttackHitbox != null)
+            {
+                meleeAttackHitbox.SetActive(false);
+            }
+
+            yield return new WaitForSeconds(0.2f);
+            basicAttackCooldownTimer = basicAttackCooldown;
+            isPerformingBasicAttack = false;
         }
 
         protected void FindPlayer()
@@ -141,7 +208,7 @@ namespace GameCore.AI
 
         protected void MoveTowards(Vector2 targetPosition, float speed)
         {
-            if (isPerformingSkill) return;
+            if (isPerformingSkill || isPerformingBasicAttack) return;
 
             Vector2 direction = (targetPosition - (Vector2)transform.position).normalized;
             rb.linearVelocity = direction * speed;
@@ -175,7 +242,7 @@ namespace GameCore.AI
 
         protected virtual void ExecuteFleeing()
         {
-            if (playerTransform == null || isPerformingSkill) return;
+            if (playerTransform == null || isPerformingSkill || isPerformingBasicAttack) return;
 
             Vector2 fleeDirection = (transform.position - playerTransform.position).normalized;
             rb.linearVelocity = fleeDirection * (moveSpeed * fleeSpeedMultiplier);

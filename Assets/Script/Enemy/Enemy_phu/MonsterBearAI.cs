@@ -7,13 +7,18 @@ namespace GameCore.AI
     {
         public enum AnimParamType { Trigger, Bool }
 
+        [Header("=== CẤU HÌNH BẬT/TẮT SKILL (INSPECTOR TOGGLE) ===")]
+        [SerializeField] private bool useSkill1 = true;
+        [SerializeField] private bool useSkill2 = true;
+        [SerializeField] private bool useSkill3 = true;
+
         [Header("=== CẤU HÌNH GAMEOBJECT & PREFAB ===")]
         [SerializeField] private GameObject woodenSpikePrefab;
 
         [Header("=== CẤU HÌNH TÌM KIẾM PLAYER (TẦM XA) ===")]
         [SerializeField] private LayerMask playerLayerMask;
 
-        [Header("=== CẤU HÌNH ANIMATION PARAMETER ===")]
+        [Header("=== CẤU HÌNH ANIMATION PARAMETER SKILL ===")]
         [SerializeField] private string skill1AnimName = "Skill1";
         [SerializeField] private AnimParamType skill1ParamType = AnimParamType.Trigger;
         [SerializeField] private string skill2AnimName = "Skill2";
@@ -29,9 +34,20 @@ namespace GameCore.AI
         [SerializeField] private float globalSkillCooldown = 4f;
 
         [Header("=== THÔNG SỐ SKILL 1: CỌC GỖ ĐỊA GAI (TẦM XA TRỒI ĐẤT) ===")]
+        [Tooltip("Thời gian gấu thực hiện xong Animation đập đất rồi mới sinh xiên gỗ (giây)")]
         [SerializeField] private float castTimeSkill1 = 0.8f;
+
+        [Tooltip("Số lượng xiên gỗ sinh ra mỗi lần tung chiêu")]
         [SerializeField] private int spikeCount = 3;
+
+        [Tooltip("Khoảng cách giữa các xiên gỗ trồi lên")]
         [SerializeField] private float spikeSpacing = 1.5f;
+
+        [Tooltip("Góc xoay ngẫu nhiên tối thiểu (Độ)")]
+        [SerializeField] private float minRotationAngle = 45f;
+
+        [Tooltip("Góc xoay ngẫu nhiên tối đa (Độ)")]
+        [SerializeField] private float maxRotationAngle = 60f;
 
         [Header("=== THÔNG SỐ SKILL 2: BÀNG HÃI TIẾNG GẦM (BUFF & HEAL - DƯỚI 50% MÁU) ===")]
         [SerializeField] private float healAmount = 60f;
@@ -46,7 +62,7 @@ namespace GameCore.AI
 
         protected override bool CanUseSkill()
         {
-            return skillCooldownTimer <= 0f && !isPerformingSkill && (myStats == null || !myStats.IsDead);
+            return skillCooldownTimer <= 0f && !isPerformingSkill && !isPerformingBasicAttack && (myStats == null || !myStats.IsDead);
         }
 
         protected override void SelectAndExecuteSkill(bool isRangedDistance)
@@ -55,14 +71,20 @@ namespace GameCore.AI
 
             if (isRangedDistance)
             {
-                StartCoroutine(Routine_Skill1_BoulderingSmash());
+                if (useSkill1) StartCoroutine(Routine_Skill1_BoulderingSmash());
                 return;
             }
 
-            bool canUseHealBuff = (myStats.CurrentHealth <= myStats.MaxHealth.Value * 0.5f);
+            bool canUseHealBuff = useSkill2 && (myStats.CurrentHealth <= myStats.MaxHealth.Value * 0.5f);
+            bool canUseCharge = useSkill3;
 
-            int totalWeight = skill3Weight;
+            if (!canUseHealBuff && !canUseCharge) return;
+
+            int totalWeight = 0;
             if (canUseHealBuff) totalWeight += skill2Weight;
+            if (canUseCharge) totalWeight += skill3Weight;
+
+            if (totalWeight <= 0) return;
 
             int randomValue = Random.Range(0, totalWeight);
 
@@ -70,7 +92,7 @@ namespace GameCore.AI
             {
                 StartCoroutine(Routine_Skill2_BeastHysteria());
             }
-            else
+            else if (canUseCharge)
             {
                 StartCoroutine(Routine_Skill3_BerserkCharge());
             }
@@ -121,7 +143,20 @@ namespace GameCore.AI
                     Vector3 spawnPos = originPos + (targetDir * (i * spikeSpacing));
                     spawnPos.z = originPos.z;
 
-                    Instantiate(woodenSpikePrefab, spawnPos, Quaternion.identity);
+                    // 1. Tính góc nghiêng ngẫu nhiên trong khoảng [minRotationAngle, maxRotationAngle]
+                    float randomAngle = Random.Range(minRotationAngle, maxRotationAngle);
+
+                    // 2. Ngẫu nhiên lật góc nghiêng sang trái hoặc phải để dáng gai cắm tự nhiên hơn
+                    if (Random.value > 0.5f)
+                    {
+                        randomAngle = -randomAngle;
+                    }
+
+                    // 3. Tạo Quaternion góc xoay trên trục Z
+                    Quaternion spawnRotation = Quaternion.Euler(0f, 0f, randomAngle);
+
+                    // 4. Sinh ra cọc gỗ với vị trí và góc xoay ngẫu nhiên
+                    Instantiate(woodenSpikePrefab, spawnPos, spawnRotation);
                 }
             }
 

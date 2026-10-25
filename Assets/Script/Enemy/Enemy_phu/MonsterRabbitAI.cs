@@ -24,6 +24,14 @@ namespace GameCore.AI
         [SerializeField] private string skill3AnimName = "Skill3";
         [SerializeField] private AnimParamType skill3ParamType = AnimParamType.Trigger;
 
+        [Header("=== CẤU HÌNH ÂM THANH SKILL & SLIDER AM LUONG ===")]
+        [SerializeField] private AudioClip skill1Sound;
+        [SerializeField, Range(0f, 1f)] private float skill1Volume = 1f;
+        [SerializeField] private AudioClip skill2Sound;
+        [SerializeField, Range(0f, 1f)] private float skill2Volume = 1f;
+        [SerializeField] private AudioClip skill3Sound;
+        [SerializeField, Range(0f, 1f)] private float skill3Volume = 1f;
+
         [Header("=== CẤU HÌNH TRỌNG SỐ TUNG SKILL ===")]
         [SerializeField, Range(1, 100)] private int skill2Weight = 25;
         [SerializeField, Range(1, 100)] private int skill3Weight = 25;
@@ -99,6 +107,8 @@ namespace GameCore.AI
             StopMoving();
 
             PlayAnim(skill1AnimName, skill1ParamType, true);
+            PlaySound(skill1Sound, skill1Volume);
+
             yield return new WaitForSeconds(0.3f);
 
             if (myStats != null && myStats.IsDead)
@@ -134,6 +144,7 @@ namespace GameCore.AI
             StopMoving();
 
             PlayAnim(skill2AnimName, skill2ParamType, true);
+            PlaySound(skill2Sound, skill2Volume);
 
             if (myStats != null && !myStats.IsDead)
             {
@@ -161,6 +172,8 @@ namespace GameCore.AI
             StopMoving();
 
             PlayAnim(skill3AnimName, skill3ParamType, true);
+            PlaySound(skill3Sound, skill3Volume);
+
             yield return new WaitForSeconds(0.2f);
 
             if (playerTransform != null)

@@ -25,6 +25,13 @@ namespace GameCore.AI
         [SerializeField] protected string attack1AnimName = "Attack1";
         [SerializeField] protected string attack2AnimName = "Attack2";
 
+        [Header("=== CẤU HÌNH ÂM THANH ĐÁNH THƯỜNG & CHẾT ===")]
+        [SerializeField] protected AudioSource audioSource;
+        [SerializeField] protected AudioClip basicAttackSound;
+        [SerializeField, Range(0f, 1f)] protected float basicAttackVolume = 1f;
+        [SerializeField] protected AudioClip dieSound;
+        [SerializeField, Range(0f, 1f)] protected float dieVolume = 1f;
+
         [Header("=== CẤU HÌNH ANIMATION CHUNG ===")]
         [Tooltip("Tích chọn nếu quái có animation di chuyển (isMoving). Bỏ chọn nếu quái không có animation đi bộ (như Toilet)")]
         [SerializeField] protected bool hasWalkAnimation = true;
@@ -50,7 +57,15 @@ namespace GameCore.AI
             myStats = GetComponent<CharacterStats>();
             anim = GetComponentInChildren<Animator>();
 
-            // Mặc định ẩn vùng va chạm cận chiến khi vừa khởi tạo
+            if (audioSource == null)
+            {
+                audioSource = GetComponent<AudioSource>();
+                if (audioSource == null)
+                {
+                    audioSource = gameObject.AddComponent<AudioSource>();
+                }
+            }
+
             if (meleeAttackHitbox != null)
             {
                 meleeAttackHitbox.SetActive(false);
@@ -61,6 +76,11 @@ namespace GameCore.AI
         {
             FindPlayer();
 
+            if (myStats != null)
+            {
+                myStats.OnDeath += PlayDieSound;
+            }
+
             if (GameCore.Player.PlayerUrinationMechanism.Instance != null)
             {
                 GameCore.Player.PlayerUrinationMechanism.Instance.OnExecutionStart += OnPlayerStartUrination;
@@ -70,11 +90,29 @@ namespace GameCore.AI
 
         protected virtual void OnDestroy()
         {
+            if (myStats != null)
+            {
+                myStats.OnDeath -= PlayDieSound;
+            }
+
             if (GameCore.Player.PlayerUrinationMechanism.Instance != null)
             {
                 GameCore.Player.PlayerUrinationMechanism.Instance.OnExecutionStart -= OnPlayerStartUrination;
                 GameCore.Player.PlayerUrinationMechanism.Instance.OnExecutionEnd -= OnPlayerEndUrination;
             }
+        }
+
+        protected void PlaySound(AudioClip clip, float volume)
+        {
+            if (audioSource != null && clip != null && volume > 0f)
+            {
+                audioSource.PlayOneShot(clip, volume);
+            }
+        }
+
+        protected virtual void PlayDieSound()
+        {
+            PlaySound(dieSound, dieVolume);
         }
 
         protected virtual void Update()
@@ -113,7 +151,6 @@ namespace GameCore.AI
             {
                 FlipTowards(playerTransform.position);
 
-                // 1. Nếu đủ điều kiện dùng Skill
                 if (CanUseSkill())
                 {
                     if (distanceToPlayer > attackRange && distanceToPlayer <= rangedAttackRange)
@@ -128,7 +165,6 @@ namespace GameCore.AI
                     }
                 }
 
-                // 2. Nếu ở trong phạm vi attackRange mà Skill đang hồi -> Thực hiện ĐÁNH THƯỜNG
                 if (distanceToPlayer <= attackRange)
                 {
                     if (basicAttackCooldownTimer <= 0f)
@@ -142,7 +178,6 @@ namespace GameCore.AI
                     return;
                 }
 
-                // 3. Tiến lại gần Player nếu ở ngoài tầm đánh
                 MoveTowards(playerTransform.position, moveSpeed);
             }
             else
@@ -156,22 +191,21 @@ namespace GameCore.AI
             isPerformingBasicAttack = true;
             StopMoving();
 
-            // Ngẫu nhiên Trigger Attack1 hoặc Attack2
             string selectedAttackAnim = (Random.Range(0, 2) == 0) ? attack1AnimName : attack2AnimName;
             if (anim != null && !string.IsNullOrEmpty(selectedAttackAnim))
             {
                 anim.SetTrigger(selectedAttackAnim);
             }
 
-            yield return new WaitForSeconds(0.2f); // Thời gian vung đòn
+            PlaySound(basicAttackSound, basicAttackVolume);
 
-            // 🎯 BẬT GAME OBJECT HITBOX CHO NÓ XUẤT HIỆN
+            yield return new WaitForSeconds(0.2f);
+
             if (meleeAttackHitbox != null && myStats != null && !myStats.IsDead)
             {
                 meleeAttackHitbox.SetActive(true);
             }
 
-            // Gây sát thương dựa trên khoảng cách (dự phòng)
             if (myStats != null && !myStats.IsDead && playerTransform != null)
             {
                 if (Vector2.Distance(transform.position, playerTransform.position) <= attackRange + 0.5f)
@@ -183,9 +217,8 @@ namespace GameCore.AI
                 }
             }
 
-            yield return new WaitForSeconds(hitboxActiveDuration); // Chờ hết thời gian xuất hiện đòn đánh
+            yield return new WaitForSeconds(hitboxActiveDuration);
 
-            // 🎯 TẮT VÙNG HITBOX VỀ LẠI ẨN MẶC ĐỊNH
             if (meleeAttackHitbox != null)
             {
                 meleeAttackHitbox.SetActive(false);

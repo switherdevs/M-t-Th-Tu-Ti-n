@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 5666794128198279523}
   - component: {fileID: 7804396667790607463}
   - component: {fileID: 1177138767827414568}
-  - component: {fileID: 7002575857627697178}
   - component: {fileID: 4283668800522638560}
+  - component: {fileID: 4152548763263296968}
   m_Layer: 0
   m_Name: Ice_xien
   m_TagString: Untagged
@@ -28,13 +28,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8185852855495969196}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -31, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7804396667790607463
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -136,33 +136,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 2.5625, y: 6.84375}
   m_EdgeRadius: 0
---- !u!50 &7002575857627697178
-Rigidbody2D:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8185852855495969196}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_GravityScale: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
 --- !u!114 &4283668800522638560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,3 +155,24 @@ MonoBehaviour:
   sfxVolume: 1
   time: 3
   ignoreWallTime: 0.2
+--- !u!114 &4152548763263296968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8185852855495969196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e5911bec756a3d46a1f74eb60c95ed5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 30
+  damage: 10
+  destroyTags:
+  - Player
+  - Wall
+  - Ground
+  isPoisonous: 0
+  poisonDuration: 5
+  poisonDamagePerSecond: 2

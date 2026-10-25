@@ -932,9 +932,9 @@ MonoBehaviour:
   testGame: 0
   prefabKiem: {fileID: 3380162895937484724, guid: 5de96f1c890498b4db2cc379be4302a8, type: 3}
   tamVungMuaKiem: {fileID: 5611064089201835857}
-  kichThuocVungBox: {x: 200, y: 90, z: 10}
+  kichThuocVungBox: {x: 250, y: 150, z: 10}
   viTriLechVungBox: {x: 0, y: 5, z: 5}
-  thoiGianDuyTriMuaKiem: 5
+  thoiGianDuyTriMuaKiem: 7
   khoangCachCachNhauRaiKiem: 0.1
   nangLuongToiDa: 300
   thanhNangLuongUI: {fileID: 3625275555319902930}
@@ -1829,9 +1829,9 @@ MonoBehaviour:
   currentLevel: 1
   currentExp: 0
   maxExp: 5
-  expMultiplier: 0.25
-  minRandomNgoTinh: 0.7
-  maxRandomNgoTinh: 0.9
+  expMultiplier: 0.15
+  minRandomNgoTinh: 0.95
+  maxRandomNgoTinh: 0.15
 --- !u!114 &8504750307135505312
 MonoBehaviour:
   m_ObjectHideFlags: 0

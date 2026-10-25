@@ -26,6 +26,14 @@ namespace GameCore.AI
         [SerializeField] private string skill3AnimName = "Skill3";
         [SerializeField] private AnimParamType skill3ParamType = AnimParamType.Trigger;
 
+        [Header("=== CẤU HÌNH ÂM THANH SKILL & SLIDER AM LUONG ===")]
+        [SerializeField] private AudioClip skill1Sound;
+        [SerializeField, Range(0f, 1f)] private float skill1Volume = 1f;
+        [SerializeField] private AudioClip skill2Sound;
+        [SerializeField, Range(0f, 1f)] private float skill2Volume = 1f;
+        [SerializeField] private AudioClip skill3Sound;
+        [SerializeField, Range(0f, 1f)] private float skill3Volume = 1f;
+
         [Header("=== CẤU HÌNH TRỌNG SỐ TUNG SKILL ===")]
         [SerializeField, Range(1, 100)] private int skill2Weight = 30;
         [SerializeField, Range(1, 100)] private int skill3Weight = 30;
@@ -34,19 +42,10 @@ namespace GameCore.AI
         [SerializeField] private float globalSkillCooldown = 4f;
 
         [Header("=== THÔNG SỐ SKILL 1: CỌC GỖ ĐỊA GAI (TẦM XA TRỒI ĐẤT) ===")]
-        [Tooltip("Thời gian gấu thực hiện xong Animation đập đất rồi mới sinh xiên gỗ (giây)")]
         [SerializeField] private float castTimeSkill1 = 0.8f;
-
-        [Tooltip("Số lượng xiên gỗ sinh ra mỗi lần tung chiêu")]
         [SerializeField] private int spikeCount = 3;
-
-        [Tooltip("Khoảng cách giữa các xiên gỗ trồi lên")]
         [SerializeField] private float spikeSpacing = 1.5f;
-
-        [Tooltip("Góc xoay ngẫu nhiên tối thiểu (Độ)")]
         [SerializeField] private float minRotationAngle = 45f;
-
-        [Tooltip("Góc xoay ngẫu nhiên tối đa (Độ)")]
         [SerializeField] private float maxRotationAngle = 60f;
 
         [Header("=== THÔNG SỐ SKILL 2: BÀNG HÃI TIẾNG GẦM (BUFF & HEAL - DƯỚI 50% MÁU) ===")]
@@ -108,13 +107,14 @@ namespace GameCore.AI
                 anim.SetBool(paramName, boolValue);
         }
 
-        // Skill 1: Cọc Gỗ Địa Gai (Tầm xa)
         private IEnumerator Routine_Skill1_BoulderingSmash()
         {
             isPerformingSkill = true;
             StopMoving();
 
             PlayAnim(skill1AnimName, skill1ParamType, true);
+            PlaySound(skill1Sound, skill1Volume);
+
             yield return new WaitForSeconds(castTimeSkill1);
 
             if (myStats != null && myStats.IsDead)
@@ -143,19 +143,10 @@ namespace GameCore.AI
                     Vector3 spawnPos = originPos + (targetDir * (i * spikeSpacing));
                     spawnPos.z = originPos.z;
 
-                    // 1. Tính góc nghiêng ngẫu nhiên trong khoảng [minRotationAngle, maxRotationAngle]
                     float randomAngle = Random.Range(minRotationAngle, maxRotationAngle);
+                    if (Random.value > 0.5f) randomAngle = -randomAngle;
 
-                    // 2. Ngẫu nhiên lật góc nghiêng sang trái hoặc phải để dáng gai cắm tự nhiên hơn
-                    if (Random.value > 0.5f)
-                    {
-                        randomAngle = -randomAngle;
-                    }
-
-                    // 3. Tạo Quaternion góc xoay trên trục Z
                     Quaternion spawnRotation = Quaternion.Euler(0f, 0f, randomAngle);
-
-                    // 4. Sinh ra cọc gỗ với vị trí và góc xoay ngẫu nhiên
                     Instantiate(woodenSpikePrefab, spawnPos, spawnRotation);
                 }
             }
@@ -172,6 +163,7 @@ namespace GameCore.AI
             StopMoving();
 
             PlayAnim(skill2AnimName, skill2ParamType, true);
+            PlaySound(skill2Sound, skill2Volume);
 
             if (myStats != null && !myStats.IsDead)
             {
@@ -198,6 +190,8 @@ namespace GameCore.AI
             isPerformingSkill = true;
 
             PlayAnim(skill3AnimName, skill3ParamType, true);
+            PlaySound(skill3Sound, skill3Volume);
+
             yield return new WaitForSeconds(0.3f);
 
             if (playerTransform != null)

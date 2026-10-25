@@ -108,10 +108,7 @@ namespace StatsSystem.Components
                 OnLevelUp?.Invoke(currentLevel);
             }
 
-            if (loopSafetyCounter >= maxAllowedLoops)
-            {
-                Debug.LogError("<color=red>[LevelSystem]</color> CẢNH BÁO: Đã chặn vòng lặp vô tận khi cộng EXP! Kiểm tra lại maxExp.");
-            }
+ 
 
             OnExpChanged?.Invoke(currentLevel, currentExp, maxExp);
             SaveExpToSaveSystem();

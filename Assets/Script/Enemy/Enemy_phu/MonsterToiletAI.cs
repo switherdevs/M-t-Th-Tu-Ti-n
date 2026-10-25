@@ -17,7 +17,6 @@ namespace GameCore.AI
         [SerializeField] private Transform launchPoint;
 
         [Header("=== CẤU HÌNH TÌM KIẾM PLAYER (TẦM XA) ===")]
-        [Tooltip("LayerMask dùng để nhận diện Player khi bắn đạn tầm xa")]
         [SerializeField] private LayerMask playerLayerMask;
 
         [Header("=== CẤU HÌNH ANIMATION PARAMETER SKILL ===")]
@@ -27,6 +26,14 @@ namespace GameCore.AI
         [SerializeField] private AnimParamType skill2ParamType = AnimParamType.Trigger;
         [SerializeField] private string skill3AnimName = "Skill3";
         [SerializeField] private AnimParamType skill3ParamType = AnimParamType.Trigger;
+
+        [Header("=== CẤU HÌNH ÂM THANH SKILL & SLIDER AM LUONG ===")]
+        [SerializeField] private AudioClip skill1Sound;
+        [SerializeField, Range(0f, 1f)] private float skill1Volume = 1f;
+        [SerializeField] private AudioClip skill2Sound;
+        [SerializeField, Range(0f, 1f)] private float skill2Volume = 1f;
+        [SerializeField] private AudioClip skill3Sound;
+        [SerializeField, Range(0f, 1f)] private float skill3Volume = 1f;
 
         [Header("=== CẤU HÌNH TRỌNG SỐ TUNG SKILL ===")]
         [SerializeField, Range(1, 100)] private int skill2Weight = 20;
@@ -98,13 +105,14 @@ namespace GameCore.AI
                 anim.SetBool(paramName, boolValue);
         }
 
-        // Skill 1: Khối Băng Hoang Thạch (Bắn đạn tầm xa tự động tìm Player & Player Layer)
         private IEnumerator Routine_Skill1_FrozenPebble()
         {
             isPerformingSkill = true;
             StopMoving();
 
             PlayAnim(skill1AnimName, skill1ParamType, true);
+            PlaySound(skill1Sound, skill1Volume);
+
             yield return new WaitForSeconds(0.3f);
 
             if (myStats != null && myStats.IsDead)
@@ -113,7 +121,6 @@ namespace GameCore.AI
                 yield break;
             }
 
-            // Tự động tìm vị trí Player thông qua playerTransform hoặc quét LayerMask
             Transform targetPlayer = playerTransform;
             if (targetPlayer == null)
             {
@@ -129,7 +136,6 @@ namespace GameCore.AI
                 Vector3 spawnPos = launchPoint != null ? launchPoint.position : transform.position;
                 GameObject pebble = Instantiate(frozenPebblePrefab, spawnPos, Quaternion.identity);
 
-                // Tính toán hướng bay chuẩn xác từ vị trí bồn cầu tới Player
                 Vector2 dir = (targetPlayer.position - spawnPos).normalized;
                 Rigidbody2D pebbleRb = pebble.GetComponent<Rigidbody2D>();
                 if (pebbleRb != null)
@@ -152,6 +158,7 @@ namespace GameCore.AI
             StopMoving();
 
             PlayAnim(skill2AnimName, skill2ParamType, true);
+            PlaySound(skill2Sound, skill2Volume);
 
             if (myStats != null && !myStats.IsDead)
             {
@@ -179,6 +186,7 @@ namespace GameCore.AI
             StopMoving();
 
             PlayAnim(skill3AnimName, skill3ParamType, true);
+            PlaySound(skill3Sound, skill3Volume);
 
             float timer = 0f;
             Rigidbody2D playerRb = playerTransform != null ? playerTransform.GetComponent<Rigidbody2D>() : null;

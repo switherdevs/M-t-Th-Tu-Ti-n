@@ -10,6 +10,13 @@ public class ChuyenMapManager : MonoBehaviour
     [Tooltip("Nút bấm dùng để chuyển sang Map mới")]
     public Button nutQuaMap;
 
+    [Header("--- CẤU HÌNH ẨN VĨNH VIỄN SAU CUTSCENE THÀNH CÔNG ---")]
+    [Tooltip("Tích vào đây để bật tính năng ẩn vĩnh viễn Game Object này sau khi vượt qua điều kiện thành công")]
+    public bool anVinhVienSauKhiQuaMap = true;
+
+    [Tooltip("ID định danh duy nhất cho cổng/đối tượng chuyển map này (Ví dụ: PhaDa_Map1)")]
+    public string transitionID = "Map1_PhaDa";
+
     [Header("--- CẤU HÌNH SCENE ---")]
     [Tooltip("Tên Scene Cutscene Thành Công (hoặc Scene Map mới cần load khi ĐỦ điều kiện)")]
     public string tenScenePhaDaThanhCong = "PhaDaThanhCongScene";
@@ -29,6 +36,16 @@ public class ChuyenMapManager : MonoBehaviour
 
     private void Start()
     {
+        // Kiểm tra xem đối tượng này đã bị lưu trạng thái ẩn vĩnh viễn từ các lần chơi trước chưa
+        if (QuestSaveSystem.Instance != null && anVinhVienSauKhiQuaMap && !string.IsNullOrEmpty(transitionID))
+        {
+            if (QuestSaveSystem.Instance.KiemTraTransitionDaAn(transitionID))
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+        }
+
         if (nutQuaMap != null)
         {
             nutQuaMap.onClick.RemoveAllListeners();
@@ -86,10 +103,19 @@ public class ChuyenMapManager : MonoBehaviour
         // TRƯỜNG HỢP 1: ĐỦ ĐIỀU KIỆN -> LƯU MAP MỚI VÀ CHUYỂN SANG CUTSCENE THÀNH CÔNG
         if (KiemTraKichHoatQuaMap())
         {
-            if (QuestSaveSystem.Instance != null && !string.IsNullOrEmpty(tenSceneMapMoi))
+            if (QuestSaveSystem.Instance != null)
             {
-                // Lưu sẵn tên Map mới vào file save để Timeline Cutscene đọc sau
-                QuestSaveSystem.Instance.LuuMapMoiTiepTheo(tenSceneMapMoi);
+                if (!string.IsNullOrEmpty(tenSceneMapMoi))
+                {
+                    // Lưu sẵn tên Map mới vào file save để Timeline Cutscene đọc sau
+                    QuestSaveSystem.Instance.LuuMapMoiTiepTheo(tenSceneMapMoi);
+                }
+
+                // Nếu bật tính năng ẩn vĩnh viễn, ghi nhận vào file save ngay khi kích hoạt thành công cutscene
+                if (anVinhVienSauKhiQuaMap && !string.IsNullOrEmpty(transitionID))
+                {
+                    QuestSaveSystem.Instance.LuuTransitionDaAn(transitionID);
+                }
             }
 
             if (!string.IsNullOrEmpty(tenScenePhaDaThanhCong))

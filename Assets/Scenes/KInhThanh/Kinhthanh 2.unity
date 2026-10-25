@@ -746,7 +746,7 @@ Transform:
   m_GameObject: {fileID: 428353517}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.4275684, y: 0.00000005147674, z: 0}
+  m_LocalPosition: {x: 2.1962042, y: 0.00000005147674, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -14178,9 +14178,15 @@ PrefabInstance:
       value: "H\u1EB9n g\u1EB7p l\u1EA1i \u0111\u1EA1i hi\u1EC7p sau!"
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: loiThoaiDaNhanQuest
+      value: "C\u1EA3m \u01A1n \u0111\u1EA1i hi\u1EC7p \u0111\xE3 gi\xFAp t\xF4i,
+        t\xF4i nghe n\xF3i n\xF3 \u1EDF m\u1ED9t c\xE1i trang vi\xEAn b\u1ECF hoang
+        g\xEC \u0111\xF3."
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: loiThoaiCamOnHoanThanh
       value: "C\u1EA3m \u01A1n \u01A1n tr\xEAn! \u0110\u1EA1i hi\u1EC7p \u0111\xE3
-        c\u1EE9u ch\xE1u c\u1EE7a t\xF4i"
+        c\u1EE9u con c\u1EE7a t\xF4i"
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.size
@@ -14215,6 +14221,10 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoai.Array.data[1].suDungNut1
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[1].suDungNut2
       value: 0
       objectReference: {fileID: 0}
@@ -14237,8 +14247,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[2].noiDungThoai
-      value: "khu r\u1EEBng \u0111\xF3 n\u1EB1m c\u1EA1nh m\u1ED9t c\xE1i hang l\u1EDBn,
-        n\u01A1i \u0111\xF3 c\xF3 nhi\u1EC1u th\xFA d\u1EEF l\u1EAFm"
+      value: "khu r\u1EEBng \u0111\xF3 n\u1EB1m c\u1EA1nh m\u1ED9t c\xE1i trang vi\xEAn
+        l\u1EDBn, n\u01A1i \u0111\xF3 c\xF3 nhi\u1EC1u th\xFA d\u1EEF v\xE0 sinh
+        v\u1EADt k\xEC b\xED l\u1EAFm."
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[3].noiDungThoai

@@ -76,6 +76,12 @@ public class MoralPointsSaveData
 }
 
 [Serializable]
+public class PetSaveData
+{
+    public int capDoPet = 1;
+}
+
+[Serializable]
 public class DanhSachSaveQuest
 {
     public string tenMapTruocDo = "";
@@ -83,9 +89,10 @@ public class DanhSachSaveQuest
     public List<ProgressQuest> danhSachProgress = new List<ProgressQuest>();
     public List<SaveItemData> danhSachItemSave = new List<SaveItemData>();
     public List<SaveSkillData> danhSachSkillSave = new List<SaveSkillData>();
-    public List<string> danhSachTransitionDaAn = new List<string>(); // Bổ sung lưu danh sách đối tượng chuyển map đã ẩn vĩnh viễn
+    public List<string> danhSachTransitionDaAn = new List<string>();
     public PlayerStatsSaveData playerStats = new PlayerStatsSaveData();
     public MoralPointsSaveData moralStats = new MoralPointsSaveData();
+    public PetSaveData petStats = new PetSaveData();
 }
 
 public class QuestSaveSystem : MonoBehaviour
@@ -93,11 +100,9 @@ public class QuestSaveSystem : MonoBehaviour
     public static QuestSaveSystem Instance;
 
     [Header("--- CẤU HÌNH DỮ LIỆU QUEST ---")]
-    [Tooltip("Danh sách QuestData tự động đồng bộ từ Inspector hoặc thư mục Resources")]
     public List<QuestData> danhSachQuestData = new List<QuestData>();
 
     [Header("--- CẤU HÌNH CÁC MAP CHÍNH (OVERWORLD) ---")]
-    [Tooltip("Danh sách 3 Map Overworld chính trong game.")]
     public List<string> danhSachMapChinh = new List<string>()
     {
         "Map_1_Thanh Trúc Lâm",
@@ -151,7 +156,6 @@ public class QuestSaveSystem : MonoBehaviour
                     danhSachQuestData.Add(q);
                 }
             }
-            Debug.Log($"<color=cyan>[Save System]</color> Đã tự động nạp {loadedQuests.Length} QuestData từ Resources!");
         }
     }
 
@@ -176,7 +180,6 @@ public class QuestSaveSystem : MonoBehaviour
 
         if (!string.IsNullOrEmpty(mapTruocDo) && mapTruocDo != tenMapMoi)
         {
-            Debug.LogWarning($"<color=yellow>[QuestSystem]</color> Phát hiện chuyển từ Main Map {mapTruocDo} sang Main Map {tenMapMoi}. Tiến hành reset nhiệm vụ...");
             ResetToanBoQuestDangLam();
         }
 
@@ -209,7 +212,6 @@ public class QuestSaveSystem : MonoBehaviour
             }
 
             QuestHUDTracker.ThongBaoCapNhatHUD();
-            Debug.Log("<color=red>[QuestSystem]</color> Đã reset tất cả nhiệm vụ đang làm!");
         }
     }
 
@@ -219,7 +221,6 @@ public class QuestSaveSystem : MonoBehaviour
         {
             string chuoiJson = JsonUtility.ToJson(duLieuSaveHienTai, true);
             File.WriteAllText(duongDanTuyetDoi, chuoiJson);
-            Debug.Log("<color=green>[Save System]</color> Đã lưu dữ liệu thành công!");
 
             Scene_load sceneLoader = UnityEngine.Object.FindAnyObjectByType<Scene_load>();
             if (sceneLoader != null)
@@ -227,9 +228,9 @@ public class QuestSaveSystem : MonoBehaviour
                 sceneLoader.CapNhatTrangThaiButtonTiepTuc();
             }
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            Debug.LogError("[Save System] Lỗi ghi file: " + e.Message);
+            // Bỏ qua lỗi ghi file
         }
     }
 
@@ -243,27 +244,14 @@ public class QuestSaveSystem : MonoBehaviour
                 duLieuSaveHienTai = JsonUtility.FromJson<DanhSachSaveQuest>(chuoiJson);
 
                 if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
-
-                if (duLieuSaveHienTai.danhSachProgress == null)
-                    duLieuSaveHienTai.danhSachProgress = new List<ProgressQuest>();
-
-                if (duLieuSaveHienTai.danhSachItemSave == null)
-                    duLieuSaveHienTai.danhSachItemSave = new List<SaveItemData>();
-
-                if (duLieuSaveHienTai.danhSachSkillSave == null)
-                    duLieuSaveHienTai.danhSachSkillSave = new List<SaveSkillData>();
-
-                if (duLieuSaveHienTai.danhSachTransitionDaAn == null)
-                    duLieuSaveHienTai.danhSachTransitionDaAn = new List<string>();
-
-                if (duLieuSaveHienTai.playerStats == null)
-                    duLieuSaveHienTai.playerStats = new PlayerStatsSaveData();
-
-                if (duLieuSaveHienTai.playerStats.danhSachCanhGioiDaDotPha == null)
-                    duLieuSaveHienTai.playerStats.danhSachCanhGioiDaDotPha = new List<string>();
-
-                if (duLieuSaveHienTai.moralStats == null)
-                    duLieuSaveHienTai.moralStats = new MoralPointsSaveData();
+                if (duLieuSaveHienTai.danhSachProgress == null) duLieuSaveHienTai.danhSachProgress = new List<ProgressQuest>();
+                if (duLieuSaveHienTai.danhSachItemSave == null) duLieuSaveHienTai.danhSachItemSave = new List<SaveItemData>();
+                if (duLieuSaveHienTai.danhSachSkillSave == null) duLieuSaveHienTai.danhSachSkillSave = new List<SaveSkillData>();
+                if (duLieuSaveHienTai.danhSachTransitionDaAn == null) duLieuSaveHienTai.danhSachTransitionDaAn = new List<string>();
+                if (duLieuSaveHienTai.playerStats == null) duLieuSaveHienTai.playerStats = new PlayerStatsSaveData();
+                if (duLieuSaveHienTai.playerStats.danhSachCanhGioiDaDotPha == null) duLieuSaveHienTai.playerStats.danhSachCanhGioiDaDotPha = new List<string>();
+                if (duLieuSaveHienTai.moralStats == null) duLieuSaveHienTai.moralStats = new MoralPointsSaveData();
+                if (duLieuSaveHienTai.petStats == null) duLieuSaveHienTai.petStats = new PetSaveData();
 
                 if (string.IsNullOrEmpty(duLieuSaveHienTai.tenMapTruocDo) || !danhSachMapChinh.Contains(duLieuSaveHienTai.tenMapTruocDo))
                 {
@@ -274,12 +262,9 @@ public class QuestSaveSystem : MonoBehaviour
                 }
 
                 DonDepNhiemVuLoiVacantData();
-
-                Debug.Log("<color=cyan>[Save System]</color> Đã load dữ liệu thành công.");
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Debug.LogError("[Save System] Lỗi đọc file: " + e.Message);
                 TaoFileSaveMoi();
             }
         }
@@ -296,11 +281,10 @@ public class QuestSaveSystem : MonoBehaviour
             try
             {
                 File.Delete(duongDanTuyetDoi);
-                Debug.Log("<color=red>[Save System]</color> Đã xóa file save cũ thành công!");
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Debug.LogError("[Save System] Không thể xóa file save: " + e.Message);
+                // Bỏ qua lỗi xóa file
             }
         }
 
@@ -318,7 +302,6 @@ public class QuestSaveSystem : MonoBehaviour
             int id = duLieuSaveHienTai.danhSachProgress[i].idQuest;
             if (LayQuestDataTheoID(id) == null)
             {
-                Debug.LogWarning($"<color=orange>[Save System]</color> Phát hiện Quest ID {id} không hợp lệ. Đang xóa...");
                 duLieuSaveHienTai.danhSachProgress.RemoveAt(i);
                 coThayDoi = true;
             }
@@ -338,132 +321,9 @@ public class QuestSaveSystem : MonoBehaviour
         {
             duLieuSaveHienTai.tenMapTruocDo = danhSachMapChinh[0];
         }
-
-        Debug.Log($"<color=yellow>[Save System]</color> Khởi tạo dữ liệu save mới trong RAM thành công.");
     }
 
-    // --- CÁC HÀM XỬ LÝ LƯU TRẠNG THÁI ẨN CỔNG CHUYỂN MAP ---
-    public void LuuTransitionDaAn(string id)
-    {
-        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
-        if (duLieuSaveHienTai.danhSachTransitionDaAn == null)
-            duLieuSaveHienTai.danhSachTransitionDaAn = new List<string>();
-
-        if (!duLieuSaveHienTai.danhSachTransitionDaAn.Contains(id))
-        {
-            duLieuSaveHienTai.danhSachTransitionDaAn.Add(id);
-            SaveDuLieuQuestToTxt();
-        }
-    }
-
-    public bool KiemTraTransitionDaAn(string id)
-    {
-        if (duLieuSaveHienTai == null || duLieuSaveHienTai.danhSachTransitionDaAn == null) return false;
-        return duLieuSaveHienTai.danhSachTransitionDaAn.Contains(id);
-    }
-
-    public void ThayDoiDiemDaoDuc(int congDiemThien, int congDiemAc = 0, int congDiemDanhVong = 0)
-    {
-        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
-        if (duLieuSaveHienTai.moralStats == null) duLieuSaveHienTai.moralStats = new MoralPointsSaveData();
-
-        duLieuSaveHienTai.moralStats.diemThien = Mathf.Max(0, duLieuSaveHienTai.moralStats.diemThien + congDiemThien);
-        duLieuSaveHienTai.moralStats.diemAc = Mathf.Max(0, duLieuSaveHienTai.moralStats.diemAc + congDiemAc);
-        duLieuSaveHienTai.moralStats.diemDanhVong += congDiemDanhVong;
-
-        SaveDuLieuQuestToTxt();
-    }
-
-    public int LayDiemThien() => duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemThien : 0;
-    public int LayDiemAc() => duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemAc : 0;
-    public int LayDiemDanhVong() => duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemDanhVong : 0;
-
-    public int DemSoQuestDangLam()
-    {
-        if (duLieuSaveHienTai == null || duLieuSaveHienTai.danhSachProgress == null) return 0;
-
-        int count = 0;
-        foreach (ProgressQuest q in duLieuSaveHienTai.danhSachProgress)
-        {
-            if (q.trangThai == TrangThaiQuest.DangLam || q.trangThai == TrangThaiQuest.DaXongChuaTra)
-            {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public bool KiemTraCoTheNhanQuestMoi(int maxQuest = 3)
-    {
-        return DemSoQuestDangLam() < maxQuest;
-    }
-
-    public void LuuSkillFullData(string nameSkill, int levelSkill, float damage, float cooldown)
-    {
-        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
-        if (duLieuSaveHienTai.danhSachSkillSave == null) duLieuSaveHienTai.danhSachSkillSave = new List<SaveSkillData>();
-
-        SaveSkillData skillSave = duLieuSaveHienTai.danhSachSkillSave.Find(s => s.skillName == nameSkill);
-        if (skillSave != null)
-        {
-            skillSave.skillLevel = levelSkill;
-            skillSave.currentDamage = damage;
-            skillSave.currentCooldown = cooldown;
-        }
-        else
-        {
-            duLieuSaveHienTai.danhSachSkillSave.Add(new SaveSkillData(nameSkill, levelSkill, damage, cooldown));
-        }
-
-        SaveDuLieuQuestToTxt();
-    }
-
-    public void LuuCapDoSkill(string nameSkill, int levelSkill)
-    {
-        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
-        if (duLieuSaveHienTai.danhSachSkillSave == null) duLieuSaveHienTai.danhSachSkillSave = new List<SaveSkillData>();
-
-        SaveSkillData skillSave = duLieuSaveHienTai.danhSachSkillSave.Find(s => s.skillName == nameSkill);
-        if (skillSave != null)
-        {
-            skillSave.skillLevel = levelSkill;
-        }
-        else
-        {
-            duLieuSaveHienTai.danhSachSkillSave.Add(new SaveSkillData(nameSkill, levelSkill, 0f, 0f));
-        }
-
-        SaveDuLieuQuestToTxt();
-    }
-
-    public int LayCapDoSkill(string nameSkill)
-    {
-        if (duLieuSaveHienTai == null || duLieuSaveHienTai.danhSachSkillSave == null) return 1;
-
-        SaveSkillData skillSave = duLieuSaveHienTai.danhSachSkillSave.Find(s => s.skillName == nameSkill);
-        return skillSave != null ? skillSave.skillLevel : 1;
-    }
-
-    public SaveSkillData LayDuLieuSkill(string nameSkill)
-    {
-        if (duLieuSaveHienTai == null || duLieuSaveHienTai.danhSachSkillSave == null) return null;
-        return duLieuSaveHienTai.danhSachSkillSave.Find(s => s.skillName == nameSkill);
-    }
-
-    public void LuuMapHienTaiLamMapTruocDo()
-    {
-        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
-
-        string tenMapHienTai = SceneManager.GetActiveScene().name;
-
-        if (danhSachMapChinh.Contains(tenMapHienTai))
-        {
-            duLieuSaveHienTai.tenMapTruocDo = tenMapHienTai;
-            SaveDuLieuQuestToTxt();
-            Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Main Map trước đó: " + tenMapHienTai);
-        }
-    }
-
+    // --- CÁC HÀM XỬ LÝ MAP ---
     public void LuuMapTruocDo(string tenMap)
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
@@ -472,7 +332,6 @@ public class QuestSaveSystem : MonoBehaviour
         {
             duLieuSaveHienTai.tenMapTruocDo = tenMap;
             SaveDuLieuQuestToTxt();
-            Debug.Log("<color=cyan>[Save System]</color> Đã ghi nhận Main Map trước đó: " + tenMap);
         }
     }
 
@@ -499,10 +358,90 @@ public class QuestSaveSystem : MonoBehaviour
         return LayMapTruocDo();
     }
 
+    // --- CÁC HÀM TRẠNG THÁI ẨN CỔNG MAP ---
+    public void LuuTransitionDaAn(string id)
+    {
+        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
+        if (duLieuSaveHienTai.danhSachTransitionDaAn == null)
+            duLieuSaveHienTai.danhSachTransitionDaAn = new List<string>();
+
+        if (!duLieuSaveHienTai.danhSachTransitionDaAn.Contains(id))
+        {
+            duLieuSaveHienTai.danhSachTransitionDaAn.Add(id);
+            SaveDuLieuQuestToTxt();
+        }
+    }
+
+    public bool KiemTraTransitionDaAn(string id)
+    {
+        if (duLieuSaveHienTai == null || duLieuSaveHienTai.danhSachTransitionDaAn == null) return false;
+        return duLieuSaveHienTai.danhSachTransitionDaAn.Contains(id);
+    }
+
+    // --- CÁC HÀM LƯU VÀ LOAD CẤP ĐỘ PET ---
+    public void LuuCapDoPet(int capDoMoi)
+    {
+        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
+        if (duLieuSaveHienTai.petStats == null) duLieuSaveHienTai.petStats = new PetSaveData();
+
+        duLieuSaveHienTai.petStats.capDoPet = capDoMoi;
+        SaveDuLieuQuestToTxt();
+    }
+
+    public int LayCapDoPet()
+    {
+        if (duLieuSaveHienTai == null || duLieuSaveHienTai.petStats == null) return 1;
+        return Mathf.Max(1, duLieuSaveHienTai.petStats.capDoPet);
+    }
+
+    // --- CÁC HÀM ĐẠO ĐỨC (THIỆN/ÁC/DANH VỌNG) ---
+    public void ThayDoiDiemDaoDuc(int congDiemThien, int congDiemAc = 0, int congDiemDanhVong = 0)
+    {
+        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
+        if (duLieuSaveHienTai.moralStats == null) duLieuSaveHienTai.moralStats = new MoralPointsSaveData();
+
+        duLieuSaveHienTai.moralStats.diemThien = Mathf.Max(0, duLieuSaveHienTai.moralStats.diemThien + congDiemThien);
+        duLieuSaveHienTai.moralStats.diemAc = Mathf.Max(0, duLieuSaveHienTai.moralStats.diemAc + congDiemAc);
+        duLieuSaveHienTai.moralStats.diemDanhVong += congDiemDanhVong;
+
+        SaveDuLieuQuestToTxt();
+    }
+
+    public int LayDiemThien() => duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemThien : 0;
+    public int LayDiemAc() => duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemAc : 0;
+    public int LayDiemDanhVong() => duLieuSaveHienTai?.moralStats != null ? duLieuSaveHienTai.moralStats.diemDanhVong : 0;
+
+    // --- CÁC HÀM KỸ NĂNG (SKILLS) ---
+    public void LuuSkillFullData(string nameSkill, int levelSkill, float damage, float cooldown)
+    {
+        if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
+        if (duLieuSaveHienTai.danhSachSkillSave == null) duLieuSaveHienTai.danhSachSkillSave = new List<SaveSkillData>();
+
+        SaveSkillData skillSave = duLieuSaveHienTai.danhSachSkillSave.Find(s => s.skillName == nameSkill);
+        if (skillSave != null)
+        {
+            skillSave.skillLevel = levelSkill;
+            skillSave.currentDamage = damage;
+            skillSave.currentCooldown = cooldown;
+        }
+        else
+        {
+            duLieuSaveHienTai.danhSachSkillSave.Add(new SaveSkillData(nameSkill, levelSkill, damage, cooldown));
+        }
+
+        SaveDuLieuQuestToTxt();
+    }
+
+    public SaveSkillData LayDuLieuSkill(string nameSkill)
+    {
+        if (duLieuSaveHienTai == null || duLieuSaveHienTai.danhSachSkillSave == null) return null;
+        return duLieuSaveHienTai.danhSachSkillSave.Find(s => s.skillName == nameSkill);
+    }
+
+    // --- CÁC HÀM ITEM ---
     public void LuuItemVaoSaveGame(string idItem, int soLuong = 1)
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
-
         if (duLieuSaveHienTai.danhSachItemSave == null)
             duLieuSaveHienTai.danhSachItemSave = new List<SaveItemData>();
 
@@ -532,6 +471,7 @@ public class QuestSaveSystem : MonoBehaviour
         return item != null ? item.soLuong : 0;
     }
 
+    // --- CÁC HÀM QUEST & TIẾN TRÌNH ---
     public QuestData LayQuestDataTheoID(int idQuest)
     {
         if (danhSachQuestData == null) return null;
@@ -557,7 +497,6 @@ public class QuestSaveSystem : MonoBehaviour
     public ProgressQuest LayTienTrinhQuest(int idQuest)
     {
         if (duLieuSaveHienTai == null) duLieuSaveHienTai = new DanhSachSaveQuest();
-
         if (duLieuSaveHienTai.danhSachProgress == null)
             duLieuSaveHienTai.danhSachProgress = new List<ProgressQuest>();
 
@@ -594,28 +533,6 @@ public class QuestSaveSystem : MonoBehaviour
         }
 
         SaveDuLieuQuestToTxt();
-    }
-
-    public void GhiNhanCapNhatTienTrinh(int idQuest, int soLuongMoi)
-    {
-        ProgressQuest quest = LayTienTrinhQuest(idQuest);
-        if (quest == null) return;
-
-        quest.soBoXuongDaDiet = soLuongMoi;
-
-        QuestData qData = LayQuestDataTheoID(idQuest);
-        if (qData != null)
-        {
-            int mucTieu = qData.loaiQuest == LoaiQuest.DietQuai ? qData.soLuongBoXuongCanDiet : qData.soLuongCanGiaiCuu;
-            if (quest.soBoXuongDaDiet >= mucTieu)
-            {
-                quest.soBoXuongDaDiet = mucTieu;
-                quest.trangThai = TrangThaiQuest.DaXongChuaTra;
-            }
-        }
-
-        SaveDuLieuQuestToTxt();
-        QuestHUDTracker.ThongBaoCapNhatHUD();
     }
 
     public void GhiNhanDietQuai(int idQuai, int soLuong = 1)

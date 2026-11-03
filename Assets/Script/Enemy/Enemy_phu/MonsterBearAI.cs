@@ -41,12 +41,22 @@ namespace GameCore.AI
         [Header("=== CẤU HÌNH THỜI GIAN HỒI CHIÊU CHUNG ===")]
         [SerializeField] private float globalSkillCooldown = 4f;
 
-        [Header("=== THÔNG SỐ SKILL 1: CỌC GỖ ĐỊA GAI (TẦM XA TRỒI ĐẤT) ===")]
+        [Header("=== THÔNG SỐ SKILL 1: CỌC GỖ ĐỊA GAI (TỪ QUÁI RA HƯỚNG PLAYER) ===")]
         [SerializeField] private float castTimeSkill1 = 0.8f;
-        [SerializeField] private int spikeCount = 3;
-        [SerializeField] private float spikeSpacing = 1.5f;
-        [SerializeField] private float minRotationAngle = 45f;
-        [SerializeField] private float maxRotationAngle = 60f;
+        [Tooltip("Số lượng cọc gỗ muốn hiển thị (Tùy ý chỉnh trên Inspector)")]
+        [SerializeField] private int spikeCount = 5;
+        [Tooltip("Khoảng cách tối thiểu từ chân quái đến cọc gỗ đầu tiên (tránh mọc ngay chân)")]
+        [SerializeField] private float spawnOffsetX = 1.5f;
+        [Tooltip("Khoảng cách giữa các cọc gỗ tiếp theo tính theo trục X")]
+        [SerializeField] private float spikeSpacingX = 1.2f;
+        [Tooltip("Khoảng thời gian trễ (giây) giữa các lần cọc gỗ trồi lên")]
+        [SerializeField] private float delayBetweenSpikes = 0.15f;
+        [Tooltip("Góc xoay tối thiểu và tối đa (độ) để tạo độ xoay random ngẫu nhiên")]
+        [SerializeField] private float minRotationAngle = -15f;
+        [SerializeField] private float maxRotationAngle = 15f;
+        [Tooltip("Âm thanh phát ra mỗi khi 1 cọc gỗ trồi lên")]
+        [SerializeField] private AudioClip spikeEmergeSound;
+        [SerializeField, Range(0f, 1f)] private float spikeEmergeVolume = 1f;
 
         [Header("=== THÔNG SỐ SKILL 2: BÀNG HÃI TIẾNG GẦM (BUFF & HEAL - DƯỚI 50% MÁU) ===")]
         [SerializeField] private float healAmount = 60f;
@@ -107,6 +117,7 @@ namespace GameCore.AI
                 anim.SetBool(paramName, boolValue);
         }
 
+        // 🎯 SKILL 1: CỌC GỖ XUẤT HIỆN TUẦN TỰ, CÁCH CHÂN QUÁI MỘT ĐOẠN (spawnOffsetX) VÀ ĐÚNG HƯỚNG TRÁI/PHẢI
         private IEnumerator Routine_Skill1_BoulderingSmash()
         {
             isPerformingSkill = true;
@@ -133,21 +144,48 @@ namespace GameCore.AI
                 }
             }
 
-            if (woodenSpikePrefab != null && targetPlayer != null)
+            if (woodenSpikePrefab != null)
             {
                 Vector3 originPos = transform.position;
-                Vector3 targetDir = (targetPlayer.position - originPos).normalized;
 
-                for (int i = 1; i <= spikeCount; i++)
+                // Xác định hướng xuất phát dựa vào vị trí Player so với quái (hoặc hướng scale của quái)
+                float dirX = 1f;
+                if (targetPlayer != null)
                 {
-                    Vector3 spawnPos = originPos + (targetDir * (i * spikeSpacing));
-                    spawnPos.z = originPos.z;
+                    float diffX = targetPlayer.position.x - originPos.x;
+                    if (Mathf.Abs(diffX) > 0.01f)
+                    {
+                        dirX = Mathf.Sign(diffX);
+                    }
+                    else
+                    {
+                        dirX = transform.localScale.x >= 0 ? 1f : -1f;
+                    }
+                }
+                else
+                {
+                    dirX = transform.localScale.x >= 0 ? 1f : -1f;
+                }
 
+                // Vòng lặp sinh cọc gỗ tuần tự lan dần ra ngoài, cộng thêm spawnOffsetX để không dính chân quái
+                for (int i = 0; i < spikeCount; i++)
+                {
+                    if (myStats != null && myStats.IsDead) break;
+
+                    // Công thức vị trí: Vị trí quái + Hướng nhân với (Khoảng cách an toàn + khoảng cách từng cọc)
+                    float posX = originPos.x + (dirX * (spawnOffsetX + (i * spikeSpacingX)));
+                    Vector3 spawnPos = new Vector3(posX, originPos.y, originPos.z);
+
+                    // Xoay ngẫu nhiên
                     float randomAngle = Random.Range(minRotationAngle, maxRotationAngle);
-                    if (Random.value > 0.5f) randomAngle = -randomAngle;
-
                     Quaternion spawnRotation = Quaternion.Euler(0f, 0f, randomAngle);
+
+                    // Spawn cọc gỗ và phát âm thanh
                     Instantiate(woodenSpikePrefab, spawnPos, spawnRotation);
+                    PlaySound(spikeEmergeSound, spikeEmergeVolume);
+
+                    // Độ trễ để cọc trồi lên lần lượt từng cái một đúng thứ tự
+                    yield return new WaitForSeconds(delayBetweenSpikes);
                 }
             }
 

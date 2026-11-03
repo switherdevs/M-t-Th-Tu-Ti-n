@@ -5,6 +5,7 @@ namespace GameCore.AI
 {
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(CharacterStats))]
+    [RequireComponent(typeof(ExecutableEnemy))] // Đảm bảo luôn có component kết liễu đi kèm
     public abstract class MonsterAIBase : MonoBehaviour
     {
         [Header("=== CẤU HÌNH DI CHUYỂN & TẦM NHÌN ===")]
@@ -44,6 +45,7 @@ namespace GameCore.AI
         protected CharacterStats myStats;
         protected Rigidbody2D rb;
         protected Animator anim;
+        protected ExecutableEnemy executableEnemy; // Tham chiếu tới script kết liễu
 
         protected bool isFleeing = false;
         protected bool isPerformingSkill = false;
@@ -56,6 +58,7 @@ namespace GameCore.AI
             rb = GetComponent<Rigidbody2D>();
             myStats = GetComponent<CharacterStats>();
             anim = GetComponentInChildren<Animator>();
+            executableEnemy = GetComponent<ExecutableEnemy>(); // Lấy component ExecutableEnemy
 
             if (audioSource == null)
             {
@@ -117,11 +120,20 @@ namespace GameCore.AI
 
         protected virtual void Update()
         {
+            // 1. Kiểm tra nếu quái đã chết
             if (myStats != null && myStats.IsDead)
             {
                 StopMoving();
                 if (meleeAttackHitbox != null) meleeAttackHitbox.SetActive(false);
                 return;
+            }
+
+            // 2. ✨ NÂNG CẤP QUAN TRỌNG: Nếu quái đang dính trạng thái choáng hoặc đang bị kết liễu
+            if (executableEnemy != null && executableEnemy.IsStunned)
+            {
+                StopMoving(); // Triệt tiêu hoàn toàn vận tốc di chuyển (đứng im tuyệt đối)
+                if (meleeAttackHitbox != null) meleeAttackHitbox.SetActive(false);
+                return;       // Chặn toàn bộ logic AI bên dưới (không di chuyển, không tấn công, không thi triển skill)
             }
 
             if (isPerformingSkill || isPerformingBasicAttack)
@@ -279,12 +291,17 @@ namespace GameCore.AI
 
             Vector2 fleeDirection = (transform.position - playerTransform.position).normalized;
             rb.linearVelocity = fleeDirection * (moveSpeed * fleeSpeedMultiplier);
-            FlipTowards(transform.position + (Vector3)fleeDirection);
+            FlipTotal(fleeDirection);
 
             if (anim != null && hasWalkAnimation)
             {
                 anim.SetBool("isMoving", true);
             }
+        }
+
+        private void FlipTotal(Vector2 fleeDirection)
+        {
+            FlipTowards(transform.position + (Vector3)fleeDirection);
         }
 
         private void OnPlayerStartUrination()

@@ -2643,7 +2643,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -528.2158, y: -337.991}
+  m_AnchoredPosition: {x: -595.02527, y: -277.61377}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2815195226978308527
@@ -2701,6 +2701,7 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   amThanhGoChu: {fileID: 0}
   tenNPC: "An B\xE1 T\u1EED Khang"
+  tenNPC_EN: Anonymous Master
   tocDoGoChu: 0.04
   thoiGianDoiThoai: 30
   danhSachThoaiRandom:
@@ -2712,6 +2713,7 @@ MonoBehaviour:
   - "\u0103n ba t\xF4 c\u01A1mmmmmmmmmmmmm"
   - "\u0110\u1EA1i hi\u1EC7p trong \u0111\u1EB9p trai \u0111\u1EA5y, ch\u1EAFc l\xE0
     c\xF4ng t\u1EED nh\u1EC9 "
+  danhSachThoaiRandomEN: []
 --- !u!223 &826844503912887885
 Canvas:
   m_ObjectHideFlags: 0
@@ -3591,15 +3593,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 85
+    m_Left: 90
     m_Right: 0
-    m_Top: -100
+    m_Top: -90
     m_Bottom: 0
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 95, y: 95}
-  m_Spacing: {x: 0, y: -50}
+  m_CellSize: {x: 80, y: 80}
+  m_Spacing: {x: 0, y: -40}
   m_Constraint: 0
   m_ConstraintCount: 2
 --- !u!1 &8918395674040183038

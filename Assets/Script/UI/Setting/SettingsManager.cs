@@ -8,6 +8,7 @@ namespace GameCore.Settings
 {
     /// <summary>
     /// Manager singleton quản lý Load/Save cài đặt (Audio, Mouse Sensitivity, Rebind Key, Language)
+    /// Lưu độc lập để không bị xóa khi người chơi bấm xóa save game.
     /// </summary>
     public class SettingsManager : MonoBehaviour
     {
@@ -39,7 +40,7 @@ namespace GameCore.Settings
         [SerializeField] private InputActionAsset inputActions;
 
         [Header("--- SAVE CONFIG ---")]
-        [SerializeField] private string saveFileName = "settings.txt";
+        [SerializeField] private string saveFileName = "settings.txt"; // File riêng biệt không bị ảnh hưởng bởi XoaToanBoSaveData
 
         public SettingsData CurrentData { get; private set; } = new SettingsData();
 
@@ -48,6 +49,12 @@ namespace GameCore.Settings
 
         private void Awake()
         {
+            if (_instance != null && _instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             _instance = this;
             LoadSettings();
         }
@@ -70,9 +77,9 @@ namespace GameCore.Settings
                 }
                 File.Move(TempSaveFilePath, SaveFilePath);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Debug.LogError($"[SettingsManager] Lỗi khi lưu file settings: {ex.Message}");
+                // Bỏ qua lỗi ghi file
             }
         }
 
@@ -99,9 +106,8 @@ namespace GameCore.Settings
                     CurrentData = loaded ?? new SettingsData();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Debug.LogError($"[SettingsManager] Lỗi khi đọc file settings, dùng mặc định: {ex.Message}");
                 CurrentData = new SettingsData();
             }
 
@@ -121,17 +127,11 @@ namespace GameCore.Settings
         }
 
         // --- LANGUAGE HELPERS ---
-        /// <summary>
-        /// Kiểm tra xem người chơi có đang chọn Tiếng Anh hay không
-        /// </summary>
         public bool IsEnglish()
         {
             return CurrentData != null && CurrentData.language == "EN";
         }
 
-        /// <summary>
-        /// Đổi ngôn ngữ hệ thống ("VI" hoặc "EN")
-        /// </summary>
         public void SetLanguage(string langCode)
         {
             if (CurrentData != null)

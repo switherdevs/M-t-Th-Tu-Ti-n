@@ -163,13 +163,11 @@ public class PlayerSkillManager : MonoBehaviour
 
         if (cooldownTimers[index] > 0f)
         {
-            Debug.Log($"<color=yellow>[PLAYER SKILL]</color> {skill.skillName} đang hồi chiêu ({cooldownTimers[index]:F1}s)!");
             return;
         }
 
         if (nangLuongHienTai < skill.manaCost)
         {
-            Debug.LogWarning($"<color=red>[PLAYER SKILL]</color> Không đủ năng lượng dùng {skill.skillName}! Cần: {skill.manaCost} | Hiện có: {(int)nangLuongHienTai}");
             return;
         }
 
@@ -183,8 +181,6 @@ public class PlayerSkillManager : MonoBehaviour
         PhatAmThanhThiTrian();
 
         cooldownTimers[index] = skill.cooldownTime;
-
-        Debug.Log($"<color=green>[PLAYER SKILL]</color> Kích hoạt {skill.skillName}! Tốn {skill.manaCost} Mana.");
     }
 
     // 🎯 Hàm hỗ trợ phát âm thanh thi triển

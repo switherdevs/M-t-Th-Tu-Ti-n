@@ -114,7 +114,7 @@ Transform:
   m_GameObject: {fileID: 837660054434756069}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.7535599, y: 0, z: 0}
+  m_LocalPosition: {x: 0.44999987, y: 0.75, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -288,7 +288,8 @@ GameObject:
   - component: {fileID: 7921593039611481978}
   - component: {fileID: 7389667067659358861}
   - component: {fileID: 6084860602099340689}
-  m_Layer: 0
+  - component: {fileID: 2757108953380685644}
+  m_Layer: 9
   m_Name: Toilet
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -312,6 +313,9 @@ Transform:
   - {fileID: 4705047143690019226}
   - {fileID: 6110383601707158518}
   - {fileID: 1165510245824026492}
+  - {fileID: 3761444014682426112}
+  - {fileID: 269287254842036057}
+  - {fileID: 3732305768400908742}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!212 &4493305586279607326
@@ -481,8 +485,8 @@ MonoBehaviour:
   attack1AnimName: Attack1
   attack2AnimName: Attack2
   audioSource: {fileID: 6084860602099340689}
-  basicAttackSound: {fileID: 0}
-  basicAttackVolume: 1
+  basicAttackSound: {fileID: 8300000, guid: 4fe0f624f40d97a45a7cd7016eb3449d, type: 3}
+  basicAttackVolume: 0.25
   dieSound: {fileID: 0}
   dieVolume: 1
   hasWalkAnimation: 1
@@ -490,7 +494,7 @@ MonoBehaviour:
   useSkill1: 1
   useSkill2: 1
   useSkill3: 1
-  frozenPebblePrefab: {fileID: 8185852855495969196, guid: a67a0bfbf668ec14da2a11992291725d, type: 3}
+  frozenPebblePrefab: {fileID: 8606861321519863978, guid: 7bfa33e64f868b346a79daa6857ab727, type: 3}
   launchPoint: {fileID: 8761304374622240598}
   playerLayerMask:
     serializedVersion: 2
@@ -502,16 +506,18 @@ MonoBehaviour:
   skill3AnimName: Skill3
   skill3ParamType: 0
   skill1Sound: {fileID: 0}
-  skill1Volume: 1
+  skill1Volume: 0.1
   skill2Sound: {fileID: 0}
-  skill2Volume: 1
+  skill2Volume: 0.1
   skill3Sound: {fileID: 0}
-  skill3Volume: 1
+  skill3Volume: 0.1
   skill2Weight: 100
   skill3Weight: 100
-  globalSkillCooldown: 3.5
-  pebbleFlySpeed: 10
+  globalSkillCooldown: 4
   castTimeSkill1: 0.7
+  bulletCount: 3
+  spawnRadius: 5
+  spreadAngle: 15
   healAmount: 50
   buffAttackBonus: 20
   buffDuration: 10
@@ -697,6 +703,59 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &2757108953380685644
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5207108732425149337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 285c70042694cce45a3e79074581e0e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  executionHealthThreshold: 0.3
+  stunDuration: 7
+  executionPoint: {fileID: 3761444014682426112}
+  stunStateName: Stun
+  executionStateName: BeingExecuted
+  die2StateName: Die2
+  executionVFXPrefab: {fileID: 8476079305064724905, guid: 2cfc1621c9aebd649880d5e3e0a21f11, type: 3}
+  vfxSpawnPoint: {fileID: 269287254842036057}
+  executePromptUI: {fileID: 0}
+  stunVFXObject: {fileID: 6806947346841967956}
+--- !u!1 &5342120191572303183
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3761444014682426112}
+  m_Layer: 0
+  m_Name: KIll
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3761444014682426112
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5342120191572303183}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -1, z: -0, w: 0}
+  m_LocalPosition: {x: 1.35, y: -0.50000006, z: 0.03220715}
+  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1827179336216930531}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5426691357243331879
 GameObject:
   m_ObjectHideFlags: 0
@@ -900,6 +959,90 @@ MonoBehaviour:
   isTargetPlayer: 1
   isTargetEnemy: 0
   damagePopupPrefab: {fileID: 1225914145827128997, guid: c292fa7c657ece24daefe51c56d747b4, type: 3}
+--- !u!1 &6806947346841967956
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3732305768400908742}
+  - component: {fileID: 4118924342190397073}
+  m_Layer: 0
+  m_Name: Spot Light 2D
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3732305768400908742
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6806947346841967956}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -1, z: -0, w: 0}
+  m_LocalPosition: {x: 0, y: 0.25000003, z: 0}
+  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1827179336216930531}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4118924342190397073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6806947346841967956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ComponentVersion: 2
+  m_LightType: 3
+  m_BlendStyleIndex: 0
+  m_FalloffIntensity: 0.5
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Intensity: 10
+  m_LightVolumeIntensity: 1
+  m_LightVolumeEnabled: 0
+  m_ApplyToSortingLayers: 00000000
+  m_LightCookieSprite: {fileID: 0}
+  m_DeprecatedPointLightCookieSprite: {fileID: 0}
+  m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
+  m_OverlapOperation: 0
+  m_NormalMapDistance: 3
+  m_NormalMapQuality: 2
+  m_UseNormalMap: 0
+  m_ShadowsEnabled: 1
+  m_ShadowIntensity: 0.75
+  m_ShadowSoftness: 0.3
+  m_ShadowSoftnessFalloffIntensity: 0.5
+  m_ShadowVolumeIntensityEnabled: 0
+  m_ShadowVolumeIntensity: 0.75
+  m_LocalBounds:
+    m_Center: {x: 0, y: -0.00000011920929, z: 0}
+    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
+  m_PointLightInnerAngle: 360
+  m_PointLightOuterAngle: 360
+  m_PointLightInnerRadius: 0
+  m_PointLightOuterRadius: 15
+  m_ShapeLightParametricSides: 5
+  m_ShapeLightParametricAngleOffset: 0
+  m_ShapeLightParametricRadius: 1
+  m_ShapeLightFalloffSize: 0.5
+  m_ShapeLightFalloffOffset: {x: 0, y: 0}
+  m_ShapePath:
+  - {x: -0.5, y: -0.5, z: 0}
+  - {x: 0.5, y: -0.5, z: 0}
+  - {x: 0.5, y: 0.5, z: 0}
+  - {x: -0.5, y: 0.5, z: 0}
 --- !u!1 &6809910256085618434
 GameObject:
   m_ObjectHideFlags: 0
@@ -1038,6 +1181,37 @@ RectTransform:
   m_AnchoredPosition: {x: -5, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &8501325142494481352
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 269287254842036057}
+  m_Layer: 0
+  m_Name: Sp
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &269287254842036057
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8501325142494481352}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -1, z: -0, w: 0}
+  m_LocalPosition: {x: -0.049999952, y: 0.19999993, z: 0.03220715}
+  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1827179336216930531}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &6225234149776152644
 PrefabInstance:
   m_ObjectHideFlags: 0

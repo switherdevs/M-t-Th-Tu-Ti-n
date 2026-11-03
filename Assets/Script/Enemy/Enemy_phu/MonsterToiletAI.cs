@@ -43,8 +43,13 @@ namespace GameCore.AI
         [SerializeField] private float globalSkillCooldown = 3.5f;
 
         [Header("=== THÔNG SỐ SKILL 1: KHỐI BĂNG HOANG THẠCH (BẮN ĐẠN TẦM XA) ===")]
-        [SerializeField] private float pebbleFlySpeed = 10f;
         [SerializeField] private float castTimeSkill1 = 0.7f;
+        [Tooltip("Số lượng đạn bắn ra trong một lần dùng Skill 1")]
+        [SerializeField] private int bulletCount = 3;
+        [Tooltip("Bán kính vùng xuất hiện xung quanh điểm tâm (launchPoint hoặc transform)")]
+        [SerializeField] private float spawnRadius = 0.6f;
+        [Tooltip("Góc tản rộng của chùm đạn hướng về phía người chơi")]
+        [SerializeField] private float spreadAngle = 15f;
 
         [Header("=== THÔNG SỐ SKILL 2: NƯỚC THẦN TẨY RỬA (BUFF & HEAL - DƯỚI 50% MÁU) ===")]
         [SerializeField] private float healAmount = 50f;
@@ -105,6 +110,7 @@ namespace GameCore.AI
                 anim.SetBool(paramName, boolValue);
         }
 
+        // 🎯 SKILL 1: SINH SỐ LƯỢNG ĐẠN QUANH TÂM VÀ GIAO CHO SCRIPT ĐẠN TỰ ĐIỀU KHIỂN
         private IEnumerator Routine_Skill1_FrozenPebble()
         {
             isPerformingSkill = true;
@@ -133,14 +139,34 @@ namespace GameCore.AI
 
             if (frozenPebblePrefab != null && targetPlayer != null)
             {
-                Vector3 spawnPos = launchPoint != null ? launchPoint.position : transform.position;
-                GameObject pebble = Instantiate(frozenPebblePrefab, spawnPos, Quaternion.identity);
+                Vector3 centerPos = launchPoint != null ? launchPoint.position : transform.position;
+                Vector2 baseDir = (targetPlayer.position - centerPos).normalized;
+                float baseAngle = Mathf.Atan2(baseDir.y, baseDir.x) * Mathf.Rad2Deg;
 
-                Vector2 dir = (targetPlayer.position - spawnPos).normalized;
-                Rigidbody2D pebbleRb = pebble.GetComponent<Rigidbody2D>();
-                if (pebbleRb != null)
+                for (int i = 0; i < bulletCount; i++)
                 {
-                    pebbleRb.linearVelocity = dir * pebbleFlySpeed;
+                    // Tạo vị trí xuất hiện ngẫu nhiên quanh điểm tâm với bán kính spawnRadius
+                    Vector2 randomOffset = Random.insideUnitCircle * spawnRadius;
+                    Vector3 spawnPos = centerPos + new Vector3(randomOffset.x, randomOffset.y, 0f);
+
+                    GameObject pebble = Instantiate(frozenPebblePrefab, spawnPos, Quaternion.identity);
+
+                    // Tính toán góc tản đạn hướng về người chơi
+                    float currentAngle = baseAngle;
+                    if (bulletCount > 1)
+                    {
+                        float angleStep = spreadAngle / (bulletCount - 1);
+                        currentAngle = baseAngle - (spreadAngle / 2f) + (angleStep * i);
+                    }
+
+                    Vector2 dir = new Vector2(Mathf.Cos(currentAngle * Mathf.Deg2Rad), Mathf.Sin(currentAngle * Mathf.Deg2Rad));
+
+                    // Truyền hướng cho script điều khiển riêng của đạn (EnemyBullet) tự xử lý chuyển động[cite: 12]
+                    EnemyBullet bulletComp = pebble.GetComponent<EnemyBullet>();
+                    if (bulletComp != null)
+                    {
+                        bulletComp.SetDirection(dir);
+                    }
                 }
             }
 

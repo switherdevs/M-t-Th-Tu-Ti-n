@@ -17,7 +17,7 @@ public class ExecutableEnemy : MonoBehaviour
     [SerializeField] private string stunStateName = "Stun";
     [Tooltip("Tên State Bị Kết Liễu trong Animator")]
     [SerializeField] private string executionStateName = "BeingExecuted";
-    [Tooltip("Tên State Chết 2 trong Animator")]
+    [Tooltip("Tên State Chết 2 trong Animator (ĐỂ TRỐNG nếu quái không có animation này)")]
     [SerializeField] private string die2StateName = "Die2";
 
     [Header("=== VFX & UI GỢI Ý ===")]
@@ -72,7 +72,6 @@ public class ExecutableEnemy : MonoBehaviour
         if (executePromptUI != null) executePromptUI.SetActive(true);
         if (stunVFXObject != null) stunVFXObject.SetActive(true);
 
-        // KẾ HOẠCH B: Ép chạy trực tiếp State Choáng
         PlayAnimationDirectly(stunStateName);
 
         if (aiTyHuu != null) aiTyHuu.ApplyStun(stunDuration);
@@ -111,7 +110,6 @@ public class ExecutableEnemy : MonoBehaviour
         if (aiTyHuu != null) aiTyHuu.OnStartExecution();
         if (aiTongQuan != null) aiTongQuan.OnStartExecution();
 
-        // KẾ HOẠCH B: Ép phát trực tiếp State Kết Liễu
         PlayAnimationDirectly(executionStateName);
 
         StartCoroutine(ExecutionProcessRoutine(onExecutionComplete));
@@ -136,10 +134,13 @@ public class ExecutableEnemy : MonoBehaviour
 
         if (stunVFXObject != null) stunVFXObject.SetActive(false);
 
-        // KẾ HOẠCH B: Ép phát trực tiếp State Die2 TRƯỚC khi trừ máu
-        PlayAnimationDirectly(die2StateName);
+        // ✨ KIỂM TRA TÙY CHỌN DIE2: Chỉ gọi nếu biến die2StateName có điền tên và State thực sự tồn tại trong Animator
+        if (!string.IsNullOrEmpty(die2StateName) && HasState(anim, die2StateName))
+        {
+            PlayAnimationDirectly(die2StateName);
+        }
 
-        // Sau đó mới rút máu về 0
+        // Sau đó trừ máu về 0 để quái chính thức kết thúc
         if (stats != null && !stats.IsDead)
         {
             stats.TakeDamage(stats.CurrentHealth + 9999f);
@@ -160,5 +161,13 @@ public class ExecutableEnemy : MonoBehaviour
         {
             anim.Play(stateName, 0, 0f);
         }
+    }
+
+    // ✨ Hàm kiểm tra an toàn xem Animator có chứa State cần tìm hay không
+    private bool HasState(Animator animator, string stateName)
+    {
+        if (animator == null) return false;
+        // Kiểm tra layer 0 xem có chứa Hash của state đó không
+        return animator.HasState(0, Animator.StringToHash(stateName));
     }
 }

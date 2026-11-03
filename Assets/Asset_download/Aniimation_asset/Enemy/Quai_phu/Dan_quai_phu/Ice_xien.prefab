@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 1177138767827414568}
   - component: {fileID: 4283668800522638560}
   - component: {fileID: 4152548763263296968}
+  - component: {fileID: 4951232798660445501}
+  - component: {fileID: -5758142820675910105}
   m_Layer: 0
   m_Name: Ice_xien
   m_TagString: Untagged
@@ -29,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 8185852855495969196}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -31, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -78,13 +80,13 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 50
   m_Sprite: {fileID: -7560284153744367771, guid: 4d1ec2facb77353498249afb525ee9ac, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 2.5625, y: 6.84375}
+  m_Size: {x: 6.96875, y: 3.234375}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -124,17 +126,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 1.2290714, y: 0.22423273}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2.5625, y: 6.84375}
-    newSize: {x: 2.5625, y: 6.84375}
+    pivot: {x: 0.32481667, y: 0.43594295}
+    oldSize: {x: 6.96875, y: 3.234375}
+    newSize: {x: 6.96875, y: 3.234375}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2.5625, y: 6.84375}
+  m_Size: {x: 6.4639554, y: 0.7154219}
   m_EdgeRadius: 0
 --- !u!114 &4283668800522638560
 MonoBehaviour:
@@ -148,13 +150,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17aa1ab8892b273478482249e725b070, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isDan: 0
+  isDan: 1
   hitVFX: {fileID: 6866004461401601130, guid: 3ed39e6f36a74ce4f994a6e2170ce801, type: 3}
-  vfxDestroyTime: 1
+  vfxDestroyTime: 10
   sfxHit: {fileID: 8300000, guid: 66c506ec0b2e4404b8d869d26da2b249, type: 3}
   sfxVolume: 1
-  time: 3
-  ignoreWallTime: 0.2
+  time: 10
+  ignoreWallTime: 10
 --- !u!114 &4152548763263296968
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -169,10 +171,61 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 30
   damage: 10
+  isFollow: 1
+  rotationSpeed: 200
   destroyTags:
   - Player
   - Wall
-  - Ground
+  - 
   isPoisonous: 0
   poisonDuration: 5
   poisonDamagePerSecond: 2
+--- !u!50 &4951232798660445501
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8185852855495969196}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!95 &-5758142820675910105
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8185852855495969196}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 9e57ac02ec8140246857c22c285cf5e3, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

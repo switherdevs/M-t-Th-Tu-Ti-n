@@ -21,7 +21,6 @@ public class PlayerStatsDisplayUI : MonoBehaviour
     {
         if (QuestSaveSystem.Instance == null || QuestSaveSystem.Instance.duLieuSaveHienTai == null)
         {
-            Debug.LogWarning("[Stats Display] Chưa tìm thấy QuestSaveSystem!");
             return;
         }
 

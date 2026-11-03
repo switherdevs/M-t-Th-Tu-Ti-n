@@ -274,6 +274,10 @@ public class QuestSaveSystem : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Xóa toàn bộ save game tiến trình, item, quest. 
+    /// LƯU Ý: Chỉ xóa file QuestProgressData.txt, không ảnh hưởng đến file settings.txt của người chơi.
+    /// </summary>
     public void XoaToanBoSaveData()
     {
         if (File.Exists(duongDanTuyetDoi))
@@ -609,6 +613,7 @@ public class QuestSaveSystem : MonoBehaviour
 
         if (questData == null) return false;
 
+        // Đã sửa lỗi: Dùng LayTienTrinhQuest thay vì LayTienTrInstace bị gõ sai
         ProgressQuest progress = LayTienTrinhQuest(questData.idQuest);
         return progress != null && progress.trangThai == TrangThaiQuest.DangLam;
     }

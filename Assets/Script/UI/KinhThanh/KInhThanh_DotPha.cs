@@ -73,33 +73,39 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
 
         if (danhSachUIGameObject != null && danhSachUIGameObject.Count > 0)
         {
+            // Lọc tìm phần tử hợp lệ đầu tiên trong mảng (tránh trường hợp phần tử đầu bị null)
+            GameObject firstValidUI = null;
+            for (int i = 0; i < danhSachUIGameObject.Count; i++)
+            {
+                if (danhSachUIGameObject[i] != null)
+                {
+                    firstValidUI = danhSachUIGameObject[i];
+                    break;
+                }
+            }
+
+            // Nếu không tìm thấy UI nào hợp lệ trong mảng thì thoát sớm để tránh lỗi
+            if (firstValidUI == null) return;
+
             // 2. Kiểm tra xem Bảng UI hiện tại đang BẬT hay TẮT
-            bool dangMo = danhSachUIGameObject[0].activeSelf;
+            bool dangMo = firstValidUI.activeSelf;
 
             if (!dangMo)
             {
-                // Nếu đang TẮT -> BẬT UI LÊN
+                // Nếu đang TẮT -> BẬT TOÀN BỘ UI HỢP LỆ LÊN
                 foreach (GameObject uiItem in danhSachUIGameObject)
                 {
                     if (uiItem != null) uiItem.SetActive(true);
                 }
-
-                Debug.Log($"<color=green>[Building]</color> Đã MỞ {danhSachUIGameObject.Count} UI!");
             }
             else
             {
-                // Nếu đang MỞ mà click TRỰC TIẾP VÀO CÔNG TRÌNH (World Object) -> TẮT UI
+                // Nếu đang MỞ mà click TRỰC TIẾP VÀO CÔNG TRÌNH (World Object) -> TẮT TOÀN BỘ UI
                 foreach (GameObject uiItem in danhSachUIGameObject)
                 {
                     if (uiItem != null) uiItem.SetActive(false);
                 }
-
-                Debug.Log($"<color=yellow>[Building]</color> Đã TẮT {danhSachUIGameObject.Count} UI!");
             }
-        }
-        else
-        {
-            Debug.LogError("<color=red>[Building Error]</color> Danh sách UI đang trống!");
         }
     }
 
@@ -134,6 +140,11 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
     // 🎯 TỰ ĐỘNG TÌM LẠI NẾU DANH SÁCH TRỐNG
     private void TimVaCapNhatUI()
     {
+        if (danhSachUIGameObject == null)
+        {
+            danhSachUIGameObject = new List<GameObject>();
+        }
+
         if (danhSachUIGameObject.Count == 0)
         {
             // 🎯 Đã sửa từ QuestUIManager.Instance sang QuestManager.Instance

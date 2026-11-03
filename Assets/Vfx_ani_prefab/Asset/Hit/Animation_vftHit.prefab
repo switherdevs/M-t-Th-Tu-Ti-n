@@ -112,9 +112,9 @@ Transform:
   m_GameObject: {fileID: 6866004461401601130}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.6464767, y: -8.677138, z: -0.12066898}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 3.6464767, y: -8.677138, z: 0}
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8905852520218215917}
   m_Father: {fileID: 0}
@@ -184,7 +184,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 30
+  m_SortingOrder: 50
   m_Sprite: {fileID: -4806144475621984, guid: 76757f0522d9994469c94366fb8b126e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
@@ -208,4 +208,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17aa1ab8892b273478482249e725b070, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDan: 0
+  hitVFX: {fileID: 0}
+  vfxDestroyTime: 0.25
+  sfxHit: {fileID: 0}
+  sfxVolume: 1
   time: 0.25
+  ignoreWallTime: 0.25

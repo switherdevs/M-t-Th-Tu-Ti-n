@@ -53,6 +53,24 @@ namespace GameCore.Settings
             _rebindingOperation?.Dispose();
         }
 
+        private void Update()
+        {
+            // 🎯 Lắng nghe phím ESC để lưu cài đặt và ẩn bảng Setting đi
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                CloseSettingsUI();
+            }
+        }
+
+        private void CloseSettingsUI()
+        {
+            if (SettingsManager.Instance != null)
+            {
+                SettingsManager.Instance.SaveSettings();
+            }
+            gameObject.SetActive(false);
+        }
+
         private void InitializeUIValues()
         {
             if (SettingsManager.Instance == null) return;
@@ -91,7 +109,6 @@ namespace GameCore.Settings
 
         private void RegisterListeners()
         {
-            // Xóa bớt listener cũ trước khi Add để đảm bảo không bị trùng lặp sự kiện
             UnregisterListeners();
 
             if (masterVolumeSlider != null) masterVolumeSlider.onValueChanged.AddListener(OnMasterVolumeChanged);
@@ -99,12 +116,11 @@ namespace GameCore.Settings
             if (sfxVolumeSlider != null) sfxVolumeSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
             if (mouseSensitivitySlider != null) mouseSensitivitySlider.onValueChanged.AddListener(OnMouseSensitivityChanged);
 
-            // Đăng ký sự kiện Click cho mảng Rebind Buttons
             if (rebindItems != null)
             {
                 for (int i = 0; i < rebindItems.Length; i++)
                 {
-                    int index = i; // Tạo biến cục bộ để tránh lỗi closure trong lambda loop
+                    int index = i;
                     if (rebindItems[index].rebindButton != null)
                     {
                         rebindItems[index].rebindButton.onClick.AddListener(() => StartRebinding(index));
@@ -124,7 +140,6 @@ namespace GameCore.Settings
             if (sfxVolumeSlider != null) sfxVolumeSlider.onValueChanged.RemoveListener(OnSFXVolumeChanged);
             if (mouseSensitivitySlider != null) mouseSensitivitySlider.onValueChanged.RemoveListener(OnMouseSensitivityChanged);
 
-            // Gỡ bỏ Listener cho mảng Rebind Buttons một cách an toàn
             if (rebindItems != null)
             {
                 for (int i = 0; i < rebindItems.Length; i++)
@@ -141,7 +156,6 @@ namespace GameCore.Settings
             if (resetButton != null) resetButton.onClick.RemoveListener(OnResetClicked);
         }
 
-        // --- HÀM XỬ LÝ ÂM LƯỢNG ---
         private void OnMasterVolumeChanged(float val)
         {
             SettingsManager.Instance?.SetMasterVolume(val);
@@ -168,7 +182,6 @@ namespace GameCore.Settings
             }
         }
 
-        // --- HÀM XỬ LÝ ĐỘ NHẠY CHUỘT ---
         private void OnMouseSensitivityChanged(float val)
         {
             SettingsManager.Instance?.SetMouseSensitivity(val);
@@ -180,7 +193,6 @@ namespace GameCore.Settings
             if (sensitivityValueText != null) sensitivityValueText.text = val.ToString("F1");
         }
 
-        // --- HÀM XỬ LÝ REBIND PHÍM BẰNG INDEX MẢNG ---
         private void StartRebinding(int itemIndex)
         {
             if (SettingsManager.Instance == null) return;
@@ -246,7 +258,6 @@ namespace GameCore.Settings
             }
         }
 
-        // --- ACTION BUTTONS ---
         private void OnApplyClicked()
         {
             SettingsManager.Instance?.SaveSettings();
@@ -254,8 +265,7 @@ namespace GameCore.Settings
 
         private void OnCloseClicked()
         {
-            SettingsManager.Instance?.SaveSettings();
-            gameObject.SetActive(false);
+            CloseSettingsUI();
         }
 
         private void OnResetClicked()

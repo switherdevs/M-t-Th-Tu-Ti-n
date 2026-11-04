@@ -188,9 +188,10 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
 
     private IEnumerator ScaleRoutine(Vector3 destinationScale)
     {
+        // 🎯 Dùng Time.unscaledDeltaTime để scale mượt mà bất chấp Time.timeScale = 0f
         while (Vector3.Distance(transform.localScale, destinationScale) > 0.01f)
         {
-            transform.localScale = Vector3.Lerp(transform.localScale, destinationScale, scaleSpeed * Time.deltaTime);
+            transform.localScale = Vector3.Lerp(transform.localScale, destinationScale, scaleSpeed * Time.unscaledDeltaTime);
             yield return null;
         }
         transform.localScale = destinationScale;

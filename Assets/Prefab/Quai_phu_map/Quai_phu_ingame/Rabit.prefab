@@ -210,6 +210,7 @@ Transform:
   - {fileID: 2714728594123583974}
   - {fileID: 4860410977192674072}
   - {fileID: 1102358686122124684}
+  - {fileID: 8578429320476179014}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4681018502331001857
@@ -380,9 +381,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 10
-  detectionRadius: 100
-  attackRange: 8
-  rangedAttackRange: 70
+  slowMoveSpeed: 0.8
+  detectionRadius: 150
+  attackRange: 14
+  rangedAttackRange: 90
+  skillPrepTime: 0.6
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  wallDetectDistance: 10
+  wallBufferDistance: 5
+  avoidanceSmoothing: 6
   meleeAttackHitbox: {fileID: 8530006390400243614}
   hitboxActiveDuration: 0.3
   basicAttackCooldown: 1.5
@@ -390,17 +399,23 @@ MonoBehaviour:
   attack1AnimName: Attack1
   attack2AnimName: Attack2
   audioSource: {fileID: 1893241716125937518}
-  basicAttackSound: {fileID: 0}
+  basicAttackSound: {fileID: 8300000, guid: 7776f55bc360ea442ba21038d8e742f1, type: 3}
   basicAttackVolume: 1
   dieSound: {fileID: 0}
   dieVolume: 1
   hasWalkAnimation: 1
+  walkAnimationName: Walk
   fleeSpeedMultiplier: 1.5
+  buffEffectObject: {fileID: 3964841916360182448}
+  buffEffectDuration: 10
   useSkill1: 1
   useSkill2: 1
   useSkill3: 1
   rockProjectilePrefab: {fileID: 8627358853674614155, guid: cd24f739d9ca50d48a21c47775ec41d4, type: 3}
   launchPoint: {fileID: 1877197887215477240}
+  skill3Effect: {fileID: 5515645581824471267, guid: 4ca3e3bd18b6c4747a0a35b165095624, type: 3}
+  skill3Sound: {fileID: 8300000, guid: c95df6f82bdbb9c46a227d37fda43719, type: 3}
+  skill3Volume: 1
   skill1AnimName: Skill1
   skill1ParamType: 0
   skill2AnimName: Skill2
@@ -409,21 +424,19 @@ MonoBehaviour:
   skill3ParamType: 0
   skill1Sound: {fileID: 0}
   skill1Volume: 1
-  skill2Sound: {fileID: 0}
+  skill2Sound: {fileID: 8300000, guid: 46d6325a2f0b91c418e4ce314d0d39c0, type: 3}
   skill2Volume: 1
-  skill3Sound: {fileID: 0}
-  skill3Volume: 1
-  skill2Weight: 100
-  skill3Weight: 100
-  globalSkillCooldown: 3
+  skill1Cooldown: 3
+  skill2Cooldown: 5
+  skill3Cooldown: 5
   rockFlySpeed: 50
   castTimeSkill1: 0.8
-  healAmount: 35
+  healAmount: 5000
   buffAttackBonus: 15
-  buffDuration: 10
-  pounceDamage: 40
-  pounceAoeRadius: 2
+  pounceDamage: 50
+  pounceAoeRadius: 100
   jumpDuration: 0.5
+  jumpHeight: 10
 --- !u!114 &1171887235739741355
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1311,3 +1324,86 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1001 &7079718130505670772
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7187611309145787167}
+    m_Modifications:
+    - target: {fileID: 1534744668710492722, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1534744668710492722, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1534744668710492722, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1534744668710492722, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.14285713
+      objectReference: {fileID: 0}
+    - target: {fileID: 1534744668710492722, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.5714285
+      objectReference: {fileID: 0}
+    - target: {fileID: 1534744668710492722, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1534744668710492722, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 1534744668710492722, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 1534744668710492722, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1534744668710492722, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1534744668710492722, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 1534744668710492722, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1534744668710492722, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1534744668710492722, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6144533416912399044, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+      propertyPath: m_Name
+      value: Particle System_No
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+--- !u!1 &3964841916360182448 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6144533416912399044, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+  m_PrefabInstance: {fileID: 7079718130505670772}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8578429320476179014 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1534744668710492722, guid: 695ea231292bebd4d8e7f0bc8631fde9, type: 3}
+  m_PrefabInstance: {fileID: 7079718130505670772}
+  m_PrefabAsset: {fileID: 0}

@@ -5,28 +5,32 @@ namespace GameCore.AI
 {
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(CharacterStats))]
-    [RequireComponent(typeof(ExecutableEnemy))] // Đảm bảo luôn có component kết liễu đi kèm
+    [RequireComponent(typeof(ExecutableEnemy))]
     public abstract class MonsterAIBase : MonoBehaviour
     {
         [Header("=== CẤU HÌNH DI CHUYỂN & TẦM NHÌN ===")]
-        [SerializeField] protected float moveSpeed = 3.5f;
-        [SerializeField] protected float detectionRadius = 10f;
-        [SerializeField, Tooltip("Khoảng cách tầm gần để quái áp sát thực hiện tấn công cận chiến")]
-        protected float attackRange = 2f;
-        [SerializeField, Tooltip("Khoảng cách tối đa quái dừng lại đứng bắn/ném skill tầm xa")]
-        protected float rangedAttackRange = 7f;
+        [SerializeField] protected float moveSpeed = 2.5f;
+        [SerializeField] protected float slowMoveSpeed = 0.8f;
+        [SerializeField] protected float detectionRadius = 12f;
+        [SerializeField] protected float attackRange = 2.5f;
+        [SerializeField] protected float rangedAttackRange = 8f;
+        [SerializeField] protected float skillPrepTime = 0.6f;
 
-        [Header("=== CẤU HÌNH ĐÁNH THƯỜNG CẬN CHIẾN & HITBOX ===")]
-        [Tooltip("Game Object chứa Collider/DamageDealer gây sát thương khi quái vung tay đánh thường")]
+        [Header("=== CẤU HÌNH NÉ TƯỜNG & TÌM ĐƯỜNG THÔNG MINH (SMART AVOIDANCE) ===")]
+        [SerializeField] protected LayerMask wallLayer;
+        [SerializeField] protected float wallDetectDistance = 2.5f;
+        [SerializeField] protected float wallBufferDistance = 1.2f;
+        [SerializeField] protected float avoidanceSmoothing = 12f;
+
+        [Header("=== CẤU HÌNH ĐÁNH THƯỜNG & HITBOX ===")]
         [SerializeField] protected GameObject meleeAttackHitbox;
-        [Tooltip("Thời gian (giây) vùng va chạm xuất hiện khi vung đòn")]
         [SerializeField] protected float hitboxActiveDuration = 0.3f;
         [SerializeField] protected float basicAttackCooldown = 1.5f;
         [SerializeField] protected float basicAttackDamage = 15f;
         [SerializeField] protected string attack1AnimName = "Attack1";
         [SerializeField] protected string attack2AnimName = "Attack2";
 
-        [Header("=== CẤU HÌNH ÂM THANH ĐÁNH THƯỜNG & CHẾT ===")]
+        [Header("=== CẤU HÌNH ÂM THANH & CHẾT ===")]
         [SerializeField] protected AudioSource audioSource;
         [SerializeField] protected AudioClip basicAttackSound;
         [SerializeField, Range(0f, 1f)] protected float basicAttackVolume = 1f;
@@ -34,31 +38,38 @@ namespace GameCore.AI
         [SerializeField, Range(0f, 1f)] protected float dieVolume = 1f;
 
         [Header("=== CẤU HÌNH ANIMATION CHUNG ===")]
-        [Tooltip("Tích chọn nếu quái có animation di chuyển (isMoving). Bỏ chọn nếu quái không có animation đi bộ (như Toilet)")]
         [SerializeField] protected bool hasWalkAnimation = true;
 
         [Header("=== CẤU HÌNH BỎ CHẠY KHI PLAYER TIỂU ===")]
         [SerializeField] protected float fleeSpeedMultiplier = 1.5f;
+
+        [Header("=== CẤU HÌNH HIỆU ỨNG BUFF (SKILL 2) ===")]
+        [SerializeField] protected GameObject buffEffectObject;
+        [SerializeField] protected float buffEffectDuration = 10f;
 
         protected Transform playerTransform;
         protected CharacterStats playerStats;
         protected CharacterStats myStats;
         protected Rigidbody2D rb;
         protected Animator anim;
-        protected ExecutableEnemy executableEnemy; // Tham chiếu tới script kết liễu
+        protected ExecutableEnemy executableEnemy;
 
         protected bool isFleeing = false;
         protected bool isPerformingSkill = false;
         protected bool isPerformingBasicAttack = false;
-        protected float skillCooldownTimer = 0f;
         protected float basicAttackCooldownTimer = 0f;
+        protected float attackTimer = 0f;
+        protected Vector2 currentVelocityVector = Vector2.zero;
+
+        private float stuckTimer = 0f;
+        private Vector2 lastPosition;
 
         protected virtual void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
             myStats = GetComponent<CharacterStats>();
             anim = GetComponentInChildren<Animator>();
-            executableEnemy = GetComponent<ExecutableEnemy>(); // Lấy component ExecutableEnemy
+            executableEnemy = GetComponent<ExecutableEnemy>();
 
             if (audioSource == null)
             {
@@ -73,11 +84,17 @@ namespace GameCore.AI
             {
                 meleeAttackHitbox.SetActive(false);
             }
+
+            if (buffEffectObject != null)
+            {
+                buffEffectObject.SetActive(false);
+            }
         }
 
         protected virtual void Start()
         {
             FindPlayer();
+            lastPosition = transform.position;
 
             if (myStats != null)
             {
@@ -120,7 +137,6 @@ namespace GameCore.AI
 
         protected virtual void Update()
         {
-            // 1. Kiểm tra nếu quái đã chết
             if (myStats != null && myStats.IsDead)
             {
                 StopMoving();
@@ -128,12 +144,11 @@ namespace GameCore.AI
                 return;
             }
 
-            // 2. ✨ NÂNG CẤP QUAN TRỌNG: Nếu quái đang dính trạng thái choáng hoặc đang bị kết liễu
             if (executableEnemy != null && executableEnemy.IsStunned)
             {
-                StopMoving(); // Triệt tiêu hoàn toàn vận tốc di chuyển (đứng im tuyệt đối)
+                StopMoving();
                 if (meleeAttackHitbox != null) meleeAttackHitbox.SetActive(false);
-                return;       // Chặn toàn bộ logic AI bên dưới (không di chuyển, không tấn công, không thi triển skill)
+                return;
             }
 
             if (isPerformingSkill || isPerformingBasicAttack)
@@ -148,8 +163,8 @@ namespace GameCore.AI
                 return;
             }
 
-            if (skillCooldownTimer > 0) skillCooldownTimer -= Time.deltaTime;
-            if (basicAttackCooldownTimer > 0) basicAttackCooldownTimer -= Time.deltaTime;
+            if (attackTimer > 0f) attackTimer -= Time.deltaTime;
+            if (basicAttackCooldownTimer > 0f) basicAttackCooldownTimer -= Time.deltaTime;
 
             if (isFleeing)
             {
@@ -157,45 +172,78 @@ namespace GameCore.AI
                 return;
             }
 
+            UpdateCustomCooldowns();
+
             float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
 
             if (distanceToPlayer <= detectionRadius)
             {
                 FlipTowards(playerTransform.position);
 
-                if (CanUseSkill())
+                if (distanceToPlayer > attackRange && distanceToPlayer <= rangedAttackRange)
                 {
-                    if (distanceToPlayer > attackRange && distanceToPlayer <= rangedAttackRange)
+                    if (TryExecuteRangedSkill())
                     {
-                        SelectAndExecuteSkill(true);
-                        return;
-                    }
-                    else if (distanceToPlayer <= attackRange)
-                    {
-                        SelectAndExecuteSkill(false);
                         return;
                     }
                 }
 
                 if (distanceToPlayer <= attackRange)
                 {
+                    StopMoving();
+
+                    if (attackTimer <= 0f && TryExecuteMeleeSkillOrBuff())
+                    {
+                        attackTimer = 1.0f;
+                        return;
+                    }
+
                     if (basicAttackCooldownTimer <= 0f)
                     {
                         StartCoroutine(Routine_ExecuteBasicAttack());
                     }
-                    else
-                    {
-                        StopMoving();
-                    }
                     return;
                 }
 
-                MoveTowards(playerTransform.position, moveSpeed);
+                MoveTowardsPlayerSmoothly(playerTransform.position);
             }
             else
             {
                 StopMoving();
             }
+        }
+
+        protected virtual bool TryExecuteRangedSkill() { return false; }
+        protected virtual bool TryExecuteMeleeSkillOrBuff() { return false; }
+        protected virtual void UpdateCustomCooldowns() { }
+
+        protected IEnumerator SkillPreparation(AudioClip prepareClip = null, float prepareVol = 1f)
+        {
+            if (prepareClip != null) PlaySound(prepareClip, prepareVol);
+
+            if (playerTransform != null)
+            {
+                FlipTowards(playerTransform.position);
+                Vector2 slowDir = (playerTransform.position - transform.position).normalized;
+                rb.linearVelocity = slowDir * slowMoveSpeed;
+                SetWalkAnim(true);
+            }
+
+            yield return new WaitForSeconds(skillPrepTime);
+            StopMoving();
+        }
+
+        protected IEnumerator ChasePlayerUntilClose(float targetRange)
+        {
+            while (playerTransform != null)
+            {
+                float dist = Vector2.Distance(transform.position, playerTransform.position);
+                if (dist <= targetRange) break;
+
+                MoveTowardsPlayerSmoothly(playerTransform.position);
+                yield return null;
+            }
+            StopMoving();
         }
 
         protected virtual IEnumerator Routine_ExecuteBasicAttack()
@@ -241,26 +289,99 @@ namespace GameCore.AI
             isPerformingBasicAttack = false;
         }
 
-        protected void FindPlayer()
-        {
-            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-            if (playerObj != null)
-            {
-                playerTransform = playerObj.transform;
-                playerStats = playerObj.GetComponent<CharacterStats>();
-            }
-        }
-
-        protected void MoveTowards(Vector2 targetPosition, float speed)
+        protected void MoveTowardsPlayerSmoothly(Vector2 targetPosition)
         {
             if (isPerformingSkill || isPerformingBasicAttack) return;
 
-            Vector2 direction = (targetPosition - (Vector2)transform.position).normalized;
-            rb.linearVelocity = direction * speed;
+            if (Vector2.Distance(transform.position, lastPosition) < 0.02f)
+            {
+                stuckTimer += Time.deltaTime;
+                if (stuckTimer > 0.4f)
+                {
+                    Vector2 dirToPlayer = ((Vector2)(playerTransform.position - transform.position)).normalized;
+                    Vector2 perpDir = Vector2.Perpendicular(dirToPlayer);
+                    Vector2 escapePush = (Random.value > 0.5f ? perpDir : -perpDir);
+                    rb.linearVelocity = escapePush * moveSpeed * 1.2f;
+                    stuckTimer = 0f;
+                    return;
+                }
+            }
+            else
+            {
+                stuckTimer = 0f;
+            }
+            lastPosition = transform.position;
 
+            Collider2D overlapCollider = Physics2D.OverlapCircle(transform.position, 0.45f, wallLayer);
+            if (overlapCollider != null)
+            {
+                Vector2 closestPoint = overlapCollider.ClosestPoint(transform.position);
+                Vector2 escapeDir = ((Vector2)transform.position - closestPoint).normalized;
+                if (escapeDir == Vector2.zero) escapeDir = Vector2.up;
+
+                rb.linearVelocity = escapeDir * moveSpeed * 1.5f;
+                SetWalkAnim(true);
+                return;
+            }
+
+            Vector2 targetDir = (targetPosition - (Vector2)transform.position).normalized;
+            Vector2 safeDir = CalculateSmartAvoidanceDirection(targetDir);
+
+            currentVelocityVector = Vector2.Lerp(currentVelocityVector, safeDir, Time.deltaTime * avoidanceSmoothing);
+            rb.linearVelocity = currentVelocityVector * moveSpeed;
+
+            SetWalkAnim(true);
+
+            if (currentVelocityVector.x != 0)
+            {
+                FlipTowards(transform.position + (Vector3)currentVelocityVector);
+            }
+        }
+
+        private Vector2 CalculateSmartAvoidanceDirection(Vector2 targetDir)
+        {
+            float[] testAngles = new float[] { 0f, 15f, -15f, 30f, -30f, 45f, -45f, 60f, -60f, 90f, -90f, 120f, -120f, 150f, -150f, 180f };
+            Vector2 bestDir = targetDir;
+            float maxScore = -999f;
+            bool foundOpenPath = false;
+
+            foreach (float angle in testAngles)
+            {
+                Vector2 checkDir = Quaternion.Euler(0, 0, angle) * targetDir;
+
+                RaycastHit2D hit = Physics2D.Raycast(transform.position, checkDir, wallDetectDistance, wallLayer);
+
+                if (hit.collider == null)
+                {
+                    float alignmentScore = Vector2.Dot(checkDir.normalized, targetDir.normalized) * 10f;
+
+                    if (alignmentScore > maxScore)
+                    {
+                        maxScore = alignmentScore;
+                        bestDir = checkDir;
+                        foundOpenPath = true;
+                    }
+                }
+                else
+                {
+                    float clearanceScore = hit.distance;
+                    if (clearanceScore > maxScore && !foundOpenPath)
+                    {
+                        maxScore = clearanceScore;
+                        bestDir = checkDir;
+                    }
+                }
+            }
+
+            return foundOpenPath ? bestDir.normalized : Vector2.Perpendicular(targetDir).normalized;
+        }
+
+        // 🎯 Dùng chung 1 biến boolean "isMoving" chuẩn cho mọi loại quái
+        protected void SetWalkAnim(bool isWalking)
+        {
             if (anim != null && hasWalkAnimation)
             {
-                anim.SetBool("isMoving", true);
+                anim.SetBool("isMoving", isWalking);
             }
         }
 
@@ -270,11 +391,8 @@ namespace GameCore.AI
             {
                 rb.linearVelocity = Vector2.zero;
             }
-
-            if (anim != null && hasWalkAnimation)
-            {
-                anim.SetBool("isMoving", false);
-            }
+            currentVelocityVector = Vector2.zero;
+            SetWalkAnim(false);
         }
 
         protected void FlipTowards(Vector3 targetPos)
@@ -285,23 +403,59 @@ namespace GameCore.AI
                 transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
 
+        protected virtual IEnumerator ApplyBuffAndHealRoutine(float healAmount, float attackBonus)
+        {
+            if (myStats == null || myStats.IsDead) yield break;
+
+            myStats.Heal(healAmount);
+            myStats.Attack.Value += attackBonus;
+
+            if (buffEffectObject != null)
+            {
+                buffEffectObject.SetActive(true);
+            }
+
+            yield return new WaitForSeconds(buffEffectDuration);
+
+            if (buffEffectObject != null)
+            {
+                buffEffectObject.SetActive(false);
+            }
+
+            if (myStats != null)
+            {
+                myStats.Attack.Value -= attackBonus;
+            }
+        }
+
+        protected void FindPlayer()
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                playerTransform = playerObj.transform;
+                playerStats = playerObj.GetComponent<CharacterStats>();
+            }
+        }
+
         protected virtual void ExecuteFleeing()
         {
             if (playerTransform == null || isPerformingSkill || isPerformingBasicAttack) return;
 
             Vector2 fleeDirection = (transform.position - playerTransform.position).normalized;
-            rb.linearVelocity = fleeDirection * (moveSpeed * fleeSpeedMultiplier);
-            FlipTotal(fleeDirection);
+            Vector2 smoothFleeDir = CalculateSmartAvoidanceDirection(fleeDirection);
 
-            if (anim != null && hasWalkAnimation)
-            {
-                anim.SetBool("isMoving", true);
-            }
+            rb.linearVelocity = smoothFleeDir * (moveSpeed * fleeSpeedMultiplier);
+            FlipTransformForFlee(smoothFleeDir);
+            SetWalkAnim(true);
         }
 
-        private void FlipTotal(Vector2 fleeDirection)
+        private void FlipTransformForFlee(Vector2 dir)
         {
-            FlipTowards(transform.position + (Vector3)fleeDirection);
+            if (dir.x != 0)
+            {
+                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * Mathf.Sign(dir.x), transform.localScale.y, transform.localScale.z);
+            }
         }
 
         private void OnPlayerStartUrination()
@@ -315,9 +469,6 @@ namespace GameCore.AI
             StopMoving();
         }
 
-        protected abstract bool CanUseSkill();
-        protected abstract void SelectAndExecuteSkill(bool isRangedDistance);
-
         protected virtual void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.yellow;
@@ -328,6 +479,9 @@ namespace GameCore.AI
 
             Gizmos.color = Color.blue;
             Gizmos.DrawWireSphere(transform.position, rangedAttackRange);
+
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, wallDetectDistance);
         }
     }
 }

@@ -15,9 +15,10 @@ namespace GameCore.AI
         [Header("=== CẤU HÌNH GAMEOBJECT & PREFAB ===")]
         [SerializeField] private GameObject frozenPebblePrefab;
         [SerializeField] private Transform launchPoint;
-
-        [Header("=== CẤU HÌNH TÌM KIẾM PLAYER (TẦM XA) ===")]
         [SerializeField] private LayerMask playerLayerMask;
+
+        [Header("=== CẤU HÌNH HIỆU ỨNG SKILL 3 ===")]
+        [SerializeField] private GameObject suctionEffectObject; // GameObject hiệu ứng xoáy nước
 
         [Header("=== CẤU HÌNH ANIMATION PARAMETER SKILL ===")]
         [SerializeField] private string skill1AnimName = "Skill1";
@@ -25,9 +26,9 @@ namespace GameCore.AI
         [SerializeField] private string skill2AnimName = "Skill2";
         [SerializeField] private AnimParamType skill2ParamType = AnimParamType.Trigger;
         [SerializeField] private string skill3AnimName = "Skill3";
-        [SerializeField] private AnimParamType skill3ParamType = AnimParamType.Trigger;
+        [SerializeField] private AnimParamType skill3ParamType = AnimParamType.Bool;
 
-        [Header("=== CẤU HÌNH ÂM THANH SKILL & SLIDER AM LUONG ===")]
+        [Header("=== CẤU HÌNH ÂM THANH SKILL & SLIDER ÂM LƯỢNG ===")]
         [SerializeField] private AudioClip skill1Sound;
         [SerializeField, Range(0f, 1f)] private float skill1Volume = 1f;
         [SerializeField] private AudioClip skill2Sound;
@@ -35,69 +36,94 @@ namespace GameCore.AI
         [SerializeField] private AudioClip skill3Sound;
         [SerializeField, Range(0f, 1f)] private float skill3Volume = 1f;
 
-        [Header("=== CẤU HÌNH TRỌNG SỐ TUNG SKILL ===")]
-        [SerializeField, Range(1, 100)] private int skill2Weight = 20;
-        [SerializeField, Range(1, 100)] private int skill3Weight = 30;
-
-        [Header("=== CẤU HÌNH THỜI GIAN HỒI CHIÊU CHUNG ===")]
-        [SerializeField] private float globalSkillCooldown = 3.5f;
+        [Header("=== CẤU HÌNH THỜI GIAN HỒI CHIÊU RIÊNG TỪNG SKILL ===")]
+        [SerializeField] private float skill1Cooldown = 3.5f;
+        [SerializeField] private float skill2Cooldown = 10f;
+        [SerializeField] private float skill3Cooldown = 6f;
 
         [Header("=== THÔNG SỐ SKILL 1: KHỐI BĂNG HOANG THẠCH (BẮN ĐẠN TẦM XA) ===")]
         [SerializeField] private float castTimeSkill1 = 0.7f;
-        [Tooltip("Số lượng đạn bắn ra trong một lần dùng Skill 1")]
         [SerializeField] private int bulletCount = 3;
-        [Tooltip("Bán kính vùng xuất hiện xung quanh điểm tâm (launchPoint hoặc transform)")]
         [SerializeField] private float spawnRadius = 0.6f;
-        [Tooltip("Góc tản rộng của chùm đạn hướng về phía người chơi")]
         [SerializeField] private float spreadAngle = 15f;
 
         [Header("=== THÔNG SỐ SKILL 2: NƯỚC THẦN TẨY RỬA (BUFF & HEAL - DƯỚI 50% MÁU) ===")]
         [SerializeField] private float healAmount = 50f;
         [SerializeField] private float buffAttackBonus = 20f;
-        [SerializeField] private float buffDuration = 10f;
 
         [Header("=== THÔNG SỐ SKILL 3: XOÁY NƯỚC NUỐT CHỬNG (KÉO & CẮN) ===")]
         [SerializeField] private float suctionForce = 8f;
         [SerializeField] private float suctionDuration = 2f;
+        [SerializeField] private float suctionRadius = 15f;
         [SerializeField] private float biteDamage = 60f;
         [SerializeField] private float biteRange = 2f;
 
-        protected override bool CanUseSkill()
+        private float skill1Timer = 0f;
+        private float skill2Timer = 0f;
+        private float skill3Timer = 0f;
+
+        protected override void Awake()
         {
-            return skillCooldownTimer <= 0f && !isPerformingSkill && !isPerformingBasicAttack && (myStats == null || !myStats.IsDead);
+            base.Awake();
+            if (suctionEffectObject != null)
+            {
+                suctionEffectObject.SetActive(false); // Đảm bảo hiệu ứng ẩn khi khởi động game
+            }
         }
 
-        protected override void SelectAndExecuteSkill(bool isRangedDistance)
+        protected override void UpdateCustomCooldowns()
         {
-            if (myStats != null && myStats.IsDead) return;
+            if (skill1Timer > 0f) skill1Timer -= Time.deltaTime;
+            if (skill2Timer > 0f) skill2Timer -= Time.deltaTime;
+            if (skill3Timer > 0f) skill3Timer -= Time.deltaTime;
+        }
 
-            if (isRangedDistance)
+        protected override bool TryExecuteRangedSkill()
+        {
+            bool canUseSkill1 = useSkill1 && skill1Timer <= 0f;
+            bool canUseSkill3 = useSkill3 && skill3Timer <= 0f && playerTransform != null && Vector2.Distance(transform.position, playerTransform.position) <= suctionRadius;
+
+            if (!canUseSkill1 && !canUseSkill3) return false;
+
+            if (canUseSkill1 && canUseSkill3)
             {
-                if (useSkill1) StartCoroutine(Routine_Skill1_FrozenPebble());
-                return;
+                if (Random.value < 0.5f)
+                {
+                    StartCoroutine(Routine_Skill1_FrozenPebble());
+                }
+                else
+                {
+                    StartCoroutine(Routine_Skill3_VortexSuction());
+                }
+                return true;
             }
 
-            bool canUseHealBuff = useSkill2 && (myStats.CurrentHealth <= myStats.MaxHealth.Value * 0.5f);
-            bool canUseSuction = useSkill3;
-
-            if (!canUseHealBuff && !canUseSuction) return;
-
-            int totalWeight = 0;
-            if (canUseHealBuff) totalWeight += skill2Weight;
-            if (canUseSuction) totalWeight += skill3Weight;
-
-            if (totalWeight <= 0) return;
-
-            int randomValue = Random.Range(0, totalWeight);
-
-            if (canUseHealBuff && randomValue < skill2Weight)
-            {
-                StartCoroutine(Routine_Skill2_PurificationFlush());
-            }
-            else if (canUseSuction)
+            if (canUseSkill3)
             {
                 StartCoroutine(Routine_Skill3_VortexSuction());
+                return true;
             }
+
+            if (canUseSkill1)
+            {
+                StartCoroutine(Routine_Skill1_FrozenPebble());
+                return true;
+            }
+
+            return false;
+        }
+
+        protected override bool TryExecuteMeleeSkillOrBuff()
+        {
+            bool canUseSkill2 = useSkill2 && skill2Timer <= 0f && (myStats != null && myStats.CurrentHealth <= myStats.MaxHealth.Value * 0.5f);
+
+            if (canUseSkill2)
+            {
+                StartCoroutine(Routine_Skill2_PurificationFlush());
+                return true;
+            }
+
+            return false;
         }
 
         private void PlayAnim(string paramName, AnimParamType type, bool boolValue = true)
@@ -110,7 +136,6 @@ namespace GameCore.AI
                 anim.SetBool(paramName, boolValue);
         }
 
-        // 🎯 SKILL 1: SINH SỐ LƯỢNG ĐẠN QUANH TÂM VÀ GIAO CHO SCRIPT ĐẠN TỰ ĐIỀU KHIỂN
         private IEnumerator Routine_Skill1_FrozenPebble()
         {
             isPerformingSkill = true;
@@ -131,10 +156,7 @@ namespace GameCore.AI
             if (targetPlayer == null)
             {
                 Collider2D playerCol = Physics2D.OverlapCircle(transform.position, detectionRadius, playerLayerMask);
-                if (playerCol != null)
-                {
-                    targetPlayer = playerCol.transform;
-                }
+                if (playerCol != null) targetPlayer = playerCol.transform;
             }
 
             if (frozenPebblePrefab != null && targetPlayer != null)
@@ -145,13 +167,11 @@ namespace GameCore.AI
 
                 for (int i = 0; i < bulletCount; i++)
                 {
-                    // Tạo vị trí xuất hiện ngẫu nhiên quanh điểm tâm với bán kính spawnRadius
                     Vector2 randomOffset = Random.insideUnitCircle * spawnRadius;
                     Vector3 spawnPos = centerPos + new Vector3(randomOffset.x, randomOffset.y, 0f);
 
                     GameObject pebble = Instantiate(frozenPebblePrefab, spawnPos, Quaternion.identity);
 
-                    // Tính toán góc tản đạn hướng về người chơi
                     float currentAngle = baseAngle;
                     if (bulletCount > 1)
                     {
@@ -161,7 +181,6 @@ namespace GameCore.AI
 
                     Vector2 dir = new Vector2(Mathf.Cos(currentAngle * Mathf.Deg2Rad), Mathf.Sin(currentAngle * Mathf.Deg2Rad));
 
-                    // Truyền hướng cho script điều khiển riêng của đạn (EnemyBullet) tự xử lý chuyển động[cite: 12]
                     EnemyBullet bulletComp = pebble.GetComponent<EnemyBullet>();
                     if (bulletComp != null)
                     {
@@ -174,7 +193,7 @@ namespace GameCore.AI
 
             if (skill1ParamType == AnimParamType.Bool) PlayAnim(skill1AnimName, skill1ParamType, false);
 
-            skillCooldownTimer = globalSkillCooldown;
+            skill1Timer = skill1Cooldown;
             isPerformingSkill = false;
         }
 
@@ -186,26 +205,17 @@ namespace GameCore.AI
             PlayAnim(skill2AnimName, skill2ParamType, true);
             PlaySound(skill2Sound, skill2Volume);
 
-            if (myStats != null && !myStats.IsDead)
-            {
-                myStats.Heal(healAmount);
-                myStats.Attack.Value += buffAttackBonus;
-            }
+            StartCoroutine(ApplyBuffAndHealRoutine(healAmount, buffAttackBonus));
 
             yield return new WaitForSeconds(0.6f);
 
             if (skill2ParamType == AnimParamType.Bool) PlayAnim(skill2AnimName, skill2ParamType, false);
 
-            skillCooldownTimer = globalSkillCooldown;
+            skill2Timer = skill2Cooldown;
             isPerformingSkill = false;
-
-            yield return new WaitForSeconds(buffDuration);
-            if (myStats != null)
-            {
-                myStats.Attack.Value -= buffAttackBonus;
-            }
         }
 
+        // 🎯 SKILL 3: BẬT HIỆU ỨNG KHI DÙNG, TẮT HIỆU ỨNG KHI KẾT THÚC HOẶC BỊ TIÊU DIỆT
         private IEnumerator Routine_Skill3_VortexSuction()
         {
             isPerformingSkill = true;
@@ -214,28 +224,52 @@ namespace GameCore.AI
             PlayAnim(skill3AnimName, skill3ParamType, true);
             PlaySound(skill3Sound, skill3Volume);
 
+            // Bật GameObject hiệu ứng
+            if (suctionEffectObject != null)
+            {
+                suctionEffectObject.SetActive(true);
+            }
+
             float timer = 0f;
             Rigidbody2D playerRb = playerTransform != null ? playerTransform.GetComponent<Rigidbody2D>() : null;
+            bool hasBitten = false;
 
             while (timer < suctionDuration)
             {
                 if (myStats != null && myStats.IsDead)
                 {
+                    PlayAnim(skill3AnimName, skill3ParamType, false);
+                    if (suctionEffectObject != null) suctionEffectObject.SetActive(false);
                     isPerformingSkill = false;
                     yield break;
                 }
 
                 if (playerTransform != null && playerRb != null)
                 {
-                    Vector2 pullDir = (transform.position - playerTransform.position).normalized;
-                    playerRb.AddForce(pullDir * suctionForce, ForceMode2D.Force);
+                    float distToPlayer = Vector2.Distance(transform.position, playerTransform.position);
+
+                    if (distToPlayer <= suctionRadius)
+                    {
+                        Vector2 pullDir = (transform.position - playerTransform.position).normalized;
+                        playerRb.AddForce(pullDir * suctionForce, ForceMode2D.Force);
+                    }
+
+                    if (distToPlayer <= biteRange)
+                    {
+                        if (playerStats != null)
+                        {
+                            playerStats.TakeDamage(biteDamage + myStats.Attack.Value);
+                        }
+                        hasBitten = true;
+                        break;
+                    }
                 }
 
                 timer += Time.deltaTime;
                 yield return null;
             }
 
-            if (myStats != null && !myStats.IsDead && playerTransform != null && Vector2.Distance(transform.position, playerTransform.position) <= biteRange)
+            if (!hasBitten && myStats != null && !myStats.IsDead && playerTransform != null && Vector2.Distance(transform.position, playerTransform.position) <= biteRange)
             {
                 if (playerStats != null)
                 {
@@ -243,12 +277,28 @@ namespace GameCore.AI
                 }
             }
 
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.2f);
 
-            if (skill3ParamType == AnimParamType.Bool) PlayAnim(skill3AnimName, skill3ParamType, false);
+            PlayAnim(skill3AnimName, skill3ParamType, false);
 
-            skillCooldownTimer = globalSkillCooldown;
+            // Tắt GameObject hiệu ứng khi skill hoàn tất
+            if (suctionEffectObject != null)
+            {
+                suctionEffectObject.SetActive(false);
+            }
+
+            skill3Timer = skill3Cooldown;
             isPerformingSkill = false;
+        }
+
+        protected override void OnDrawGizmosSelected()
+        {
+            base.OnDrawGizmosSelected();
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(transform.position, suctionRadius);
+
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, biteRange);
         }
     }
 }

@@ -16,6 +16,12 @@ namespace GameCore.AI
         [SerializeField] private GameObject rockProjectilePrefab;
         [SerializeField] private Transform launchPoint;
 
+        [Header("=== CẤU HÌNH HIỆU ỨNG & ÂM THANH SKILL 3 ===")]
+        [Tooltip("GameObject hiệu ứng (VFX) xuất hiện khi thỏ dùng chiêu 3 nhảy")]
+        [SerializeField] private GameObject skill3Effect;
+        [SerializeField] private AudioClip skill3Sound;
+        [SerializeField, Range(0f, 1f)] private float skill3Volume = 1f;
+
         [Header("=== CẤU HÌNH ANIMATION PARAMETER SKILL ===")]
         [SerializeField] private string skill1AnimName = "Skill1";
         [SerializeField] private AnimParamType skill1ParamType = AnimParamType.Trigger;
@@ -24,20 +30,16 @@ namespace GameCore.AI
         [SerializeField] private string skill3AnimName = "Skill3";
         [SerializeField] private AnimParamType skill3ParamType = AnimParamType.Trigger;
 
-        [Header("=== CẤU HÌNH ÂM THANH SKILL & SLIDER AM LUONG ===")]
+        [Header("=== CẤU HÌNH ÂM THANH SKILL KHÁC & SLIDER ÂM LƯỢNG ===")]
         [SerializeField] private AudioClip skill1Sound;
         [SerializeField, Range(0f, 1f)] private float skill1Volume = 1f;
         [SerializeField] private AudioClip skill2Sound;
         [SerializeField, Range(0f, 1f)] private float skill2Volume = 1f;
-        [SerializeField] private AudioClip skill3Sound;
-        [SerializeField, Range(0f, 1f)] private float skill3Volume = 1f;
 
-        [Header("=== CẤU HÌNH TRỌNG SỐ TUNG SKILL ===")]
-        [SerializeField, Range(1, 100)] private int skill2Weight = 25;
-        [SerializeField, Range(1, 100)] private int skill3Weight = 25;
-
-        [Header("=== CẤU HÌNH THỜI GIAN HỒI CHIÊU CHUNG ===")]
-        [SerializeField] private float globalSkillCooldown = 3f;
+        [Header("=== CẤU HÌNH THỜI GIAN HỒI CHIÊU RIÊNG TỪNG SKILL ===")]
+        [SerializeField] private float skill1Cooldown = 3f;
+        [SerializeField] private float skill2Cooldown = 10f;
+        [SerializeField] private float skill3Cooldown = 5f;
 
         [Header("=== THÔNG SỐ SKILL 1: THẠCH THỎ CUỒNG BẮN (NÉM ĐÁ TẦM XA) ===")]
         [SerializeField] private float rockFlySpeed = 12f;
@@ -46,49 +48,104 @@ namespace GameCore.AI
         [Header("=== THÔNG SỐ SKILL 2: CUỒNG NỘ MA THỎ (BUFF & HEAL - DƯỚI 50% MÁU) ===")]
         [SerializeField] private float healAmount = 35f;
         [SerializeField] private float buffAttackBonus = 15f;
-        [SerializeField] private float buffDuration = 10f;
 
-        [Header("=== THÔNG SỐ SKILL 3: ĐỘT KÍCH THỎ CỤ (DẬM ĐẤT AOE) ===")]
+        [Header("=== THÔNG SỐ SKILL 3: ĐỘT KÍCH THỎ CỤ (NHẢY PARABOL TỚI PLAYER) ===")]
         [SerializeField] private float pounceDamage = 40f;
-        [SerializeField] private float pounceAoeRadius = 2f;
+        [SerializeField] private float pounceAoeRadius = 2.5f;
         [SerializeField] private float jumpDuration = 0.5f;
+        [SerializeField] private float jumpHeight = 3.5f;
 
-        protected override bool CanUseSkill()
+        private float skill1Timer = 0f;
+        private float skill2Timer = 0f;
+        private float skill3Timer = 0f;
+
+        protected override void Awake()
         {
-            return skillCooldownTimer <= 0f && !isPerformingSkill && !isPerformingBasicAttack && (myStats == null || !myStats.IsDead);
+            base.Awake();
+            if (skill3Effect != null)
+            {
+                skill3Effect.SetActive(false);
+            }
         }
 
-        protected override void SelectAndExecuteSkill(bool isRangedDistance)
+        protected override void UpdateCustomCooldowns()
         {
-            if (myStats != null && myStats.IsDead) return;
+            if (skill1Timer > 0f) skill1Timer -= Time.deltaTime;
+            if (skill2Timer > 0f) skill2Timer -= Time.deltaTime;
+            if (skill3Timer > 0f) skill3Timer -= Time.deltaTime;
+        }
 
-            if (isRangedDistance)
+        // 🎯 TẦM XA: Cho phép quái lựa chọn ngẫu nhiên giữa Skill 1 (Ném đá) và Skill 3 (Nhảy từ xa tới vị trí bạn) miễn là trong tầm nhìn
+        protected override bool TryExecuteRangedSkill()
+        {
+            bool canUseSkill1 = useSkill1 && skill1Timer <= 0f;
+            bool canUseSkill3 = useSkill3 && skill3Timer <= 0f && playerTransform != null && Vector2.Distance(transform.position, playerTransform.position) <= detectionRadius;
+
+            if (!canUseSkill1 && !canUseSkill3) return false;
+
+            // Nếu cả 2 đều sẵn sàng ở tầm xa, random 50/50 để thỏ chủ động nhảy đột kích từ xa hoặc ném đá
+            if (canUseSkill1 && canUseSkill3)
             {
-                if (useSkill1) StartCoroutine(Routine_Skill1_RangedPebble());
-                return;
+                if (Random.value < 0.5f)
+                {
+                    StartCoroutine(Routine_Skill1_RangedPebble());
+                }
+                else
+                {
+                    StartCoroutine(Routine_Skill3_CarrotPounce());
+                }
+                return true;
             }
 
-            bool canUseHealBuff = useSkill2 && (myStats.CurrentHealth <= myStats.MaxHealth.Value * 0.5f);
-            bool canUsePounce = useSkill3;
-
-            if (!canUseHealBuff && !canUsePounce) return;
-
-            int totalWeight = 0;
-            if (canUseHealBuff) totalWeight += skill2Weight;
-            if (canUsePounce) totalWeight += skill3Weight;
-
-            if (totalWeight <= 0) return;
-
-            int randomValue = Random.Range(0, totalWeight);
-
-            if (canUseHealBuff && randomValue < skill2Weight)
-            {
-                StartCoroutine(Routine_Skill2_BuffAndHeal());
-            }
-            else if (canUsePounce)
+            if (canUseSkill3)
             {
                 StartCoroutine(Routine_Skill3_CarrotPounce());
+                return true;
             }
+
+            if (canUseSkill1)
+            {
+                StartCoroutine(Routine_Skill1_RangedPebble());
+                return true;
+            }
+
+            return false;
+        }
+
+        // 🎯 TẦM GẦN: Random giữa Skill 2 (Buff khi máu < 50%) và Skill 3 (Nhảy dậm đất)
+        protected override bool TryExecuteMeleeSkillOrBuff()
+        {
+            bool canUseSkill2 = useSkill2 && skill2Timer <= 0f && (myStats != null && myStats.CurrentHealth <= myStats.MaxHealth.Value * 0.5f);
+            bool canUseSkill3 = useSkill3 && skill3Timer <= 0f && playerTransform != null && Vector2.Distance(transform.position, playerTransform.position) <= detectionRadius;
+
+            if (!canUseSkill2 && !canUseSkill3) return false;
+
+            if (canUseSkill2 && canUseSkill3)
+            {
+                if (Random.value < 0.5f)
+                {
+                    StartCoroutine(Routine_Skill2_BuffAndHeal());
+                }
+                else
+                {
+                    StartCoroutine(Routine_Skill3_CarrotPounce());
+                }
+                return true;
+            }
+
+            if (canUseSkill2)
+            {
+                StartCoroutine(Routine_Skill2_BuffAndHeal());
+                return true;
+            }
+
+            if (canUseSkill3)
+            {
+                StartCoroutine(Routine_Skill3_CarrotPounce());
+                return true;
+            }
+
+            return false;
         }
 
         private void PlayAnim(string paramName, AnimParamType type, bool boolValue = true)
@@ -134,7 +191,7 @@ namespace GameCore.AI
 
             if (skill1ParamType == AnimParamType.Bool) PlayAnim(skill1AnimName, skill1ParamType, false);
 
-            skillCooldownTimer = globalSkillCooldown;
+            skill1Timer = skill1Cooldown;
             isPerformingSkill = false;
         }
 
@@ -146,76 +203,88 @@ namespace GameCore.AI
             PlayAnim(skill2AnimName, skill2ParamType, true);
             PlaySound(skill2Sound, skill2Volume);
 
-            if (myStats != null && !myStats.IsDead)
-            {
-                myStats.Heal(healAmount);
-                myStats.Attack.Value += buffAttackBonus;
-            }
+            StartCoroutine(ApplyBuffAndHealRoutine(healAmount, buffAttackBonus));
 
             yield return new WaitForSeconds(0.6f);
 
             if (skill2ParamType == AnimParamType.Bool) PlayAnim(skill2AnimName, skill2ParamType, false);
 
-            skillCooldownTimer = globalSkillCooldown;
+            skill2Timer = skill2Cooldown;
             isPerformingSkill = false;
-
-            yield return new WaitForSeconds(buffDuration);
-            if (myStats != null)
-            {
-                myStats.Attack.Value -= buffAttackBonus;
-            }
         }
 
+        // 🎯 SKILL 3: NHẢY PARABOL TỪ MỌI KHOẢNG CÁCH TRONG VÙNG DETECTION TỚI ĐÚNG VỊ TRÍ PLAYER
         private IEnumerator Routine_Skill3_CarrotPounce()
         {
             isPerformingSkill = true;
             StopMoving();
 
             PlayAnim(skill3AnimName, skill3ParamType, true);
+
             PlaySound(skill3Sound, skill3Volume);
+            if (skill3Effect != null) skill3Effect.SetActive(true);
 
             yield return new WaitForSeconds(0.2f);
 
-            if (playerTransform != null)
+            if (playerTransform != null && myStats != null && !myStats.IsDead)
             {
-                Vector3 targetPos = playerTransform.position;
-                float elapsed = 0f;
                 Vector3 startPos = transform.position;
+                Vector3 targetPos = playerTransform.position;
+
+                FlipTowards(targetPos);
+
+                if (meleeAttackHitbox != null)
+                {
+                    meleeAttackHitbox.SetActive(true);
+                }
+
+                float elapsed = 0f;
 
                 while (elapsed < jumpDuration)
                 {
                     if (myStats != null && myStats.IsDead)
                     {
+                        if (skill3Effect != null) skill3Effect.SetActive(false);
+                        if (meleeAttackHitbox != null) meleeAttackHitbox.SetActive(false);
                         isPerformingSkill = false;
                         yield break;
                     }
 
-                    transform.position = Vector3.Lerp(startPos, targetPos, elapsed / jumpDuration);
                     elapsed += Time.deltaTime;
+                    float linearT = Mathf.Clamp01(elapsed / jumpDuration);
+
+                    Vector3 currentPos = Vector3.Lerp(startPos, targetPos, linearT);
+                    float currentHeight = Mathf.Sin(linearT * Mathf.PI) * jumpHeight;
+                    currentPos.y += currentHeight;
+
+                    transform.position = currentPos;
                     yield return null;
                 }
 
                 transform.position = targetPos;
 
-                if (myStats != null && !myStats.IsDead)
+                Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, pounceAoeRadius);
+                foreach (var hit in hits)
                 {
-                    Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, pounceAoeRadius);
-                    foreach (var hit in hits)
+                    if (hit.CompareTag("Player"))
                     {
-                        if (hit.CompareTag("Player"))
+                        CharacterStats target = hit.GetComponent<CharacterStats>();
+                        if (target != null)
                         {
-                            CharacterStats target = hit.GetComponent<CharacterStats>();
-                            if (target != null) target.TakeDamage(pounceDamage + myStats.Attack.Value);
+                            target.TakeDamage(pounceDamage + myStats.Attack.Value);
                         }
                     }
                 }
             }
 
+            if (skill3Effect != null) skill3Effect.SetActive(false);
+            if (meleeAttackHitbox != null) meleeAttackHitbox.SetActive(false);
+
             yield return new WaitForSeconds(0.4f);
 
-            if (skill3ParamType == AnimParamType.Bool) PlayAnim(skill3AnimName, skill3ParamType, false);
+            if (skill3AnimName != null && skill3ParamType == AnimParamType.Bool) PlayAnim(skill3AnimName, skill3ParamType, false);
 
-            skillCooldownTimer = globalSkillCooldown;
+            skill3Timer = skill3Cooldown;
             isPerformingSkill = false;
         }
     }

@@ -29,7 +29,7 @@ namespace GameCore.AI
         [Header("=== CẤU HÌNH ANIMATION RIÊNG CHO SKILL 3 ===")]
         [Tooltip("Biến bool walk dùng riêng cho animation di chuyển khi đang xài skill 3")]
         [SerializeField] private string skill3WalkBoolName = "walk";
-        [Tooltip("Hệ số nhân tốc độ animation walk dựa theo chargeSpeed (càng lớn tốc độ chạy animation càng khớp với tốc độ lao)")]
+        [Tooltip("Hệ số nhân tốc độ animation walk dựa theo chargeSpeed")]
         [SerializeField] private float walkSpeedAnimMultiplier = 0.15f;
 
         [Header("=== CẤU HÌNH ÂM THANH SKILL & SLIDER ÂM LƯỢNG ===")]
@@ -45,12 +45,13 @@ namespace GameCore.AI
         [SerializeField] private float skill2Cooldown = 10f;
         [SerializeField] private float skill3Cooldown = 5f;
 
-        [Header("=== THÔNG SỐ SKILL 1: CỌC GỖ ĐỊA GAI (TỪ QUÁI RA HƯỚNG PLAYER) ===")]
-        [SerializeField] private float castTimeSkill1 = 0.8f;
+        [Header("=== THÔNG SỐ SKILL 1: CỌC GỖ ĐỊA GAI ===")]
+        [SerializeField] private float castTimeSkill1 = 0.8f; // Thời gian gồng trước khi mọc cọc đầu tiên
+        [SerializeField][Range(0.5f, 3.0f)] private float skill1AttackSpeed = 1.2f; // 🎯 Biến tốc độ ra đòn (càng lớn mọc gai càng nhanh)
         [SerializeField] private int spikeCount = 5;
         [SerializeField] private float spawnOffsetX = 1.5f;
         [SerializeField] private float spikeSpacingX = 1.2f;
-        [SerializeField] private float delayBetweenSpikes = 0.15f;
+        [SerializeField] private float delayBetweenSpikes = 0.15f; // Thời gian trễ giữa các cọc tiếp theo
         [SerializeField] private float minRotationAngle = -15f;
         [SerializeField] private float maxRotationAngle = 15f;
         [SerializeField] private AudioClip spikeEmergeSound;
@@ -77,11 +78,11 @@ namespace GameCore.AI
             if (skill3Timer > 0f) skill3Timer -= Time.deltaTime;
         }
 
-        // 🎯 TẦM XA: Cho phép quái lựa chọn ngẫu nhiên giữa Skill 1 (Cọc gỗ) và Skill 3 (Lao tới từ xa) trong vùng nhìn
+        // 🎯 TẦM XA: Kiểm soát điều kiện mở khóa Skill 3 (phải dùng ít nhất 2 lần skill khác trước)
         protected override bool TryExecuteRangedSkill()
         {
             bool canUseSkill1 = useSkill1 && skill1Timer <= 0f;
-            bool canUseSkill3 = useSkill3 && skill3Timer <= 0f && playerTransform != null && Vector2.Distance(transform.position, playerTransform.position) <= detectionRadius;
+            bool canUseSkill3 = useSkill3 && skill3Timer <= 0f && CanUseSkill3() && playerTransform != null && Vector2.Distance(transform.position, playerTransform.position) <= detectionRadius;
 
             if (!canUseSkill1 && !canUseSkill3) return false;
 
@@ -113,11 +114,11 @@ namespace GameCore.AI
             return false;
         }
 
-        // 🎯 TẦM GẦN: Random công bằng giữa Skill 2 (Buff khi máu < 50%) và Skill 3 (Lao húc)
+        // 🎯 TẦM GẦN
         protected override bool TryExecuteMeleeSkillOrBuff()
         {
             bool canUseSkill2 = useSkill2 && skill2Timer <= 0f && (myStats != null && myStats.CurrentHealth <= myStats.MaxHealth.Value * 0.5f);
-            bool canUseSkill3 = useSkill3 && skill3Timer <= 0f && playerTransform != null && Vector2.Distance(transform.position, playerTransform.position) <= detectionRadius;
+            bool canUseSkill3 = useSkill3 && skill3Timer <= 0f && CanUseSkill3() && playerTransform != null && Vector2.Distance(transform.position, playerTransform.position) <= detectionRadius;
 
             if (!canUseSkill2 && !canUseSkill3) return false;
 
@@ -165,18 +166,18 @@ namespace GameCore.AI
             {
                 anim.SetBool(skill3WalkBoolName, isWalking);
 
-                // Nếu đang bật walk, điều chỉnh tốc độ chạy animation (Speed) tùy thuộc vào chargeSpeed
                 if (isWalking)
                 {
                     anim.SetFloat("AnimSpeed", chargeSpeed * walkSpeedAnimMultiplier);
                 }
                 else
                 {
-                    anim.SetFloat("AnimSpeed", 1f); // Trả về mặc định khi dừng
+                    anim.SetFloat("AnimSpeed", 1f);
                 }
             }
         }
 
+        // 🎯 SKILL 1 NÂNG CẤP: Áp dụng hệ số tốc độ ra đòn (skill1AttackSpeed) giúp giảm thời gian chờ mọc gai
         private IEnumerator Routine_Skill1_BoulderingSmash()
         {
             isPerformingSkill = true;
@@ -185,7 +186,9 @@ namespace GameCore.AI
             PlayAnim(skill1AnimName, skill1ParamType, true);
             PlaySound(skill1Sound, skill1Volume);
 
-            yield return new WaitForSeconds(castTimeSkill1);
+            // Tính toán thời gian gồng dựa trên tốc độ ra đòn
+            float adjustedCastTime = castTimeSkill1 / Mathf.Max(0.1f, skill1AttackSpeed);
+            yield return new WaitForSeconds(adjustedCastTime);
 
             if (myStats != null && myStats.IsDead)
             {
@@ -205,6 +208,8 @@ namespace GameCore.AI
                 Vector3 originPos = transform.position;
                 float dirX = targetPlayer != null ? Mathf.Sign(targetPlayer.position.x - originPos.x) : (transform.localScale.x >= 0 ? 1f : -1f);
 
+                float adjustedDelay = delayBetweenSpikes / Mathf.Max(0.1f, skill1AttackSpeed);
+
                 for (int i = 0; i < spikeCount; i++)
                 {
                     if (myStats != null && myStats.IsDead) break;
@@ -218,11 +223,14 @@ namespace GameCore.AI
                     Instantiate(woodenSpikePrefab, spawnPos, spawnRotation);
                     PlaySound(spikeEmergeSound, spikeEmergeVolume);
 
-                    yield return new WaitForSeconds(delayBetweenSpikes);
+                    yield return new WaitForSeconds(adjustedDelay);
                 }
             }
 
             if (skill1ParamType == AnimParamType.Bool) PlayAnim(skill1AnimName, skill1ParamType, false);
+
+            // Ghi nhận đã dùng skill 1 thành công (tích lũy điều kiện mở khóa skill 3)
+            RecordOtherSkillUsage();
 
             skill1Timer = skill1Cooldown;
             isPerformingSkill = false;
@@ -238,15 +246,17 @@ namespace GameCore.AI
 
             StartCoroutine(ApplyBuffAndHealRoutine(healAmount, buffAttackBonus));
 
-            yield return new WaitForSeconds(0.6f);
+            yield return new WaitForSeconds(0.6f / Mathf.Max(0.1f, skill1AttackSpeed));
 
             if (skill2ParamType == AnimParamType.Bool) PlayAnim(skill2AnimName, skill2ParamType, false);
+
+            // Ghi nhận đã dùng skill 2 thành công (tích lũy điều kiện mở khóa skill 3)
+            RecordOtherSkillUsage();
 
             skill2Timer = skill2Cooldown;
             isPerformingSkill = false;
         }
 
-        // 🎯 SKILL 3 NÂNG CẤP: DÙNG ĐƯỢC TỪ XA TRONG DETECTION, TĂNG TỐC ĐỘ ANIMATION WALK THEO CHARGE SPEED, NGẮT KHI CHẠM WALL
         private IEnumerator Routine_Skill3_BerserkCharge()
         {
             isPerformingSkill = true;
@@ -260,7 +270,6 @@ namespace GameCore.AI
             PlayAnim(skill3AnimName, skill3ParamType, true);
             PlaySound(skill3Sound, skill3Volume);
 
-            // Bật biến walk và tự động scale tốc độ animation khớp với chargeSpeed
             SetSkill3WalkAnim(true);
 
             yield return new WaitForSeconds(0.2f);

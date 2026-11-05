@@ -103,7 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 060530a35c2e5d045813d5652cf23819, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseDamage: 50
+  baseDamage: 1700
   targetTag: Player
   isTargetPlayer: 1
   isTargetEnemy: 0
@@ -178,7 +178,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fe2f02f82eaaa84fa12d3c29d1f000a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fallSpeed: 50
+  fallSpeed: 75
   fallDirection: {x: 0, y: -1}
   lifeTime: 3
   explosionEffect: {fileID: 2486475268809918399, guid: b2c96ed6a234a124190158a839e01500, type: 3}

@@ -16,6 +16,10 @@ namespace GameCore.AI
         [SerializeField] protected float rangedAttackRange = 8f;
         [SerializeField] protected float skillPrepTime = 0.6f;
 
+        [Header("=== CẤU HÌNH ĐIỀU KIỆN MỞ KHÓA SKILL 3 ===")]
+        [SerializeField] protected int requiredOtherSkillUses = 2; // Số lần tối thiểu phải dùng skill khác trước khi được dùng Skill 3
+        protected int otherSkillUsageCount = 0; // Biến đếm số lần đã dùng skill 1 hoặc skill 2
+
         [Header("=== CẤU HÌNH NÉ TƯỜNG & TÌM ĐƯỜNG THÔNG MINH (SMART AVOIDANCE) ===")]
         [SerializeField] protected LayerMask wallLayer;
         [SerializeField] protected float wallDetectDistance = 2.5f;
@@ -217,6 +221,21 @@ namespace GameCore.AI
         protected virtual bool TryExecuteMeleeSkillOrBuff() { return false; }
         protected virtual void UpdateCustomCooldowns() { }
 
+        // 🎯 Hàm tiện ích kiểm tra xem quái đã được phép dùng Skill 3 chưa
+        protected bool CanUseSkill3()
+        {
+            return otherSkillUsageCount >= requiredOtherSkillUses;
+        }
+
+        // 🎯 Hàm gọi khi quái sử dụng Skill 1 hoặc Skill 2 thành công để tăng biến đếm
+        protected void RecordOtherSkillUsage()
+        {
+            if (otherSkillUsageCount < requiredOtherSkillUses)
+            {
+                otherSkillUsageCount++;
+            }
+        }
+
         protected IEnumerator SkillPreparation(AudioClip prepareClip = null, float prepareVol = 1f)
         {
             if (prepareClip != null) PlaySound(prepareClip, prepareVol);
@@ -376,7 +395,6 @@ namespace GameCore.AI
             return foundOpenPath ? bestDir.normalized : Vector2.Perpendicular(targetDir).normalized;
         }
 
-        // 🎯 Dùng chung 1 biến boolean "isMoving" chuẩn cho mọi loại quái
         protected void SetWalkAnim(bool isWalking)
         {
             if (anim != null && hasWalkAnimation)

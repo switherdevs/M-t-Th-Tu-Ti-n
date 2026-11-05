@@ -20,7 +20,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &9185339417460078479
 Transform:
   m_ObjectHideFlags: 0
@@ -167,6 +167,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17aa1ab8892b273478482249e725b070, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDan: 0
+  hitVFX: {fileID: 0}
+  vfxDestroyTime: 1
+  sfxHit: {fileID: 0}
+  sfxVolume: 1
   time: 3
   ignoreWallTime: 0.2
 --- !u!114 &6562153816094812442
@@ -181,7 +186,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 060530a35c2e5d045813d5652cf23819, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseDamage: 50
+  baseDamage: 1500
   targetTag: Player
   isTargetPlayer: 0
   isTargetEnemy: 1

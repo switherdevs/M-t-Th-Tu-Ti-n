@@ -386,6 +386,7 @@ MonoBehaviour:
   attackRange: 14
   rangedAttackRange: 90
   skillPrepTime: 0.6
+  requiredOtherSkillUses: 2
   wallLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -404,7 +405,6 @@ MonoBehaviour:
   dieSound: {fileID: 0}
   dieVolume: 1
   hasWalkAnimation: 1
-  walkAnimationName: Walk
   fleeSpeedMultiplier: 1.5
   buffEffectObject: {fileID: 3964841916360182448}
   buffEffectDuration: 10
@@ -469,7 +469,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idQuai: 1
-  expNhanDuoc: 500
+  expNhanDuoc: 30
   destroyDelay: 2
   dieTriggerName: Die
 --- !u!210 &2200990281220667953

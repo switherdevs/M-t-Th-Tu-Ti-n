@@ -504,7 +504,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   idQuai: 1
-  expNhanDuoc: 500
+  expNhanDuoc: 30
   destroyDelay: 2
   dieTriggerName: Die
 --- !u!114 &7668816182801921591
@@ -525,6 +525,7 @@ MonoBehaviour:
   attackRange: 15
   rangedAttackRange: 70
   skillPrepTime: 0.6
+  requiredOtherSkillUses: 2
   wallLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -569,8 +570,8 @@ MonoBehaviour:
   skill3Volume: 1
   skill1Cooldown: 4
   skill2Cooldown: 5
-  skill3Cooldown: 2
-  castTimeSkill1: 1
+  skill3Cooldown: 5
+  castTimeSkill1: 0.5
   spikeCount: 10
   spawnOffsetX: 25
   spikeSpacingX: 5

@@ -24,11 +24,11 @@ public class SwordRainSkill : MonoBehaviour
     public Vector3 viTriLechVungBox = new Vector3(0f, 5f, 5f);
 
     [Header("--- CẤU HÌNH THỜI GIAN & SỐ LƯỢNG ---")]
-    [Tooltip("Tổng thời gian mưa kiếm kéo dài (giây). Hết thời gian này sẽ dừng thả kiếm")]
+    [Tooltip("Tổng thời gian mưa kiếm kéo dài (giây)")]
     public float thoiGianDuyTriMuaKiem = 5f;
 
-    [Tooltip("Khoảng thời gian nghỉ (giây) giữa mỗi lần thả 1 thanh kiếm")]
-    public float khoangCachCachNhauRaiKiem = 0.1f;
+    [Tooltip("Số lượng kiếm khi thi triển skill (Mặc định: 1000)")]
+    [SerializeField] private int soLuongKiem = 1000;
 
     [Header("--- CẤU HÌNH NĂNG LƯỢNG SKILL ---")]
     [Tooltip("Mức năng lượng tối đa cần để thi triển Skill")]
@@ -62,7 +62,7 @@ public class SwordRainSkill : MonoBehaviour
         }
     }
 
-    // 🎯 HÀM CỘNG NĂNG LƯỢNG (Đã được sửa lỗi để CharacterStats có thể gọi)
+    // 🎯 HÀM CỘNG NĂNG LƯỢNG
     public void CongNangLuong(float luongCong)
     {
         nangLuongHienTai += luongCong;
@@ -96,7 +96,7 @@ public class SwordRainSkill : MonoBehaviour
         }
     }
 
-    // 🎯 Coroutine thả kiếm ngẫu nhiên trong vùng Box đã căn chỉnh vị trí theo thời gian
+    // 🎯 Coroutine thả kiếm ngẫu nhiên trong vùng Box dựa theo số lượng kiếm và thời gian duy trì
     private IEnumerator Routine_ThucHienMuaKiem()
     {
         if (prefabKiem == null)
@@ -105,9 +105,11 @@ public class SwordRainSkill : MonoBehaviour
             yield break;
         }
 
-        float thoiGianDaTroiQua = 0f;
+        // Tính toán khoảng thời gian nghỉ giữa mỗi lần thả kiếm để phân bổ đều số lượng kiếm trong tổng thời gian
+        int tongSoKiem = Mathf.Max(1, soLuongKiem);
+        float khoangCachCachNhauRaiKiem = thoiGianDuyTriMuaKiem / tongSoKiem;
 
-        while (thoiGianDaTroiQua < thoiGianDuyTriMuaKiem)
+        for (int i = 0; i < tongSoKiem; i++)
         {
             Transform diemGoc = (tamVungMuaKiem != null) ? tamVungMuaKiem : transform;
 
@@ -129,8 +131,7 @@ public class SwordRainSkill : MonoBehaviour
             // Sinh ra thanh kiếm
             Instantiate(prefabKiem, viTriXuatHien, gocXoayKiem);
 
-            thoiGianDaTroiQua += khoangCachCachNhauRaiKiem;
-
+            // Chờ một khoảng thời gian ngắn trước khi thả thanh kiếm tiếp theo
             yield return new WaitForSeconds(khoangCachCachNhauRaiKiem);
         }
 
@@ -147,7 +148,7 @@ public class SwordRainSkill : MonoBehaviour
         }
     }
 
-    // 🎯 Vẽ khung hiển thị Vùng Box Overlap trực quan trong cửa sổ Scene (Xoay & Dịch chuyển theo Player)
+    // 🎯 Vẽ khung hiển thị Vùng Box Overlap trực quan trong cửa sổ Scene
     private void OnDrawGizmosSelected()
     {
         Transform diemGoc = (tamVungMuaKiem != null) ? tamVungMuaKiem : transform;

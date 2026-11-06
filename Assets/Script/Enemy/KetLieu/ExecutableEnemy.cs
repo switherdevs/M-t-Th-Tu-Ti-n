@@ -52,17 +52,76 @@ public class ExecutableEnemy : MonoBehaviour
         if (stunVFXObject != null) stunVFXObject.SetActive(false);
     }
 
+    private void Start()
+    {
+        // Đăng ký lắng nghe sự kiện máu thay đổi hoặc chết để chặn việc biến mất bất thường khi đang Stun
+        if (stats != null)
+        {
+            // Nếu CharacterStats có sự kiện nhận damage, ta kiểm tra trực tiếp
+            // Hoặc có thể kiểm tra định kỳ trong Update bên dưới
+        }
+    }
+
     private void Update()
     {
-        if (isBeingExecuted || isCanBeExecuted || stats == null) return;
+        if (stats == null) return;
 
         float maxHp = stats.MaxHealth != null ? stats.MaxHealth.Value : 1f;
         float currentHealthPercent = (float)stats.CurrentHealth / maxHp;
+
+        // 🛡️ XỬ LÝ ĐẶC BIỆT: Nếu quái đang bị Stun (chờ kết liễu) mà bị đánh cạn máu (CurrentHealth <= 0) 
+        // nhưng chưa được bấm nút kết liễu, ta tự động kích hoạt animation chết/hủy an toàn thay vì biến mất.
+        if (isCanBeExecuted && !isBeingExecuted && (currentHealthPercent <= 0 || stats.IsDead))
+        {
+            HandleDeathWhileStunned();
+            return;
+        }
+
+        if (isBeingExecuted || isCanBeExecuted) return;
 
         if (!isCanBeExecuted && currentHealthPercent <= executionHealthThreshold && currentHealthPercent > 0)
         {
             EnterExecutionStun();
         }
+    }
+
+    // 🎯 Hàm xử lý khi quái chết cứng trong trạng thái choáng mà không qua thao tác kết liễu của player
+    private void HandleDeathWhileStunned()
+    {
+        if (stunCoroutine != null) StopCoroutine(stunCoroutine);
+
+        isCanBeExecuted = false;
+        isBeingExecuted = true;
+
+        if (executePromptUI != null) executePromptUI.SetActive(false);
+        if (stunVFXObject != null) stunVFXObject.SetActive(false);
+
+        if (aiTyHuu != null) aiTyHuu.EndStun();
+        if (aiTongQuan != null) aiTongQuan.EndStun();
+
+        StartCoroutine(DeathWhileStunnedRoutine());
+    }
+
+    private IEnumerator DeathWhileStunnedRoutine()
+    {
+        // Ưu tiên phát animation Die2 hoặc Execution State nếu có để đảm bảo có hình ảnh động
+        if (!string.IsNullOrEmpty(die2StateName) && HasState(anim, die2StateName))
+        {
+            PlayAnimationDirectly(die2StateName);
+        }
+        else if (!string.IsNullOrEmpty(executionStateName) && HasState(anim, executionStateName))
+        {
+            PlayAnimationDirectly(executionStateName);
+        }
+
+        // Vô hiệu hóa Collider để tránh nhận thêm tương tác
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+
+        // Chờ thời gian hiển thị animation chết hoàn tất rồi mới xóa GameObject
+        yield return new WaitForSeconds(2.0f);
+
+        Destroy(gameObject);
     }
 
     private void EnterExecutionStun()

@@ -611,6 +611,7 @@ MonoBehaviour:
     baseValue: 0.1
   currentHealth: 0
   isPoisoned: 0
+  isInvincible: 0
   isPlayer: 0
   dieAnimName: Die
   deathDelay: 2
@@ -719,10 +720,10 @@ AudioSource:
   m_GameObject: {fileID: 8752754569850093893}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 6604748582655308872, guid: 6d577e5bdeafe804da576e07cca632ed, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 7776f55bc360ea442ba21038d8e742f1, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0

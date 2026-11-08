@@ -6,10 +6,6 @@ using UnityEngine.InputSystem;
 
 namespace GameCore.Settings
 {
-    /// <summary>
-    /// Manager singleton quản lý Load/Save cài đặt (Audio, Mouse Sensitivity, Rebind Key, Language)
-    /// Lưu độc lập để không bị xóa khi người chơi bấm xóa save game.
-    /// </summary>
     public class SettingsManager : MonoBehaviour
     {
         private static SettingsManager _instance;
@@ -40,9 +36,12 @@ namespace GameCore.Settings
         [SerializeField] private InputActionAsset inputActions;
 
         [Header("--- SAVE CONFIG ---")]
-        [SerializeField] private string saveFileName = "settings.txt"; // File riêng biệt không bị ảnh hưởng bởi XoaToanBoSaveData
+        [SerializeField] private string saveFileName = "settings.txt";
 
         public SettingsData CurrentData { get; private set; } = new SettingsData();
+
+        // 🎯 SỰ KIỆN TOÀN CỤC: Giúp các UI khác tự động bắt sự kiện đổi ngôn ngữ ngay lập tức
+        public static event Action<string> OnLanguageChanged;
 
         private string SaveFilePath => Path.Combine(Application.persistentDataPath, saveFileName);
         private string TempSaveFilePath => Path.Combine(Application.persistentDataPath, saveFileName + ".tmp");
@@ -126,17 +125,26 @@ namespace GameCore.Settings
             }
         }
 
-        // --- LANGUAGE HELPERS ---
+        // --- LANGUAGE HELPERS (ĐƯỢC NÂNG CẤP LINH HOẠT CHO CÁC SCRIPT KHÁC MỐC NỐI) ---
         public bool IsEnglish()
         {
             return CurrentData != null && CurrentData.language == "EN";
         }
 
+        public string GetCurrentLanguage()
+        {
+            return CurrentData != null ? CurrentData.language : "VN";
+        }
+
         public void SetLanguage(string langCode)
         {
-            if (CurrentData != null)
+            if (CurrentData != null && CurrentData.language != langCode)
             {
                 CurrentData.language = langCode;
+                SaveSettings();
+
+                // Kích hoạt sự kiện để toàn bộ chữ trên UI tự động đổi ngay lập tức
+                OnLanguageChanged?.Invoke(langCode);
             }
         }
 
@@ -190,6 +198,7 @@ namespace GameCore.Settings
             }
             ApplyAllSettings();
             SaveSettings();
+            OnLanguageChanged?.Invoke(CurrentData.language);
         }
     }
 }

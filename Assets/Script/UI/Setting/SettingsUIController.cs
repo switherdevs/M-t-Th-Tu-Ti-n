@@ -8,14 +8,19 @@ namespace GameCore.Settings
 {
     public class SettingsUIController : MonoBehaviour
     {
-        // Struct chứa dữ liệu của 1 phần tử đổi nút bấm trong mảng
         [Serializable]
         public struct RebindItem
         {
-            public Button rebindButton;          // Button kích hoạt đổi phím
-            public string targetActionName;      // Tên của Action trong Input System (vd: "Attack", "Move")
-            public TextMeshProUGUI bindingText;  // Text hiển thị tên phím gán hiện tại
+            public Button rebindButton;
+            public string targetActionName;
+            public TextMeshProUGUI bindingText;
         }
+
+        [Header("--- LANGUAGE BUTTONS ---")]
+        [SerializeField] private Button vietnameseButton;
+        [SerializeField] private Button englishButton;
+        [SerializeField] private Color selectedButtonColor = Color.green;
+        [SerializeField] private Color normalButtonColor = Color.white;
 
         [Header("--- AUDIO SLIDERS & TEXTS ---")]
         [SerializeField] private Slider masterVolumeSlider;
@@ -32,7 +37,7 @@ namespace GameCore.Settings
         [SerializeField] private TextMeshProUGUI sensitivityValueText;
 
         [Header("--- REBIND KEYS ARRAY ---")]
-        [SerializeField] private RebindItem[] rebindItems; // Mảng chứa thông tin các nút đổi phím
+        [SerializeField] private RebindItem[] rebindItems;
 
         [Header("--- ACTION BUTTONS ---")]
         [SerializeField] private Button applyButton;
@@ -45,17 +50,21 @@ namespace GameCore.Settings
         {
             InitializeUIValues();
             RegisterListeners();
+
+            // Đăng ký lắng nghe sự kiện đổi ngôn ngữ toàn cục
+            SettingsManager.OnLanguageChanged += HandleLanguageChanged;
         }
 
         private void OnDisable()
         {
             UnregisterListeners();
             _rebindingOperation?.Dispose();
+
+            SettingsManager.OnLanguageChanged -= HandleLanguageChanged;
         }
 
         private void Update()
         {
-            // 🎯 Lắng nghe phím ESC để lưu cài đặt và ẩn bảng Setting đi
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 CloseSettingsUI();
@@ -103,7 +112,10 @@ namespace GameCore.Settings
                 UpdateSensitivityText(data.mouseSensitivity);
             }
 
-            // 3. Cập nhật Text tên phím cho toàn bộ mảng rebindItems
+            // 3. Cập nhật trạng thái màu sắc 2 nút ngôn ngữ
+            UpdateLanguageButtonsUI(data.language);
+
+            // 4. Cập nhật Text tên phím cho toàn bộ mảng rebindItems
             UpdateAllRebindTexts();
         }
 
@@ -115,6 +127,10 @@ namespace GameCore.Settings
             if (bgmVolumeSlider != null) bgmVolumeSlider.onValueChanged.AddListener(OnBGMVolumeChanged);
             if (sfxVolumeSlider != null) sfxVolumeSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
             if (mouseSensitivitySlider != null) mouseSensitivitySlider.onValueChanged.AddListener(OnMouseSensitivityChanged);
+
+            // 🎯 Đăng ký sự kiện click cho 2 nút ngôn ngữ
+            if (vietnameseButton != null) vietnameseButton.onClick.AddListener(() => ChangeLanguage("VN"));
+            if (englishButton != null) englishButton.onClick.AddListener(() => ChangeLanguage("EN"));
 
             if (rebindItems != null)
             {
@@ -140,6 +156,9 @@ namespace GameCore.Settings
             if (sfxVolumeSlider != null) sfxVolumeSlider.onValueChanged.RemoveListener(OnSFXVolumeChanged);
             if (mouseSensitivitySlider != null) mouseSensitivitySlider.onValueChanged.RemoveListener(OnMouseSensitivityChanged);
 
+            if (vietnameseButton != null) vietnameseButton.onClick.RemoveAllListeners();
+            if (englishButton != null) englishButton.onClick.RemoveAllListeners();
+
             if (rebindItems != null)
             {
                 for (int i = 0; i < rebindItems.Length; i++)
@@ -154,6 +173,37 @@ namespace GameCore.Settings
             if (applyButton != null) applyButton.onClick.RemoveListener(OnApplyClicked);
             if (closeButton != null) closeButton.onClick.RemoveListener(OnCloseClicked);
             if (resetButton != null) resetButton.onClick.RemoveListener(OnResetClicked);
+        }
+
+        private void ChangeLanguage(string langCode)
+        {
+            if (SettingsManager.Instance != null)
+            {
+                SettingsManager.Instance.SetLanguage(langCode);
+                UpdateLanguageButtonsUI(langCode);
+            }
+        }
+
+        private void HandleLanguageChanged(string newLang)
+        {
+            UpdateLanguageButtonsUI(newLang);
+        }
+
+        private void UpdateLanguageButtonsUI(string langCode)
+        {
+            bool isVN = (langCode == "VN");
+
+            if (vietnameseButton != null)
+            {
+                Image img = vietnameseButton.GetComponent<Image>();
+                if (img != null) img.color = isVN ? selectedButtonColor : normalButtonColor;
+            }
+
+            if (englishButton != null)
+            {
+                Image img = englishButton.GetComponent<Image>();
+                if (img != null) img.color = !isVN ? selectedButtonColor : normalButtonColor;
+            }
         }
 
         private void OnMasterVolumeChanged(float val)

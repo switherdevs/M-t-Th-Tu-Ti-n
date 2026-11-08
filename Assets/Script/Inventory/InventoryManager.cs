@@ -93,7 +93,7 @@ public class InventoryManager : MonoBehaviour
             }
         }
 
-        // 2. Kiểm tra Save System
+        // 2. Kiểm tra Save System[cite: 7]
         if (QuestSaveSystem.Instance == null || QuestSaveSystem.Instance.duLieuSaveHienTai == null)
         {
             Debug.LogWarning("[InventoryManager] Chưa tìm thấy dữ liệu QuestSaveSystem!");
@@ -138,20 +138,38 @@ public class InventoryManager : MonoBehaviour
         return null;
     }
 
+    // 🎯 HÀM KIỂM TRA NGÔN NGỮ TỪ FILE SAVE CỦA NGƯỜI CHƠI
+    private bool KiemTraNgonNguTiengAnh()
+    {
+        // Bạn có thể tùy chỉnh đường dẫn lấy biến ngôn ngữ từ Save Game của bạn.
+        // Ví dụ: Kiểm tra trong PlayerPrefs hoặc file save settings (mặc định trả về false nếu để tiếng Việt)
+        return PlayerPrefs.GetString("PlayerLanguage", "VN") == "EN";
+    }
+
     public void HienThongTinBangCoDinh(ItemData data)
     {
         if (data == null) return;
 
         if (panelBangCoDinh != null) panelBangCoDinh.SetActive(true);
 
+        // Kiểm tra xem người chơi chọn tiếng Anh hay tiếng Việt
+        bool isEnglish = KiemTraNgonNguTiengAnh();
+
+        // Lấy nội dung tương ứng dựa trên ngôn ngữ
+        string tenHienThi = isEnglish && !string.IsNullOrEmpty(data.tenItemEN) ? data.tenItemEN : data.tenItem;
+        string canhGioiHienThi = isEnglish && !string.IsNullOrEmpty(data.canhGioiYeuCauEN) ? data.canhGioiYeuCauEN : data.canhGioiYeuCauEN;
+        string moTaHienThi = isEnglish && !string.IsNullOrEmpty(data.moTaItemEN) ? data.moTaItemEN : data.moTaItem;
+
+        string nhanCanhGioi = isEnglish ? "Realm required: " : "Cảnh giới: ";
+
         if (textTenItemCoDinh != null)
-            textTenItemCoDinh.text = $"<b>{data.tenItem}</b>";
+            textTenItemCoDinh.text = $"<b>{tenHienThi}</b>";
 
         if (textCanhGioiCoDinh != null)
-            textCanhGioiCoDinh.text = $"Cảnh giới: <color=yellow>{data.canhGioiYeuCau}</color>";
+            textCanhGioiCoDinh.text = $"{nhanCanhGioi}<color=yellow>{canhGioiHienThi}</color>";
 
         if (textMoTaCoDinh != null)
-            textMoTaCoDinh.text = data.moTaItem;
+            textMoTaCoDinh.text = moTaHienThi;
     }
 
     public void AnThongTinBangCoDinh()
@@ -166,15 +184,11 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// HÀM ĐÃ SỬA TRIỆT ĐỂ: KHÔNG TRỪ SỐ LƯỢNG KHI CLICK
-    /// </summary>
     public void SuDungItem(InventorySlotUI slot)
     {
         ItemData item = slot.itemDataHienTai;
         if (item == null) return;
 
-        // CẤM TRỪ SỐ LƯỢNG: Đã xóa hoàn toàn đoạn code "slot.soLuongHienTai--"
         Debug.Log($"[Kho Đồ] Đã click vào vật phẩm: {item.tenItem} (Số lượng hiện tại giữ nguyên: {slot.soLuongHienTai})");
     }
 }

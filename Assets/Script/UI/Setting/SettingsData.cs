@@ -14,7 +14,7 @@ namespace GameCore.Settings
         public float mouseSensitivity = 1.0f;
         public string inputOverridesJson = string.Empty; // Lưu override keybinding của Unity Input System
 
-        public string language = "VI"; // "VI": Tiếng Việt | "EN": Tiếng Anh
+        public string language = "VN"; // "VN": Tiếng Việt | "EN": Tiếng Anh
 
         public int saveVersion = 1;
     }

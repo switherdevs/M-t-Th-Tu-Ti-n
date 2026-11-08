@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using GameCore.Quests;
+using GameCore.Settings; // Thêm namespace để kết nối trực tiếp với SettingsManager
 
 public enum TrangThaiQuest
 {
@@ -142,6 +143,16 @@ public class QuestSaveSystem : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         KiemTraVoiResetQuestKhiSangMapChinhMoi(scene.name);
+    }
+
+    // 🎯 HÀM HỖ TRỢ TRỰC TIẾP CHO CÁC SCRIPT KHÁC MỐC NỐI KIỂM TRA NGÔN NGỮ (TRUE/FALSE)
+    public bool IsEnglish()
+    {
+        if (SettingsManager.Instance != null)
+        {
+            return SettingsManager.Instance.IsEnglish();
+        }
+        return false; // Mặc định trả về false (Tiếng Việt) nếu chưa khởi tạo SettingsManager
     }
 
     public void NapToanBoQuestDataTuResources()
@@ -613,7 +624,6 @@ public class QuestSaveSystem : MonoBehaviour
 
         if (questData == null) return false;
 
-        // Đã sửa lỗi: Dùng LayTienTrinhQuest thay vì LayTienTrInstace bị gõ sai
         ProgressQuest progress = LayTienTrinhQuest(questData.idQuest);
         return progress != null && progress.trangThai == TrangThaiQuest.DangLam;
     }

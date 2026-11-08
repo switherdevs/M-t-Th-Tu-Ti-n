@@ -183,6 +183,7 @@ GameObject:
   - component: {fileID: 2200990281220667953}
   - component: {fileID: 1893241716125937518}
   - component: {fileID: 2009698826483813200}
+  - component: {fileID: -4657881826591449186}
   m_Layer: 9
   m_Name: Rabit
   m_TagString: Enemy
@@ -603,6 +604,25 @@ MonoBehaviour:
   vfxSpawnPoint: {fileID: 2714728594123583974}
   executePromptUI: {fileID: 0}
   stunVFXObject: {fileID: 4110778967875763163}
+--- !u!114 &-4657881826591449186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3607519758357488056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc5621c62038f354d974f198b7f7efef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scriptAIGoc: {fileID: 5365233389936033436}
+  animator: {fileID: 6166140517340157722}
+  tenParamAnimation: isWalking
+  khoangCachAnToan: 8
+  tocDoLui: 4
+  lucBatRa: 15
+  thoiGianChoang: 0.3
 --- !u!1 &4110778967875763163
 GameObject:
   m_ObjectHideFlags: 0

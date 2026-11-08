@@ -333,6 +333,7 @@ GameObject:
   - component: {fileID: 8586026622593461285}
   - component: {fileID: 2917560003278732232}
   - component: {fileID: -424165257051100103}
+  - component: {fileID: -4523025357134171664}
   m_Layer: 9
   m_Name: bear
   m_TagString: Enemy
@@ -572,6 +573,7 @@ MonoBehaviour:
   skill2Cooldown: 5
   skill3Cooldown: 5
   castTimeSkill1: 0.5
+  skill1AttackSpeed: 1.2
   spikeCount: 10
   spawnOffsetX: 25
   spikeSpacingX: 5
@@ -781,6 +783,25 @@ MonoBehaviour:
   vfxSpawnPoint: {fileID: 6507446143918265551}
   executePromptUI: {fileID: 0}
   stunVFXObject: {fileID: 7711180238133243584}
+--- !u!114 &-4523025357134171664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3324652682113676142}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc5621c62038f354d974f198b7f7efef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scriptAIGoc: {fileID: 7668816182801921591}
+  animator: {fileID: 1150817526488143408}
+  tenParamAnimation: isWalking
+  khoangCachAnToan: 8
+  tocDoLui: 4
+  lucBatRa: 15
+  thoiGianChoang: 0.3
 --- !u!1 &3742002972812815148
 GameObject:
   m_ObjectHideFlags: 0

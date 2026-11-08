@@ -28,17 +28,20 @@ namespace GameCore.Settings
         [SerializeField] private Button closeButton;
         [SerializeField] private Button resetButton;
 
+        private void Awake()
+        {
+            // Đăng ký lắng nghe sự kiện ngay khi script được nạp vào bộ nhớ
+            RegisterListeners();
+        }
+
         private void OnEnable()
         {
             InitializeUIValues();
-            RegisterListeners();
-
             SettingsManager.OnLanguageChanged += HandleLanguageChanged;
         }
 
         private void OnDisable()
         {
-            UnregisterListeners();
             SettingsManager.OnLanguageChanged -= HandleLanguageChanged;
         }
 
@@ -50,7 +53,10 @@ namespace GameCore.Settings
             }
         }
 
-        private void CloseSettingsUI()
+        /// <summary>
+        /// Hàm đóng bảng Settings chuẩn xác, lưu dữ liệu và ẩn GameObject
+        /// </summary>
+        public void CloseSettingsUI()
         {
             if (SettingsManager.Instance != null)
             {
@@ -65,7 +71,7 @@ namespace GameCore.Settings
 
             SettingsData data = SettingsManager.Instance.CurrentData;
 
-            // 1. Cập nhật thanh trượt và Text âm lượng (Đã fix lỗi hiển thị text gốc)
+            // 1. Cập nhật thanh trượt và Text âm lượng
             if (masterVolumeSlider != null)
             {
                 masterVolumeSlider.value = data.masterVolume;

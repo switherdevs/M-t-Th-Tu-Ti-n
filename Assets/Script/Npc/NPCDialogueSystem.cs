@@ -79,22 +79,34 @@ public class NPCDialogueSystem : MonoBehaviour
     [Tooltip("Khoảng cách tối thiểu giữa 2 lần phát âm thanh (giây) để tránh bị ồn/dồn âm")]
     [SerializeField] private float tanSuatPhatAm = 0.08f;
 
-    [Header("--- THOẠI KHI ĐÃ NHẬN QUEST / HOÀN THÀNH (TIẾNG VIỆT) ---")]
+    [Header("--- THOẠI TRẠNG THÁI QUEST (TIẾNG VIỆT) ---")]
     [SerializeField] private QuestData questKiemTra;
+
     [TextArea(2, 4)]
     [SerializeField] private string loiThoaiDaNhanQuest = "Đại hiệp hãy giúp tôi hoàn thành nhiệm vụ nhanh nhé!";
+
     [TextArea(2, 4)]
+    [Tooltip("NPC hỏi tình hình khi người chơi đã làm xong việc nhưng chưa xác nhận trả quest")]
+    [SerializeField] private string loiThoaiHoiTraQuest = "Đại hiệp đã cứu được cháu tôi/hoàn thành việc tôi nhờ chưa?";
+
+    [TextArea(2, 4)]
+    [Tooltip("Thoại cảm ơn vĩnh viễn khi đã xác nhận hoàn thành quest")]
     [SerializeField] private string loiThoaiCamOnHoanThanh = "Cảm ơn ơn trên! Đại hiệp đã cứu nguy cho thôn làng chúng tôi!";
 
     [Header("--- THOẠI TẠM BIỆT (TIẾNG VIỆT) ---")]
     [TextArea(2, 4)]
     [SerializeField] private string loiThoaiTamBiet = "Hẹn gặp lại đại hiệp sau!";
 
-    [Header("--- BỔ SUNG: THOẠI ĐẶC BIỆT (TIẾNG ANH) ---")]
+    [Header("--- BỔ SUNG: THOẠI TRẠNG THÁI QUEST (TIẾNG ANH) ---")]
     [TextArea(2, 4)]
     [SerializeField] private string loiThoaiDaNhanQuestEN = "Please help me complete the quest quickly!";
+
+    [TextArea(2, 4)]
+    [SerializeField] private string loiThoaiHoiTraQuestEN = "Have you completed the task I asked of you, hero?";
+
     [TextArea(2, 4)]
     [SerializeField] private string loiThoaiCamOnHoanThanhEN = "Thank you! You saved our village!";
+
     [TextArea(2, 4)]
     [SerializeField] private string loiThoaiTamBietEN = "See you again later!";
 
@@ -125,7 +137,6 @@ public class NPCDialogueSystem : MonoBehaviour
     private Coroutine coroutineGoChu;
     private float thoiGianPhatAmCuoi = 0f;
 
-    // Lưu lại trạng thái ID thoại đang hiển thị để phục vụ việc làm tươi khi đổi ngôn ngữ
     private int idThoaiHienTaiDangXem = 0;
 
     private void Awake()
@@ -143,7 +154,6 @@ public class NPCDialogueSystem : MonoBehaviour
 
     private void OnEnable()
     {
-        // 🎯 Lắng nghe sự kiện đổi ngôn ngữ toàn cục
         SettingsManager.OnLanguageChanged += HandleLanguageChanged;
 
         if (danhSachCauThoai != null && danhSachCauThoai.Count > 0)
@@ -162,10 +172,13 @@ public class NPCDialogueSystem : MonoBehaviour
     {
         if (uiThoaiRootObject != null && uiThoaiRootObject.activeSelf)
         {
-            // Làm tươi lại khung hội thoại ngay lập tức theo ngôn ngữ mới chọn
-            if (KiemTraQuestDaHoanThanh())
+            if (KiemTraQuestDaHoanThanhHoanToan())
             {
                 HienThiThoaiCamOnHoanThanh();
+            }
+            else if (KiemTraQuestDaXongChuaTra())
+            {
+                HienThiThoaiHoiTraQuest();
             }
             else if (KiemTraDaNhanQuestChua())
             {
@@ -223,18 +236,28 @@ public class NPCDialogueSystem : MonoBehaviour
             uiThoaiRootObject.SetActive(true);
         }
 
-        if (KiemTraQuestDaHoanThanh())
+        // 1. Đã trả xong quest từ trước -> Vĩnh viễn chỉ hiện câu cảm ơn
+        if (KiemTraQuestDaHoanThanhHoanToan())
         {
             HienThiThoaiCamOnHoanThanh();
             return;
         }
 
+        // 2. Đã làm xong việc (quái đủ / cứu xong) nhưng chưa bấm xác nhận trả -> Hiện thoại hỏi & nút xác nhận
+        if (KiemTraQuestDaXongChuaTra())
+        {
+            HienThiThoaiHoiTraQuest();
+            return;
+        }
+
+        // 3. Đang làm dang dở -> Nhắc nhở
         if (KiemTraDaNhanQuestChua())
         {
             HienThiThoaiDaNhanQuest();
             return;
         }
 
+        // 4. Mặc định hội thoại cốt truyện
         HienThiCauThoaiTheoID(idThoaiBatDau);
     }
 
@@ -246,11 +269,18 @@ public class NPCDialogueSystem : MonoBehaviour
         return progress != null ? progress.trangThai : TrangThaiQuest.ChuaNhan;
     }
 
-    private bool KiemTraQuestDaHoanThanh()
+    private bool KiemTraQuestDaHoanThanhHoanToan()
     {
         if (questKiemTra == null) return false;
         TrangThaiQuest trangThai = LayTrangThaiQuestSave(questKiemTra.idQuest);
-        return trangThai == TrangThaiQuest.DaXongChuaTra || trangThai == TrangThaiQuest.HoanThanh;
+        return trangThai == TrangThaiQuest.HoanThanh;
+    }
+
+    private bool KiemTraQuestDaXongChuaTra()
+    {
+        if (questKiemTra == null) return false;
+        TrangThaiQuest trangThai = LayTrangThaiQuestSave(questKiemTra.idQuest);
+        return trangThai == TrangThaiQuest.DaXongChuaTra;
     }
 
     private bool KiemTraDaNhanQuestChua()
@@ -288,7 +318,7 @@ public class NPCDialogueSystem : MonoBehaviour
         if (btnLuaChon1 != null)
         {
             btnLuaChon1.gameObject.SetActive(true);
-            if (txtNut1 != null) txtNut1.text = isEN ? "You're welcome" : "Không có gì";
+            if (txtNut1 != null) txtNut1.text = isEN ? "Goodbye" : "Tạm biệt";
 
             btnLuaChon1.onClick.RemoveAllListeners();
             btnLuaChon1.onClick.AddListener(ThucHienDongUiThoai);
@@ -308,13 +338,49 @@ public class NPCDialogueSystem : MonoBehaviour
         if (btnLuaChon1 != null)
         {
             btnLuaChon1.gameObject.SetActive(true);
-            if (txtNut1 != null) txtNut1.text = isEN ? "I'll do it right away" : "Tôi sẽ đi làm ngay";
+            if (txtNut1 != null) txtNut1.text = isEN ? "I'll keep working on it" : "Tôi sẽ đi làm ngay";
 
             btnLuaChon1.onClick.RemoveAllListeners();
             btnLuaChon1.onClick.AddListener(ThucHienDongUiThoai);
         }
 
         if (btnLuaChon2 != null) btnLuaChon2.gameObject.SetActive(false);
+    }
+
+    // 🎯 HÀM HIỂN THỊ KHI ĐÃ LÀM XONG VIỆC NHƯNG CHƯA XÁC NHẬN TRẢ QUEST
+    private void HienThiThoaiHoiTraQuest()
+    {
+        bool isEN = SettingsManager.Instance != null && SettingsManager.Instance.IsEnglish();
+
+        if (txtTenNPC != null) txtTenNPC.text = LayTenNPCMacDinh();
+
+        string noiDungHoi = isEN ? loiThoaiHoiTraQuestEN : loiThoaiHoiTraQuest;
+        StartGoChuRoutine(noiDungHoi);
+
+        // Nút 1: Xác nhận hoàn thành nhiệm vụ
+        if (btnLuaChon1 != null)
+        {
+            btnLuaChon1.gameObject.SetActive(true);
+            if (txtNut1 != null) txtNut1.text = isEN ? "I have completed the task!" : "Ta đã hoàn thành nhiệm vụ!";
+
+            btnLuaChon1.onClick.RemoveAllListeners();
+            btnLuaChon1.onClick.AddListener(() =>
+            {
+                // Thực hiện lưu phần thưởng, chuyển trạng thái sang HoanThanh và đóng/chuyển thoại cảm ơn
+                XuLyXacNhanTraQuest(questKiemTra);
+                HienThiThoaiCamOnHoanThanh();
+            });
+        }
+
+        // Nút 2: Chưa trả, để sau
+        if (btnLuaChon2 != null)
+        {
+            btnLuaChon2.gameObject.SetActive(true);
+            if (txtNut2 != null) txtNut2.text = isEN ? "Not yet" : "Để sau nhé";
+
+            btnLuaChon2.onClick.RemoveAllListeners();
+            btnLuaChon2.onClick.AddListener(ThucHienDongUiThoai);
+        }
     }
 
     public void HienThiCauThoaiTheoID(int id)
@@ -325,7 +391,7 @@ public class NPCDialogueSystem : MonoBehaviour
             return;
         }
 
-        idThoaiHienTaiDangXem = id; // Lưu lại ID hiện tại để phục vụ sự kiện đổi ngôn ngữ
+        idThoaiHienTaiDangXem = id;
         CauThoaiData dataGoc = dictionaryCauThoai[id];
 
         string tenHienThi = dataGoc.tenNPC;
@@ -489,6 +555,28 @@ public class NPCDialogueSystem : MonoBehaviour
         }
 
         return true;
+    }
+
+    // 🎯 HÀM XÁC NHẬN HOÀN THÀNH QUEST, LƯU PHẦN THƯỞNG VÀO SAVE
+    private void XuLyXacNhanTraQuest(QuestData quest)
+    {
+        QuestData targetQuest = quest != null ? quest : questKiemTra;
+        if (targetQuest == null) return;
+
+        // Lưu phần thưởng vào kho/save game
+        targetQuest.LuuPhanThuongVaoSaveGame();
+
+        if (QuestManager.Instance != null)
+        {
+            QuestManager.Instance.CompleteOrAbandonQuest(targetQuest.idQuest);
+        }
+
+        if (QuestSaveSystem.Instance != null)
+        {
+            QuestSaveSystem.Instance.CapNhatTrangThaiQuest(targetQuest.idQuest, TrangThaiQuest.HoanThanh);
+            Debug.Log($"<color=green>[NPC Dialogue]</color> Đã xác nhận trả nhiệm vụ ID {targetQuest.idQuest} thành công!");
+            QuestHUDTracker.ThongBaoCapNhatHUD();
+        }
     }
 
     private void HienThiCauThoaiTamBiet(string loiTamBiet)

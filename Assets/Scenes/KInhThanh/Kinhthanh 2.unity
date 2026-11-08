@@ -1181,7 +1181,7 @@ Transform:
   m_GameObject: {fileID: 428353517}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.6194763, y: 0.00000005147674, z: 0}
+  m_LocalPosition: {x: 0.81978226, y: 0.00000005147674, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10576,6 +10576,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 135351625022543362, guid: 14d7ea3f513d51e40bc6c1ce5fb8e81a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1308215207641864989, guid: 14d7ea3f513d51e40bc6c1ce5fb8e81a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -3293.3494
+      objectReference: {fileID: 0}
+    - target: {fileID: 3941646682357185118, guid: 14d7ea3f513d51e40bc6c1ce5fb8e81a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -700
+      objectReference: {fileID: 0}
+    - target: {fileID: 4978178567404876187, guid: 14d7ea3f513d51e40bc6c1ce5fb8e81a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -746.796
+      objectReference: {fileID: 0}
     - target: {fileID: 5021614976478853787, guid: 14d7ea3f513d51e40bc6c1ce5fb8e81a, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.1
@@ -10632,10 +10648,22 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5056275610397750629, guid: 14d7ea3f513d51e40bc6c1ce5fb8e81a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -949.2572
+      objectReference: {fileID: 0}
     - target: {fileID: 5691346037439395625, guid: 14d7ea3f513d51e40bc6c1ce5fb8e81a, type: 3}
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 428353519}
+    - target: {fileID: 6164268551105682377, guid: 14d7ea3f513d51e40bc6c1ce5fb8e81a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -3293.3494
+      objectReference: {fileID: 0}
+    - target: {fileID: 6649025030537606291, guid: 14d7ea3f513d51e40bc6c1ce5fb8e81a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1779.992
+      objectReference: {fileID: 0}
     - target: {fileID: 6660208874361888987, guid: 14d7ea3f513d51e40bc6c1ce5fb8e81a, type: 3}
       propertyPath: waypoints.Array.size
       value: 2
@@ -10651,6 +10679,10 @@ PrefabInstance:
     - target: {fileID: 7228039311867703813, guid: 14d7ea3f513d51e40bc6c1ce5fb8e81a, type: 3}
       propertyPath: m_Name
       value: Npc_slider
+      objectReference: {fileID: 0}
+    - target: {fileID: 8480711156140244442, guid: 14d7ea3f513d51e40bc6c1ce5fb8e81a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 3485.11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

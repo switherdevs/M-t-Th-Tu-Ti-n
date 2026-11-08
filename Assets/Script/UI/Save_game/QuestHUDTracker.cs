@@ -17,11 +17,15 @@ public class QuestHUDTracker : MonoBehaviour
     [Tooltip("Text hiển thị dòng thông báo khi không có nhiệm vụ nào đang làm")]
     public TextMeshProUGUI textThongBaoMacDinh;
 
-    [Tooltip("Nội dung hiện khi chưa nhận nhiệm vụ")]
+    [Tooltip("Nội dung hiện khi chưa nhận nhiệm vụ (Tiếng Việt)")]
     public string noiDungThongBaoMacDinh = "Hãy đến kinh thành nhận nhiệm vụ";
+    [Tooltip("Nội dung hiện khi chưa nhận nhiệm vụ (Tiếng Anh)")]
+    public string noiDungThongBaoMacDinhEN = "Go to the capital to accept quests";
 
-    [Tooltip("Nội dung hiện khi đã hoàn thành toàn bộ nhiệm vụ trong game")]
+    [Tooltip("Nội dung hiện khi đã hoàn thành toàn bộ nhiệm vụ trong game (Tiếng Việt)")]
     public string noiDungHoanThanhTatCa = "Cảnh giới bạn đã cao, hãy đập đá";
+    [Tooltip("Nội dung hiện khi đã hoàn thành toàn bộ nhiệm vụ trong game (Tiếng Anh)")]
+    public string noiDungHoanThanhTatCaEN = "Your realm is high, go mine stones";
 
     // =========================================================
     // MẢNG TEXT HIỂN THỊ QUEST ĐỘNG
@@ -58,12 +62,23 @@ public class QuestHUDTracker : MonoBehaviour
     {
         OnQuestProgressChanged += CapNhatGiaoDienHUD;
         SceneManager.sceneLoaded += OnSceneLoaded;
+
+        // 🎯 Lắng nghe sự kiện đổi ngôn ngữ toàn cục để cập nhật HUD ngay lập tức
+        GameCore.Settings.SettingsManager.OnLanguageChanged += HandleLanguageChanged;
     }
 
     private void OnDisable()
     {
         OnQuestProgressChanged -= CapNhatGiaoDienHUD;
         SceneManager.sceneLoaded -= OnSceneLoaded;
+
+        // Hủy đăng ký sự kiện
+        GameCore.Settings.SettingsManager.OnLanguageChanged -= HandleLanguageChanged;
+    }
+
+    private void HandleLanguageChanged(string newLang)
+    {
+        CapNhatGiaoDienHUD();
     }
 
     private void Update()
@@ -125,6 +140,16 @@ public class QuestHUDTracker : MonoBehaviour
         OnQuestProgressChanged?.Invoke();
     }
 
+    // Kiểm tra ngôn ngữ từ hệ thống save / settings
+    private bool KiemTraNgonNguTiengAnh()
+    {
+        if (QuestSaveSystem.Instance != null)
+        {
+            return QuestSaveSystem.Instance.IsEnglish();
+        }
+        return false;
+    }
+
     /// <summary>
     /// Hàm chính xử lý làm sạch và vẽ lại thông tin nhiệm vụ lên giao diện HUD
     /// </summary>
@@ -138,6 +163,8 @@ public class QuestHUDTracker : MonoBehaviour
             return;
         }
 
+        bool isEnglish = KiemTraNgonNguTiengAnh();
+
         // 2. Lấy danh sách nhiệm vụ đang làm
         List<ProgressQuest> danhSachQuestDangActive = LayToanBoQuestDangKichHoat();
 
@@ -147,7 +174,16 @@ public class QuestHUDTracker : MonoBehaviour
             if (textThongBaoMacDinh != null && isHudVisible)
             {
                 textThongBaoMacDinh.gameObject.SetActive(true);
-                textThongBaoMacDinh.text = KiemTraDaHoanThanhTatCaQuest() ? noiDungHoanThanhTatCa : noiDungThongBaoMacDinh;
+
+                bool daHoanThanhTatCa = KiemTraDaHoanThanhTatCaQuest();
+                if (daHoanThanhTatCa)
+                {
+                    textThongBaoMacDinh.text = isEnglish && !string.IsNullOrEmpty(noiDungHoanThanhTatCaEN) ? noiDungHoanThanhTatCaEN : noiDungHoanThanhTatCa;
+                }
+                else
+                {
+                    textThongBaoMacDinh.text = isEnglish && !string.IsNullOrEmpty(noiDungThongBaoMacDinhEN) ? noiDungThongBaoMacDinhEN : noiDungThongBaoMacDinh;
+                }
             }
             return;
         }
@@ -183,13 +219,18 @@ public class QuestHUDTracker : MonoBehaviour
 
                 int soYeuCau = data.loaiQuest == LoaiQuest.DietQuai ? data.soLuongBoXuongCanDiet : data.soLuongCanGiaiCuu;
 
+                // Lấy tên nhiệm vụ tùy theo ngôn ngữ (nếu bạn có trường tenNhiemVuEN trong QuestData thì dùng, nếu không sẽ lấy tenNhiemVu gốc)
+                // Lưu ý: Nếu QuestData của bạn có biến tiếng Anh, bạn có thể thay thế ở đây. Hiện tại dùng tạm biến chung hoặc tên tiếng Việt.
+                string tenQuestHienThi = data.tenNhiemVu;
+
                 if (progress.trangThai == TrangThaiQuest.DangLam)
                 {
-                    danhSachTextQuestUI[i].text = $"• <b>{data.tenNhiemVu}</b>: {progress.soBoXuongDaDiet}/{soYeuCau}";
+                    danhSachTextQuestUI[i].text = $"• <b>{tenQuestHienThi}</b>: {progress.soBoXuongDaDiet}/{soYeuCau}";
                 }
                 else if (progress.trangThai == TrangThaiQuest.DaXongChuaTra)
                 {
-                    danhSachTextQuestUI[i].text = $"• <b>{data.tenNhiemVu}</b>: <color=green>[Hoàn thành] Trả nhiệm vụ!</color>";
+                    string trangThaiHoanThanh = isEnglish ? "<color=green>[Completed] Turn in quest!</color>" : "<color=green>[Hoàn thành] Trả nhiệm vụ!</color>";
+                    danhSachTextQuestUI[i].text = $"• <b>{tenQuestHienThi}</b>: {trangThaiHoanThanh}";
                 }
             }
         }

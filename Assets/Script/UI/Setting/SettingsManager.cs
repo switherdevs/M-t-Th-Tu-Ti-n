@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.InputSystem;
 
 namespace GameCore.Settings
 {
@@ -22,6 +21,13 @@ namespace GameCore.Settings
                         _instance = container.AddComponent<SettingsManager>();
                     }
                 }
+
+                // 🛡️ BẢO VỆ TUYỆT ĐỐI: Ép load file ngay lập tức nếu chưa được load (Khắc phục triệt để lỗi chậm Awake)
+                if (_instance != null && !_instance._isLoaded)
+                {
+                    _instance.LoadSettings();
+                }
+
                 return _instance;
             }
         }
@@ -32,15 +38,14 @@ namespace GameCore.Settings
         [SerializeField] private string bgmVolumeParam = "BGMVolume";
         [SerializeField] private string sfxVolumeParam = "SFXVolume";
 
-        [Header("--- INPUT SETTINGS (Unity 6 Input System) ---")]
-        [SerializeField] private InputActionAsset inputActions;
-
         [Header("--- SAVE CONFIG ---")]
         [SerializeField] private string saveFileName = "settings.txt";
 
         public SettingsData CurrentData { get; private set; } = new SettingsData();
 
-        // 🎯 SỰ KIỆN TOÀN CỤC: Giúp các UI khác tự động bắt sự kiện đổi ngôn ngữ ngay lập tức
+        private bool _isLoaded = false; // Cờ kiểm tra trạng thái đã load hay chưa
+
+        // Sự kiện toàn cục để các UI tự đổi chữ ngay lập tức khi đổi ngôn ngữ
         public static event Action<string> OnLanguageChanged;
 
         private string SaveFilePath => Path.Combine(Application.persistentDataPath, saveFileName);
@@ -55,18 +60,24 @@ namespace GameCore.Settings
             }
 
             _instance = this;
-            LoadSettings();
+            if (!_isLoaded)
+            {
+                LoadSettings();
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (_instance == this)
+            {
+                _instance = null;
+            }
         }
 
         public void SaveSettings()
         {
             try
             {
-                if (inputActions != null)
-                {
-                    CurrentData.inputOverridesJson = inputActions.SaveBindingOverridesAsJson();
-                }
-
                 string json = JsonUtility.ToJson(CurrentData, true);
                 File.WriteAllText(TempSaveFilePath, json);
 
@@ -84,9 +95,12 @@ namespace GameCore.Settings
 
         public void LoadSettings()
         {
+            if (_isLoaded) return; // Tránh load trùng lặp
+
             if (!File.Exists(SaveFilePath))
             {
                 CurrentData = new SettingsData();
+                _isLoaded = true;
                 ApplyAllSettings();
                 SaveSettings();
                 return;
@@ -110,6 +124,7 @@ namespace GameCore.Settings
                 CurrentData = new SettingsData();
             }
 
+            _isLoaded = true;
             ApplyAllSettings();
         }
 
@@ -118,14 +133,9 @@ namespace GameCore.Settings
             SetMasterVolume(CurrentData.masterVolume);
             SetBGMVolume(CurrentData.bgmVolume);
             SetSFXVolume(CurrentData.sfxVolume);
-
-            if (inputActions != null && !string.IsNullOrEmpty(CurrentData.inputOverridesJson))
-            {
-                inputActions.LoadBindingOverridesFromJson(CurrentData.inputOverridesJson);
-            }
         }
 
-        // --- LANGUAGE HELPERS (ĐƯỢC NÂNG CẤP LINH HOẠT CHO CÁC SCRIPT KHÁC MỐC NỐI) ---
+        // --- LANGUAGE HELPERS ---
         public bool IsEnglish()
         {
             return CurrentData != null && CurrentData.language == "EN";
@@ -141,9 +151,8 @@ namespace GameCore.Settings
             if (CurrentData != null && CurrentData.language != langCode)
             {
                 CurrentData.language = langCode;
-                SaveSettings();
+                SaveSettings(); // Lưu trực tiếp vào file ngay lập tức
 
-                // Kích hoạt sự kiện để toàn bộ chữ trên UI tự động đổi ngay lập tức
                 OnLanguageChanged?.Invoke(langCode);
             }
         }
@@ -182,20 +191,10 @@ namespace GameCore.Settings
             }
         }
 
-        public void SetMouseSensitivity(float value)
-        {
-            CurrentData.mouseSensitivity = Mathf.Clamp(value, 0.1f, 5.0f);
-        }
-
-        public InputActionAsset GetInputActions() => inputActions;
-
         public void ResetToDefaults()
         {
             CurrentData = new SettingsData();
-            if (inputActions != null)
-            {
-                inputActions.RemoveAllBindingOverrides();
-            }
+            _isLoaded = true;
             ApplyAllSettings();
             SaveSettings();
             OnLanguageChanged?.Invoke(CurrentData.language);

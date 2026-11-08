@@ -23,13 +23,29 @@ public class RandomDialogueSystem : MonoBehaviour
     [SerializeField] private List<string> danhSachThoaiRandom = new List<string>();
 
     [Header("--- DANH SÁCH THOẠI RANDOM (TIẾNG ANH - OVERRIDE) ---")]
-    [Tooltip("Danh sách thoại bằng Tiếng Anh. Nếu để trống sẽ tự động dùng lại Tiếng Việt")]
+    [Tooltip("Danh sách thoại bằng Tiếng Anh tương ứng. Nếu để trống sẽ tự động dùng lại Tiếng Việt")]
     [TextArea(2, 4)]
     [SerializeField] private List<string> danhSachThoaiRandomEN = new List<string>();
 
     private Coroutine coroutineGoChu;
     private Coroutine coroutineDemThoiGian;
     private int indexThoaiVuaChay = -1;
+    private string cauThoaiHienTaiDangChay = ""; // Lưu lại câu thoại hiện tại để phục vụ đổi ngôn ngữ
+
+    private void OnEnable()
+    {
+        // 🎯 Lắng nghe sự kiện đổi ngôn ngữ toàn cục để cập nhật giao diện ngay lập tức
+        SettingsManager.OnLanguageChanged += HandleLanguageChanged;
+    }
+
+    private void OnDisable()
+    {
+        SettingsManager.OnLanguageChanged -= HandleLanguageChanged;
+
+        // Dọn dẹp Coroutine khi GameObject bị ẩn/tắt
+        if (coroutineGoChu != null) StopCoroutine(coroutineGoChu);
+        if (coroutineDemThoiGian != null) StopCoroutine(coroutineDemThoiGian);
+    }
 
     private void Start()
     {
@@ -37,6 +53,21 @@ public class RandomDialogueSystem : MonoBehaviour
 
         // Bắt đầu luồng chạy thoại tự động
         coroutineDemThoiGian = StartCoroutine(DemThoiGianDoiThoaiRoutine());
+    }
+
+    /// <summary>
+    /// Xử lý khi người chơi thay đổi ngôn ngữ trong Settings
+    /// </summary>
+    private void HandleLanguageChanged(string newLang)
+    {
+        CapNhatTenNPC();
+
+        // Nếu đang hiển thị thoại, ta có thể đổi sang danh sách tương ứng hoặc giữ nguyên câu dịch
+        // Ở đây ta gọi làm mới lại câu thoại hiện tại để chuyển ngữ ngay lập tức
+        if (!string.IsNullOrEmpty(cauThoaiHienTaiDangChay))
+        {
+            ChayThoaiRandomMoi();
+        }
     }
 
     /// <summary>
@@ -73,10 +104,10 @@ public class RandomDialogueSystem : MonoBehaviour
         // 1. Kiểm tra ngôn ngữ từ SettingsManager
         bool isEN = SettingsManager.Instance != null && SettingsManager.Instance.IsEnglish();
 
-        // 2. Cập nhật lại tên NPC (phòng trường hợp người chơi vừa đổi ngôn ngữ trong Pause Menu)
+        // 2. Cập nhật lại tên NPC
         CapNhatTenNPC();
 
-        // 3. Chọn danh sách thoại tương ứng dựa vào ngôn ngữ
+        // 3. Chọn danh sách thoại tương ứng dựa vào ngôn ngữ (nếu tiếng Anh trống thì fallback về tiếng Việt)
         List<string> danhSachHienTai = danhSachThoaiRandom;
 
         if (isEN && danhSachThoaiRandomEN != null && danhSachThoaiRandomEN.Count > 0)
@@ -97,7 +128,7 @@ public class RandomDialogueSystem : MonoBehaviour
         }
         indexThoaiVuaChay = indexMoi;
 
-        string cauThoaiChon = danhSachHienTai[indexMoi];
+        cauThoaiHienTaiDangChay = danhSachHienTai[indexMoi];
 
         // 5. Dừng hiệu ứng gõ chữ cũ nếu đang chạy dở
         if (coroutineGoChu != null)
@@ -105,7 +136,7 @@ public class RandomDialogueSystem : MonoBehaviour
             StopCoroutine(coroutineGoChu);
         }
 
-        coroutineGoChu = StartCoroutine(GoChuKemAmThanhRoutine(cauThoaiChon));
+        coroutineGoChu = StartCoroutine(GoChuKemAmThanhRoutine(cauThoaiHienTaiDangChay));
     }
 
     private IEnumerator GoChuKemAmThanhRoutine(string chuoiVanBan)
@@ -126,12 +157,5 @@ public class RandomDialogueSystem : MonoBehaviour
 
             yield return new WaitForSeconds(tocDoGoChu);
         }
-    }
-
-    private void OnDisable()
-    {
-        // Dọn dẹp Coroutine khi GameObject bị ẩn/tắt
-        if (coroutineGoChu != null) StopCoroutine(coroutineGoChu);
-        if (coroutineDemThoiGian != null) StopCoroutine(coroutineDemThoiGian);
     }
 }

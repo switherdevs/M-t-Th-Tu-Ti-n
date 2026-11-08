@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2885561538599387486}
   - component: {fileID: 765447252204698512}
   - component: {fileID: 2134082397367803838}
+  - component: {fileID: 3338503781758494602}
   m_Layer: 5
   m_Name: RE
   m_TagString: Untagged
@@ -137,6 +138,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &3338503781758494602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1461812595001444642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c6a4b84d0216534e936eb03345593fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  englishText: "Th\u1EED l\u1EA1i"
 --- !u!1 &1558285627485344381
 GameObject:
   m_ObjectHideFlags: 0
@@ -223,6 +237,7 @@ GameObject:
   - component: {fileID: 4842622154273427191}
   - component: {fileID: 370459217624198884}
   - component: {fileID: 8507082984611218150}
+  - component: {fileID: 5306491613109354345}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -349,6 +364,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &5306491613109354345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1578160726684164555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c6a4b84d0216534e936eb03345593fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  englishText: "Tho\xE1t \u1EA3i"
 --- !u!1 &3307354255292876929
 GameObject:
   m_ObjectHideFlags: 0
@@ -599,6 +627,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b7a14b4beae4dd43bc3da898d6b2b93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isMainMenu: 0
   mainMapName: "Map_1_Thanh Tr\xFAc L\xE2m"
   map1Name: Map_cave
   map2Name: 
@@ -606,6 +635,11 @@ MonoBehaviour:
   VeMenu: 
   Click: {fileID: 8300000, guid: fe980418dea2cd642b2236e9210d4548, type: 3}
   MainUi: {fileID: 0}
+  btnStartGame: {fileID: 0}
+  btnTiepTucGame: {fileID: 0}
+  xoahaykhong: {fileID: 0}
+  CheDo: {fileID: 0}
+  khoiDauLanNua: {fileID: 0}
 --- !u!1 &9107200667665160554
 GameObject:
   m_ObjectHideFlags: 0

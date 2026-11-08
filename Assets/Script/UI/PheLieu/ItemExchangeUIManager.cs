@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using GameCore.Settings;
 
 // Cấu trúc khai báo 1 dòng trao đổi trong danh sách mảng
 [Serializable]
@@ -57,6 +58,26 @@ public class ItemExchangeUIManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
+    private void OnEnable()
+    {
+        // 🎯 Lắng nghe sự kiện đổi ngôn ngữ toàn cục để cập nhật UI đổi đồ ngay lập tức
+        SettingsManager.OnLanguageChanged += HandleLanguageChanged;
+    }
+
+    private void OnDisable()
+    {
+        SettingsManager.OnLanguageChanged -= HandleLanguageChanged;
+    }
+
+    private void HandleLanguageChanged(string newLang)
+    {
+        KhoiTaoDanhSachTraoDoiUI();
+        if (elementDangXem != null)
+        {
+            HienThiChiTietTraoDoi(elementDangXem);
+        }
+    }
+
     private void Start()
     {
         KhoiTaoDanhSachTraoDoiUI();
@@ -68,21 +89,34 @@ public class ItemExchangeUIManager : MonoBehaviour
         }
     }
 
+    private bool KiemTraNgonNguTiengAnh()
+    {
+        if (QuestSaveSystem.Instance != null)
+        {
+            return QuestSaveSystem.Instance.IsEnglish();
+        }
+        return false;
+    }
+
     /// <summary>
     /// Khởi tạo và đăng ký sự kiện Click cho từng nutChonTraoDoi trên mỗi dòng
     /// </summary>
     public void KhoiTaoDanhSachTraoDoiUI()
     {
+        bool isEnglish = KiemTraNgonNguTiengAnh();
+
         for (int i = 0; i < danhSachTraoDoiUI.Count; i++)
         {
             ExchangeUIElement element = danhSachTraoDoiUI[i];
 
             if (element != null)
             {
-                // Hiển thị tên dòng
+                // Hiển thị tên dòng (Hỗ trợ gọi hàm lấy tên song ngữ từ ItemData nếu có, hoặc dùng tên mặc định)
                 if (element.textTenTraoDoi != null && element.itemFinal != null)
                 {
-                    element.textTenTraoDoi.text = $"Đổi {element.itemFinal.tenItem}";
+                    string itemName = element.itemFinal.GetItemName(isEnglish);
+                    string prefix = isEnglish ? "Exchange " : "Đổi ";
+                    element.textTenTraoDoi.text = $"{prefix}{itemName}";
                 }
 
                 // Hiển thị Icon minh họa trên dòng nút bấm
@@ -114,14 +148,15 @@ public class ItemExchangeUIManager : MonoBehaviour
         if (element == null || element.itemCanDoi == null || element.itemFinal == null) return;
 
         elementDangXem = element;
+        bool isEnglish = KiemTraNgonNguTiengAnh();
 
         // 1. GÁN THÔNG TIN ITEM CẦN TRAO ĐỔI VÀO KHUNG CHUNG
         if (slotItemCanDoi != null)
         {
             if (slotItemCanDoi.imageIcon != null) slotItemCanDoi.imageIcon.sprite = element.itemCanDoi.iconItem;
-            if (slotItemCanDoi.textTenItem != null) slotItemCanDoi.textTenItem.text = element.itemCanDoi.tenItem;
+            if (slotItemCanDoi.textTenItem != null) slotItemCanDoi.textTenItem.text = element.itemCanDoi.GetItemName(isEnglish);
 
-            // Đọc số lượng item hiện có từ QuestSaveSystem
+            // Đọc số lượng item hiện có từ QuestSaveSystem[cite: 18]
             int soLuongDangCo = QuestSaveSystem.Instance != null
                 ? QuestSaveSystem.Instance.LaySoLuongItemTrongKho(element.itemCanDoi.idItem)
                 : 0;
@@ -139,7 +174,7 @@ public class ItemExchangeUIManager : MonoBehaviour
         if (slotItemFinal != null)
         {
             if (slotItemFinal.imageIcon != null) slotItemFinal.imageIcon.sprite = element.itemFinal.iconItem;
-            if (slotItemFinal.textTenItem != null) slotItemFinal.textTenItem.text = element.itemFinal.tenItem;
+            if (slotItemFinal.textTenItem != null) slotItemFinal.textTenItem.text = element.itemFinal.GetItemName(isEnglish);
             if (slotItemFinal.textSoLuong != null) slotItemFinal.textSoLuong.text = $"x{element.soLuongFinal}";
         }
 
@@ -154,12 +189,19 @@ public class ItemExchangeUIManager : MonoBehaviour
 
         if (textThongBaoNut != null)
         {
-            textThongBaoNut.text = duDieuKien ? "XÁC NHẬN ĐỔI" : "THIẾU ITEM";
+            if (isEnglish)
+            {
+                textThongBaoNut.text = duDieuKien ? "CONFIRM EXCHANGE" : "LACK OF ITEMS";
+            }
+            else
+            {
+                textThongBaoNut.text = duDieuKien ? "XÁC NHẬN ĐỔI" : "THIẾU ITEM";
+            }
         }
     }
 
     /// <summary>
-    /// Sự kiện bấm nút "Xác Nhận Đổi" dùng chung
+    /// Sự kiện bấm nút "Xác Nhận Đổi" dùng chung[cite: 18]
     /// </summary>
     public void OnClickXacNhanTraoDoi()
     {
@@ -174,7 +216,7 @@ public class ItemExchangeUIManager : MonoBehaviour
 
         if (thanhCong)
         {
-            // Cập nhật lại UI thông tin số lượng ngay sau khi đổi thành công
+            // Cập nhật lại UI thông tin số lượng ngay sau khi đổi thành công[cite: 18]
             HienThiChiTietTraoDoi(elementDangXem);
         }
     }

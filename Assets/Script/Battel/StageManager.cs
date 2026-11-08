@@ -10,6 +10,9 @@ public class StageManager : MonoBehaviour
         [Header("Thông Tin Màn Chơi")]
         public string stageName = "Ải 1";
 
+        [Tooltip("Tên ải bằng tiếng Anh (Ví dụ: Stage 1)")]
+        public string stageNameEN = "Stage 1";
+
         [Tooltip("Tick vào đây nếu đây là trận cuối! Thắng trận này mới được trao thưởng Item và hiện UI WinGame/Button.")]
         public bool isFinalStage = false;
 
@@ -47,6 +50,31 @@ public class StageManager : MonoBehaviour
     [Header("--- NÚT BẤM KHI THẮNG TRẬN CUỐI ---")]
     [Tooltip("Kéo Button hoặc GameObject nút bấm (VD: Nút Chuyển Map / Về Thành) vào đây. Nút này sẽ bị ẩn và chỉ hiện khi thắng trận cuối!")]
     [SerializeField] private GameObject buttonChuyenMap;
+
+    private void OnEnable()
+    {
+        // 🎯 Lắng nghe sự kiện đổi ngôn ngữ toàn cục để cập nhật text trạng thái ải ngay lập tức
+        GameCore.Settings.SettingsManager.OnLanguageChanged += HandleLanguageChanged;
+    }
+
+    private void OnDisable()
+    {
+        GameCore.Settings.SettingsManager.OnLanguageChanged -= HandleLanguageChanged;
+    }
+
+    private void HandleLanguageChanged(string newLang)
+    {
+        KiemTraHoanThanhTran();
+    }
+
+    private bool KiemTraNgonNguTiengAnh()
+    {
+        if (QuestSaveSystem.Instance != null)
+        {
+            return QuestSaveSystem.Instance.IsEnglish();
+        }
+        return false;
+    }
 
     void Start()
     {
@@ -88,21 +116,27 @@ public class StageManager : MonoBehaviour
         int aliveCount = stage.mapZone.GetRemainingEnemiesCount();
         bool coNPCGiaiCuuChuaXong = stage.npcGiaiCuuMap != null && stage.npcGiaiCuuMap.gameObject.activeInHierarchy;
 
+        bool isEnglish = KiemTraNgonNguTiengAnh();
+        string currentStageName = isEnglish && !string.IsNullOrEmpty(stage.stageNameEN) ? stage.stageNameEN : stage.stageName;
+
         if (statusText != null)
         {
             if (aliveCount > 0)
             {
                 statusText.gameObject.SetActive(true);
-                statusText.text = $"{stage.stageName} - Quái còn lại: {aliveCount}";
+                string msg = isEnglish ? $"Remaining enemies: {aliveCount}" : $"Quái còn lại: {aliveCount}";
+                statusText.text = $"{currentStageName} - {msg}";
             }
             else if (coNPCGiaiCuuChuaXong)
             {
                 statusText.gameObject.SetActive(true);
-                statusText.text = $"{stage.stageName} - Hãy trò chuyện giải cứu NPC!";
+                string msg = isEnglish ? "Talk to rescue the NPC!" : "Hãy trò chuyện giải cứu NPC!";
+                statusText.text = $"{currentStageName} - {msg}";
             }
             else
             {
-                statusText.text = $"{stage.stageName} đã dọn sạch!";
+                string msg = isEnglish ? "is cleared!" : "đã dọn sạch!";
+                statusText.text = $"{currentStageName} {msg}";
             }
         }
 

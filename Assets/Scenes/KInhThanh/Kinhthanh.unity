@@ -772,7 +772,7 @@ Transform:
   m_GameObject: {fileID: 428353517}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.6194763, y: 0.00000005147674, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1471,7 +1471,11 @@ MonoBehaviour:
     \u0111\u1EA1i hi\u1EC7p c\xE0o chim ta b\xE2y gi\u1EDD"
   - "Nay ta c\xF3 g\xF3i gi\u1EA3m gi\xE1 0% th\u1EE9c \u0103n cho m\xE8o n\xE8,
     \u0111\u1EA1i hi\u1EC7p mua kh\xF4ng ?"
-  danhSachThoaiRandomEN: []
+  danhSachThoaiRandomEN:
+  - Well now, why did you have to show up, hero, just as I was busy playing with
+    my bird?
+  - "Watch out, sir\u2014your black cat is about to scratch my bird!"
+  - "I\u2019ve got a 0% discount offer on cat food\u2014care to buy some, hero?"
 --- !u!1 &668108568
 GameObject:
   m_ObjectHideFlags: 0
@@ -3068,7 +3072,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7625159656455838923, guid: 7c28b468d4c663e418b13fca1df74957, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -8118,6 +8122,8 @@ MonoBehaviour:
   "satThuongG\u1ED1c": 30
   "banKinhQuetG\u1ED1c": 6
   capDoToiDa: 10
+  tenPetEN: Fire Fox Spirit
+  heNguHanhEN: Fire
   heSoItem1: 30
   heSoItem2: 20
   heSoItem3: 10
@@ -10576,6 +10582,10 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].tenNPC
       value: "\xD4ng l\xE3o t\xECm ch\xE1u"
       objectReference: {fileID: 0}
@@ -10613,15 +10623,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].suDungNut2
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[1].suDungNut1
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
-      propertyPath: danhSachCauThoai.Array.data[3].suDungNut2
+      propertyPath: danhSachCauThoai.Array.data[2].suDungNut2
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoai.Array.data[3].suDungNut2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].noiDungThoai
@@ -10648,6 +10662,22 @@ PrefabInstance:
         c\u1ED1 g\u1EAFng gi\xFAp n\xF3"
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].tenNPC
+      value: The old man
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].tenNPC
+      value: The old man
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[2].tenNPC
+      value: The old man
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[3].tenNPC
+      value: The old man
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].luaChon1.textNut
       value: "\u0110\u01B0\u1EE3c, l\xE3o n\xF3i \u0111i"
       objectReference: {fileID: 0}
@@ -10669,15 +10699,39 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[2].luaChon2.textNut
-      value: 
+      value: "Ki\u1EBFm ng\u01B0\u1EDDi kh\xE1c \u0111i"
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[3].luaChon1.textNut
-      value: "\u0110\u01B0\u1EE3c t\xF4i s\u1EBD nh\u1EADn nhi\u1EC7m v\u1EE5"
+      value: ....
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[3].luaChon2.textNut
       value: "kh\xF4ng, t\xF4i kh\xF4ng r\u1EA3nh"
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].textNut1
+      value: ok take it short
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].textNut2
+      value: I am busy.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].textNut1
+      value: If you knew, why didn't you go in and look for them?
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[2].textNut1
+      value: Alright, I will accept the quest.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[2].textNut2
+      value: Find someone else.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[3].textNut1
+      value: .......
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].luaChon1.hanhDong
@@ -10706,6 +10760,26 @@ PrefabInstance:
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[3].luaChon2.hanhDong
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].noiDungThoai
+      value: Can you help me, hero? I beg you, I beg you!
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].noiDungThoai
+      value: While gathering firewood, I lost track of my grandchild. I think they
+        wandered into a small nearby cave.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[2].noiDungThoai
+      value: Because inside is the cultivation ground of the Blood Woman, plus mysterious
+        and dangerous creatures dwell in there. How could an old man like me possibly
+        enter?
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[3].noiDungThoai
+      value: Thank you, hero! I have nothing to offer you as a reward, but I pray
+        that you will do your best to save them.
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].luaChon1.idThoaiTiepTheo

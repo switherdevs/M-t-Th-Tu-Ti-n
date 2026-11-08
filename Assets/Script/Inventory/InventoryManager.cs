@@ -26,10 +26,24 @@ public class InventoryManager : MonoBehaviour
     [Header("--- CƠ SỞ DỮ LIỆU ITEM ---")]
     public List<ItemData> cacItemDataTrongGame;
 
+    // Lưu lại item đang được chọn xem chi tiết để khi đổi ngôn ngữ tự động cập nhật lại ngay lập tức
+    private ItemData itemDangXemChiTiet = null;
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+    }
+
+    private void OnEnable()
+    {
+        // Lắng nghe sự kiện đổi ngôn ngữ toàn cục để cập nhật giao diện kho đồ ngay lập tức
+        GameCore.Settings.SettingsManager.OnLanguageChanged += HandleLanguageChanged;
+    }
+
+    private void OnDisable()
+    {
+        GameCore.Settings.SettingsManager.OnLanguageChanged -= HandleLanguageChanged;
     }
 
     private void Start()
@@ -93,7 +107,7 @@ public class InventoryManager : MonoBehaviour
             }
         }
 
-        // 2. Kiểm tra Save System[cite: 7]
+        // 2. Kiểm tra Save System
         if (QuestSaveSystem.Instance == null || QuestSaveSystem.Instance.duLieuSaveHienTai == null)
         {
             Debug.LogWarning("[InventoryManager] Chưa tìm thấy dữ liệu QuestSaveSystem!");
@@ -138,17 +152,35 @@ public class InventoryManager : MonoBehaviour
         return null;
     }
 
-    // 🎯 HÀM KIỂM TRA NGÔN NGỮ TỪ FILE SAVE CỦA NGƯỜI CHƠI
+    // Xử lý khi người chơi bấm đổi ngôn ngữ
+    private void HandleLanguageChanged(string langCode)
+    {
+        if (panelKhoDo != null && panelKhoDo.activeSelf)
+        {
+            TaiDuLieuTuSaveGame();
+        }
+
+        if (itemDangXemChiTiet != null)
+        {
+            HienThongTinBangCoDinh(itemDangXemChiTiet);
+        }
+    }
+
+    // Kiểm tra ngôn ngữ từ hệ thống save / settings
     private bool KiemTraNgonNguTiengAnh()
     {
-        // Bạn có thể tùy chỉnh đường dẫn lấy biến ngôn ngữ từ Save Game của bạn.
-        // Ví dụ: Kiểm tra trong PlayerPrefs hoặc file save settings (mặc định trả về false nếu để tiếng Việt)
-        return PlayerPrefs.GetString("PlayerLanguage", "VN") == "EN";
+        if (QuestSaveSystem.Instance != null)
+        {
+            return QuestSaveSystem.Instance.IsEnglish();
+        }
+        return false;
     }
 
     public void HienThongTinBangCoDinh(ItemData data)
     {
         if (data == null) return;
+
+        itemDangXemChiTiet = data;
 
         if (panelBangCoDinh != null) panelBangCoDinh.SetActive(true);
 
@@ -157,9 +189,12 @@ public class InventoryManager : MonoBehaviour
 
         // Lấy nội dung tương ứng dựa trên ngôn ngữ
         string tenHienThi = isEnglish && !string.IsNullOrEmpty(data.tenItemEN) ? data.tenItemEN : data.tenItem;
-        string canhGioiHienThi = isEnglish && !string.IsNullOrEmpty(data.canhGioiYeuCauEN) ? data.canhGioiYeuCauEN : data.canhGioiYeuCauEN;
         string moTaHienThi = isEnglish && !string.IsNullOrEmpty(data.moTaItemEN) ? data.moTaItemEN : data.moTaItem;
 
+        // Đã sửa: Gọi trực tiếp .ToString() vì CanhGioiYeuCau là kiểu giá trị không thể null
+        string canhGioiHienThi = data.canhGioiYeuCau.ToString();
+
+        // Dịch nhãn "Cảnh giới:" sang tiếng Anh: "Realm required:"
         string nhanCanhGioi = isEnglish ? "Realm required: " : "Cảnh giới: ";
 
         if (textTenItemCoDinh != null)
@@ -174,6 +209,8 @@ public class InventoryManager : MonoBehaviour
 
     public void AnThongTinBangCoDinh()
     {
+        itemDangXemChiTiet = null;
+
         if (textTenItemCoDinh != null) textTenItemCoDinh.text = "";
         if (textCanhGioiCoDinh != null) textCanhGioiCoDinh.text = "";
         if (textMoTaCoDinh != null) textMoTaCoDinh.text = "";
@@ -189,6 +226,6 @@ public class InventoryManager : MonoBehaviour
         ItemData item = slot.itemDataHienTai;
         if (item == null) return;
 
-        Debug.Log($"[Kho Đồ] Đã click vào vật phẩm: {item.tenItem} (Số lượng hiện tại giữ nguyên: {slot.soLuongHienTai})");
+        Debug.Log($"[Kho Đồ] Đã click vào vật phẩm: {item.tenItem}");
     }
 }

@@ -73,6 +73,26 @@ public class LinearVictimDialogue : MonoBehaviour
     private Coroutine coroutineGoChu;
     private NPCGiaiCuu npcGiaiCuuHienTai;
 
+    private void OnEnable()
+    {
+        // 🎯 Lắng nghe sự kiện đổi ngôn ngữ toàn cục để cập nhật text ngay lập tức
+        SettingsManager.OnLanguageChanged += HandleLanguageChanged;
+    }
+
+    private void OnDisable()
+    {
+        SettingsManager.OnLanguageChanged -= HandleLanguageChanged;
+    }
+
+    private void HandleLanguageChanged(string newLang)
+    {
+        // Nếu khung thoại đang mở, làm tươi lại câu thoại hiện tại theo ngôn ngữ mới
+        if (uiThoaiRootObject != null && uiThoaiRootObject.activeSelf)
+        {
+            HienThiCauThoaiHienTai();
+        }
+    }
+
     public void MoHoiThoaiTuyenTinh(NPCGiaiCuu npcTarget = null)
     {
         npcGiaiCuuHienTai = npcTarget;

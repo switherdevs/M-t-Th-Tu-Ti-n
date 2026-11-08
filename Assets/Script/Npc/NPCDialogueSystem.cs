@@ -125,6 +125,9 @@ public class NPCDialogueSystem : MonoBehaviour
     private Coroutine coroutineGoChu;
     private float thoiGianPhatAmCuoi = 0f;
 
+    // Lưu lại trạng thái ID thoại đang hiển thị để phục vụ việc làm tươi khi đổi ngôn ngữ
+    private int idThoaiHienTaiDangXem = 0;
+
     private void Awake()
     {
         KhoiTaoDictionaryThoai();
@@ -140,6 +143,9 @@ public class NPCDialogueSystem : MonoBehaviour
 
     private void OnEnable()
     {
+        // 🎯 Lắng nghe sự kiện đổi ngôn ngữ toàn cục
+        SettingsManager.OnLanguageChanged += HandleLanguageChanged;
+
         if (danhSachCauThoai != null && danhSachCauThoai.Count > 0)
         {
             MoHoiThoai(danhSachCauThoai[0].idThoai);
@@ -148,7 +154,32 @@ public class NPCDialogueSystem : MonoBehaviour
 
     private void OnDisable()
     {
+        SettingsManager.OnLanguageChanged -= HandleLanguageChanged;
         DungToanBoGoChuVaAmThanh();
+    }
+
+    private void HandleLanguageChanged(string newLang)
+    {
+        if (uiThoaiRootObject != null && uiThoaiRootObject.activeSelf)
+        {
+            // Làm tươi lại khung hội thoại ngay lập tức theo ngôn ngữ mới chọn
+            if (KiemTraQuestDaHoanThanh())
+            {
+                HienThiThoaiCamOnHoanThanh();
+            }
+            else if (KiemTraDaNhanQuestChua())
+            {
+                HienThiThoaiDaNhanQuest();
+            }
+            else if (dangTrongTrangThaiTamBiet)
+            {
+                HienThiCauThoaiTamBiet(loiThoaiTamBiet);
+            }
+            else
+            {
+                HienThiCauThoaiTheoID(idThoaiHienTaiDangXem);
+            }
+        }
     }
 
     public void KhoiTaoDictionaryThoai()
@@ -294,6 +325,7 @@ public class NPCDialogueSystem : MonoBehaviour
             return;
         }
 
+        idThoaiHienTaiDangXem = id; // Lưu lại ID hiện tại để phục vụ sự kiện đổi ngôn ngữ
         CauThoaiData dataGoc = dictionaryCauThoai[id];
 
         string tenHienThi = dataGoc.tenNPC;
@@ -426,7 +458,6 @@ public class NPCDialogueSystem : MonoBehaviour
                 break;
 
             case HanhDongLuaChon.NhanQuest:
-                // Tự động nhận Quest và ép hiển thị ngay Thoại Đã Nhận Quest bất kể trả về true/false
                 XuLyNhanQuestVaSave(luaChon.questDataToAccept);
                 HienThiThoaiDaNhanQuest();
                 break;
@@ -441,7 +472,6 @@ public class NPCDialogueSystem : MonoBehaviour
     {
         if (quest == null) return false;
 
-        // Tự động gán Quest Kiểm Tra nếu NPC chưa cài sẵn
         if (questKiemTra == null)
         {
             questKiemTra = quest;
@@ -449,7 +479,6 @@ public class NPCDialogueSystem : MonoBehaviour
 
         if (QuestSaveSystem.Instance != null)
         {
-            // Cập nhật trạng thái Quest thành DangLam và lưu file txt lập tức
             QuestSaveSystem.Instance.CapNhatTrangThaiQuest(quest.idQuest, TrangThaiQuest.DangLam);
             QuestHUDTracker.ThongBaoCapNhatHUD();
         }

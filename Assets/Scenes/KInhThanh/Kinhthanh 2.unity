@@ -1181,7 +1181,7 @@ Transform:
   m_GameObject: {fileID: 428353517}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.87836456, y: 0.00000005147674, z: 0}
+  m_LocalPosition: {x: 0.6194763, y: 0.00000005147674, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3610,7 +3610,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7625159656455838923, guid: 7c28b468d4c663e418b13fca1df74957, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -9437,7 +9437,7 @@ PrefabInstance:
       addedObject: {fileID: 948790724}
     - targetCorrespondingSourceObject: {fileID: -8653719598885068355, guid: 31d9e9c53fb48404386fa5e2ce54adb5, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 948790723}
+      addedObject: {fileID: 948790726}
   m_SourcePrefab: {fileID: 4843985084834002234, guid: 31d9e9c53fb48404386fa5e2ce54adb5, type: 3}
 --- !u!4 &948790721 stripped
 Transform:
@@ -9449,34 +9449,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: -8653719598885068355, guid: 31d9e9c53fb48404386fa5e2ce54adb5, type: 3}
   m_PrefabInstance: {fileID: 948790720}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &948790723
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 948790722}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa8b6f96f5a721141a5985cfed0d2f0b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  txtTenNPC: {fileID: 200481024}
-  txtNoiDungThoai: {fileID: 1759986101}
-  audioSource: {fileID: 0}
-  amThanhGoChu: {fileID: 0}
-  tenNPC: "Cao Nh\xE2n \u1EA8n Danh"
-  tenNPC_EN: Anonymous Master
-  tocDoGoChu: 0.04
-  thoiGianDoiThoai: 30
-  danhSachThoaiRandom:
-  - "\xC2y da, sao \u0111\u1EA1i hi\u1EC7p \u0111\u1EBFn \u0111\xFAng l\xFAc ta \u0111ang
-    ngh\u1ECBch chim v\u1EADy"
-  - "\u0110\u1EA1i hi\u1EC7p c\u1EA9n th\u1EADn ch\u1EE9, con h\u1EAFc mi\xEAu c\u1EE7a
-    \u0111\u1EA1i hi\u1EC7p c\xE0o chim ta b\xE2y gi\u1EDD"
-  - "Nay ta c\xF3 g\xF3i gi\u1EA3m gi\xE1 0% th\u1EE9c \u0103n cho m\xE8o n\xE8,
-    \u0111\u1EA1i hi\u1EC7p mua kh\xF4ng ?"
-  danhSachThoaiRandomEN: []
 --- !u!95 &948790724
 Animator:
   serializedVersion: 7
@@ -9511,6 +9483,38 @@ SortingGroup:
   m_SortingLayer: 0
   m_SortingOrder: 80
   m_SortAtRoot: 0
+--- !u!114 &948790726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 948790722}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa8b6f96f5a721141a5985cfed0d2f0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  txtTenNPC: {fileID: 200481024}
+  txtNoiDungThoai: {fileID: 1759986101}
+  audioSource: {fileID: 0}
+  amThanhGoChu: {fileID: 0}
+  tenNPC: "Cao Nh\xE2n \u1EA8n Danh"
+  tenNPC_EN: Anonymous Master
+  tocDoGoChu: 0.04
+  thoiGianDoiThoai: 30
+  danhSachThoaiRandom:
+  - "\xC2y da, sao \u0111\u1EA1i hi\u1EC7p \u0111\u1EBFn \u0111\xFAng l\xFAc ta \u0111ang
+    ngh\u1ECBch chim v\u1EADy"
+  - "\u0110\u1EA1i hi\u1EC7p c\u1EA9n th\u1EADn ch\u1EE9, con h\u1EAFc mi\xEAu c\u1EE7a
+    \u0111\u1EA1i hi\u1EC7p c\xE0o chim ta b\xE2y gi\u1EDD"
+  - "Nay ta c\xF3 g\xF3i gi\u1EA3m gi\xE1 0% th\u1EE9c \u0103n cho m\xE8o n\xE8,
+    \u0111\u1EA1i hi\u1EC7p mua kh\xF4ng ?"
+  danhSachThoaiRandomEN:
+  - Well now, why did you have to show up, hero, just as I was busy playing with
+    my bird?
+  - "Watch out, sir\u2014your black cat is about to scratch my bird!"
+  - "I\u2019ve got a 0% discount offer on cat food\u2014care to buy some, hero?"
 --- !u!1 &976445496
 GameObject:
   m_ObjectHideFlags: 0
@@ -9646,6 +9650,8 @@ MonoBehaviour:
   "satThuongG\u1ED1c": 30
   "banKinhQuetG\u1ED1c": 6
   capDoToiDa: 10
+  tenPetEN: Fire Fox Spirit
+  heNguHanhEN: Fire
   heSoItem1: 30
   heSoItem2: 20
   heSoItem3: 10
@@ -9713,7 +9719,7 @@ Canvas:
   m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 1
-  m_Camera: {fileID: 0}
+  m_Camera: {fileID: 428353519}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -15246,6 +15252,10 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].tenNPC
       value: "Ng\u01B0\u1EDDi m\u1EB9 damdang"
       objectReference: {fileID: 0}
@@ -15287,7 +15297,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[3].suDungNut2
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].noiDungThoai
@@ -15308,6 +15318,22 @@ PrefabInstance:
       propertyPath: danhSachCauThoai.Array.data[3].noiDungThoai
       value: "\u0110a t\u1EA1 \u0111\u1EA1i hi\u1EC7p, khu r\u1EEBng \u0111\xF3 c\xF3
         m\u1ED9t con r\u1ED3ng c\u01B0 ng\u1EE5, h\xE3y b\u1EA3o tr\u1ECDng."
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].tenNPC
+      value: a capable mother
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].tenNPC
+      value: a capable mother
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[2].tenNPC
+      value: a capable mother
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[3].tenNPC
+      value: a capable mother
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].luaChon1.textNut
@@ -15339,7 +15365,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[3].luaChon2.textNut
-      value: "ngu l@n ko bi\u1EBFt gi\u1EEF con th\xEC ch\u1ECBu \u0111i"
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].textNut1
+      value: What happened, sister?
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].textNut2
+      value: Yeah, not my problem.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].textNut1
+      value: Where is that forest located?
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[2].textNut1
+      value: Alright, I will help you look for him.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[2].textNut2
+      value: Serves you right for not keeping an eye on your kid.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[3].textNut1
+      value: Understood, I will go find him.
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].luaChon1.hanhDong
@@ -15356,6 +15406,25 @@ PrefabInstance:
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[3].luaChon1.hanhDong
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].noiDungThoai
+      value: My life is so full of suffering, hero!
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].noiDungThoai
+      value: My son went missing while playing in the forest, and now I have no idea
+        where he is.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[2].noiDungThoai
+      value: It lies right next to a large estate. That place is infested with vicious
+        beasts and mysterious creatures.
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[3].noiDungThoai
+      value: Thank you so much, hero! A dragon resides in that forest, please take
+        care.
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: danhSachCauThoai.Array.data[1].luaChon1.idThoaiTiepTheo

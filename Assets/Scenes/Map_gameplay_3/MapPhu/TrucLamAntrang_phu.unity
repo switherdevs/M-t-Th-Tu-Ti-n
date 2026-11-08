@@ -489,7 +489,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1835537136978042185, guid: 8c01b5493c4fdb547bc51e16efaffed9, type: 3}
       propertyPath: danhSachCauThoaiTiengAnh.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1835537136978042185, guid: 8c01b5493c4fdb547bc51e16efaffed9, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].tenNPC
@@ -518,15 +518,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1835537136978042185, guid: 8c01b5493c4fdb547bc51e16efaffed9, type: 3}
       propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].tenNPC
-      value: "L\xE2m phong"
+      value: Lin Feng
+      objectReference: {fileID: 0}
+    - target: {fileID: 1835537136978042185, guid: 8c01b5493c4fdb547bc51e16efaffed9, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].tenNPC
+      value: Lin Feng
       objectReference: {fileID: 0}
     - target: {fileID: 1835537136978042185, guid: 8c01b5493c4fdb547bc51e16efaffed9, type: 3}
       propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].textNut
-      value: let take it back to him.
+      value: .....
+      objectReference: {fileID: 0}
+    - target: {fileID: 1835537136978042185, guid: 8c01b5493c4fdb547bc51e16efaffed9, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].textNut
+      value: ....
       objectReference: {fileID: 0}
     - target: {fileID: 1835537136978042185, guid: 8c01b5493c4fdb547bc51e16efaffed9, type: 3}
       propertyPath: danhSachCauThoaiTiengAnh.Array.data[0].noiDungThoai
-      value: hmmm Here is his actual pay.
+      value: ah shit, he gone.
+      objectReference: {fileID: 0}
+    - target: {fileID: 1835537136978042185, guid: 8c01b5493c4fdb547bc51e16efaffed9, type: 3}
+      propertyPath: danhSachCauThoaiTiengAnh.Array.data[1].noiDungThoai
+      value: How am I supposed to explain this to her mother?
       objectReference: {fileID: 0}
     - target: {fileID: 1835537136978042185, guid: 8c01b5493c4fdb547bc51e16efaffed9, type: 3}
       propertyPath: danhSachCauThoai.Array.data[0].isNutKetThucHoanThanhQuest
@@ -14901,6 +14913,14 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7491590302181446272, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8377370740005693332, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -15476,7 +15496,7 @@ Transform:
   m_GameObject: {fileID: 960541616}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 22.023243, y: 0, z: 0}
+  m_LocalPosition: {x: 16.110527, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -22726,8 +22746,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1527.6, y: -57.4, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2108535452}
   m_Father: {fileID: 0}

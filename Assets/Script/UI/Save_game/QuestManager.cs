@@ -453,7 +453,7 @@ namespace GameCore.Quests
         }
 
         // =========================================================
-        // THUẬT TOÁN XỬ LÝ FADE IN / FADE OUT TRÊN TEXT
+        // THUẬT TOÁN XỬ LÝ FADE IN / FADE OUT TRÊN TEXT (ĐÃ AN TOÀN ACTIVE)
         // =========================================================
 
         private void TriggerWarning(string message)
@@ -469,7 +469,16 @@ namespace GameCore.Quests
                 StopCoroutine(warningFadeCoroutine);
             }
 
-            warningFadeCoroutine = StartCoroutine(FadeSequence(message));
+            // 🛡️ BẢO VỆ: Kiểm tra xem GameObject có đang active không trước khi gọi StartCoroutine
+            if (gameObject.activeInHierarchy)
+            {
+                warningFadeCoroutine = StartCoroutine(FadeSequence(message));
+            }
+            else
+            {
+                warningText.text = message;
+                SetTextAlpha(1f);
+            }
         }
 
         private IEnumerator FadeSequence(string message)

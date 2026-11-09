@@ -33,6 +33,10 @@ public class BangDotPhaSingleUI : MonoBehaviour
     [Tooltip("Tên cảnh giới bằng Tiếng Anh (Để trống sẽ tự dùng Tiếng Việt)")]
     public string tenCanhGioiMoiEN = "Qi Condensation";
 
+    [Header("--- ĐIỀU KIỆN TIÊN QUYẾT (CHẶN NHẢY CẤP) ---")]
+    [Tooltip("ID của cảnh giới liền kề trước đó bắt buộc phải đạt được (Để trống nếu là cảnh giới khởi đầu)")]
+    public string idCanhGioiTruoc = "";
+
     [Header("--- CHỈ SỐ CỘNG THÊM KHI ĐỘT PHÁ ---")]
     public float congDamage = 20f;
     public float congMaxHP = 100f;
@@ -60,6 +64,10 @@ public class BangDotPhaSingleUI : MonoBehaviour
     [Tooltip("Tốc độ mờ dần")]
     public float tocDoMo = 1.5f;
 
+    [Header("--- HIỆU ỨNG FLASH LIGHT ---")]
+    [Tooltip("Kéo GameObject Flash Light vào đây (sẽ tự động bật khi đột phá và ẩn sau 2 giây)")]
+    public GameObject flashLightObject;
+
     [Header("--- YÊU CẦU ITEM ---")]
     public List<ItemYeuCauSingle> danhSachItemYeuCau = new List<ItemYeuCauSingle>();
     public List<SlotUIItemSingle> danhSachSlotUI = new List<SlotUIItemSingle>();
@@ -77,6 +85,12 @@ public class BangDotPhaSingleUI : MonoBehaviour
         if (textThongBaoDotPha != null)
         {
             textThongBaoDotPha.gameObject.SetActive(false);
+        }
+
+        // Đảm bảo ban đầu Flash Light ẩn đi
+        if (flashLightObject != null)
+        {
+            flashLightObject.SetActive(false);
         }
     }
 
@@ -128,6 +142,7 @@ public class BangDotPhaSingleUI : MonoBehaviour
         float playerLevel = 0f;
         float curDmg = 20f, curHP = 100f, curArmor = 0.1f, curEnergy = 100f;
         bool daDotPhaRot = false;
+        bool daDatCanhGioiTruoc = true;
 
         bool hasSaveSystem = (QuestSaveSystem.Instance != null && QuestSaveSystem.Instance.duLieuSaveHienTai != null);
 
@@ -140,9 +155,19 @@ public class BangDotPhaSingleUI : MonoBehaviour
             curArmor = stats.armor;
             curEnergy = stats.maxEnergy;
 
+            // Kiểm tra xem đã đạt cảnh giới hiện tại chưa
             if (QuestSaveSystem.Instance.KiemTraDaDatCanhGioi(idCanhGioi))
             {
                 daDotPhaRot = true;
+            }
+
+            // Kiểm tra điều kiện cảnh giới tiền quyết (chặn nhảy cóc)
+            if (!string.IsNullOrEmpty(idCanhGioiTruoc))
+            {
+                if (!QuestSaveSystem.Instance.KiemTraDaDatCanhGioi(idCanhGioiTruoc))
+                {
+                    daDatCanhGioiTruoc = false;
+                }
             }
         }
 
@@ -222,6 +247,15 @@ public class BangDotPhaSingleUI : MonoBehaviour
                 textThongBaoNut.text = isEN ? "<color=yellow>BREAKTHROUGH ACHIEVED</color>" : "<color=yellow>ĐÃ ĐỘT PHÁ</color>";
             }
         }
+        else if (!daDatCanhGioiTruoc)
+        {
+            // Nếu chưa đạt cảnh giới trước đó -> Khóa nút và thông báo
+            if (nutDotPha != null) nutDotPha.interactable = false;
+            if (textThongBaoNut != null)
+            {
+                textThongBaoNut.text = isEN ? "<color=red>LOCKED: PREVIOUS REALM REQUIRED</color>" : "<color=red>CHƯA ĐẠT CẢNH GIỚI TRƯỚC</color>";
+            }
+        }
         else
         {
             bool duDieuKien = duLevel && duToanBoItem;
@@ -257,6 +291,16 @@ public class BangDotPhaSingleUI : MonoBehaviour
         {
             Debug.LogWarning("[Đột Phá] Cảnh giới này đã được đột phá rồi!");
             return;
+        }
+
+        // Kiểm tra lại điều kiện cảnh giới tiền quyết một lần nữa cho an toàn tuyệt đối
+        if (!string.IsNullOrEmpty(idCanhGioiTruoc))
+        {
+            if (!QuestSaveSystem.Instance.KiemTraDaDatCanhGioi(idCanhGioiTruoc))
+            {
+                Debug.LogWarning("[Đột Phá] Phải đạt cảnh giới trước mới được đột phá cảnh giới này!");
+                return;
+            }
         }
 
         // 1. Trừ số lượng Item yêu cầu
@@ -302,10 +346,31 @@ public class BangDotPhaSingleUI : MonoBehaviour
             skillManager.CapNhatMaxEnergyTuSave();
         }
 
+        // 7. 🎯 BẬT HIỆU ỨNG FLASH LIGHT VÀ LẬP LỊCH TẮT SAU 2 GIÂY
+        KichHoatFlashLight();
+
         CapNhatGiaoDienBang();
         HienThongBaoDotPhaThanhCong();
 
         Debug.Log($"<color=green>[Đột Phá Success]</color> Đã nâng cảnh giới lên {tenCanhGioiMoi} (ID: {idCanhGioi}).");
+    }
+
+    private void KichHoatFlashLight()
+    {
+        if (flashLightObject != null)
+        {
+            flashLightObject.SetActive(true);
+            StartCoroutine(Routine_TatFlashLightSau2Giay());
+        }
+    }
+
+    private IEnumerator Routine_TatFlashLightSau2Giay()
+    {
+        yield return new WaitForSeconds(2.0f);
+        if (flashLightObject != null)
+        {
+            flashLightObject.SetActive(false);
+        }
     }
 
     private void HienThongBaoDotPhaThanhCong()

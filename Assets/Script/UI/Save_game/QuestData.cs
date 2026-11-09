@@ -26,9 +26,13 @@ public class ItemRewardData
 [CreateAssetMenu(fileName = "NewQuestData", menuName = "Quest System/Quest Data")]
 public class QuestData : ScriptableObject
 {
-    [Header("--- THÔNG TIN CHUNG ---")]
+    [Header("--- THÔNG TIN CHUNG (TIẾNG VIỆT) ---")]
     public int idQuest;
     public string tenNhiemVu;
+
+    [Header("--- THÔNG TIN CHUNG (TIẾNG ANH) ---")]
+    [Tooltip("Tên nhiệm vụ bằng Tiếng Anh (Để trống sẽ tự dùng Tiếng Việt)")]
+    public string tenNhiemVuEN;
 
     [Tooltip("Chọn loại nhiệm vụ muốn tạo")]
     public LoaiQuest loaiQuest = LoaiQuest.DietQuai;
@@ -43,7 +47,7 @@ public class QuestData : ScriptableObject
     [Tooltip("Số lượng người/NPC cần giải cứu")]
     public int soLuongCanGiaiCuu = 1;
 
-    [Header("--- LỜI THOẠI NPC ---")]
+    [Header("--- LỜI THOẠI NPC (TIẾNG VIỆT - MẶC ĐỊNH) ---")]
     [TextArea(2, 5)]
     public string loiThoaiNhanQuest;
     [TextArea(2, 5)]
@@ -51,8 +55,60 @@ public class QuestData : ScriptableObject
     [TextArea(2, 5)]
     public string loiThoaiHoanThanh;
 
-    [Header("--- PHẦN THƯỞNG ---")]
+    [Header("--- LỜI THOẠI NPC (TIẾNG ANH - OVERRIDE) ---")]
+    [TextArea(2, 5)]
+    public string loiThoaiNhanQuestEN;
+    [TextArea(2, 5)]
+    public string loiThoaiDangLamEN;
+    [TextArea(2, 5)]
+    public string loiThoaiHoanThanhEN;
+
+    [Header("--- PHẦN THƯỜNG ---")]
     public List<ItemRewardData> danhSachPhanThuong = new List<ItemRewardData>();
+
+    // =========================================================
+    // CÁC HÀM HỖ TRỢ LẤY THÔNG TIN THEO NGÔN NGỮ HỆ THỐNG
+    // =========================================================
+
+    public string GetTenNhiemVu(bool isEnglish)
+    {
+        if (isEnglish && !string.IsNullOrEmpty(tenNhiemVuEN))
+        {
+            return tenNhiemVuEN;
+        }
+        return tenNhiemVu;
+    }
+
+    public string GetLoiThoaiNhanQuest(bool isEnglish)
+    {
+        if (isEnglish && !string.IsNullOrEmpty(loiThoaiNhanQuestEN))
+        {
+            return loiThoaiNhanQuestEN;
+        }
+        return loiThoaiNhanQuest;
+    }
+
+    public string GetLoiThoaiDangLam(bool isEnglish)
+    {
+        if (isEnglish && !string.IsNullOrEmpty(loiThoaiDangLamEN))
+        {
+            return loiThoaiDangLamEN;
+        }
+        return loiThoaiDangLam;
+    }
+
+    public string GetLoiThoaiHoanThanh(bool isEnglish)
+    {
+        if (isEnglish && !string.IsNullOrEmpty(loiThoaiHoanThanhEN))
+        {
+            return loiThoaiHoanThanhEN;
+        }
+        return loiThoaiHoanThanh;
+    }
+
+    // =========================================================
+    // LOGIC LƯU PHẦN THƯỜNG
+    // =========================================================
 
     public void LuuPhanThuongVaoSaveGame()
     {

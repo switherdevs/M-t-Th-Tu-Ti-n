@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using GameCore.Settings; // Thêm namespace kết nối với SettingsManager
 
 [Serializable]
 public class ItemYeuCauSingle
@@ -21,12 +22,16 @@ public class SlotUIItemSingle
 
 public class BangDotPhaSingleUI : MonoBehaviour
 {
-    [Header("--- THÔNG TIN CẢNH GIỚI BẢNG NÀY ---")]
+    [Header("--- THÔNG TIN CẢNH GIỚI BẢNG NÀY (TIẾNG VIỆT) ---")]
     [Tooltip("ID duy nhất của cảnh giới này (dùng để lưu file save, VD: DotPha_LuyenKhi_1, DotPha_TrucCo)")]
     public string idCanhGioi = "DotPha_LuyenKhi_1";
 
     public string tenCanhGioiMoi = "Luyện Khí Kỳ";
     public float levelYeuCau = 20f;
+
+    [Header("--- THÔNG TIN CẢNH GIỚI BẢNG NÀY (TIẾNG ANH) ---")]
+    [Tooltip("Tên cảnh giới bằng Tiếng Anh (Để trống sẽ tự dùng Tiếng Việt)")]
+    public string tenCanhGioiMoiEN = "Qi Condensation";
 
     [Header("--- CHỈ SỐ CỘNG THÊM KHI ĐỘT PHÁ ---")]
     public float congDamage = 20f;
@@ -77,19 +82,28 @@ public class BangDotPhaSingleUI : MonoBehaviour
 
     private void OnEnable()
     {
-        // 1. Ép bảng UI này nhảy xuống cuối cùng trong Hierarchy để đè lên toàn bộ UI khác
+        // 1. Lắng nghe sự kiện đổi ngôn ngữ toàn cục
+        SettingsManager.OnLanguageChanged += HandleLanguageChanged;
+
+        // 2. Ép bảng UI này nhảy xuống cuối cùng trong Hierarchy để đè lên toàn bộ UI khác
         transform.SetAsLastSibling();
 
-        // 2. Kích hoạt chặn raycast của CanvasGroup
+        // 3. Kích hoạt chặn raycast của CanvasGroup
         ThietLapChanTuongTacChuyenXuyen(true);
 
-        // 3. Cập nhật dữ liệu
+        // 4. Cập nhật dữ liệu
         CapNhatGiaoDienBang();
     }
 
     private void OnDisable()
     {
+        SettingsManager.OnLanguageChanged -= HandleLanguageChanged;
         ThietLapChanTuongTacChuyenXuyen(false);
+    }
+
+    private void HandleLanguageChanged(string newLang)
+    {
+        CapNhatGiaoDienBang();
     }
 
     private void ThietLapChanTuongTacChuyenXuyen(bool kichHoat)
@@ -103,9 +117,12 @@ public class BangDotPhaSingleUI : MonoBehaviour
 
     public void CapNhatGiaoDienBang()
     {
+        bool isEN = SettingsManager.Instance != null && SettingsManager.Instance.IsEnglish();
+        string hienThiTenCanhGioi = (isEN && !string.IsNullOrEmpty(tenCanhGioiMoiEN)) ? tenCanhGioiMoiEN : tenCanhGioiMoi;
+
         if (textTenCanhGioi != null)
         {
-            textTenCanhGioi.text = tenCanhGioiMoi;
+            textTenCanhGioi.text = hienThiTenCanhGioi;
         }
 
         float playerLevel = 0f;
@@ -130,22 +147,35 @@ public class BangDotPhaSingleUI : MonoBehaviour
         }
 
         if (textSoSanhDamage != null)
-            textSoSanhDamage.text = $"Sát thương: {curDmg} <color=green>➔ {curDmg + congDamage} (+{congDamage})</color>";
+        {
+            string labelDmg = isEN ? "Damage: " : "Sát thương: ";
+            textSoSanhDamage.text = $"{labelDmg}{curDmg} <color=green>➔ {curDmg + congDamage} (+{congDamage})</color>";
+        }
 
         if (textSoSanhMaxHP != null)
-            textSoSanhMaxHP.text = $"Máu tối đa: {curHP} <color=green>➔ {curHP + congMaxHP} (+{congMaxHP})</color>";
+        {
+            string labelHP = isEN ? "Max HP: " : "Máu tối đa: ";
+            textSoSanhMaxHP.text = $"{labelHP}{curHP} <color=green>➔ {curHP + congMaxHP} (+{congMaxHP})</color>";
+        }
 
         if (textSoSanhArmor != null)
-            textSoSanhArmor.text = $"Phòng thủ: {curArmor} <color=green>➔ {curArmor + congArmor} (+{congArmor})</color>";
+        {
+            string labelArmor = isEN ? "Armor: " : "Phòng thủ: ";
+            textSoSanhArmor.text = $"{labelArmor}{curArmor} <color=green>➔ {curArmor + congArmor} (+{congArmor})</color>";
+        }
 
         if (textSoSanhEnergy != null)
-            textSoSanhEnergy.text = $"Năng lượng: {curEnergy} <color=green>➔ {curEnergy + congEnergy} (+{congEnergy})</color>";
+        {
+            string labelEnergy = isEN ? "Energy: " : "Năng lượng: ";
+            textSoSanhEnergy.text = $"{labelEnergy}{curEnergy} <color=green>➔ {curEnergy + congEnergy} (+{congEnergy})</color>";
+        }
 
         bool duLevel = playerLevel >= levelYeuCau;
         if (textLevelYeuCau != null)
         {
             string mauLevel = duLevel ? "<color=green>" : "<color=red>";
-            textLevelYeuCau.text = $"Level Yêu Cầu: {mauLevel}{playerLevel:F1}/{levelYeuCau:F1}</color>";
+            string labelReqLevel = isEN ? "Required Level: " : "Level Yêu Cầu: ";
+            textLevelYeuCau.text = $"{labelReqLevel}{mauLevel}{playerLevel:F1}/{levelYeuCau:F1}</color>";
         }
 
         bool duToanBoItem = true;
@@ -187,7 +217,10 @@ public class BangDotPhaSingleUI : MonoBehaviour
         if (daDotPhaRot)
         {
             if (nutDotPha != null) nutDotPha.interactable = false;
-            if (textThongBaoNut != null) textThongBaoNut.text = "<color=yellow>ĐÃ ĐỘT PHÁ</color>";
+            if (textThongBaoNut != null)
+            {
+                textThongBaoNut.text = isEN ? "<color=yellow>BREAKTHROUGH ACHIEVED</color>" : "<color=yellow>ĐÃ ĐỘT PHÁ</color>";
+            }
         }
         else
         {
@@ -200,7 +233,14 @@ public class BangDotPhaSingleUI : MonoBehaviour
 
             if (textThongBaoNut != null)
             {
-                textThongBaoNut.text = duDieuKien ? "ĐỘT PHÁ" : "CHƯA ĐỦ ĐIỀU KIỆN";
+                if (isEN)
+                {
+                    textThongBaoNut.text = duDieuKien ? "BREAKTHROUGH" : "NOT ENOUGH REQUIREMENTS";
+                }
+                else
+                {
+                    textThongBaoNut.text = duDieuKien ? "ĐỘT PHÁ" : "CHƯA ĐỦ ĐIỀU KIỆN";
+                }
             }
         }
     }
@@ -228,7 +268,7 @@ public class BangDotPhaSingleUI : MonoBehaviour
             }
         }
 
-        // 2. SỬA LỖI: Truy cập VÀ THAY ĐỔI Trực tiếp vào biến gốc trong Save Manager
+        // 2. Thay đổi trực tiếp vào biến gốc trong Save Manager
         QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats.tenCanhGioi = tenCanhGioiMoi;
         QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats.damage += congDamage;
         QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats.maxHP += congMaxHP;
@@ -282,8 +322,19 @@ public class BangDotPhaSingleUI : MonoBehaviour
 
     private IEnumerator Routine_HieuUngMoDanText()
     {
+        bool isEN = SettingsManager.Instance != null && SettingsManager.Instance.IsEnglish();
+        string hienThiTenCanhGioi = (isEN && !string.IsNullOrEmpty(tenCanhGioiMoiEN)) ? tenCanhGioiMoiEN : tenCanhGioiMoi;
+
         textThongBaoDotPha.gameObject.SetActive(true);
-        textThongBaoDotPha.text = $"<color=yellow>ĐỘT PHÁ THÀNH CÔNG!\nĐẠT: {tenCanhGioiMoi}</color>";
+
+        if (isEN)
+        {
+            textThongBaoDotPha.text = $"<color=yellow>BREAKTHROUGH SUCCESSFUL!\nREACHED: {hienThiTenCanhGioi}</color>";
+        }
+        else
+        {
+            textThongBaoDotPha.text = $"<color=yellow>ĐỘT PHÁ THÀNH CÔNG!\nĐẠT: {hienThiTenCanhGioi}</color>";
+        }
 
         Color mauGoc = textThongBaoDotPha.color;
         mauGoc.a = 1f;

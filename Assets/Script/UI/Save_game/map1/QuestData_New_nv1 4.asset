@@ -14,6 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idQuest: 5
   tenNhiemVu: "Ph\u1EE5c K\xEDch S\u01A1n T\u1EB7c Ph\u1ED1"
+  tenNhiemVuEN: 
+  loaiQuest: 0
+  idQuaiCanDiet: 6
+  soLuongBoXuongCanDiet: 60
+  idDoiTuongCanGiaiCuu: 0
+  soLuongCanGiaiCuu: 1
   loiThoaiNhanQuest: "B\u1ECDn s\u01A1n t\u1EB7c t\u1EEB Doanh Tr\u1EA1i g\u1EA7n
     \u0111\xE2y d\u1EF1ng c\xE1c th\xE1p canh d\u1ECDc b\xECa r\u1EEBng. \u0110\xE1m
     s\u01A1n t\u1EB7c c\u1EA7m cung th\u01B0\u1EDDng n\u1EA5p tr\xEAn cao b\u1EAFn
@@ -28,8 +34,17 @@ MonoBehaviour:
     b\u1ECB b\u1EBB g\xE3y! Chuy\u1EBFn l\u01B0\u01A1ng th\u1EF1c ti\u1EBFp theo
     c\u1EE7a d\xE2n l\xE0ng cu\u1ED1i c\xF9ng c\u0169ng c\xF3 th\u1EC3 l\u01B0u th\xF4ng
     an to\xE0n."
-  idQuaiCanDiet: 6
-  soLuongBoXuongCanDiet: 60
+  loiThoaiNhanQuestEN: 'Bandits from the nearby Bandit Camp have built watchtowers
+    along the forest edge. Archer bandits hide up high, sniping our grain supply
+    caravans. Fellow cultivator, please clear out these ranged forces first!
+
+'
+  loiThoaiDangLamEN: 'The arrows and bolts from the bandit archers remain a severe
+    threat. Defeat 12 bandit archers to weaken their watchtowers!
+
+'
+  loiThoaiHoanThanhEN: The bandit archers' firepower has been broken! The villagers'
+    next grain transport can finally travel safely.
   danhSachPhanThuong:
   - itemData: {fileID: 11400000, guid: 9d7827e2c47c86745b9d17a80a5560a1, type: 2}
     iconItem: {fileID: -5636343253877202797, guid: aefe25d351898004d9bd8d89735db828, type: 3}

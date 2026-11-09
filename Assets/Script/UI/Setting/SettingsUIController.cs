@@ -34,6 +34,12 @@ namespace GameCore.Settings
             RegisterListeners();
         }
 
+        private void Start()
+        {
+            // 🛡️ TỰ ĐỘNG ẨN NGAY LẬP TỨC khi vừa vào scene mới để tránh việc Canvas bị hiện sáng trái phép
+            gameObject.SetActive(false);
+        }
+
         private void OnEnable()
         {
             InitializeUIValues();

@@ -14,6 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idQuest: 1
   tenNhiemVu: "Huy\u1EBFt S\xE1t Ngo\u1EA1i \xD4"
+  tenNhiemVuEN: 
+  loaiQuest: 0
+  idQuaiCanDiet: 1
+  soLuongBoXuongCanDiet: 60
+  idDoiTuongCanGiaiCuu: 0
+  soLuongCanGiaiCuu: 1
   loiThoaiNhanQuest: "\u0110\u1EA1i hi\u1EC7p h\xE3y c\u1EE9u gi\xFAp th\xF4n x\xF3m!
     D\u1EA1o g\u1EA7n \u0111\xE2y ma kh\xED b\xF9ng ph\xE1t khi\u1EBFn t\xE0n c\u1ED1t
     c\u1EE7a \u0111\xE1m th\u1EE3 s\u0103n t\u1EED n\u1EA1n \u1EDF Thanh Tr\xFAc
@@ -28,8 +34,14 @@ MonoBehaviour:
     tr\u1EEB h\u1EA1i! Nh\u1EDD c\xF3 ng\xE0i m\xE0 b\xE1 t\xE1nh xung quanh \u0111\xE2y
     \u0111\xE3 g\u1EB7t h\xE1i \u0111\u01B0\u1EE3c ch\xFAt n\xF4ng s\u1EA3n trong
     b\xECnh an."
-  idQuaiCanDiet: 1
-  soLuongBoXuongCanDiet: 60
+  loiThoaiNhanQuestEN: Noble hero, please save our village! Recently, a burst of
+    demonic qi has reanimated the remains of deceased hunters in the Green Bamboo
+    Forest, turning them into bone monsters that harass the villagers. Please go
+    to the outskirts and slay them!
+  loiThoaiDangLamEN: ' The bone monsters are still prowling around the outer perimeter
+    fence. Hero, please defeat 5 of them soon so the villagers can farm in peace!'
+  loiThoaiHoanThanhEN: Thank you for stepping forward to eradicate the evil, hero!
+    Thanks to you, the local people can finally harvest their crops in peace.
   danhSachPhanThuong:
   - itemData: {fileID: 11400000, guid: 9d7827e2c47c86745b9d17a80a5560a1, type: 2}
     iconItem: {fileID: -5636343253877202797, guid: aefe25d351898004d9bd8d89735db828, type: 3}

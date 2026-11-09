@@ -14,6 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idQuest: 3
   tenNhiemVu: "D\u1EA1 H\u1ED1ng Lang B\u1EA7y"
+  tenNhiemVuEN: 
+  loaiQuest: 0
+  idQuaiCanDiet: 3
+  soLuongBoXuongCanDiet: 70
+  idDoiTuongCanGiaiCuu: 0
+  soLuongCanGiaiCuu: 1
   loiThoaiNhanQuest: "\u0110\xEAm \u0111\u1EBFn, ti\u1EBFng h\xFA c\u1EE7a \u0111\xE0n
     s\xF3i tinh qu\u1EF7 d\u1ECB vang v\u1ECDng kh\u1EAFp Tr\xFAc L\xE2m khi\u1EBFn
     ai n\u1EA5y \u0111\u1EC1u kinh h\xE3i. B\u1EA7y s\xF3i nhi\u1EC5m ma kh\xED n\xE0y
@@ -26,8 +32,21 @@ MonoBehaviour:
     cao g\u1ED1i ng\u1EE7 m\xE0 kh\xF4ng s\u1EE3 b\u1EA7y th\xFA d\u1EEF x\xE9 r\xE0o
     v\xE0o th\xF4n. \u0110a t\u1EA1 c\xF4ng \u0111\u1EE9c c\u1EE7a \u0111\u1EA1i
     hi\u1EC7p!"
-  idQuaiCanDiet: 3
-  soLuongBoXuongCanDiet: 70
+  loiThoaiNhanQuestEN: 'When night falls, the eerie howls of demonic wolf spirits
+    echo throughout the Bamboo Forest, filling everyone with dread. Infused with
+    demonic qi, these wolves are ferocious and pack-oriented. Please wipe out this
+    wolf pack to bring peace to the people!
+
+'
+  loiThoaiDangLamEN: 'The wolves'' howls still linger among the bamboo canopy. Hero,
+    please slay 10 demonic wolves to bring tranquility back to the night!
+
+'
+  loiThoaiHoanThanhEN: 'Tonight, the villagers can sleep soundly without fear of
+    wild beasts breaking through the fence. We are deeply grateful for your noble
+    deed!
+
+'
   danhSachPhanThuong:
   - itemData: {fileID: 11400000, guid: 9d7827e2c47c86745b9d17a80a5560a1, type: 2}
     iconItem: {fileID: -5636343253877202797, guid: aefe25d351898004d9bd8d89735db828, type: 3}

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using GameCore.Settings; // Thêm namespace để kết nối trực tiếp với SettingsManager
 
 namespace GameCore.Quests
 {
@@ -23,13 +24,14 @@ namespace GameCore.Quests
         public QuestData questData;
 
         /// <summary>
-        /// Cập nhật tên hiển thị lên Nút Bấm
+        /// Cập nhật tên hiển thị lên Nút Bấm (Hỗ trợ đa ngôn ngữ)
         /// </summary>
         public void CapNhatTenNut()
         {
             if (txtTenQuestItem != null && questData != null)
             {
-                txtTenQuestItem.text = questData.tenNhiemVu;
+                bool isEN = SettingsManager.Instance != null && SettingsManager.Instance.IsEnglish();
+                txtTenQuestItem.text = questData.GetTenNhiemVu(isEN);
             }
         }
     }
@@ -73,6 +75,7 @@ namespace GameCore.Quests
 
         [Header("=== NỘI DUNG CẢNH BÁO ===")]
         [SerializeField] private string maxQuestWarningTextVI = "Bạn chỉ có thể nhận tối đa 3 nhiệm vụ cùng lúc!";
+        [SerializeField] private string maxQuestWarningTextEN = "You can only accept a maximum of 3 quests at the same time!";
 
         // =========================================================
         // DANH SÁCH NHIỆM VỤ ĐANG LÀM
@@ -118,7 +121,6 @@ namespace GameCore.Quests
                 return;
             }
 
-            // Tự động tìm AudioSource nếu người chơi chưa gán vào Inspector
             if (audioSource == null)
             {
                 audioSource = GetComponent<AudioSource>();
@@ -134,6 +136,17 @@ namespace GameCore.Quests
             }
         }
 
+        private void OnEnable()
+        {
+            // Lắng nghe sự kiện thay đổi ngôn ngữ để làm tươi lại UI ngay lập tức nếu đang bật
+            SettingsManager.OnLanguageChanged += HandleLanguageChanged;
+        }
+
+        private void OnDisable()
+        {
+            SettingsManager.OnLanguageChanged -= HandleLanguageChanged;
+        }
+
         private void Start()
         {
             DongBoActiveQuestsTuSaveSystem();
@@ -142,9 +155,16 @@ namespace GameCore.Quests
             DangKySuKienNutChucNang();
         }
 
-        /// <summary>
-        /// 🎯 HÀM PHÁT ÂM THANH CLICK NÚT (PHÁT 1 LẦN)
-        /// </summary>
+        private void HandleLanguageChanged(string newLang)
+        {
+            // Làm tươi lại danh sách nút quest và chi tiết quest đang chọn theo ngôn ngữ mới
+            KhoiTaoGiaoDienDanhSachQuest();
+            if (questDangChon != null)
+            {
+                HienThiChiTietQuest(questDangChon);
+            }
+        }
+
         public void PhatAmThanhClick()
         {
             if (audioSource != null && soundClick != null)
@@ -153,9 +173,6 @@ namespace GameCore.Quests
             }
         }
 
-        /// <summary>
-        /// 🎯 HÀM ĐỒNG BỘ: Làm sạch và đồng bộ lại danh sách activeQuests từ File Save
-        /// </summary>
         public void DongBoActiveQuestsTuSaveSystem()
         {
             activeQuests.Clear();
@@ -231,7 +248,7 @@ namespace GameCore.Quests
 
         public void ChonQuestFromList(int index)
         {
-            PhatAmThanhClick(); // Phát âm thanh khi click nút chọn Quest
+            PhatAmThanhClick();
 
             if (index < 0 || index >= danhSachNhiemVu.Count) return;
 
@@ -246,10 +263,12 @@ namespace GameCore.Quests
         {
             if (questData == null) return;
 
+            bool isEN = SettingsManager.Instance != null && SettingsManager.Instance.IsEnglish();
+
             if (txtTenQuest != null)
             {
                 txtTenQuest.gameObject.SetActive(true);
-                txtTenQuest.text = questData.tenNhiemVu;
+                txtTenQuest.text = questData.GetTenNhiemVu(isEN);
             }
 
             ProgressQuest progress = null;
@@ -260,11 +279,11 @@ namespace GameCore.Quests
 
             TrangThaiQuest trangThai = progress != null ? progress.trangThai : TrangThaiQuest.ChuaNhan;
 
-            CapNhatNutVaThoaiTheoTrangThai(questData, trangThai);
+            CapNhatNutVaThoaiTheoTrangThai(questData, trangThai, isEN);
             HienThiPhanThuong(questData);
         }
 
-        private void CapNhatNutVaThoaiTheoTrangThai(QuestData questData, TrangThaiQuest trangThai)
+        private void CapNhatNutVaThoaiTheoTrangThai(QuestData questData, TrangThaiQuest trangThai, bool isEN)
         {
             if (btnNhanQuest != null) btnNhanQuest.gameObject.SetActive(false);
             if (btnHuyQuest != null) btnHuyQuest.gameObject.SetActive(false);
@@ -275,22 +294,25 @@ namespace GameCore.Quests
             switch (trangThai)
             {
                 case TrangThaiQuest.ChuaNhan:
-                    if (txtThoaiQuest != null) txtThoaiQuest.text = questData.loiThoaiNhanQuest;
+                    if (txtThoaiQuest != null) txtThoaiQuest.text = questData.GetLoiThoaiNhanQuest(isEN);
                     if (btnNhanQuest != null) btnNhanQuest.gameObject.SetActive(true);
                     break;
 
                 case TrangThaiQuest.DangLam:
-                    if (txtThoaiQuest != null) txtThoaiQuest.text = questData.loiThoaiDangLam;
+                    if (txtThoaiQuest != null) txtThoaiQuest.text = questData.GetLoiThoaiDangLam(isEN);
                     if (btnHuyQuest != null) btnHuyQuest.gameObject.SetActive(true);
                     break;
 
                 case TrangThaiQuest.DaXongChuaTra:
-                    if (txtThoaiQuest != null) txtThoaiQuest.text = questData.loiThoaiHoanThanh;
+                    if (txtThoaiQuest != null) txtThoaiQuest.text = questData.GetLoiThoaiHoanThanh(isEN);
                     if (btnHoanThanhQuest != null) btnHoanThanhQuest.gameObject.SetActive(true);
                     break;
 
                 case TrangThaiQuest.HoanThanh:
-                    if (txtThoaiQuest != null) txtThoaiQuest.text = "Bạn đã hoàn thành nhiệm vụ này rồi!";
+                    if (txtThoaiQuest != null)
+                    {
+                        txtThoaiQuest.text = isEN ? "You have already completed this quest!" : "Bạn đã hoàn thành nhiệm vụ này rồi!";
+                    }
                     break;
             }
         }
@@ -362,7 +384,7 @@ namespace GameCore.Quests
 
         private void OnNutNhanQuestClick()
         {
-            PhatAmThanhClick(); // Phát âm thanh khi bấm Nhận
+            PhatAmThanhClick();
 
             if (questDangChon == null) return;
 
@@ -379,7 +401,7 @@ namespace GameCore.Quests
 
         private void OnNutHuyQuestClick()
         {
-            PhatAmThanhClick(); // Phát âm thanh khi bấm Hủy
+            PhatAmThanhClick();
 
             if (questDangChon == null) return;
 
@@ -395,7 +417,7 @@ namespace GameCore.Quests
 
         private void OnNutHoanThanhQuestClick()
         {
-            PhatAmThanhClick(); // Phát âm thanh khi bấm Hoàn thành
+            PhatAmThanhClick();
 
             if (questDangChon == null) return;
 
@@ -411,32 +433,26 @@ namespace GameCore.Quests
             HienThiChiTietQuest(questDangChon);
         }
 
-        // =========================================================
-        // LOGIC NHẬN VÀ QUẢN LÝ NHIỆM VỤ
-        // =========================================================
-
         public bool AcceptQuest(QuestData newQuest)
         {
             if (newQuest == null) return false;
 
-            // Đảm bảo đồng bộ danh sách trước khi kiểm tra
             DongBoActiveQuestsTuSaveSystem();
 
-            // 1. Kiểm tra nếu Quest đã có trong danh sách đang làm
+            bool isEN = SettingsManager.Instance != null && SettingsManager.Instance.IsEnglish();
+
             if (activeQuests.Exists(q => q != null && q.idQuest == newQuest.idQuest))
             {
-                TriggerWarning("Nhiệm vụ này đã được nhận từ trước!");
+                TriggerWarning(isEN ? "This quest has already been accepted!" : "Nhiệm vụ này đã được nhận từ trước!");
                 return false;
             }
 
-            // 2. ĐỒNG BỘ: Kiểm tra trực tiếp trên danh sách activeQuests thực tế của Manager
             if (activeQuests.Count >= maxActiveQuests)
             {
-                TriggerWarning(maxQuestWarningTextVI);
+                TriggerWarning(isEN ? maxQuestWarningTextEN : maxQuestWarningTextVI);
                 return false;
             }
 
-            // 3. Đủ điều kiện -> Thêm nhiệm vụ vào danh sách
             activeQuests.Add(newQuest);
             Debug.Log($"[QuestManager] Đã nhận nhiệm vụ ID: {newQuest.idQuest} ({activeQuests.Count}/{maxActiveQuests})");
             return true;
@@ -452,10 +468,6 @@ namespace GameCore.Quests
             }
         }
 
-        // =========================================================
-        // THUẬT TOÁN XỬ LÝ FADE IN / FADE OUT TRÊN TEXT (ĐÃ AN TOÀN ACTIVE)
-        // =========================================================
-
         private void TriggerWarning(string message)
         {
             if (warningText == null)
@@ -469,7 +481,6 @@ namespace GameCore.Quests
                 StopCoroutine(warningFadeCoroutine);
             }
 
-            // 🛡️ BẢO VỆ: Kiểm tra xem GameObject có đang active không trước khi gọi StartCoroutine
             if (gameObject.activeInHierarchy)
             {
                 warningFadeCoroutine = StartCoroutine(FadeSequence(message));
@@ -485,7 +496,6 @@ namespace GameCore.Quests
         {
             warningText.text = message;
 
-            // 1. FADE IN
             float speed = 1f / Mathf.Max(0.01f, fadeInDuration);
             float currentAlpha = warningText.color.a;
 
@@ -497,10 +507,8 @@ namespace GameCore.Quests
             }
             SetTextAlpha(1f);
 
-            // 2. GIỮ HIỂN THỊ
             yield return new WaitForSeconds(displayDuration);
 
-            // 3. FADE OUT
             speed = 1f / Mathf.Max(0.01f, fadeOutDuration);
             while (currentAlpha > 0f)
             {

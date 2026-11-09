@@ -14,6 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idQuest: 4
   tenNhiemVu: "M\u1ED9c Tinh Bi\u1EBFn D\u1EA1ng"
+  tenNhiemVuEN: 
+  loaiQuest: 0
+  idQuaiCanDiet: 4
+  soLuongBoXuongCanDiet: 25
+  idDoiTuongCanGiaiCuu: 0
+  soLuongCanGiaiCuu: 1
   loiThoaiNhanQuest: "Ma kh\xED lan r\u1ED9ng \u0111\xE3 c\u1EAFn nu\u1ED1t c\u1EA3
     linh kh\xED c\u1EE7a nh\u1EEFng c\xE2y tr\xFAc c\u1ED5 th\u1EE5, bi\u1EBFn ch\xFAng
     th\xE0nh qu\xE1i c\xE2y \u0103n th\u1ECBt ng\u01B0\u1EDDi. Ch\xFAng qu\u1EA5n
@@ -27,8 +33,20 @@ MonoBehaviour:
     b\xECnh th\u01B0\u1EDDng, ma kh\xED t\xE0n d\u01B0 tr\xEAn c\xE1c g\u1ED1c c\u1ED5
     th\u1EE5 c\u0169ng d\u1EA7n tan bi\u1EBFn. B\xE1 t\xE1nh ghi \u01A1n ng\xE0i
     v\xF4 c\xF9ng!"
-  idQuaiCanDiet: 4
-  soLuongBoXuongCanDiet: 25
+  loiThoaiNhanQuestEN: 'The spreading demonic qi has consumed the spiritual essence
+    of ancient bamboo trees, turning them into man-eating treants. Their roots intertwine
+    across the main paths. Please help us chop down these monstrous wood spirits!
+
+'
+  loiThoaiDangLamEN: 'These treants hide exceptionally well within the wood forest.
+    Beware of their thick bark armor and defeat 12 tree spirits!
+
+'
+  loiThoaiHoanThanhEN: 'The vegetation has returned to normal, and the lingering
+    demonic qi on the ancient trunks is gradually fading away. The people are endlessly
+    grateful to you!
+
+'
   danhSachPhanThuong:
   - itemData: {fileID: 11400000, guid: 9d7827e2c47c86745b9d17a80a5560a1, type: 2}
     iconItem: {fileID: -5636343253877202797, guid: aefe25d351898004d9bd8d89735db828, type: 3}

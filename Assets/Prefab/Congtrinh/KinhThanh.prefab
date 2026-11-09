@@ -193,17 +193,45 @@ PrefabInstance:
       propertyPath: m_Name
       value: Congtrinh_Ui_press
       objectReference: {fileID: 0}
+    - target: {fileID: 3559201227806637201, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: englishText
+      value: Enter Citadel
+      objectReference: {fileID: 0}
     - target: {fileID: 3936983237934018228, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
       propertyPath: m_text
-      value: Enter Citadel
+      value: "Chi\u1EBFn"
       objectReference: {fileID: 0}
     - target: {fileID: 3936983237934018228, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
       propertyPath: m_fontSize
       value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 3936983237934018228, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_margin.w
+      value: 15.599946
+      objectReference: {fileID: 0}
+    - target: {fileID: 3936983237934018228, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_margin.x
+      value: 28.970928
+      objectReference: {fileID: 0}
+    - target: {fileID: 3936983237934018228, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_margin.y
+      value: 17.413902
+      objectReference: {fileID: 0}
+    - target: {fileID: 3936983237934018228, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_margin.z
+      value: 33.211254
+      objectReference: {fileID: 0}
+    - target: {fileID: 3936983237934018228, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
       propertyPath: m_fontSizeBase
       value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 3936983237934018228, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_VerticalAlignment
+      value: 512
+      objectReference: {fileID: 0}
+    - target: {fileID: 3936983237934018228, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_HorizontalAlignment
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4156842070033677754, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
       propertyPath: m_Pivot.x
@@ -285,13 +313,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4428479588627152694, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
+      propertyPath: m_CullTransparentMesh
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7497126759324814206, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 28.815155
+      value: 1.625082
       objectReference: {fileID: 0}
     - target: {fileID: 7497126759324814206, guid: 1428dc81ad0c07f428a36ec51b90fb41, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -16.209606
+      value: 0.7619066
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -323,6 +355,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b7a14b4beae4dd43bc3da898d6b2b93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isMainMenu: 0
   mainMapName: 
   map1Name: 
   map2Name: 
@@ -330,3 +363,8 @@ MonoBehaviour:
   VeMenu: 
   Click: {fileID: 8300000, guid: fe980418dea2cd642b2236e9210d4548, type: 3}
   MainUi: {fileID: 0}
+  btnStartGame: {fileID: 0}
+  btnTiepTucGame: {fileID: 0}
+  xoahaykhong: {fileID: 0}
+  CheDo: {fileID: 0}
+  khoiDauLanNua: {fileID: 0}

@@ -34,12 +34,6 @@ public class QuestHUDTracker : MonoBehaviour
     [Tooltip("Kéo danh sách các TextMeshProUGUI dòng hiển thị quest vào đây")]
     public TextMeshProUGUI[] danhSachTextQuestUI;
 
-    [Header("--- CẤU HÌNH PHÍM BẬT/ẨN (TAB) ---")]
-    [Tooltip("GameObject chứa toàn bộ khung UI hiển thị nhiệm vụ (nếu để trống sẽ tự ẩn các Text con)")]
-    [SerializeField] private GameObject containerUIParent;
-
-    private bool isHudVisible = true;
-
     public static event Action OnQuestProgressChanged;
 
     // Bộ nhớ tạm Cache lưu QuestData để tối ưu hiệu năng
@@ -79,40 +73,6 @@ public class QuestHUDTracker : MonoBehaviour
     private void HandleLanguageChanged(string newLang)
     {
         CapNhatGiaoDienHUD();
-    }
-
-    private void Update()
-    {
-        // 🎯 Lắng nghe phím TAB để ẩn/hiện giao diện nhiệm vụ
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            ToggleQuestHUD();
-        }
-    }
-
-    /// <summary>
-    /// Hàm bật/ẩn khung hiển thị nhiệm vụ
-    /// </summary>
-    private void ToggleQuestHUD()
-    {
-        isHudVisible = !isHudVisible;
-
-        if (containerUIParent != null)
-        {
-            containerUIParent.SetActive(isHudVisible);
-        }
-        else
-        {
-            // Nếu không gán container riêng thì ẩn từng thành phần Text con
-            if (textThongBaoMacDinh != null) textThongBaoMacDinh.gameObject.SetActive(isHudVisible);
-            if (danhSachTextQuestUI != null)
-            {
-                foreach (var txt in danhSachTextQuestUI)
-                {
-                    if (txt != null) txt.gameObject.SetActive(isHudVisible);
-                }
-            }
-        }
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -171,7 +131,7 @@ public class QuestHUDTracker : MonoBehaviour
         // 3. Nếu không có nhiệm vụ nào đang kích hoạt -> Hiện text mặc định
         if (danhSachQuestDangActive.Count == 0)
         {
-            if (textThongBaoMacDinh != null && isHudVisible)
+            if (textThongBaoMacDinh != null)
             {
                 textThongBaoMacDinh.gameObject.SetActive(true);
 
@@ -199,7 +159,7 @@ public class QuestHUDTracker : MonoBehaviour
             return;
         }
 
-        // 5. Duyệt qua mảng và gán dữ liệu hiển thị (chỉ hiện nếu HUD đang bật)
+        // 5. Duyệt qua mảng và gán dữ liệu hiển thị
         for (int i = 0; i < danhSachQuestDangActive.Count; i++)
         {
             if (i >= danhSachTextQuestUI.Length) break;
@@ -212,15 +172,9 @@ public class QuestHUDTracker : MonoBehaviour
 
             if (data != null)
             {
-                if (isHudVisible)
-                {
-                    danhSachTextQuestUI[i].gameObject.SetActive(true);
-                }
+                danhSachTextQuestUI[i].gameObject.SetActive(true);
 
                 int soYeuCau = data.loaiQuest == LoaiQuest.DietQuai ? data.soLuongBoXuongCanDiet : data.soLuongCanGiaiCuu;
-
-                // Lấy tên nhiệm vụ tùy theo ngôn ngữ (nếu bạn có trường tenNhiemVuEN trong QuestData thì dùng, nếu không sẽ lấy tenNhiemVu gốc)
-                // Lưu ý: Nếu QuestData của bạn có biến tiếng Anh, bạn có thể thay thế ở đây. Hiện tại dùng tạm biến chung hoặc tên tiếng Việt.
                 string tenQuestHienThi = data.tenNhiemVu;
 
                 if (progress.trangThai == TrangThaiQuest.DangLam)

@@ -1650,9 +1650,17 @@ PrefabInstance:
       propertyPath: mainMapName
       value: "Map_2U Minh L\xE2m"
       objectReference: {fileID: 0}
+    - target: {fileID: 1661204186951956185, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 6.4790344
+      objectReference: {fileID: 0}
     - target: {fileID: 2345805083975770352, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
       propertyPath: m_Name
       value: player
+      objectReference: {fileID: 0}
+    - target: {fileID: 3345043568695358746, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 4.479065
       objectReference: {fileID: 0}
     - target: {fileID: 3839831015277101688, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1703,6 +1711,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6812906636003343987, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7491590302181446272, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8377370740005693332, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
@@ -2872,7 +2888,7 @@ Transform:
   m_GameObject: {fileID: 960541616}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 15.101601, y: 0, z: 0}
+  m_LocalPosition: {x: 14.562496, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

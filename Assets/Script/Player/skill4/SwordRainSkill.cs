@@ -10,6 +10,10 @@ public class SwordRainSkill : MonoBehaviour
     [Tooltip("Tick chọn để dùng Skill tự do không cần tích đủ năng lượng")]
     public bool testGame = false;
 
+    [Header("--- CẤU HÌNH HIỂN THỊ KHI ĐẦY NĂNG LƯỢNG ---")]
+    [Tooltip("GameObject sẽ hiện lên khi năng lượng tích đầy và ẩn đi khi chưa đầy")]
+    [SerializeField] private GameObject notifyGameObject;
+
     [Header("--- CẤU HÌNH VÙNG MƯA KIẾM (BOX OVERLAP) ---")]
     [Tooltip("Prefab của thanh kiếm thả từ trên trời xuống")]
     public GameObject prefabKiem;
@@ -34,10 +38,14 @@ public class SwordRainSkill : MonoBehaviour
     [Tooltip("Mức năng lượng tối đa cần để thi triển Skill")]
     public float nangLuongToiDa = 100f;
 
+    [Tooltip("Mức năng lượng hiện tại của kỹ năng Mưa Kiếm (Có thể theo dõi trực tiếp trên Inspector)")]
+    [SerializeField] private float nangLuongHienTai = 0f;
+
+    public float NangLuongHienTai => nangLuongHienTai;
+
     [Tooltip("Thanh Slider UI hiển thị năng lượng Skill")]
     public Slider thanhNangLuongUI;
 
-    private float nangLuongHienTai = 0f;
     private Coroutine coroutineMuaKiem;
 
     private void Awake()
@@ -55,14 +63,12 @@ public class SwordRainSkill : MonoBehaviour
 
     private void Update()
     {
-        // Bấm phím H (Legacy Input System) để kiểm tra dùng skill
         if (Input.GetKeyDown(KeyCode.H))
         {
             KiemTraVaKichHoatSkill();
         }
     }
 
-    // 🎯 HÀM CỘNG NĂNG LƯỢNG
     public void CongNangLuong(float luongCong)
     {
         nangLuongHienTai += luongCong;
@@ -72,7 +78,6 @@ public class SwordRainSkill : MonoBehaviour
         Debug.Log($"<color=cyan>[SwordRainSkill]</color> +{luongCong} Năng lượng! Hiện tại: {nangLuongHienTai}/{nangLuongToiDa}");
     }
 
-    // 🎯 Logic kiểm tra điều kiện kích hoạt Skill
     private void KiemTraVaKichHoatSkill()
     {
         if (testGame || nangLuongHienTai >= nangLuongToiDa)
@@ -96,7 +101,6 @@ public class SwordRainSkill : MonoBehaviour
         }
     }
 
-    // 🎯 Coroutine thả kiếm ngẫu nhiên trong vùng Box dựa theo số lượng kiếm và thời gian duy trì
     private IEnumerator Routine_ThucHienMuaKiem()
     {
         if (prefabKiem == null)
@@ -105,40 +109,36 @@ public class SwordRainSkill : MonoBehaviour
             yield break;
         }
 
-        // Tính toán khoảng thời gian nghỉ giữa mỗi lần thả kiếm để phân bổ đều số lượng kiếm trong tổng thời gian
         int tongSoKiem = Mathf.Max(1, soLuongKiem);
         float khoangCachCachNhauRaiKiem = thoiGianDuyTriMuaKiem / tongSoKiem;
 
+        // 🔄 VÒNG LẶP THẢ KIẾM:
+        // - Lặp qua từng lượt thả kiếm dựa trên tổng số lượng cấu hình.
+        // - Tạo bản sao (Instantiate) thanh kiếm tại vị trí ngẫu nhiên trong vùng Box Overlap.
+        // - Chờ một khoảng thời gian ngắn (khoangCachCachNhauRaiKiem) trước khi tiếp tục thả thanh kế tiếp.
         for (int i = 0; i < tongSoKiem; i++)
         {
             Transform diemGoc = (tamVungMuaKiem != null) ? tamVungMuaKiem : transform;
 
-            // Tính toán vị trí tâm thực tế của Box có cộng thêm độ lệch viTriLechVungBox và xoay theo hướng mặt của Player
             Vector3 viTriTamThucTe = diemGoc.TransformPoint(viTriLechVungBox);
 
-            // Lấy độ lệch ngẫu nhiên X, Y, Z bên trong kích thước Box Overlap
             float offsetX = Random.Range(-kichThuocVungBox.x / 2f, kichThuocVungBox.x / 2f);
             float offsetY = Random.Range(-kichThuocVungBox.y / 2f, kichThuocVungBox.y / 2f);
             float offsetZ = Random.Range(-kichThuocVungBox.z / 2f, kichThuocVungBox.z / 2f);
 
-            // Tọa độ ngẫu nhiên tính theo không gian địa phương của tâm Box
             Vector3 offsetNgauNhien = new Vector3(offsetX, offsetY, offsetZ);
             Vector3 viTriXuatHien = viTriTamThucTe + (diemGoc.rotation * offsetNgauNhien);
 
-            // Mặc định lấy góc quay chuẩn của Prefab Kiếm
             Quaternion gocXoayKiem = prefabKiem.transform.rotation;
 
-            // Sinh ra thanh kiếm
             Instantiate(prefabKiem, viTriXuatHien, gocXoayKiem);
 
-            // Chờ một khoảng thời gian ngắn trước khi thả thanh kiếm tiếp theo
             yield return new WaitForSeconds(khoangCachCachNhauRaiKiem);
         }
 
         coroutineMuaKiem = null;
     }
 
-    // 🎯 Cập nhật UI Slider
     private void CapNhatGiaoDienUI()
     {
         if (thanhNangLuongUI != null)
@@ -146,28 +146,28 @@ public class SwordRainSkill : MonoBehaviour
             thanhNangLuongUI.maxValue = nangLuongToiDa;
             thanhNangLuongUI.value = nangLuongHienTai;
         }
+
+        // 🎯 KIỂM TRA TRẠNG THÁI HIỂN THỊ GAMEOBJECT KHI ĐẦY/CHƯA ĐẦY NĂNG LƯỢNG
+        if (notifyGameObject != null)
+        {
+            bool daDayNangLuong = (nangLuongHienTai >= nangLuongToiDa);
+            notifyGameObject.SetActive(daDayNangLuong);
+        }
     }
 
-    // 🎯 Vẽ khung hiển thị Vùng Box Overlap trực quan trong cửa sổ Scene
     private void OnDrawGizmosSelected()
     {
         Transform diemGoc = (tamVungMuaKiem != null) ? tamVungMuaKiem : transform;
 
-        // Lưu ma trận Gizmos cũ
         Matrix4x4 maTranCu = Gizmos.matrix;
-
-        // Thiết lập ma trận Gizmos mới đồng bộ vị trí và góc xoay theo Player
         Gizmos.matrix = Matrix4x4.TRS(diemGoc.position, diemGoc.rotation, Vector3.one);
 
-        // Vẽ khung dây dạng Box màu đỏ theo vị trí lệch viTriLechVungBox
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(viTriLechVungBox, kichThuocVungBox);
 
-        // Vẽ khối mờ màu đỏ bên trong
         Gizmos.color = new Color(1f, 0f, 0f, 0.15f);
         Gizmos.DrawCube(viTriLechVungBox, kichThuocVungBox);
 
-        // Khôi phục ma trận Gizmos cũ
         Gizmos.matrix = maTranCu;
     }
 }

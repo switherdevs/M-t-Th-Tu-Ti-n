@@ -7,6 +7,10 @@ public class UISlideController : MonoBehaviour, IPointerClickHandler
     [SerializeField, Tooltip("Tích chọn nếu muốn UI mặc định ở vị trí ẨN ngay khi vào game để không chắn màn hình")]
     private bool macDinhAn = false;
 
+    [Header("=== CẤU HÌNH PHÍM BẤM TRƯỢT ===")]
+    [SerializeField, Tooltip("Phím bấm để trượt UI ra/vào (Mặc định phím B)")]
+    private KeyCode phimTruot = KeyCode.B;
+
     [Header("=== CẤU HÌNH KHOẢNG CÁCH TRƯỢT ===")]
     [SerializeField, Tooltip("Khoảng cách trượt theo X và Y khi bấm toggle (Ví dụ: X = -500 để trượt sang trái)")]
     private Vector2 doDichChuyen = new Vector2(-500f, 0f);
@@ -51,6 +55,12 @@ public class UISlideController : MonoBehaviour, IPointerClickHandler
 
     private void Update()
     {
+        // 🎯 Lắng nghe phím B để trượt ra/vào
+        if (Input.GetKeyDown(phimTruot))
+        {
+            ToggleSlide();
+        }
+
         // Trượt mượt mà về vị trí mục tiêu
         rectTransform.anchoredPosition = Vector2.Lerp(
             rectTransform.anchoredPosition,
@@ -59,10 +69,15 @@ public class UISlideController : MonoBehaviour, IPointerClickHandler
         );
     }
 
-    // Xử lý khi bấm vào Bảng UI
-    public void OnPointerClick(PointerEventData eventData)
+    private void ToggleSlide()
     {
         dangAn = !dangAn;
         viTriMucTieu = dangAn ? viTriAn : viTriBanDau;
+    }
+
+    // Xử lý khi bấm vào Bảng UI (giữ lại nếu bạn vẫn muốn click vào UI để trượt)
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        ToggleSlide();
     }
 }

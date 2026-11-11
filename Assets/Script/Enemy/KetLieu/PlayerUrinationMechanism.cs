@@ -7,17 +7,11 @@ namespace GameCore.Player
 {
     public class PlayerUrinationMechanism : MonoBehaviour
     {
-        // =========================================================
-        // SINGLETON & SỰ KIỆN KẾT NỐI VỚI SCRIPT QUÁI (EnemyFearState)
-        // =========================================================
         public static PlayerUrinationMechanism Instance { get; private set; }
 
         public event Action OnExecutionStart;
         public event Action OnExecutionEnd;
 
-        // =========================================================
-        // CẤU HÌNH THÔNG SỐ MẮC TIỀU
-        // =========================================================
         [Header("=== CẤU HÌNH CƠ CHẾ MẮC TIỀU ===")]
         [Tooltip("Mức độ mắc tiểu hiện tại (Float)")]
         [SerializeField] private float mucDoMacTieuHienTai = 0f;
@@ -28,6 +22,14 @@ namespace GameCore.Player
         [Tooltip("Tốc độ tăng mức mắc tiểu theo thời gian (Số điểm / Giây)")]
         [SerializeField] private float tocDoTangMacTieu = 5f;
 
+        [Header("--- CẤU HÌNH HIỂN THỊ KHI ĐẦY ---")]
+        [Tooltip("GameObject sẽ hiện lên khi thanh mắc tiểu đầy (>= 100%) và ẩn đi khi chưa đầy")]
+        [SerializeField] private GameObject notifyGameObject;
+
+        [Header("=== CẤU HÌNH TEST GAME ===")]
+        [Tooltip("Tick chọn để ngăn không tự động tiểu khi thanh mắc tiểu đầy")]
+        [SerializeField] private bool testGame = false;
+
         [Header("=== CẤU HÌNH TỐC ĐỘ XẢ TIỀU ===")]
         [Tooltip("Tốc độ tuột thanh mắc tiểu khi đang tiểu (Số điểm / Giây)")]
         [SerializeField] private float tocDoXamTieu = 25f;
@@ -35,9 +37,6 @@ namespace GameCore.Player
         [Tooltip("Phím bấm để thực hiện hành động tiểu (Mặc định phím U)")]
         [SerializeField] private KeyCode phimTieu = KeyCode.U;
 
-        // =========================================================
-        // CẤU HÌNH ASIAN MODE MEME
-        // =========================================================
         [Header("=== CẤU HÌNH CHẾ ĐỘ ASIAN (MEME DEAD) ===")]
         [Tooltip("Bán kính vòng tròn kiểm tra va chạm xung quanh Player khi tiểu")]
         [SerializeField] private float checkRadius = 1.5f;
@@ -51,9 +50,6 @@ namespace GameCore.Player
         [Tooltip("LayerMask dùng để lọc các vật thể kiểm tra (Mặc định kiểm tra tất cả)")]
         [SerializeField] private LayerMask checkLayerMask = ~0;
 
-        // =========================================================
-        // CẤU HÌNH GAMEOBJECT NHÂN VẬT & THÀNH PHẦN KHÁC
-        // =========================================================
         [Header("=== CẤU HÌNH GAMEOBJECT NHÂN VẬT ===")]
         [Tooltip("Game Object Nhân vật gốc (Sẽ bị ẨN khi đang tiểu)")]
         [SerializeField] private GameObject gameObjectNhanVatGoc;
@@ -65,13 +61,12 @@ namespace GameCore.Player
         [Tooltip("Slider hiển thị mức độ mắc tiểu")]
         [SerializeField] private Slider sliderMacTieu;
 
-        // Tham chiếu các script điều khiển
         private PlayerController playerController;
         private TanCong tanCongScript;
         private Luot luotScript;
         private CharacterStats characterStats;
         private Rigidbody2D rb;
-        private Animator animGoc; // Animator trên GameObject gốc
+        private Animator animGoc;
 
         private bool đangTieu = false;
 
@@ -89,14 +84,12 @@ namespace GameCore.Player
                 return;
             }
 
-            // Tự động tìm tất cả các script chức năng trên Player để vô hiệu hóa khi tiểu
             playerController = GetComponent<PlayerController>();
             tanCongScript = GetComponent<TanCong>();
             luotScript = GetComponent<Luot>();
             characterStats = GetComponent<CharacterStats>();
             rb = GetComponent<Rigidbody2D>();
 
-            // Lấy Animator từ nhân vật gốc hoặc các con của nó
             if (gameObjectNhanVatGoc != null)
             {
                 animGoc = gameObjectNhanVatGoc.GetComponent<Animator>();
@@ -124,9 +117,6 @@ namespace GameCore.Player
             KiemTraDieuKienTieu();
         }
 
-        /// <summary>
-        /// Khởi tạo trạng thái ban đầu của Game Object và Slider UI
-        /// </summary>
         private void KhoiTaoGiaoDien()
         {
             if (gameObjectNhanVatGoc != null) gameObjectNhanVatGoc.SetActive(true);
@@ -138,11 +128,10 @@ namespace GameCore.Player
                 sliderMacTieu.maxValue = mucDoMacTieuToiDa;
                 sliderMacTieu.value = mucDoMacTieuHienTai;
             }
+
+            CapNhatUI();
         }
 
-        /// <summary>
-        /// Thuật toán tăng dần thông số mắc tiểu theo thời gian thực
-        /// </summary>
         private void TangMucMacTieuTheoThoiGian()
         {
             if (mucDoMacTieuHienTai < mucDoMacTieuToiDa)
@@ -153,26 +142,30 @@ namespace GameCore.Player
             }
         }
 
-        /// <summary>
-        /// Cập nhật giá trị float lên Slider UI
-        /// </summary>
         private void CapNhatUI()
         {
             if (sliderMacTieu != null)
             {
                 sliderMacTieu.value = mucDoMacTieuHienTai;
             }
+
+            // 🎯 KIỂM TRA TRẠNG THÁI HIỂN THỊ GAMEOBJECT KHI ĐẦY/CHƯA ĐẦY THANH MẮC TIỂU
+            if (notifyGameObject != null)
+            {
+                bool daDayThanh = (mucDoMacTieuHienTai >= mucDoMacTieuToiDa);
+                notifyGameObject.SetActive(daDayThanh);
+            }
         }
 
-        /// <summary>
-        /// Kiểm tra điều kiện tự động tiểu hoặc kích hoạt chủ động từ phím bấm
-        /// </summary>
         private void KiemTraDieuKienTieu()
         {
-            // 1. Kiểm tra khi thanh slider đầy (>= 100%)
             if (mucDoMacTieuHienTai >= mucDoMacTieuToiDa)
             {
-                // BẪY ASIAN MODE: Nhịn tiểu đầy ở chế độ Asian Mode -> Chết ngay lập tức!
+                if (testGame)
+                {
+                    return;
+                }
+
                 int currentDifficulty = PlayerPrefs.GetInt("GameDifficulty", 1);
                 if (currentDifficulty == 3)
                 {
@@ -185,30 +178,25 @@ namespace GameCore.Player
                 return;
             }
 
-            // 2. Người chơi tự bấm phím tiểu (chỉ cần mức mắc tiểu > 0)
             if (Input.GetKeyDown(phimTieu) && mucDoMacTieuHienTai > 0f)
             {
                 StartCoroutine(ThucHienHanhDongTieu());
             }
         }
 
-        /// <summary>
-        /// Coroutine xử lý tiến trình xả tiểu: thanh slider tuột dần về 0 mới kết thúc
-        /// </summary>
         private IEnumerator ThucHienHanhDongTieu()
         {
             đangTieu = true;
 
-            // Khóa di chuyển, tấn công, lướt và kích hoạt nhân vật tiểu
             ThietLapTrangThaiKhoaHanhDong(true);
-
-            // Phát sự kiện thông báo cho Quái hoảng sợ bỏ chạy
             OnExecutionStart?.Invoke();
 
-            // VÒNG LẶP TUỘT SLIDER: Xả dần năng lượng cho đến khi hết hẳn
+            // 🔄 VÒNG LẶP XẢ TIỂU:
+            // - Lặp liên tục cho đến khi giá trị mắc tiểu hiện tại giảm về 0.
+            // - Trong mỗi khung hình, trừ dần theo tốc độ xả (tocDoXamTieu * Time.deltaTime).
+            // - Cập nhật lại giao diện Slider và trạng thái bất tử cho nhân vật cho tới khi xả xong.
             while (mucDoMacTieuHienTai > 0f)
             {
-                // Kiểm tra điều kiện chết Meme nếu đang ở chế độ Asian Mode
                 if (KiemTraXuatTieuAsianMode())
                 {
                     yield break;
@@ -219,27 +207,20 @@ namespace GameCore.Player
 
                 CapNhatUI();
 
-                // Duy trì bất tử liên tục trong suốt thời gian xả tiểu (Nếu chưa chết)
                 if (characterStats != null)
                 {
                     characterStats.SetInvincible(0.5f);
                 }
 
-                yield return null; // Chờ sang khung hình tiếp theo
+                yield return null;
             }
 
-            // Mở lại hoạt động nhân vật bình thường
             ThietLapTrangThaiKhoaHanhDong(false);
-
-            // Phát sự kiện kết thúc
             OnExecutionEnd?.Invoke();
 
             đangTieu = false;
         }
 
-        /// <summary>
-        /// Thuật toán kiểm tra vòng tròn va chạm dành riêng cho chế độ Asian Mode
-        /// </summary>
         private bool KiemTraXuatTieuAsianMode()
         {
             int currentDifficulty = PlayerPrefs.GetInt("GameDifficulty", 1);
@@ -247,6 +228,9 @@ namespace GameCore.Player
 
             Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, checkRadius, checkLayerMask);
 
+            // 🔄 VÒNG LẶP QUÉT VA CHẠM ASIAN MODE:
+            // - Kiểm tra các đối tượng xung quanh trong phạm vi bán kính checkRadius.
+            // - Nếu phát hiện chạm Pet hoặc Tế Đàn, kích hoạt xử lý chết ngay lập tức.
             foreach (Collider2D col in hitColliders)
             {
                 if (col.CompareTag(petTag) || col.CompareTag(teDanTag))
@@ -260,9 +244,6 @@ namespace GameCore.Player
             return false;
         }
 
-        /// <summary>
-        /// Hàm dứt điểm Player an toàn và gọi đúng luồng Death trong CharacterStats
-        /// </summary>
         public void KichHoatNhanVatChet()
         {
             ThietLapTrangThaiKhoaHanhDong(false);
@@ -275,30 +256,22 @@ namespace GameCore.Player
             }
         }
 
-        /// <summary>
-        /// Khóa/Mở lại các Script điều khiển (Di chuyển, Bắn, Lướt) và đổi GameObject
-        /// SỬA LỖI: Cập nhật lại Animator về Idle khi IsUrination = false
-        /// </summary>
         private void ThietLapTrangThaiKhoaHanhDong(bool isUrination)
         {
-            // 1. Hoán đổi GameObject hiển thị
             if (gameObjectNhanVatGoc != null) gameObjectNhanVatGoc.SetActive(!isUrination);
             if (gameObjectNhanVatDangTieu != null) gameObjectNhanVatDangTieu.SetActive(isUrination);
 
             if (isUrination)
             {
-                // Khi BẮT ĐẦU tiểu: Dừng mọi chuyển động
                 if (playerController != null) playerController.StopMovementAndAnimation();
                 if (rb != null) rb.linearVelocity = Vector2.zero;
             }
             else
             {
-                // Khi TIỂU XONG: Đặt lại vận tốc và Ép Animator trả về trạng thái IDLE
                 if (rb != null) rb.linearVelocity = Vector2.zero;
 
                 if (animGoc != null)
                 {
-                    // Reset các Parameter phổ biến điều khiển Walk/Run về Idle
                     animGoc.SetFloat("speed", 0f);
                     animGoc.SetFloat("Speed", 0f);
                     animGoc.SetBool("isMoving", false);
@@ -312,13 +285,12 @@ namespace GameCore.Player
                 }
             }
 
-            // 2. Vô hiệu hóa/Kích hoạt lại các script hành động
             if (playerController != null) playerController.enabled = !isUrination;
             if (tanCongScript != null) tanCongScript.enabled = !isUrination;
             if (luotScript != null) luotScript.enabled = !isUrination;
         }
 
-        public void CongMucMacTieu(float luongTang)     
+        public void CongMucMacTieu(float luongTang)
         {
             mucDoMacTieuHienTai = Mathf.Clamp(mucDoMacTieuHienTai + luongTang, 0f, mucDoMacTieuToiDa);
             CapNhatUI();

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using GameCore.Quests; // 🎯 Namespace chuẩn chứa QuestManager
+using GameCore.Quests;
 
 public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
@@ -35,45 +35,29 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
         originalScale = transform.localScale;
         targetScale = originalScale * targetScaleMultiplier;
 
-        // 🎯 ẨN TOÀN BỘ GAMEOBJECT TRONG MẢNG NGAY TỪ LẦN NẠP ĐẦU (AWAKE)
-        AnTatCaUIGameObject();
+        // ❌ ĐÃ XÓA BỎ HÀM TỰ ĐỘNG ÉP ẨN (AnTatCaUIGameObject) TẠI ĐÂY 
+        // ĐỂ TRÁNH XUNG ĐỘT VỚI SCRIPT RESUME / ĐÓNG UI.
     }
 
     private void Start()
     {
-        TimVaCapNhatUI();
-    }
-
-    /// <summary>
-    /// Hàm xử lý duyệt từng phần tử trong mảng để tắt ngay khi khởi chạy
-    /// </summary>
-    private void AnTatCaUIGameObject()
-    {
-        if (danhSachUIGameObject == null) return;
-
-        foreach (GameObject uiItem in danhSachUIGameObject)
-        {
-            if (uiItem != null)
-            {
-                uiItem.SetActive(false);
-            }
-        }
+        // Chỉ gán danh sách nếu chưa có, hoàn toàn không tự động setactive ép buộc
+        KiemTraVaBoSungUI();
     }
 
     // 🎯 TƯƠNG TÁC CLICK CHUỘT VÀO CÔNG TRÌNH
     public void OnPointerClick(PointerEventData eventData)
     {
-        // 1. Kiểm tra nếu người chơi đang click TRỰC TIẾP vào chính BẢNG UI CÔNG TRÌNH đang mở thì không bật/tắt lại
+        // 1. Nếu chuột đang click trực tiếp lên chính bảng UI thì không can thiệp
         if (KiemTraChuotDangDeLenChinhBangUI(eventData))
         {
             return;
         }
 
-        TimVaCapNhatUI();
+        KiemTraVaBoSungUI();
 
         if (danhSachUIGameObject != null && danhSachUIGameObject.Count > 0)
         {
-            // Lọc tìm phần tử hợp lệ đầu tiên trong mảng (tránh trường hợp phần tử đầu bị null)
             GameObject firstValidUI = null;
             for (int i = 0; i < danhSachUIGameObject.Count; i++)
             {
@@ -84,15 +68,14 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
                 }
             }
 
-            // Nếu không tìm thấy UI nào hợp lệ trong mảng thì thoát sớm để tránh lỗi
             if (firstValidUI == null) return;
 
-            // 2. Kiểm tra xem Bảng UI hiện tại đang BẬT hay TẮT
+            // 2. Kiểm tra trạng thái hiện tại của UI
             bool dangMo = firstValidUI.activeSelf;
 
             if (!dangMo)
             {
-                // Nếu đang TẮT -> BẬT TOÀN BỘ UI HỢP LỆ LÊN
+                // Nếu đang TẮT -> BẬT LÊN
                 foreach (GameObject uiItem in danhSachUIGameObject)
                 {
                     if (uiItem != null) uiItem.SetActive(true);
@@ -100,7 +83,7 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
             }
             else
             {
-                // Nếu đang MỞ mà click TRỰC TIẾP VÀO CÔNG TRÌNH (World Object) -> TẮT TOÀN BỘ UI
+                // Nếu đang MỞ -> TẮT ĐI
                 foreach (GameObject uiItem in danhSachUIGameObject)
                 {
                     if (uiItem != null) uiItem.SetActive(false);
@@ -121,24 +104,25 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
 
         foreach (RaycastResult result in results)
         {
-            // Duyệt từng UI trúng Raycast, nếu trúng 1 trong các UI trong danh bạ Bảng UI công trình -> Trả về true
             foreach (GameObject uiTarget in danhSachUIGameObject)
             {
                 if (uiTarget != null && uiTarget.activeSelf)
                 {
                     if (result.gameObject == uiTarget || result.gameObject.transform.IsChildOf(uiTarget.transform))
                     {
-                        return true; // Chuột đang click vào bên trong Bảng UI
+                        return true;
                     }
                 }
             }
         }
 
-        return false; // Chuột click vào Công Trình World 2D
+        return false;
     }
 
-    // 🎯 TỰ ĐỘNG TÌM LẠI NẾU DANH SÁCH TRỐNG
-    private void TimVaCapNhatUI()
+    /// <summary>
+    /// Chỉ hỗ trợ tìm lại reference nếu danh sách bị để trống trên Inspector, không ép trạng thái Active.
+    /// </summary>
+    private void KiemTraVaBoSungUI()
     {
         if (danhSachUIGameObject == null)
         {
@@ -147,13 +131,9 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
 
         if (danhSachUIGameObject.Count == 0)
         {
-            // 🎯 Đã sửa từ QuestUIManager.Instance sang QuestManager.Instance
             if (QuestManager.Instance != null)
             {
                 danhSachUIGameObject.Add(QuestManager.Instance.gameObject);
-
-                // Nếu tìm lại và tự gán thêm UI vào thì cũng ẩn luôn
-                AnTatCaUIGameObject();
             }
             else
             {
@@ -161,7 +141,6 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
                 if (uiQuest != null)
                 {
                     danhSachUIGameObject.Add(uiQuest);
-                    AnTatCaUIGameObject();
                 }
             }
         }
@@ -188,7 +167,6 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
 
     private IEnumerator ScaleRoutine(Vector3 destinationScale)
     {
-        // 🎯 Dùng Time.unscaledDeltaTime để scale mượt mà bất chấp Time.timeScale = 0f
         while (Vector3.Distance(transform.localScale, destinationScale) > 0.01f)
         {
             transform.localScale = Vector3.Lerp(transform.localScale, destinationScale, scaleSpeed * Time.unscaledDeltaTime);

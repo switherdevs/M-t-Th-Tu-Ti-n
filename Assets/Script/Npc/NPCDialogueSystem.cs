@@ -13,7 +13,8 @@ public enum HanhDongLuaChon
     ChuyenThoaiKeTiep,
     MoNhiemVu,
     NhanQuest,
-    DongThoai
+    DongThoai,
+    ChuyenMap
 }
 
 [Serializable]
@@ -23,6 +24,10 @@ public class LuaChonUiData
     public HanhDongLuaChon hanhDong = HanhDongLuaChon.ChuyenThoaiKeTiep;
     public int idThoaiTiepTheo = 0;
     public QuestData questDataToAccept;
+
+    [Header("--- Cấu hình chuyển map (Dành cho hành động Chuyển Map) ---")]
+    [Tooltip("Tên Scene cần chuyển đến khi bấm lựa chọn này")]
+    public string tenSceneChuyenDen = "";
 }
 
 [Serializable]
@@ -60,6 +65,10 @@ public class CauThoaiTiengAnhData
 
 public class NPCDialogueSystem : MonoBehaviour
 {
+    [Header("--- CẤU HÌNH MAP OPEN / DỪNG THỜI GIAN ---")]
+    [SerializeField, Tooltip("Tích chọn nếu muốn khi bật thoại này, thời gian trong game dừng lại (Time.timeScale = 0) nhưng vẫn tương tác UI và nghe âm thanh bình thường")]
+    private bool mapOpen = false;
+
     [Header("--- THÀNH PHẦN UI CỐ ĐỊNH ---")]
     [SerializeField] private GameObject uiThoaiRootObject;
     [SerializeField] private TextMeshProUGUI txtTenNPC;
@@ -138,6 +147,7 @@ public class NPCDialogueSystem : MonoBehaviour
     private float thoiGianPhatAmCuoi = 0f;
 
     private int idThoaiHienTaiDangXem = 0;
+    private bool dangMoThoai = false; // 🎯 Cờ kiểm soát trạng thái hội thoại
 
     private void Awake()
     {
@@ -166,6 +176,25 @@ public class NPCDialogueSystem : MonoBehaviour
     {
         SettingsManager.OnLanguageChanged -= HandleLanguageChanged;
         DungToanBoGoChuVaAmThanh();
+
+        // Đảm bảo trả lại timeScale khi tắt script
+        if (mapOpen)
+        {
+            Time.timeScale = 1f;
+        }
+        dangMoThoai = false;
+    }
+
+    // 🎯 Ép cứng Time.timeScale = 0 liên tục qua mỗi frame khi UI thoại đang bật
+    private void Update()
+    {
+        if (mapOpen && dangMoThoai)
+        {
+            if (Time.timeScale != 0f)
+            {
+                Time.timeScale = 0f;
+            }
+        }
     }
 
     private void HandleLanguageChanged(string newLang)
@@ -230,34 +259,31 @@ public class NPCDialogueSystem : MonoBehaviour
         }
 
         dangTrongTrangThaiTamBiet = false;
+        dangMoThoai = true; // 🎯 Bật cờ đánh dấu đang mở thoại
 
         if (uiThoaiRootObject != null)
         {
             uiThoaiRootObject.SetActive(true);
         }
 
-        // 1. Đã trả xong quest từ trước -> Vĩnh viễn chỉ hiện câu cảm ơn
         if (KiemTraQuestDaHoanThanhHoanToan())
         {
             HienThiThoaiCamOnHoanThanh();
             return;
         }
 
-        // 2. Đã làm xong việc (quái đủ / cứu xong) nhưng chưa bấm xác nhận trả -> Hiện thoại hỏi & nút xác nhận
         if (KiemTraQuestDaXongChuaTra())
         {
             HienThiThoaiHoiTraQuest();
             return;
         }
 
-        // 3. Đang làm dang dở -> Nhắc nhở
         if (KiemTraDaNhanQuestChua())
         {
             HienThiThoaiDaNhanQuest();
             return;
         }
 
-        // 4. Mặc định hội thoại cốt truyện
         HienThiCauThoaiTheoID(idThoaiBatDau);
     }
 
@@ -347,7 +373,6 @@ public class NPCDialogueSystem : MonoBehaviour
         if (btnLuaChon2 != null) btnLuaChon2.gameObject.SetActive(false);
     }
 
-    // 🎯 HÀM HIỂN THỊ KHI ĐÃ LÀM XONG VIỆC NHƯNG CHƯA XÁC NHẬN TRẢ QUEST
     private void HienThiThoaiHoiTraQuest()
     {
         bool isEN = SettingsManager.Instance != null && SettingsManager.Instance.IsEnglish();
@@ -357,7 +382,6 @@ public class NPCDialogueSystem : MonoBehaviour
         string noiDungHoi = isEN ? loiThoaiHoiTraQuestEN : loiThoaiHoiTraQuest;
         StartGoChuRoutine(noiDungHoi);
 
-        // Nút 1: Xác nhận hoàn thành nhiệm vụ
         if (btnLuaChon1 != null)
         {
             btnLuaChon1.gameObject.SetActive(true);
@@ -366,13 +390,11 @@ public class NPCDialogueSystem : MonoBehaviour
             btnLuaChon1.onClick.RemoveAllListeners();
             btnLuaChon1.onClick.AddListener(() =>
             {
-                // Thực hiện lưu phần thưởng, chuyển trạng thái sang HoanThanh và đóng/chuyển thoại cảm ơn
                 XuLyXacNhanTraQuest(questKiemTra);
                 HienThiThoaiCamOnHoanThanh();
             });
         }
 
-        // Nút 2: Chưa trả, để sau
         if (btnLuaChon2 != null)
         {
             btnLuaChon2.gameObject.SetActive(true);
@@ -412,7 +434,8 @@ public class NPCDialogueSystem : MonoBehaviour
                     textNut = dataEN.textNut1,
                     hanhDong = dataGoc.luaChon1.hanhDong,
                     idThoaiTiepTheo = dataGoc.luaChon1.idThoaiTiepTheo,
-                    questDataToAccept = dataGoc.luaChon1.questDataToAccept
+                    questDataToAccept = dataGoc.luaChon1.questDataToAccept,
+                    tenSceneChuyenDen = dataGoc.luaChon1.tenSceneChuyenDen
                 };
             }
 
@@ -423,7 +446,8 @@ public class NPCDialogueSystem : MonoBehaviour
                     textNut = dataEN.textNut2,
                     hanhDong = dataGoc.luaChon2.hanhDong,
                     idThoaiTiepTheo = dataGoc.luaChon2.idThoaiTiepTheo,
-                    questDataToAccept = dataGoc.luaChon2.questDataToAccept
+                    questDataToAccept = dataGoc.luaChon2.questDataToAccept,
+                    tenSceneChuyenDen = dataGoc.luaChon2.tenSceneChuyenDen
                 };
             }
         }
@@ -452,13 +476,13 @@ public class NPCDialogueSystem : MonoBehaviour
         {
             txtNoiDungThoai.text += c;
 
-            if (c != ' ' && Time.time - thoiGianPhatAmCuoi >= tanSuatPhatAm)
+            if (c != ' ' && Time.realtimeSinceStartup - thoiGianPhatAmCuoi >= tanSuatPhatAm)
             {
                 PhatAmThoaiCoKiemTra();
-                thoiGianPhatAmCuoi = Time.time;
+                thoiGianPhatAmCuoi = Time.realtimeSinceStartup;
             }
 
-            yield return new WaitForSeconds(tocDoGoChu);
+            yield return new WaitForSecondsRealtime(tocDoGoChu);
         }
 
         TieuDungAmThoai();
@@ -531,6 +555,44 @@ public class NPCDialogueSystem : MonoBehaviour
             case HanhDongLuaChon.DongThoai:
                 HienThiCauThoaiTamBiet(loiThoaiTamBiet);
                 break;
+
+            case HanhDongLuaChon.ChuyenMap:
+                XuLyChuyenMapTrucTiep(luaChon.tenSceneChuyenDen);
+                break;
+        }
+    }
+
+    private void XuLyChuyenMapTrucTiep(string targetScene)
+    {
+        if (string.IsNullOrEmpty(targetScene))
+        {
+            Debug.LogError("[NPC Dialogue] Hành động 'Chuyển Map' được chọn nhưng chưa điền tên Scene chuyển đến!");
+            ThucHienDongUiThoai();
+            return;
+        }
+
+        DungToanBoGoChuVaAmThanh();
+
+        if (uiThoaiRootObject != null)
+        {
+            uiThoaiRootObject.SetActive(false);
+        }
+
+        // 🎯 Tắt cờ và trả timeScale về 1 trước khi chuyển map
+        dangMoThoai = false;
+        if (mapOpen)
+        {
+            Time.timeScale = 1f;
+        }
+
+        if (imgFadeScreen != null)
+        {
+            StartCoroutine(FadeOutAndChangeScene(targetScene));
+        }
+        else
+        {
+            Debug.Log("<color=green>[NPC Dialogue]</color> Chuyển thẳng sang Scene: " + targetScene);
+            SceneManager.LoadScene(targetScene);
         }
     }
 
@@ -557,13 +619,11 @@ public class NPCDialogueSystem : MonoBehaviour
         return true;
     }
 
-    // 🎯 HÀM XÁC NHẬN HOÀN THÀNH QUEST, LƯU PHẦN THƯỞNG VÀO SAVE
     private void XuLyXacNhanTraQuest(QuestData quest)
     {
         QuestData targetQuest = quest != null ? quest : questKiemTra;
         if (targetQuest == null) return;
 
-        // Lưu phần thưởng vào kho/save game
         targetQuest.LuuPhanThuongVaoSaveGame();
 
         if (QuestManager.Instance != null)
@@ -621,8 +681,14 @@ public class NPCDialogueSystem : MonoBehaviour
     public void ThucHienDongUiThoai()
     {
         dangTrongTrangThaiTamBiet = false;
-
         DungToanBoGoChuVaAmThanh();
+
+        // 🎯 Tắt cờ và trả timeScale về 1 ngay lập tức khi đóng thoại
+        dangMoThoai = false;
+        if (mapOpen)
+        {
+            Time.timeScale = 1f;
+        }
 
         if (isFinalDialogue)
         {
@@ -688,7 +754,7 @@ public class NPCDialogueSystem : MonoBehaviour
 
         while (mauNen.a < 1.0f)
         {
-            mauNen.a += tocDoFadeOut * Time.deltaTime;
+            mauNen.a += tocDoFadeOut * Time.unscaledDeltaTime;
             mauNen.a = Mathf.Clamp01(mauNen.a);
             imgFadeScreen.color = mauNen;
 
@@ -697,7 +763,7 @@ public class NPCDialogueSystem : MonoBehaviour
 
         if (thoiGianDelayChuyenScene > 0f)
         {
-            yield return new WaitForSeconds(thoiGianDelayChuyenScene);
+            yield return new WaitForSecondsRealtime(thoiGianDelayChuyenScene);
         }
 
         Debug.Log("<color=cyan>[NPC Dialogue]</color> Fade Out hoàn tất! Đang chuyển sang Scene: " + targetScene);

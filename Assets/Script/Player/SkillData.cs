@@ -18,22 +18,32 @@ public class SkillData : ScriptableObject
 
     [Header("CẤU HÌNH CẤP ĐỘ KỸ NĂNG")]
     public int currentLevel = 1;
+    public const int MAX_LEVEL = 10; // 🎯 Giới hạn cấp độ tối đa là 10
 
     public virtual void UseSkill(Transform firePoint, Vector2 direction)
     {
         // Class cha làm khung cho các class con override
     }
 
-    public virtual void UpgradeSkill(float damageBonus, float cooldownReduction)
+    /// <summary>
+    /// 🎯 ĐÃ NÂNG CẤP: Dùng hệ số nhân sát thương và hệ số giảm thời gian hồi chiêu
+    /// </summary>
+    public virtual void UpgradeSkill(float heSoNhanDamage, float heSoGiamCooldown)
     {
-        currentLevel++;
-        baseDamage += damageBonus;
-        cooldownTime = Mathf.Max(minCooldownTime, cooldownTime - cooldownReduction);
+        if (currentLevel >= MAX_LEVEL) return;
 
-        Debug.Log($"<color=green>[UPGRADE]</color> {skillName} lên Cấp {currentLevel}! Sát thương: {baseDamage} | Hồi chiêu: {cooldownTime}s");
+        currentLevel++;
+
+        // Sát thương tăng theo hệ số nhân (Ví dụ: baseDamage cũ * hệ số nhân)
+        baseDamage *= heSoNhanDamage;
+
+        // Thời gian hồi chiêu giảm theo hệ số (Ví dụ: cooldownTime cũ * hệ số giảm, ko thấp hơn minCooldownTime)
+        cooldownTime = Mathf.Max(minCooldownTime, cooldownTime * heSoGiamCooldown);
+
+        Debug.Log($"<color=green>[UPGRADE]</color> {skillName} lên Cấp {currentLevel}! Sát thương: {baseDamage:F1} | Hồi chiêu: {cooldownTime:F1}s");
     }
 
-    // 🎯 HÀM MỚI: Reset Skill về đúng Cấp 1 và Chỉ Số Gốc ban đầu
+    // Reset Skill về đúng Cấp 1 và Chỉ Số Gốc ban đầu
     public void ResetVeChiSoGoc()
     {
         currentLevel = 1;

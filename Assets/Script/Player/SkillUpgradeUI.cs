@@ -5,25 +5,29 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// STRUCT CHỨA 2 SETTING CHỈ SỐ NÂNG CẤP DÀNH RIÊNG CHO TỪNG SKILL
+/// 🎯 STRUCT CẬP NHẬT: Thay thế cộng dồn bằng HỆ SỐ NHÂN DAMAGE và HỆ SỐ GIẢM COOLDOWN
 /// </summary>
 [System.Serializable]
 public struct CauHinhNangCapSkill
 {
-    [Tooltip("Lượng sát thương cộng thêm riêng cho Skill này khi nâng cấp")]
-    public float satThuongCongThem;
+    [Header("Hệ số nhân sát thương (VD: 1.15 = tăng 15% sát thương mỗi cấp)")]
+    public float heSoNhanDamage;
 
-    [Tooltip("Thời gian hồi giảm riêng cho Skill này khi nâng cấp")]
-    public float thoiGianHoiGiam;
+    [Header("Hệ số giảm thời gian hồi (VD: 0.9 = giảm 10% thời gian hồi mỗi cấp)")]
+    public float heSoGiamCooldown;
 }
 
 public class SkillUpgradeUI : MonoBehaviour
 {
+    [Header("--- CẤU HÌNH TEST GAME ---")]
+    [Tooltip("Tích chọn để bật chế độ Test: Cho phép nâng cấp skill tự do không cần Skill Point")]
+    public bool testGame = false;
+
     [Header("--- CẤU HÌNH DỮ LIỆU SKILL ---")]
     public List<SkillData> danhSachSkill = new List<SkillData>();
 
-    [Header("--- CẤU HÌNH CHỈ SỐ NÂNG CẤP TỪNG SKILL ---")]
-    [Tooltip("Danh sách cấu hình chỉ số nâng cấp theo đúng thứ tự Index tương ứng với danhSachSkill")]
+    [Header("--- CẤU HÌNH HỆ SỐ NÂNG CẤP TỪNG SKILL ---")]
+    [Tooltip("Danh sách hệ số cấu hình nâng cấp theo đúng thứ tự Index tương ứng với danhSachSkill")]
     public List<CauHinhNangCapSkill> danhSachCauHinhNangCap = new List<CauHinhNangCapSkill>();
 
     [Header("--- CẤU HÌNH UI NÚT SELECT SKILL ---")]
@@ -70,10 +74,6 @@ public class SkillUpgradeUI : MonoBehaviour
         KhoiTaoGiaoDienUI();
     }
 
-    /// <summary>
-    /// 🎯 HÀM ĐÃ NÂNG CẤP: Đọc dữ liệu từ Save System để ghi đè chỉ số.
-    /// Nếu KHÔNG TÌM THẤY SAVE (Do đã xóa file Save), tự động Reset Skill về Cấp 1 gốc.
-    /// </summary>
     private void LoadSkillDataFromSave()
     {
         if (QuestSaveSystem.Instance == null) return;
@@ -87,7 +87,6 @@ public class SkillUpgradeUI : MonoBehaviour
                 {
                     skill.currentLevel = savedData.skillLevel;
 
-                    // Ghi đè chỉ số đã được nâng cấp từ save vào ScriptableObject
                     if (savedData.currentDamage > 0)
                     {
                         skill.baseDamage = savedData.currentDamage;
@@ -99,7 +98,6 @@ public class SkillUpgradeUI : MonoBehaviour
                 }
                 else
                 {
-                    // 🎯 ĐÃ THÊM: Nếu không có data save (xóa save/chơi mới) -> Tự động đưa Skill về cấp 1 gốc
                     skill.ResetVeChiSoGoc();
                 }
             }
@@ -169,8 +167,6 @@ public class SkillUpgradeUI : MonoBehaviour
 
         indexSkillDangChon = index;
         CapNhatGiaoDienVisual();
-
-        Debug.Log($"<color=cyan>[UI Skill]</color> Đã Chọn Skill: {danhSachSkill[index].skillName}");
     }
 
     public void CapNhatGiaoDienVisual()
@@ -178,7 +174,6 @@ public class SkillUpgradeUI : MonoBehaviour
         int pointKhaDung = LaySkillPointKhaDung();
         int playerLevel = QuestSaveSystem.Instance != null ? (int)QuestSaveSystem.Instance.duLieuSaveHienTai.playerStats.level : 1;
 
-        // 1. Cập nhật Text Level Player & Skill Point Còn Lại
         if (textLevelHienTai != null)
         {
             textLevelHienTai.text = $"Level Hiện Tại: <color=#FFD700>{playerLevel}</color>";
@@ -186,10 +181,11 @@ public class SkillUpgradeUI : MonoBehaviour
 
         if (textSkillPoint != null)
         {
-            textSkillPoint.text = $"Skill Point: <color=#00FF00>{pointKhaDung}</color>";
+            // 🎯 Nếu đang bật testGame, hiển thị chữ [TEST MODE] sáng lên
+            string trangThaiTest = testGame ? " <color=cyan>[TEST ON]</color>" : "";
+            textSkillPoint.text = $"Skill Point: <color=#00FF00>{pointKhaDung}</color>{trangThaiTest}";
         }
 
-        // 2. Cập nhật Visual Nút Bấm
         for (int i = 0; i < anhHighlightNut.Length; i++)
         {
             if (anhHighlightNut[i] == null) continue;
@@ -200,32 +196,25 @@ public class SkillUpgradeUI : MonoBehaviour
             }
             else
             {
-                anhHighlightNut[i].color = (pointKhaDung > 0) ? mauBinhThuong : mauToiKhiChuaDuLevel;
+                // Nếu bật testGame thì luôn sáng bình thường, không bị tối khi hết điểm
+                bool duDieuKienSang = testGame || (pointKhaDung > 0);
+                anhHighlightNut[i].color = duDieuKienSang ? mauBinhThuong : mauToiKhiChuaDuLevel;
             }
         }
 
-        // 3. HIỂN THỊ CHI TIẾT TỪNG LEVEL VÀ SÁT THƯƠNG ĐÃ NÂNG CẤP LÊN UI
         for (int i = 0; i < textThongTinSkill.Length; i++)
         {
             if (textThongTinSkill[i] != null && i < danhSachSkill.Count && danhSachSkill[i] != null)
             {
                 SkillData data = danhSachSkill[i];
-                textThongTinSkill[i].text = $"<b>{data.skillName}</b>\n<color=#FFD700>Cấp: {data.currentLevel}</color>\nST: {data.baseDamage} | Hồi: {data.cooldownTime:F1}s";
+                string hienThiCap = data.currentLevel >= SkillData.MAX_LEVEL ? "Cấp: 10 (MAX)" : $"Cấp: {data.currentLevel}";
+                textThongTinSkill[i].text = $"<b>{data.skillName}</b>\n<color=#FFD700>{hienThiCap}</color>\nST: {data.baseDamage:F1} | Hồi: {data.cooldownTime:F1}s";
             }
         }
     }
 
     public void XacNhanNangCapSkill()
     {
-        int pointKhaDung = LaySkillPointKhaDung();
-
-        if (pointKhaDung <= 0)
-        {
-            PhatAmThanh(amThanhNangCapThatBai);
-            ThongBaoPopup("Không đủ Skill Point! Cần đạt mốc Level 10, 20, 30... để nhận điểm.");
-            return;
-        }
-
         if (indexSkillDangChon == -1)
         {
             PhatAmThanh(amThanhNangCapThatBai);
@@ -233,22 +222,42 @@ public class SkillUpgradeUI : MonoBehaviour
             return;
         }
 
-        if (indexSkillDangChon >= danhSachCauHinhNangCap.Count)
-        {
-            Debug.LogError($"[LỖI UI SKILL] Chưa cấu hình chỉ số nâng cấp cho Skill tại Index {indexSkillDangChon} trong danhSachCauHinhNangCap!");
-            return;
-        }
-
         SkillData skillDuocChon = danhSachSkill[indexSkillDangChon];
         if (skillDuocChon != null)
         {
-            // LẤY ĐÚNG STRUCT CẤU HÌNH CÙNG INDEX VỚI SKILL ĐƯỢC CHỌN
+            // 1. Kiểm tra giới hạn tối đa cấp 10
+            if (skillDuocChon.currentLevel >= SkillData.MAX_LEVEL)
+            {
+                PhatAmThanh(amThanhNangCapThatBai);
+                ThongBaoPopup($"Kỹ năng <color=yellow>{skillDuocChon.skillName}</color> đã đạt cấp tối đa (10)!");
+                return;
+            }
+
+            // 2. 🎯 KIỂM TRA ĐIỀU KIỆN SKILL POINT (BỎ QUA NẾU BẬT TEST GAME)
+            if (!testGame)
+            {
+                int pointKhaDung = LaySkillPointKhaDung();
+                if (pointKhaDung <= 0)
+                {
+                    PhatAmThanh(amThanhNangCapThatBai);
+                    ThongBaoPopup("Không đủ Skill Point! Cần đạt mốc Level 10, 20, 30... để nhận điểm.");
+                    return;
+                }
+            }
+
+            if (indexSkillDangChon >= danhSachCauHinhNangCap.Count)
+            {
+                Debug.LogError($"[LỖI UI SKILL] Chưa cấu hình hệ số nâng cấp cho Skill tại Index {indexSkillDangChon}!");
+                return;
+            }
+
+            // LẤY HỆ SỐ CẤU HÌNH TƯƠNG ƯNG
             CauHinhNangCapSkill cauHinh = danhSachCauHinhNangCap[indexSkillDangChon];
 
-            // 1. Nâng chỉ số Kỹ năng bằng thông số riêng của Skill đó
-            skillDuocChon.UpgradeSkill(cauHinh.satThuongCongThem, cauHinh.thoiGianHoiGiam);
+            // 3. Gọi hàm nâng cấp dùng hệ số nhân
+            skillDuocChon.UpgradeSkill(cauHinh.heSoNhanDamage, cauHinh.heSoGiamCooldown);
 
-            // 2. LƯU CẤP ĐỘ + SÁT THƯƠNG + COOLDOWN MỚI VÀO FILE TXT SAVE GAME
+            // 4. Lưu vào file Save TXT
             if (QuestSaveSystem.Instance != null)
             {
                 QuestSaveSystem.Instance.LuuSkillFullData(
@@ -259,11 +268,15 @@ public class SkillUpgradeUI : MonoBehaviour
                 );
             }
 
-            // 3. Hiệu ứng FX & Âm thanh
+            // 5. Hiệu ứng FX & Âm thanh
             PhatAmThanh(amThanhNangCapThanhCong);
             TaoHieuUngUpgrade();
 
-            ThongBaoPopup($"Nâng cấp thành công <color=yellow>{skillDuocChon.skillName}</color> lên Cấp {skillDuocChon.currentLevel}!");
+            string thongBaoText = testGame ?
+                $"[TEST MODE] Nâng cấp <color=yellow>{skillDuocChon.skillName}</color> lên Cấp {skillDuocChon.currentLevel}!" :
+                $"Nâng cấp thành công <color=yellow>{skillDuocChon.skillName}</color> lên Cấp {skillDuocChon.currentLevel}!";
+
+            ThongBaoPopup(thongBaoText);
 
             indexSkillDangChon = -1;
             CapNhatGiaoDienVisual();

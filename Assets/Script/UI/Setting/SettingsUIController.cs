@@ -30,13 +30,11 @@ namespace GameCore.Settings
 
         private void Awake()
         {
-            // Đăng ký lắng nghe sự kiện ngay khi script được nạp vào bộ nhớ
             RegisterListeners();
         }
 
         private void Start()
         {
-            // 🛡️ TỰ ĐỘNG ẨN NGAY LẬP TỨC khi vừa vào scene mới để tránh việc Canvas bị hiện sáng trái phép
             gameObject.SetActive(false);
         }
 
@@ -59,9 +57,6 @@ namespace GameCore.Settings
             }
         }
 
-        /// <summary>
-        /// Hàm đóng bảng Settings chuẩn xác, lưu dữ liệu và ẩn GameObject
-        /// </summary>
         public void CloseSettingsUI()
         {
             if (SettingsManager.Instance != null)
@@ -77,7 +72,8 @@ namespace GameCore.Settings
 
             SettingsData data = SettingsManager.Instance.CurrentData;
 
-            // 1. Cập nhật thanh trượt và Text âm lượng
+            UnregisterListeners();
+
             if (masterVolumeSlider != null)
             {
                 masterVolumeSlider.value = data.masterVolume;
@@ -94,7 +90,7 @@ namespace GameCore.Settings
                 UpdateAudioText(sfxVolumeText, data.sfxVolume);
             }
 
-            // 2. Cập nhật trạng thái màu sắc 2 nút ngôn ngữ dựa theo dữ liệu đã lưu
+            RegisterListeners();
             UpdateLanguageButtonsUI(data.language);
         }
 

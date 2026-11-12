@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -15,19 +16,7 @@ namespace GameCore.Settings
                 if (_instance == null)
                 {
                     _instance = FindFirstObjectByType<SettingsManager>();
-                    if (_instance == null)
-                    {
-                        GameObject container = new GameObject("[SettingsManager]");
-                        _instance = container.AddComponent<SettingsManager>();
-                    }
                 }
-
-                // 🛡️ BẢO VỆ TUYỆT ĐỐI: Ép load file ngay lập tức nếu chưa được load (Khắc phục triệt để lỗi chậm Awake)
-                if (_instance != null && !_instance._isLoaded)
-                {
-                    _instance.LoadSettings();
-                }
-
                 return _instance;
             }
         }
@@ -43,9 +32,7 @@ namespace GameCore.Settings
 
         public SettingsData CurrentData { get; private set; } = new SettingsData();
 
-        private bool _isLoaded = false; // Cờ kiểm tra trạng thái đã load hay chưa
-
-        // Sự kiện toàn cục để các UI tự đổi chữ ngay lập tức khi đổi ngôn ngữ
+        // Sự kiện toàn cục đổi ngôn ngữ
         public static event Action<string> OnLanguageChanged;
 
         private string SaveFilePath => Path.Combine(Application.persistentDataPath, saveFileName);
@@ -53,17 +40,22 @@ namespace GameCore.Settings
 
         private void Awake()
         {
-            if (_instance != null && _instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
             _instance = this;
-            if (!_isLoaded)
-            {
-                LoadSettings();
-            }
+
+            // 1. Chỉ đọc file save vào bộ nhớ trong Awake (không tác động vội vào AudioMixer)
+            LoadDataFromFileOnly();
+        }
+
+        private void Start()
+        {
+            // 2. Đợi AudioMixer của Unity khởi tạo xong hoàn toàn (sau 1 frame) rồi mới ép áp dụng âm lượng
+            StartCoroutine(ApplyAudioDelayed());
+        }
+
+        private IEnumerator ApplyAudioDelayed()
+        {
+            yield return null; // Chờ 1 frame để Audio Engine sẵn sàng 100%
+            ApplyAllSettings();
         }
 
         private void OnDestroy()
@@ -87,21 +79,14 @@ namespace GameCore.Settings
                 }
                 File.Move(TempSaveFilePath, SaveFilePath);
             }
-            catch (Exception)
-            {
-                // Bỏ qua lỗi ghi file
-            }
+            catch (Exception) { }
         }
 
-        public void LoadSettings()
+        private void LoadDataFromFileOnly()
         {
-            if (_isLoaded) return; // Tránh load trùng lặp
-
             if (!File.Exists(SaveFilePath))
             {
                 CurrentData = new SettingsData();
-                _isLoaded = true;
-                ApplyAllSettings();
                 SaveSettings();
                 return;
             }
@@ -123,8 +108,11 @@ namespace GameCore.Settings
             {
                 CurrentData = new SettingsData();
             }
+        }
 
-            _isLoaded = true;
+        public void LoadSettings()
+        {
+            LoadDataFromFileOnly();
             ApplyAllSettings();
         }
 
@@ -135,29 +123,19 @@ namespace GameCore.Settings
             SetSFXVolume(CurrentData.sfxVolume);
         }
 
-        // --- LANGUAGE HELPERS ---
-        public bool IsEnglish()
-        {
-            return CurrentData != null && CurrentData.language == "EN";
-        }
-
-        public string GetCurrentLanguage()
-        {
-            return CurrentData != null ? CurrentData.language : "VN";
-        }
+        public bool IsEnglish() => CurrentData != null && CurrentData.language == "EN";
+        public string GetCurrentLanguage() => CurrentData != null ? CurrentData.language : "VN";
 
         public void SetLanguage(string langCode)
         {
             if (CurrentData != null && CurrentData.language != langCode)
             {
                 CurrentData.language = langCode;
-                SaveSettings(); // Lưu trực tiếp vào file ngay lập tức
-
+                SaveSettings();
                 OnLanguageChanged?.Invoke(langCode);
             }
         }
 
-        // --- AUDIO HELPERS ---
         private float LinearToDecibel(float linear)
         {
             linear = Mathf.Clamp(linear, 0.0001f, 1f);
@@ -194,7 +172,6 @@ namespace GameCore.Settings
         public void ResetToDefaults()
         {
             CurrentData = new SettingsData();
-            _isLoaded = true;
             ApplyAllSettings();
             SaveSettings();
             OnLanguageChanged?.Invoke(CurrentData.language);

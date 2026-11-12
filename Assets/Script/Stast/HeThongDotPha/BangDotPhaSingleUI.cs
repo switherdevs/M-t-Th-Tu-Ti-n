@@ -68,6 +68,12 @@ public class BangDotPhaSingleUI : MonoBehaviour
     [Tooltip("Kéo GameObject Flash Light vào đây (sẽ tự động bật khi đột phá và ẩn sau 2 giây)")]
     public GameObject flashLightObject;
 
+    [Header("--- CẤU HÌNH ÂM THANH ĐỘT PHÁ ---")]
+    [Tooltip("Audio Clip âm thanh phát ra khi đột phá thành công")]
+    [SerializeField] private AudioClip audioDotPhaThanhCong;
+    [Tooltip("AudioSource phát âm thanh (Nếu để trống sẽ tự động tìm hoặc tạo mới trên Object này)")]
+    [SerializeField] private AudioSource audioSource;
+
     [Header("--- YÊU CẦU ITEM ---")]
     public List<ItemYeuCauSingle> danhSachItemYeuCau = new List<ItemYeuCauSingle>();
     public List<SlotUIItemSingle> danhSachSlotUI = new List<SlotUIItemSingle>();
@@ -80,6 +86,16 @@ public class BangDotPhaSingleUI : MonoBehaviour
         if (!TryGetComponent<CanvasGroup>(out canvasGroup))
         {
             canvasGroup = gameObject.AddComponent<CanvasGroup>();
+        }
+
+        // Tự động lấy AudioSource nếu chưa gán
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+            }
         }
 
         if (textThongBaoDotPha != null)
@@ -346,13 +362,24 @@ public class BangDotPhaSingleUI : MonoBehaviour
             skillManager.CapNhatMaxEnergyTuSave();
         }
 
-        // 7. 🎯 BẬT HIỆU ỨNG FLASH LIGHT VÀ LẬP LỊCH TẮT SAU 2 GIÂY
+        // 7. 🎯 PHÁT ÂM THANH ĐỘT PHÁ THÀNH CÔNG (1 LẦN DUY NHẤT)
+        PhatAmThanhDotPha();
+
+        // 8. BẬT HIỆU ỨNG FLASH LIGHT VÀ LẬP LỊCH TẮT SAU 2 GIÂY
         KichHoatFlashLight();
 
         CapNhatGiaoDienBang();
         HienThongBaoDotPhaThanhCong();
 
         Debug.Log($"<color=green>[Đột Phá Success]</color> Đã nâng cảnh giới lên {tenCanhGioiMoi} (ID: {idCanhGioi}).");
+    }
+
+    private void PhatAmThanhDotPha()
+    {
+        if (audioSource != null && audioDotPhaThanhCong != null)
+        {
+            audioSource.PlayOneShot(audioDotPhaThanhCong);
+        }
     }
 
     private void KichHoatFlashLight()

@@ -623,17 +623,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fdb3855b6b6a6c4a94d148b934205f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  testGame: 0
   danhSachSkill:
   - {fileID: 11400000, guid: b4421c5b539f437449c82e5256c2d6be, type: 2}
   - {fileID: 11400000, guid: 22d535b9f69593f4caee11f39d1ca295, type: 2}
   - {fileID: 11400000, guid: 39fa1812807c0b14ea779fc38a069346, type: 2}
   danhSachCauHinhNangCap:
-  - satThuongCongThem: 50
-    thoiGianHoiGiam: 0.075
-  - satThuongCongThem: 150
-    thoiGianHoiGiam: 0.1
-  - satThuongCongThem: 200
-    thoiGianHoiGiam: 0.15
+  - heSoNhanDamage: 1.75
+    heSoGiamCooldown: 1.25
+  - heSoNhanDamage: 1.5
+    heSoGiamCooldown: 1.15
+  - heSoNhanDamage: 1.25
+    heSoGiamCooldown: 1.12
   nutChonSkill:
   - {fileID: 154200116711197919}
   - {fileID: 6831838392522634768}
@@ -669,7 +670,7 @@ AudioSource:
   m_GameObject: {fileID: 1133795180544794231}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 6604748582655308872, guid: 6d577e5bdeafe804da576e07cca632ed, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: fe980418dea2cd642b2236e9210d4548, type: 3}
   m_PlayOnAwake: 0

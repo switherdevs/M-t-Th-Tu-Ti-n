@@ -47,6 +47,7 @@ AudioMixerGroupController:
   m_Send: 00000000000000000000000000000000
   m_Effects:
   - {fileID: 24400004}
+  - {fileID: 5650347535747816410}
   m_UserColorIndex: 0
   m_Mute: 0
   m_Solo: 0
@@ -76,8 +77,9 @@ AudioMixerSnapshotController:
   m_SnapshotID: 9785a8dbb34086447aa361623c37f3f9
   m_FloatValues:
     ca3ccb105bf8c38439de79cc9506dd68: -0.017639274
-    7e214ac681de29d45bc671eb1c8aa81e: 19.284822
-    bdc4ae49f60b528479594f8ee5d226d8: 0.028544791
+    7e214ac681de29d45bc671eb1c8aa81e: 0
+    bdc4ae49f60b528479594f8ee5d226d8: 0
+    eb3b1c7c0bee15b4aba0eaf7cc279a08: 100
     4907cbcc773e6444f9ceafb6a7e5fa69: 0
   m_TransitionOverrides: {}
 --- !u!244 &2104588723866290592
@@ -113,6 +115,28 @@ AudioMixerGroupController:
   m_Mute: 0
   m_Solo: 0
   m_BypassEffects: 0
+--- !u!244 &5650347535747816410
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: 6c1c7cbcefd450240bfa3350153dbb43
+  m_EffectName: Compressor
+  m_MixLevel: c5f4a77befcd8a14d940f109dad4a4c1
+  m_Parameters:
+  - m_ParameterName: Threshold
+    m_GUID: 2d4330ce2c438534483927b78f540eb9
+  - m_ParameterName: Attack
+    m_GUID: cdfbb8b97a12cd041ac58fcfd20c3840
+  - m_ParameterName: Release
+    m_GUID: eb3b1c7c0bee15b4aba0eaf7cc279a08
+  - m_ParameterName: Make up gain
+    m_GUID: c7ccaad0929f0d34a8d546360d5777d3
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
 --- !u!243 &6604748582655308872
 AudioMixerGroupController:
   m_ObjectHideFlags: 0
@@ -132,6 +156,22 @@ AudioMixerGroupController:
   m_Mute: 0
   m_Solo: 0
   m_BypassEffects: 0
+--- !u!244 &9013945828785055511
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: 780fe4c9636bb7a4297c7aea1d1808d4
+  m_EffectName: Highpass Simple
+  m_MixLevel: 619a300ae135f214ab2e563847b621d4
+  m_Parameters:
+  - m_ParameterName: Cutoff freq
+    m_GUID: 34fe41a19ce41cf439acad90e8b34304
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
 --- !u!244 &9095834748731577312
 AudioMixerEffectController:
   m_ObjectHideFlags: 3

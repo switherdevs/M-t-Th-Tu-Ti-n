@@ -14,11 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: CuuLongKiem
   skillPrefab: {fileID: 8106306527046521838, guid: bd533657b441a1a419eee13bb054a0ad, type: 3}
-  baseDamage: 175
-  cooldownTime: 5
+  defaultDamage: 150
+  defaultCooldown: 7
+  baseDamage: 150
+  cooldownTime: 7
   minCooldownTime: 1
-  manaCost: 30
-  currentLevel: 2
+  manaCost: 50
+  currentLevel: 4
   skillDamage: 80
   aoeRadius: 2.5
   stunDuration: 1.5

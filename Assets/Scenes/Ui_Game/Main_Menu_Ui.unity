@@ -171,6 +171,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9df34c24d9193a44b9e991ce22ceb506, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tuDongAnChinhNo: 1
+  customPanelChaToHide: {fileID: 0}
   objectsToHide:
   - {fileID: 171747925}
 --- !u!114 &11404798
@@ -4817,8 +4819,9 @@ GameObject:
   - component: {fileID: 1327087006}
   - component: {fileID: 1327087008}
   - component: {fileID: 1327087007}
+  - component: {fileID: 1327087009}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: CheDO
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4863,7 +4866,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: "\u0110\u1ED9 kh\xF3"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4890,8 +4893,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -4943,6 +4946,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1327087005}
   m_CullTransparentMesh: 1
+--- !u!114 &1327087009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1327087005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c6a4b84d0216534e936eb03345593fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  englishText: difficulty
 --- !u!1 &1337510790 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -8596930853604061233, guid: b389a531075d41046ac4a85bddc2f0d6, type: 3}
@@ -5197,6 +5213,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9df34c24d9193a44b9e991ce22ceb506, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tuDongAnChinhNo: 1
+  customPanelChaToHide: {fileID: 0}
   objectsToHide:
   - {fileID: 1103644778}
 --- !u!1 &1381313316

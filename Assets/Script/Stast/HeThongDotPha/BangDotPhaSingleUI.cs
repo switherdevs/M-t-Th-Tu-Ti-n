@@ -65,8 +65,10 @@ public class BangDotPhaSingleUI : MonoBehaviour
     public float tocDoMo = 1.5f;
 
     [Header("--- HIỆU ỨNG FLASH LIGHT ---")]
-    [Tooltip("Kéo GameObject Flash Light vào đây (sẽ tự động bật khi đột phá và ẩn sau 2 giây)")]
+    [Tooltip("Kéo GameObject Flash Light vào đây (sẽ tự động bật khi đột phá và ẩn sau 0.2 giây)")]
     public GameObject flashLightObject;
+    [Tooltip("Thời gian Flash Light hiển thị trước khi tự ẩn (giây)")]
+    public float thoiGianAnFlashLight = 0.2f;
 
     [Header("--- CẤU HÌNH ÂM THANH ĐỘT PHÁ ---")]
     [Tooltip("Audio Clip âm thanh phát ra khi đột phá thành công")]
@@ -79,6 +81,7 @@ public class BangDotPhaSingleUI : MonoBehaviour
     public List<SlotUIItemSingle> danhSachSlotUI = new List<SlotUIItemSingle>();
 
     private Coroutine hieuUngThongBaoCoroutine;
+    private Coroutine flashLightCoroutine;
     private CanvasGroup canvasGroup;
 
     private void Awake()
@@ -365,7 +368,7 @@ public class BangDotPhaSingleUI : MonoBehaviour
         // 7. 🎯 PHÁT ÂM THANH ĐỘT PHÁ THÀNH CÔNG (1 LẦN DUY NHẤT)
         PhatAmThanhDotPha();
 
-        // 8. BẬT HIỆU ỨNG FLASH LIGHT VÀ LẬP LỊCH TẮT SAU 2 GIÂY
+        // 8. BẬT HIỆU ỨNG FLASH LIGHT VÀ LẬP LỊCH TẮT SAU 0.2 GIÂY
         KichHoatFlashLight();
 
         CapNhatGiaoDienBang();
@@ -384,20 +387,28 @@ public class BangDotPhaSingleUI : MonoBehaviour
 
     private void KichHoatFlashLight()
     {
-        if (flashLightObject != null)
+        if (flashLightObject == null) return;
+
+        if (flashLightCoroutine != null)
         {
-            flashLightObject.SetActive(true);
-            StartCoroutine(Routine_TatFlashLightSau2Giay());
+            StopCoroutine(flashLightCoroutine);
         }
+
+        flashLightObject.SetActive(true);
+        flashLightCoroutine = StartCoroutine(Routine_TatFlashLightSauThoiGian(thoiGianAnFlashLight));
     }
 
-    private IEnumerator Routine_TatFlashLightSau2Giay()
+    private IEnumerator Routine_TatFlashLightSauThoiGian(float thoiGianCho)
     {
-        yield return new WaitForSeconds(2.0f);
+        // Dùng WaitForSecondsRealtime để flash vẫn tự tắt đúng 0.2s kể cả khi game đang tạm dừng timeScale = 0
+        yield return new WaitForSecondsRealtime(Mathf.Max(0f, thoiGianCho));
+
         if (flashLightObject != null)
         {
             flashLightObject.SetActive(false);
         }
+
+        flashLightCoroutine = null;
     }
 
     private void HienThongBaoDotPhaThanhCong()

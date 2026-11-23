@@ -772,7 +772,7 @@ Transform:
   m_GameObject: {fileID: 428353517}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.1215992, y: 0.00000005147674, z: 0}
+  m_LocalPosition: {x: 3.8921623, y: 0.00000005147674, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2017,7 +2017,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &830294605
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2240,7 +2240,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7928186636557332570, guid: 6bce14eb2469eb24ca3e3ec9c4e6a81a, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9061797586410929477, guid: 6bce14eb2469eb24ca3e3ec9c4e6a81a, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -3100,7 +3100,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7625159656455838923, guid: 7c28b468d4c663e418b13fca1df74957, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4207,6 +4207,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9df34c24d9193a44b9e991ce22ceb506, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tuDongAnChinhNo: 1
+  customPanelChaToHide: {fileID: 0}
   objectsToHide:
   - {fileID: 1666452313}
 --- !u!114 &961466766
@@ -6207,7 +6209,7 @@ MonoBehaviour:
   danhSachUIGameObject:
   - {fileID: 1164739618}
   - {fileID: 830294604}
-  - {fileID: 808744355}
+  - {fileID: 1626895274}
   targetScaleMultiplier: 1.2
   scaleSpeed: 10
   hoverColor: {r: 1, g: 1, b: 1, a: 1}
@@ -7991,9 +7993,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9df34c24d9193a44b9e991ce22ceb506, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tuDongAnChinhNo: 1
+  customPanelChaToHide: {fileID: 0}
   objectsToHide:
   - {fileID: 1164739618}
-  - {fileID: 830294604}
+  - {fileID: 0}
   - {fileID: 808744355}
   - {fileID: 1561297260}
   - {fileID: 1287077821}
@@ -10858,6 +10862,11 @@ PrefabInstance:
       value: "\u0110\u1EA1i hi\u1EC7p mau t\xECm ch\xE1u gi\xFAp l\xE3o \u0111i"
       objectReference: {fileID: 0}
     - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
+      propertyPath: loiThoaiHoiTraQuest
+      value: "\u0110\u1EA1i hi\u1EC7p \u0111\xE3 c\u1EE9u \u0111\u01B0\u1EE3c ch\xE1u
+        t\xF4i ch\u01B0a?"
+      objectReference: {fileID: 0}
+    - target: {fileID: 181372847061755494, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: loiThoaiCamOnHoanThanh
       value: "C\u1EA3m \u01A1n \u01A1n tr\xEAn! \u0110\u1EA1i hi\u1EC7p \u0111\xE3
         c\u1EE9u ch\xE1u c\u1EE7a t\xF4i"
@@ -11104,7 +11113,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3083825720405224107, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3291914348283763777, guid: 9f6e5e2a1632c6b459dbe1a443ea9764, type: 3}
       propertyPath: m_Pivot.x

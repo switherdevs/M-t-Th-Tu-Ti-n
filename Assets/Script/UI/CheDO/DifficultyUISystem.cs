@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // Bổ sung thư viện TextMeshPro
+using TMPro;
 
 public class DifficultyUISystem : MonoBehaviour
 {
@@ -19,7 +19,7 @@ public class DifficultyUISystem : MonoBehaviour
     [SerializeField] private Button btnAsian;
 
     [Header("=== HIỂN THỊ TÊN ĐỘ KHÓ (TEXT MESH PRO) ===")]
-    [SerializeField] private TextMeshProUGUI txtDifficultyName; // Kéo thả UI Text (TMP) vào đây
+    [SerializeField] private TextMeshProUGUI txtDifficultyName;
 
     [Header("=== MÀU SẮC ĐỂ PHÂN BIỆT TRẠNG THÁI NÚT ===")]
     [SerializeField] private Color normalColor = Color.white;
@@ -27,51 +27,92 @@ public class DifficultyUISystem : MonoBehaviour
 
     private const string SAVED_DIFFICULTY_KEY = "GameDifficulty";
     private Button currentlySelectedButton;
+    private bool daDangKySuKien = false;
+
+    private void Awake()
+    {
+        DangKySuKienNut();
+    }
+
+    private void OnEnable()
+    {
+        DangKySuKienNut();
+        DongBoTrangThaiTuSave();
+    }
 
     private void Start()
     {
-        // Gán Sự Kiện Click Cho 4 Nút Bấm
+        if (txtDifficultyName == null)
+        {
+            Debug.LogWarning("[DifficultyUI] Chưa gán 'txtDifficultyName' (TextMeshProUGUI) trên Inspector!");
+        }
+
+        DongBoTrangThaiTuSave();
+    }
+
+    // Đăng ký sự kiện click 1 lần duy nhất, tránh gắn trùng listener khi bật/tắt UI
+    private void DangKySuKienNut()
+    {
+        if (daDangKySuKien) return;
+
         if (btnEasy != null) btnEasy.onClick.AddListener(() => OnSelectDifficulty(DifficultyMode.Easy, btnEasy));
         if (btnNormal != null) btnNormal.onClick.AddListener(() => OnSelectDifficulty(DifficultyMode.Normal, btnNormal));
         if (btnHard != null) btnHard.onClick.AddListener(() => OnSelectDifficulty(DifficultyMode.Hard, btnHard));
         if (btnAsian != null) btnAsian.onClick.AddListener(() => OnSelectDifficulty(DifficultyMode.Asian, btnAsian));
 
-        // Đọc Save Đã Lưu Trước Đó, Mặc Định Là Normal (1) Nếu Chưa Lưu
-        int savedModeIndex = PlayerPrefs.GetInt(SAVED_DIFFICULTY_KEY, (int)DifficultyMode.Normal);
-        DifficultyMode currentMode = (DifficultyMode)savedModeIndex;
+        daDangKySuKien = true;
+    }
 
-        // Bật Nút Tương Ứng Với Save Hiện Tại
-        HighlightSavedButton(currentMode);
+    // Đọc độ khó từ PlayerPrefs và cập nhật cả nút lẫn TextMeshPro
+    public void DongBoTrangThaiTuSave()
+    {
+        int savedModeIndex = PlayerPrefs.GetInt(SAVED_DIFFICULTY_KEY, (int)DifficultyMode.Normal);
+        DifficultyMode currentMode = (DifficultyMode)Mathf.Clamp(savedModeIndex, 0, 3);
+
+        ApDungHienThiDoKho(currentMode, LayButtonTheoMode(currentMode));
     }
 
     private void OnSelectDifficulty(DifficultyMode mode, Button clickedButton)
     {
-        // 1. Nếu Chọn Lại Đúng Nút Đang Được Giữ Thì Không Làm Gì
         if (currentlySelectedButton == clickedButton) return;
 
-        // 2. Bật Nút Cũ Ra (Trả Về Trạng Thái Bình Thường)
-        if (currentlySelectedButton != null)
-        {
-            SetButtonVisual(currentlySelectedButton, false);
-        }
+        ApDungHienThiDoKho(mode, clickedButton);
 
-        // 3. Giữ Nút Mới Được Chọn
-        currentlySelectedButton = clickedButton;
-        SetButtonVisual(currentlySelectedButton, true);
-
-        // 4. Cập nhật TextMeshPro hiển thị tên độ khó bằng tiếng Anh
-        UpdateDifficultyText(mode);
-
-        // 5. Lưu Vào Save File (PlayerPrefs) Ngay Lập Tức
         PlayerPrefs.SetInt(SAVED_DIFFICULTY_KEY, (int)mode);
         PlayerPrefs.Save();
 
         Debug.Log($"<color=yellow>[DifficultyUI]</color> Đã lưu độ khó mới: {mode}");
     }
 
-    private void HighlightSavedButton(DifficultyMode mode)
+    private void ApDungHienThiDoKho(DifficultyMode mode, Button targetButton)
     {
-        Button targetButton = mode switch
+        // Reset màu các nút về bình thường trước khi highlight nút được chọn
+        ResetTatCaNut();
+
+        currentlySelectedButton = targetButton;
+        if (currentlySelectedButton != null)
+        {
+            SetButtonVisual(currentlySelectedButton, true);
+        }
+
+        UpdateDifficultyText(mode);
+    }
+
+    private void ResetTatCaNut()
+    {
+        Button[] allButtons = { btnEasy, btnNormal, btnHard, btnAsian };
+        foreach (Button btn in allButtons)
+        {
+            if (btn != null)
+            {
+                SetButtonVisual(btn, false);
+            }
+        }
+    }
+
+    private Button LayButtonTheoMode(DifficultyMode mode)
+    {
+        return mode switch
         {
             DifficultyMode.Easy => btnEasy,
             DifficultyMode.Normal => btnNormal,
@@ -79,15 +120,6 @@ public class DifficultyUISystem : MonoBehaviour
             DifficultyMode.Asian => btnAsian,
             _ => btnNormal
         };
-
-        if (targetButton != null)
-        {
-            currentlySelectedButton = targetButton;
-            SetButtonVisual(targetButton, true);
-        }
-
-        // Cập nhật Text hiển thị đúng chế độ đã save bằng tiếng Anh khi vừa vào game
-        UpdateDifficultyText(mode);
     }
 
     private void SetButtonVisual(Button btn, bool isSelected)
@@ -98,29 +130,20 @@ public class DifficultyUISystem : MonoBehaviour
             btnImage.color = isSelected ? selectedColor : normalColor;
         }
 
-        // Làm Cho Nút Đang Giữ Bị Vô Hiệu Hóa Click Tạm Thời Để Rõ Ràng Hơn
         btn.interactable = !isSelected;
     }
 
-    // Hàm cập nhật chữ hiển thị trên UI TextMeshPro bằng Tiếng Anh
     private void UpdateDifficultyText(DifficultyMode mode)
     {
         if (txtDifficultyName == null) return;
 
-        switch (mode)
+        txtDifficultyName.text = mode switch
         {
-            case DifficultyMode.Easy:
-                txtDifficultyName.text = "Difficulty: EASY";
-                break;
-            case DifficultyMode.Normal:
-                txtDifficultyName.text = "Difficulty: NORMAL";
-                break;
-            case DifficultyMode.Hard:
-                txtDifficultyName.text = "Difficulty: HARD";
-                break;
-            case DifficultyMode.Asian:
-                txtDifficultyName.text = "Difficulty: ASIAN";
-                break;
-        }
+            DifficultyMode.Easy => "Difficulty: EASY",
+            DifficultyMode.Normal => "Difficulty: NORMAL",
+            DifficultyMode.Hard => "Difficulty: HARD",
+            DifficultyMode.Asian => "Difficulty: ASIAN",
+            _ => "Difficulty: NORMAL"
+        };
     }
 }

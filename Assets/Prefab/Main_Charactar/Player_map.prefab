@@ -518,7 +518,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapGrid: {fileID: 0}
-  targetHighlight: {fileID: 5689187545136164943, guid: 48e5bebd66fa3b747ad12cc563adae74, type: 3}
+  targetHighlight: {fileID: 0}
   checkpointPoint: {fileID: 0}
   dateText: {fileID: 8232743303605582503}
   moveSpeed: 30
@@ -2632,7 +2632,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 592.49994, y: 55.474983}
+  m_AnchoredPosition: {x: 592.49994, y: -28.809036}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4000400389651545651
@@ -3802,7 +3802,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8448111856087003901, guid: 895ec10e27d370d44af5c11272ab41ad, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -311.32867
+      value: -395.61267
       objectReference: {fileID: 0}
     - target: {fileID: 9082051338236302710, guid: 895ec10e27d370d44af5c11272ab41ad, type: 3}
       propertyPath: m_AnchoredPosition.y

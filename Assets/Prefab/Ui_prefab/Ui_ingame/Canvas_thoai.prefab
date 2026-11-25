@@ -134,7 +134,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -479,6 +479,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9df34c24d9193a44b9e991ce22ceb506, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tuDongAnChinhNo: 1
+  customPanelChaToHide: {fileID: 0}
   objectsToHide:
   - {fileID: 3083825720405224107}
 --- !u!1 &3083825720405224107
@@ -601,6 +603,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 634f65bdcee5d0c409a17cf2173ef3e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mapOpen: 0
   uiThoaiRootObject: {fileID: 3083825720405224107}
   txtTenNPC: {fileID: 7508493240043103058}
   txtNoiDungThoai: {fileID: 547285926432112436}
@@ -614,9 +617,12 @@ MonoBehaviour:
   tanSuatPhatAm: 0.08
   questKiemTra: {fileID: 0}
   loiThoaiDaNhanQuest: 
+  loiThoaiHoiTraQuest: "\u0110\u1EA1i hi\u1EC7p \u0111\xE3 c\u1EE9u \u0111\u01B0\u1EE3c
+    ch\xE1u t\xF4i/ho\xE0n th\xE0nh vi\u1EC7c t\xF4i nh\u1EDD ch\u01B0a?"
   loiThoaiCamOnHoanThanh: 
   loiThoaiTamBiet: "H\u1EB9n g\u1EB7p l\u1EA1i \u0111\u1EA1i hi\u1EC7p sau!"
   loiThoaiDaNhanQuestEN: Please help me complete the quest quickly! i cannot wait
+  loiThoaiHoiTraQuestEN: Have you completed the task I asked of you, hero?
   loiThoaiCamOnHoanThanhEN: Thank you! You saved me
   loiThoaiTamBietEN: See you again later!
   chuyenMapKhiTamBiet: 0
@@ -639,12 +645,14 @@ MonoBehaviour:
       hanhDong: 3
       idThoaiTiepTheo: 1
       questDataToAccept: {fileID: 0}
+      tenSceneChuyenDen: 
     suDungNut2: 1
     luaChon2:
       textNut: "V\u1EADy l\xE0m sao \u0111\u1EC3 v\u01B0\u1EE3t qua n\xF3 ?"
       hanhDong: 3
       idThoaiTiepTheo: 1
       questDataToAccept: {fileID: 0}
+      tenSceneChuyenDen: 
   - idThoai: 1
     tenNPC: "H\u1ECDa s\u0129 v\xF4 danh"
     noiDungThoai: "C\u1EADu \xEDt nh\u1EA5t ph\u1EA3i \u0111\u1EA1t c\u1EA3nh gi\u1EDBi
@@ -657,12 +665,14 @@ MonoBehaviour:
       hanhDong: 0
       idThoaiTiepTheo: 2
       questDataToAccept: {fileID: 0}
+      tenSceneChuyenDen: 
     suDungNut2: 0
     luaChon2:
       textNut: "ok t\u1EA1m bi\u1EC7t"
       hanhDong: 2
       idThoaiTiepTheo: 0
       questDataToAccept: {fileID: 0}
+      tenSceneChuyenDen: 
   - idThoai: 2
     tenNPC: "H\u1ECDa s\u0129 v\xF4 danh"
     noiDungThoai: "sao c\u1EADu l\u1EA1i n\xF3i v\u1EADy, c\xF4ng s\u1EE9c c\u1EE7a
@@ -674,12 +684,14 @@ MonoBehaviour:
       hanhDong: 0
       idThoaiTiepTheo: 3
       questDataToAccept: {fileID: 0}
+      tenSceneChuyenDen: 
     suDungNut2: 0
     luaChon2:
       textNut: 
       hanhDong: 3
       idThoaiTiepTheo: 0
       questDataToAccept: {fileID: 0}
+      tenSceneChuyenDen: 
   - idThoai: 3
     tenNPC: "H\u1ECDa s\u0129 v\xF4 danh"
     noiDungThoai: "Ng\u0169 \u0111\u1EA1i hi\u1EC7p, 5 ng\u01B0\u1EDDi tu ti\xEAn
@@ -692,12 +704,14 @@ MonoBehaviour:
       hanhDong: 0
       idThoaiTiepTheo: 4
       questDataToAccept: {fileID: 0}
+      tenSceneChuyenDen: 
     suDungNut2: 0
     luaChon2:
       textNut: "C\xF3 c\xE1i l\u1ED3n"
       hanhDong: 3
       idThoaiTiepTheo: 0
       questDataToAccept: {fileID: 0}
+      tenSceneChuyenDen: 
   - idThoai: 4
     tenNPC: "H\u1ECDa s\u0129 v\xF4 danh"
     noiDungThoai: "kh\xF4ng bi\u1EBFt n\u1EEFa, h\u1ECFi ng\u01B0\u1EDDi kh\xE1c
@@ -708,12 +722,14 @@ MonoBehaviour:
       hanhDong: 3
       idThoaiTiepTheo: 0
       questDataToAccept: {fileID: 0}
+      tenSceneChuyenDen: 
     suDungNut2: 1
     luaChon2:
       textNut: ok skibidi
       hanhDong: 3
       idThoaiTiepTheo: 0
       questDataToAccept: {fileID: 0}
+      tenSceneChuyenDen: 
   danhSachCauThoaiTiengAnh:
   - idThoai: 0
     tenNPC: 
@@ -874,7 +890,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -946,7 +962,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 46.015194, w: -5.1767197}
+  m_margin: {x: 0, y: 0, z: 48.8912, w: -1.7255936}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1011,7 +1027,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1083,7 +1099,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -506.29272, w: -163.36052}
+  m_margin: {x: 0, y: 0, z: 48.8912, w: -1.7255936}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1181,7 +1197,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1253,7 +1269,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: 48.8912, w: -1.7255936}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1318,7 +1334,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1390,7 +1406,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: 48.8912, w: -1.7255936}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

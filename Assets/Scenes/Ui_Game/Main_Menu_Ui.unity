@@ -281,6 +281,7 @@ GameObject:
   - component: {fileID: 18034183}
   - component: {fileID: 18034182}
   - component: {fileID: 18034181}
+  - component: {fileID: 18034184}
   m_Layer: 5
   m_Name: Quit Game
   m_TagString: Untagged
@@ -350,7 +351,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 18034182}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 18034184}
+        m_TargetAssemblyTypeName: GameExitController, Assembly-CSharp
+        m_MethodName: ThoatGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &18034182
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -389,6 +402,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 18034179}
   m_CullTransparentMesh: 1
+--- !u!114 &18034184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 18034179}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6942e3913378724bbc2a112f7729566, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  suDungPhimTat: 0
+  phimThoatGame: 27
 --- !u!1 &28949661 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3297364353584691495, guid: b389a531075d41046ac4a85bddc2f0d6, type: 3}

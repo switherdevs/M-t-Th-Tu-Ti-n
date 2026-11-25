@@ -303,8 +303,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthSlider: {fileID: 3202423190144602004}
+  cavan: {fileID: 0}
   targetStats: {fileID: 1713447433952917287, guid: b93acdf0d92ef4a499dc887f6d00d4df, type: 3}
   isPlayer: 0
+  isBoss: 0
   weaponTag: Kiem
   hideOnDeath: 0
 --- !u!1 &3687252827893390722
@@ -596,12 +598,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96

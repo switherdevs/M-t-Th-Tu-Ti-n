@@ -48,7 +48,13 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
     // 🎯 TƯƠNG TÁC CLICK CHUỘT VÀO CÔNG TRÌNH
     public void OnPointerClick(PointerEventData eventData)
     {
-        // 1. Nếu chuột đang click trực tiếp lên chính bảng UI thì không can thiệp
+        // 1. Nếu bị bất kỳ UI nào có Raycast chặn lại thì không cho click xuyên qua
+        if (BiUIRaycastChanLai(eventData))
+        {
+            return;
+        }
+
+        // 2. Nếu chuột đang click trực tiếp lên chính bảng UI thì không can thiệp
         if (KiemTraChuotDangDeLenChinhBangUI(eventData))
         {
             return;
@@ -70,7 +76,7 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
 
             if (firstValidUI == null) return;
 
-            // 2. Kiểm tra trạng thái hiện tại của UI
+            // 3. Kiểm tra trạng thái hiện tại của UI
             bool dangMo = firstValidUI.activeSelf;
 
             if (!dangMo)
@@ -91,6 +97,32 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
             }
         }
     }
+
+    /// <summary>
+    /// Kiểm tra xem có bất kỳ UI nào đang chặn Raycast tại vị trí con trỏ hay không
+    /// </summary>
+
+    private bool BiUIRaycastChanLai(PointerEventData eventData)
+    {
+        if (EventSystem.current == null || eventData == null)
+            return false;
+
+        List<RaycastResult> results = new List<RaycastResult>();
+
+        EventSystem.current.RaycastAll(eventData, results);
+
+        foreach (RaycastResult result in results)
+        {
+            // Chỉ kiểm tra Raycast đến từ UI
+            if (result.module is GraphicRaycaster)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     /// <summary>
     /// Bắn tia Raycast UI thủ công để kiểm tra xem chuột có đang click TRÚNG vào chính Bảng UI đang bật không
@@ -149,6 +181,8 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
     // 🎯 TƯƠNG TÁC RÊ CHUỘT VÀO / RA
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (BiUIRaycastChanLai(eventData)) return;
+
         if (spriteRenderer != null) spriteRenderer.color = hoverColor;
         StartSmoothScale(targetScale);
     }

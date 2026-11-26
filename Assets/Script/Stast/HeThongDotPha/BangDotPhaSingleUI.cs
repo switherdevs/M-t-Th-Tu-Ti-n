@@ -111,6 +111,8 @@ public class BangDotPhaSingleUI : MonoBehaviour
         {
             flashLightObject.SetActive(false);
         }
+
+        DamBaoRichTextChoCacText();
     }
 
     private void OnEnable()
@@ -124,7 +126,10 @@ public class BangDotPhaSingleUI : MonoBehaviour
         // 3. Kích hoạt chặn raycast của CanvasGroup
         ThietLapChanTuongTacChuyenXuyen(true);
 
-        // 4. Cập nhật dữ liệu
+        // 4. Đảm bảo Rich Text luôn bật trước khi gán chuỗi có thẻ màu
+        DamBaoRichTextChoCacText();
+
+        // 5. Cập nhật dữ liệu
         CapNhatGiaoDienBang();
     }
 
@@ -148,8 +153,38 @@ public class BangDotPhaSingleUI : MonoBehaviour
         }
     }
 
+    private void DamBaoRichTextChoCacText()
+    {
+        SetRichText(textTenCanhGioi);
+        SetRichText(textLevelYeuCau);
+        SetRichText(textSoSanhDamage);
+        SetRichText(textSoSanhMaxHP);
+        SetRichText(textSoSanhArmor);
+        SetRichText(textSoSanhEnergy);
+        SetRichText(textThongBaoNut);
+        SetRichText(textThongBaoDotPha);
+
+        for (int i = 0; i < danhSachSlotUI.Count; i++)
+        {
+            if (danhSachSlotUI[i] != null)
+            {
+                SetRichText(danhSachSlotUI[i].textSoLuong);
+            }
+        }
+    }
+
+    private void SetRichText(TextMeshProUGUI tmp)
+    {
+        if (tmp != null && !tmp.richText)
+        {
+            tmp.richText = true;
+        }
+    }
+
     public void CapNhatGiaoDienBang()
     {
+        DamBaoRichTextChoCacText();
+
         bool isEN = SettingsManager.Instance != null && SettingsManager.Instance.IsEnglish();
         string hienThiTenCanhGioi = (isEN && !string.IsNullOrEmpty(tenCanhGioiMoiEN)) ? tenCanhGioiMoiEN : tenCanhGioiMoi;
 
@@ -193,25 +228,25 @@ public class BangDotPhaSingleUI : MonoBehaviour
         if (textSoSanhDamage != null)
         {
             string labelDmg = isEN ? "Damage: " : "Sát thương: ";
-            textSoSanhDamage.text = $"{labelDmg}{curDmg} <color=green>➔ {curDmg + congDamage} (+{congDamage})</color>";
+            textSoSanhDamage.text = $"{labelDmg}{curDmg} <color=green>-> {curDmg + congDamage} (+{congDamage})</color>";
         }
 
         if (textSoSanhMaxHP != null)
         {
             string labelHP = isEN ? "Max HP: " : "Máu tối đa: ";
-            textSoSanhMaxHP.text = $"{labelHP}{curHP} <color=green>➔ {curHP + congMaxHP} (+{congMaxHP})</color>";
+            textSoSanhMaxHP.text = $"{labelHP}{curHP} <color=green>-> {curHP + congMaxHP} (+{congMaxHP})</color>";
         }
 
         if (textSoSanhArmor != null)
         {
             string labelArmor = isEN ? "Armor: " : "Phòng thủ: ";
-            textSoSanhArmor.text = $"{labelArmor}{curArmor} <color=green>➔ {curArmor + congArmor} (+{congArmor})</color>";
+            textSoSanhArmor.text = $"{labelArmor}{curArmor} <color=green>-> {curArmor + congArmor} (+{congArmor})</color>";
         }
 
         if (textSoSanhEnergy != null)
         {
             string labelEnergy = isEN ? "Energy: " : "Năng lượng: ";
-            textSoSanhEnergy.text = $"{labelEnergy}{curEnergy} <color=green>➔ {curEnergy + congEnergy} (+{congEnergy})</color>";
+            textSoSanhEnergy.text = $"{labelEnergy}{curEnergy} <color=green>-> {curEnergy + congEnergy} (+{congEnergy})</color>";
         }
 
         bool duLevel = playerLevel >= levelYeuCau;

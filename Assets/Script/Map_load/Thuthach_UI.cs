@@ -1,21 +1,20 @@
+
 using UnityEngine;
-using UnityEngine.SceneManagement; // Bắt buộc phải có thư viện này để chuyển Map
+using UnityEngine.SceneManagement;
 
 public class MenuChonAi : MonoBehaviour
 {
     [Header("Cấu Hình Giao Diện UI")]
-    [SerializeField] private GameObject menuChaPanel; // Kéo Object UI Cha vào đây để bật/tắt
+    [SerializeField] private GameObject menuChaPanel;
 
     [Header("Cấu Hình Bản Đồ (Map)")]
-    // Dùng kiểu Object đúng ý bạn để kéo thẳng file Scene từ cửa sổ Project vào
-    [SerializeField] private Object mapThuChachScene;
+    [SerializeField] private string tenScene = "Map_Doantrai";
 
-    // Hàm xử lý khi người chơi nhấn nút Resume (Hủy/Quay lại)
+    // Hàm xử lý khi người chơi nhấn nút Resume
     public void OnClickResume()
     {
         if (menuChaPanel != null)
         {
-            // Tắt Object UI cha đi để ẩn menu lựa chọn
             menuChaPanel.SetActive(false);
         }
     }
@@ -23,18 +22,22 @@ public class MenuChonAi : MonoBehaviour
     // Hàm xử lý khi người chơi nhấn nút Thử Thách
     public void OnClickThuChach()
     {
-        // Kiểm tra an toàn: Nếu bạn quên chưa kéo file Scene vào thì bỏ qua không báo lỗi đỏ
-        if (mapThuChachScene != null)
+        if (string.IsNullOrWhiteSpace(tenScene))
         {
-            // Thuật toán lấy chính xác TÊN của file Scene mà bạn đã kéo vào ô Object
-            string tenMap = mapThuChachScene.name;
+            Debug.LogError("[MenuChonAi] Chưa nhập tên Scene!");
+            return;
+        }
 
-            // Kích hoạt lệnh của Unity để chuyển ngay sang Map mới dựa theo tên vừa lấy được
-            SceneManager.LoadScene(tenMap);
-        }
-        else
+        // Kiểm tra Scene có tồn tại trong Build hay không
+        if (!Application.CanStreamedLevelBeLoaded(tenScene))
         {
-            Debug.LogWarning("Bạn ơi, bạn chưa kéo file Scene của Map mới vào ô 'Map Thu Chach Scene' rồi!");
+            Debug.LogError("[MenuChonAi] Không tìm thấy Scene trong Build: " + tenScene);
+            return;
         }
+
+        Debug.Log("[MenuChonAi] Đang chuyển Scene: " + tenScene);
+
+        // Chuyển sang bản đồ thử thách
+        SceneManager.LoadScene(tenScene);
     }
 }

@@ -1328,6 +1328,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9df34c24d9193a44b9e991ce22ceb506, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tuDongAnChinhNo: 1
+  customPanelChaToHide: {fileID: 7625159656455838923}
   objectsToHide:
   - {fileID: 7625159656455838923}
   - {fileID: 0}
@@ -4768,6 +4770,7 @@ MonoBehaviour:
   fadeOutDuration: 0.5
   maxQuestWarningTextVI: "B\u1EA1n ch\u1EC9 c\xF3 th\u1EC3 nh\u1EADn t\u1ED1i \u0111a
     3 nhi\u1EC7m v\u1EE5 c\xF9ng l\xFAc!"
+  maxQuestWarningTextEN: You can only accept a maximum of 3 quests at the same time!
   activeQuests:
   - {fileID: 0}
   - {fileID: 0}

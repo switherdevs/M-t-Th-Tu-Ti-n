@@ -18,15 +18,31 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
     [Header("--- CẤU HÌNH ĐỔI MÀU (HIGHLIGHT) ---")]
     [SerializeField] private Color hoverColor = new Color(1f, 1f, 1f, 1f);
 
+    [Header("--- CẤU HÌNH COLLIDER ---")]
+    [Tooltip("Tick chọn nếu bắt buộc phải có Collider hợp lệ mới cho tương tác; bỏ tick để chạy như script gốc")]
+    [SerializeField] private bool dungCollider = false;
+
+    [Header("--- CẤU HÌNH BUTTON ---")]
+    [Tooltip("Tick chọn nếu muốn kích hoạt bật/tắt UI thông qua các Button; bỏ tick để chạy như script gốc")]
+    [SerializeField] private bool dungButton = false;
+    [Tooltip("Danh sách Button dùng để mở/đóng UI (Nếu để trống khi tick Dung Button, script sẽ tự tìm Button liên quan)")]
+    [SerializeField] private List<Button> danhSachButtonDieuKhien = new List<Button>();
+
     private SpriteRenderer spriteRenderer;
+    private Collider2D collider2DComponent;
+    private Collider collider3DComponent;
     private Color originalColor;
     private Vector3 originalScale;
     private Vector3 targetScale;
     private Coroutine scaleCoroutine;
+    private readonly List<Button> buttonDaDangKy = new List<Button>();
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        collider2DComponent = GetComponent<Collider2D>();
+        collider3DComponent = GetComponent<Collider>();
+
         if (spriteRenderer != null)
         {
             originalColor = spriteRenderer.color;
@@ -39,27 +55,140 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
         // ĐỂ TRÁNH XUNG ĐỘT VỚI SCRIPT RESUME / ĐÓNG UI.
     }
 
+    private void OnEnable()
+    {
+        if (dungButton)
+        {
+            DangKySuKienButton();
+            CapNhatTrangThaiButton();
+        }
+    }
+
+    private void OnDisable()
+    {
+        HuyDangKySuKienButton();
+    }
+
     private void Start()
     {
         // Chỉ gán danh sách nếu chưa có, hoàn toàn không tự động setactive ép buộc
         KiemTraVaBoSungUI();
+
+        if (dungButton)
+        {
+            DangKySuKienButton();
+            CapNhatTrangThaiButton();
+        }
     }
 
-    // 🎯 TƯƠNG TÁC CLICK CHUỘT VÀO CÔNG TRÌNH
-    public void OnPointerClick(PointerEventData eventData)
+    private void DangKySuKienButton()
     {
-        // 1. Nếu bị bất kỳ UI nào có Raycast chặn lại thì không cho click xuyên qua
-        if (BiUIRaycastChanLai(eventData))
+        HuyDangKySuKienButton();
+        KiemTraVaBoSungUI();
+
+        List<Button> danhSachCanDung = new List<Button>();
+
+        if (danhSachButtonDieuKhien != null && danhSachButtonDieuKhien.Count > 0)
         {
-            return;
+            for (int i = 0; i < danhSachButtonDieuKhien.Count; i++)
+            {
+                Button btn = danhSachButtonDieuKhien[i];
+                if (btn != null && !danhSachCanDung.Contains(btn))
+                {
+                    danhSachCanDung.Add(btn);
+                }
+            }
+        }
+        else
+        {
+            GetComponentsInChildren<Button>(true, danhSachCanDung);
+
+            if (danhSachUIGameObject != null)
+            {
+                for (int i = 0; i < danhSachUIGameObject.Count; i++)
+                {
+                    GameObject uiObj = danhSachUIGameObject[i];
+                    if (uiObj == null) continue;
+
+                    Button[] buttonsTrongUI = uiObj.GetComponentsInChildren<Button>(true);
+                    for (int j = 0; j < buttonsTrongUI.Length; j++)
+                    {
+                        if (buttonsTrongUI[j] != null && !danhSachCanDung.Contains(buttonsTrongUI[j]))
+                        {
+                            danhSachCanDung.Add(buttonsTrongUI[j]);
+                        }
+                    }
+                }
+            }
         }
 
-        // 2. Nếu chuột đang click trực tiếp lên chính bảng UI thì không can thiệp
-        if (KiemTraChuotDangDeLenChinhBangUI(eventData))
+        for (int i = 0; i < danhSachCanDung.Count; i++)
         {
-            return;
+            Button btn = danhSachCanDung[i];
+            if (btn != null)
+            {
+                btn.onClick.AddListener(OnButtonClick);
+                buttonDaDangKy.Add(btn);
+            }
+        }
+    }
+
+    private void HuyDangKySuKienButton()
+    {
+        for (int i = 0; i < buttonDaDangKy.Count; i++)
+        {
+            if (buttonDaDangKy[i] != null)
+            {
+                buttonDaDangKy[i].onClick.RemoveListener(OnButtonClick);
+            }
+        }
+        buttonDaDangKy.Clear();
+    }
+
+    private void CapNhatTrangThaiButton()
+    {
+        if (!dungButton) return;
+
+        bool choPhepTuongTac = CoColliderHopLe();
+        for (int i = 0; i < buttonDaDangKy.Count; i++)
+        {
+            if (buttonDaDangKy[i] != null)
+            {
+                buttonDaDangKy[i].interactable = choPhepTuongTac;
+            }
+        }
+    }
+
+    public void OnButtonClick()
+    {
+        if (!dungButton) return;
+        if (!CoColliderHopLe()) return;
+
+        ChuyenDoiTrangThaiDanhSachUI();
+        CapNhatTrangThaiButton();
+    }
+
+    private bool CoColliderHopLe()
+    {
+        if (!dungCollider) return true;
+
+        if (collider2DComponent == null)
+        {
+            collider2DComponent = GetComponent<Collider2D>();
+        }
+        if (collider3DComponent == null)
+        {
+            collider3DComponent = GetComponent<Collider>();
         }
 
+        bool valid2D = collider2DComponent != null && collider2DComponent.enabled && collider2DComponent.gameObject.activeInHierarchy;
+        bool valid3D = collider3DComponent != null && collider3DComponent.enabled && collider3DComponent.gameObject.activeInHierarchy;
+
+        return valid2D || valid3D;
+    }
+
+    private void ChuyenDoiTrangThaiDanhSachUI()
+    {
         KiemTraVaBoSungUI();
 
         if (danhSachUIGameObject != null && danhSachUIGameObject.Count > 0)
@@ -76,7 +205,6 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
 
             if (firstValidUI == null) return;
 
-            // 3. Kiểm tra trạng thái hiện tại của UI
             bool dangMo = firstValidUI.activeSelf;
 
             if (!dangMo)
@@ -98,10 +226,33 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
         }
     }
 
+    // 🎯 TƯƠNG TÁC CLICK CHUỘT VÀO CÔNG TRÌNH
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (!CoColliderHopLe())
+        {
+            return;
+        }
+
+        // 1. Nếu bị bất kỳ UI nào có Raycast chặn lại thì không cho click xuyên qua
+        if (BiUIRaycastChanLai(eventData))
+        {
+            return;
+        }
+
+        // 2. Nếu chuột đang click trực tiếp lên chính bảng UI thì không can thiệp
+        if (KiemTraChuotDangDeLenChinhBangUI(eventData))
+        {
+            return;
+        }
+
+        ChuyenDoiTrangThaiDanhSachUI();
+        CapNhatTrangThaiButton();
+    }
+
     /// <summary>
     /// Kiểm tra xem có bất kỳ UI nào đang chặn Raycast tại vị trí con trỏ hay không
     /// </summary>
-
     private bool BiUIRaycastChanLai(PointerEventData eventData)
     {
         if (EventSystem.current == null || eventData == null)
@@ -122,7 +273,6 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
 
         return false;
     }
-
 
     /// <summary>
     /// Bắn tia Raycast UI thủ công để kiểm tra xem chuột có đang click TRÚNG vào chính Bảng UI đang bật không
@@ -181,6 +331,7 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
     // 🎯 TƯƠNG TÁC RÊ CHUỘT VÀO / RA
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (!CoColliderHopLe()) return;
         if (BiUIRaycastChanLai(eventData)) return;
 
         if (spriteRenderer != null) spriteRenderer.color = hoverColor;
@@ -189,6 +340,8 @@ public class BuildingInteraction : MonoBehaviour, IPointerClickHandler, IPointer
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        if (!CoColliderHopLe()) return;
+
         if (spriteRenderer != null) spriteRenderer.color = originalColor;
         StartSmoothScale(originalScale);
     }

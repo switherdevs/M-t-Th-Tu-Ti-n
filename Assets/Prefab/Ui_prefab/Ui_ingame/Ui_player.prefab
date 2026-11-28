@@ -1924,6 +1924,9 @@ MonoBehaviour:
   targetScaleMultiplier: 1.2
   scaleSpeed: 10
   hoverColor: {r: 1, g: 1, b: 1, a: 1}
+  dungCollider: 0
+  dungButton: 0
+  danhSachButtonDieuKhien: []
 --- !u!1 &4783721373995085720
 GameObject:
   m_ObjectHideFlags: 0
@@ -2743,6 +2746,9 @@ MonoBehaviour:
   targetScaleMultiplier: 0.5
   scaleSpeed: 10
   hoverColor: {r: 1, g: 1, b: 1, a: 1}
+  dungCollider: 0
+  dungButton: 0
+  danhSachButtonDieuKhien: []
 --- !u!61 &7503492537175268205
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3467,6 +3473,10 @@ MonoBehaviour:
   targetScaleMultiplier: 1.2
   scaleSpeed: 10
   hoverColor: {r: 1, g: 1, b: 1, a: 1}
+  dungCollider: 0
+  dungButton: 1
+  danhSachButtonDieuKhien:
+  - {fileID: 764837646960791139}
 --- !u!1 &7932781524586769042
 GameObject:
   m_ObjectHideFlags: 0
@@ -4121,3 +4131,6 @@ MonoBehaviour:
   targetScaleMultiplier: 1.2
   scaleSpeed: 10
   hoverColor: {r: 1, g: 1, b: 1, a: 1}
+  dungCollider: 0
+  dungButton: 0
+  danhSachButtonDieuKhien: []
